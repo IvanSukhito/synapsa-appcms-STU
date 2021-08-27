@@ -14,6 +14,7 @@ class CreateDoktorTable extends Migration
     public function up()
     {
         Schema::create('doktor', function (Blueprint $table) {
+            $table->id();
             $table->unsignedBigInteger('klinik_id')->default(0);
             $table->unsignedBigInteger('sub_district_id')->default(0);
             $table->unsignedBigInteger('district_id')->default(0);
@@ -29,6 +30,7 @@ class CreateDoktorTable extends Migration
             $table->date('birthday')->nullable();
             $table->integer('gender')->default(1);
             $table->text('upload_ktp')->default(1);
+            $table->timestamps();
         });
     }
 
