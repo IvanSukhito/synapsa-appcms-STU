@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUsersTable extends Migration
+class CreateDoktorTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,7 @@ class CreateUsersTable extends Migration
      */
     public function up()
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->bigIncrements('id');
+        Schema::create('doktor', function (Blueprint $table) {
             $table->unsignedBigInteger('klinik_id')->default(0);
             $table->unsignedBigInteger('sub_district_id')->default(0);
             $table->unsignedBigInteger('district_id')->default(0);
@@ -30,7 +29,6 @@ class CreateUsersTable extends Migration
             $table->date('tgl_lahir')->nullable();
             $table->integer('gender')->default(1);
             $table->text('upload_ktp')->default(1);
-            $table->timestamps();
         });
     }
 
@@ -41,6 +39,6 @@ class CreateUsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('doktor');
     }
 }
