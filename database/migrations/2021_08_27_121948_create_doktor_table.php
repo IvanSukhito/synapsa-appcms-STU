@@ -26,7 +26,7 @@ class CreateDoktorTable extends Migration
             $table->string('address')->nullable();
             $table->text('address_detail')->nullable();
             $table->string('zipCode')->nullable();
-            $table->date('tgl_lahir')->nullable();
+            $table->date('birthday')->nullable();
             $table->integer('gender')->default(1);
             $table->text('upload_ktp')->default(1);
         });
