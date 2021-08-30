@@ -9,7 +9,7 @@ class City extends Model
     protected $table = 'city';
     protected $primaryKey = 'id';
     protected $fillable = [
-      'name',
+      'name'
 
     ];
 

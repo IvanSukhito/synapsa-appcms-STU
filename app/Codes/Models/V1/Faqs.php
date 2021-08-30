@@ -9,7 +9,7 @@ class Faqs extends Model
     protected $table = 'faqs';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'question'
+        'question',
         'answer',
         'orders',
         'created_by',

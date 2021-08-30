@@ -12,7 +12,7 @@ class UsersAddress extends Model
       'user_id',
       'city_id',
       'district_id',
-      'sub_district_id'
+      'sub_district_id',
       'address_name',
       'address',
       'address_detail',

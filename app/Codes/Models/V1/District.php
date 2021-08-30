@@ -10,8 +10,7 @@ class District extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'city_id',
-        'name',
-
+        'name'
     ];
 
     public function getCity()
