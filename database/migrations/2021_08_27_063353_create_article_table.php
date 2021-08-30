@@ -14,8 +14,8 @@ class CreateArticleTable extends Migration
     public function up()
     {
         Schema::create('article', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->unsignedBigInteger('user_id')->default(0);
+            $table->id();
+            $table->unsignedBigInteger('article_category_id')->default(0);
             $table->string('title')->nullable();
             $table->string('slugs')->nullable();
             $table->text('thumbnail_img')->nullable();
@@ -26,6 +26,10 @@ class CreateArticleTable extends Migration
             $table->string('created_by')->nullable();
             $table->string('updated_by')->nullable();
             $table->timestamps();
+            $table->foreign('article_category_id', 'arcat_rel')
+                ->references('id')->on('article_category')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
         });
     }
 

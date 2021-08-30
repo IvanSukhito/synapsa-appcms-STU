@@ -14,7 +14,7 @@ class CreateCityTable extends Migration
     public function up()
     {
         Schema::create('city', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->id();
             $table->string('name')->nullable();
             $table->timestamps();
         });

@@ -19,10 +19,15 @@ class CreateNotificationsTable extends Migration
             $table->string('title')->nullable();
             $table->string('message')->nullable();
             $table->longtext('content')->nullable();
+            $table->text('target')->nullable();
             $table->tinyInteger('is_read')->default(1);
             $table->enum("type", ["notifications", "message"]);
             $table->datetime('date')->nullable();
             $table->timestamps();
+            $table->foreign('user_id', 'users_not_rel')
+                ->references('id')->on('users')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
         });
     }
 

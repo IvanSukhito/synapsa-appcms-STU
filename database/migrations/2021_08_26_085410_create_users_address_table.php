@@ -14,16 +14,21 @@ class CreateUsersAddressTable extends Migration
     public function up()
     {
         Schema::create('users_address', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->id();
             $table->unsignedBigInteger('user_id')->default(0);
-            $table->unsignedBigInteger('sub_district_id')->default(0);
-            $table->unsignedBigInteger('district_id')->default(0);
             $table->unsignedBigInteger('city_id')->default(0);
-            $table->string('name')->nullable();
+            $table->unsignedBigInteger('district_id')->default(0);
+            $table->unsignedBigInteger('sub_district_id')->default(0);
+            $table->string('address_name')->nullable();
             $table->string('address')->nullable();
             $table->text('address_detail')->nullable();
-            $table->string('zipCode')->nullable();
+            $table->string('zip_code')->nullable();
             $table->timestamps();
+            $table->index(['id', 'user_id'], 'users_add_in');
+            $table->foreign('user_id', 'users_add_rel')
+                ->references('id')->on('users')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
         });
     }
 

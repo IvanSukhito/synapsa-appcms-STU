@@ -14,18 +14,21 @@ class CreateProductTable extends Migration
     public function up()
     {
         Schema::create('product', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->id();
+            $table->unsignedBigInteger('product_category_id')->default(0);
+            $table->string('sku')->nullable();
             $table->string('name')->nullable();
-            $table->decimal('price')->nullable();
-            $table->string('gambar')->nullable();
-            $table->integer('satuan')->nullable();
-            $table->integer('sku')->nullable();
-            $table->integer('stock')->nullable();
-            $table->integer('stock_flag')->nullable();
+            $table->text('image')->nullable();
+            $table->decimal('price', 26, 2)->nullable();
+            $table->string('unit')->nullable();
             $table->text('desc')->nullable();
-
-
+            $table->integer('stock')->default(0);
+            $table->integer('stock_flag')->default(0);
             $table->timestamps();
+            $table->foreign('product_category_id', 'procat_rel')
+                ->references('id')->on('product_category')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
         });
     }
 

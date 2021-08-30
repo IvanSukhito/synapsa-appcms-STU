@@ -17,7 +17,7 @@ class CreateFaqsTable extends Migration
             $table->id();
             $table->text('question')->nullable();
             $table->text('answer')->nullable();
-            $table->integer('order')->nullable();
+            $table->integer('orders')->default(1);
             $table->string('created_by')->nullable();
             $table->string('updated_by')->nullable();
             $table->timestamps();
