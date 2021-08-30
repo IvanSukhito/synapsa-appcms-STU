@@ -17,7 +17,6 @@ class UsersAddress extends Model
       'address',
       'address_detail',
       'zip_code'
-
     ];
 
 

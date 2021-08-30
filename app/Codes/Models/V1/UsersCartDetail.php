@@ -4,16 +4,15 @@ namespace App\Codes\Models\V1;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Faqs extends Model
+class UsersCartDetail extends Model
 {
-    protected $table = 'faqs';
+    protected $table = 'users_cart_detail';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'question',
-        'answer',
-        'orders',
-        'created_by',
-        'updated_by'
+      'users_cart_id',
+      'product_id',
+      'qty'
+
     ];
 
 

@@ -14,7 +14,6 @@ class LogEmail extends Model
         'browser',
         'ip_address',
         'trigger'
-
     ];
 
 

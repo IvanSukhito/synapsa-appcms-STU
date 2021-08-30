@@ -14,7 +14,6 @@ class LogPhone extends Model
         'browser',
         'ip_address',
         'trigger'
-
     ];
 
 

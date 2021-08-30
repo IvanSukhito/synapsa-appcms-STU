@@ -14,10 +14,12 @@ class Sliders extends Model
         'target',
         'orders',
         'status'
-
-
     ];
 
+    public function getUploadSlidersImage()
+    {
+        return strlen($this->image) > 0 ? asset('uploads/users/'.$this->image) : asset('assets/cms/images/no-img.png');
+    }
 
 
 

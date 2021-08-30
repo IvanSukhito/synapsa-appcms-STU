@@ -17,8 +17,6 @@ class Notifications extends Model
         'is_read',
         'type',
         'date'
-
-
     ];
 
 

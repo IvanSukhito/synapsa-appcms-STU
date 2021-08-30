@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUsersCartTable extends Migration
+class CreateForgetPasswordTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,14 @@ class CreateUsersCartTable extends Migration
      */
     public function up()
     {
-        Schema::create('users_cart', function (Blueprint $table) {
+        Schema::create('forget_password', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('users_id')->default(0);
-            $table->text('detail_address')->nullable();
-            $table->text('detail_shipping')->nullable();
-            $table->text('detail_information')->nullable();
+            $table->string('email')->nullable();
+            $table->string('code')->nullable();
+            $table->tinyInteger('status')->default(1);
+            $table->string('attempt')->nullable();
             $table->timestamps();
-         
         });
     }
 
@@ -31,6 +31,6 @@ class CreateUsersCartTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users_cart');
+        Schema::dropIfExists('forget_password');
     }
 }
