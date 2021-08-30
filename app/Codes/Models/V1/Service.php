@@ -14,9 +14,13 @@ class Service extends Model
     ];
 
     
-    public function getService()
+    public function getDoctor()
     {
         return $this->belongsToMany(Doctor::class, 'doctor-service', 'doctor_id', 'service_id');
+    }
+    public function getLab()
+    {
+        return $this->belongsToMany(Lab::class, 'lab-service', 'lab_id', 'service_id');
     }
 
 

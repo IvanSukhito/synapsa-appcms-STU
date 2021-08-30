@@ -10,13 +10,12 @@ class SubDistrict extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'district_id',
-        'name',
-
+        'name'
     ];
 
     public function getDistricy()
     {
-        return $this->belongsTo(DistrictCategory::class, 'district_id', 'id');
+        return $this->belongsTo(District::class, 'district_id', 'id');
     }
 
 
