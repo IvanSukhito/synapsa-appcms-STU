@@ -43,6 +43,19 @@ class Kernel extends HttpKernel
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\CORSMiddleware::class,
+        ],
+        'adminLogin' => [
+            'adminLogin' => \App\Http\Middleware\AdminLogin::class
+        ],
+        'adminHaveLogin' => [
+            'adminHaveLogin' => \App\Http\Middleware\AdminHaveLogin::class
+        ],
+        'adminAccessPermission' => [
+            'adminAccessPermission' => \App\Http\Middleware\AdminAccessPermission::class
+        ],
+        'jwtToken' => [
+            'jwtToken' => \App\Http\Middleware\JwtToken::class
         ],
     ];
 
@@ -63,5 +76,6 @@ class Kernel extends HttpKernel
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        'preventBackHistory' => \App\Http\Middleware\PreventBackHistory::class,
     ];
 }

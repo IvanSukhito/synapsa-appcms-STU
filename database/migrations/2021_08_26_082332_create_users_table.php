@@ -33,6 +33,8 @@ class CreateUsersTable extends Migration
             $table->tinyInteger('patient')->default(1);
             $table->tinyInteger('doctor')->default(1);
             $table->tinyInteger('nurse')->default(1);
+            $table->tinyInteger('verification_phone')->default(1);
+            $table->tinyInteger('verification_email')->default(1);
             $table->timestamps();
         });
     }
