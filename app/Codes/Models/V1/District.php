@@ -15,7 +15,7 @@ class District extends Model
 
     public function getCity()
     {
-        return $this->belongsTo(CityCategory::class, 'city_id', 'id');
+        return $this->belongsTo(City::class, 'city_id', 'id');
     }
 
     public function getSubDistrict(){

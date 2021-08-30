@@ -22,12 +22,18 @@ class Product extends Model
 
     public function getCategory()
     {
-        return $this->belongsTo(ProductCategory::class, 'product_category_id', 'id');
+        return $this->belongsTo(Product::class, 'product_category_id', 'id');
     }
 
     public function getTagging()
     {
         return $this->belongsToMany(Tagging::class, 'product_tagging', 'product_id', 'tagging_id');
     }
+
+    public function getUploadProductImage()
+    {
+        return strlen($this->image) > 0 ? asset('uploads/users/'.$this->image) : asset('assets/cms/images/no-img.png');
+    }
+
 
 }

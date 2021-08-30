@@ -37,7 +37,7 @@ class Users extends Model
 
     public function getUploadKtpAttribute()
     {
-        return strlen($this->image) > 0 ? asset('uploads/users/'.$this->image) : asset('assets/html/images/register.svg');
+        return strlen($this->image) > 0 ? asset('uploads/users/'.$this->image) : asset('assets/cms/images/no-img.png');
     }
 
 }
