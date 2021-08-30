@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateProductTaggingTable extends Migration
+class CreateDoctorServiceTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,15 +13,15 @@ class CreateProductTaggingTable extends Migration
      */
     public function up()
     {
-        Schema::create('product_tagging', function (Blueprint $table) {
-            $table->unsignedBigInteger('product_id')->default(0);
-            $table->unsignedBigInteger('tagging_id')->default(0);
-            $table->foreign('product_id', 'prod1_rel')
-                ->references('id')->on('product')
+        Schema::create('doctor_service', function (Blueprint $table) {
+            $table->unsignedBigInteger('service_id')->default(0);
+            $table->unsignedBigInteger('doctor_id')->default(0);
+            $table->foreign('service_id', 'serv1_rel')
+                ->references('id')->on('service')
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
-            $table->foreign('tagging_id', 'protag2_rel')
-                ->references('id')->on('tagging')
+            $table->foreign('doctor_id', 'doct2_rel')
+                ->references('id')->on('doctor')
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
         });
@@ -34,6 +34,6 @@ class CreateProductTaggingTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('product_tagging');
+        Schema::dropIfExists('doctor_service');
     }
 }
