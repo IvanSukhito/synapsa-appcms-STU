@@ -38,7 +38,7 @@ class Users extends Model implements JWTSubject
 
     public function getUploadKtpFullAttribute()
     {
-        return strlen($this->image) > 0 ? asset('uploads/users/'.$this->image) : asset('assets/cms/images/no-img.png');
+        return strlen($this->upload_ktp) > 0 ? asset('uploads/users/'.$this->upload_ktp) : asset('assets/cms/images/no-img.png');
     }
 
     public function getDeviceToken()

@@ -31,7 +31,7 @@ class JwtToken
                 $refresh_token = (string)$token;
             }
 
-            if ($user->status == 1) {
+            if (in_array($user->status, [80])) {
                 if (in_array($user->lang, ['id'])) {
                     App::setLocale($user->lang);
                 }
@@ -48,7 +48,7 @@ class JwtToken
                     'success' => 0,
                     'login' => 1,
                     'message' => ['User inactive'],
-                ]);
+                ], 403);
             }
         }
         catch (TokenInvalidException $e) {
@@ -56,21 +56,21 @@ class JwtToken
                 'success' => 0,
                 'login' => 1,
                 'message' => [$e->getMessage()],
-            ]);
+            ], 403);
         }
         catch (JWTException $e) {
             return response()->json([
                 'success' => 0,
                 'login' => 1,
                 'message' => [$e->getMessage()],
-            ]);
+            ], 403);
         }
         catch (\Exception $e) {
             return response()->json([
                 'success' => 0,
                 'login' => 1,
                 'message' => [$e->getMessage()],
-            ]);
+            ], 403);
         }
 
     }

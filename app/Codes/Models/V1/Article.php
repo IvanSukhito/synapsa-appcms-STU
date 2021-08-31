@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Article extends Model
 {
-    protected $table = 'tagging';
+    protected $table = 'article';
     protected $primaryKey = 'id';
     protected $fillable = [
         'article_category_id',

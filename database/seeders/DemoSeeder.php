@@ -36,16 +36,18 @@ class DemoSeeder extends Seeder
             ]);
         }
         //Article Category
-        DB::table('article_category')->insertGetId([
-            'id' => 1,
-            'name' => 'DEMO ', 
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
-        ]);
+        for ($i=1; $i<=10; $i++) {
+            DB::table('article_category')->insertGetId([
+                'name' => 'DEMO '.$i,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ]);
+        }
+
         //Article
-        for($i=1; $i<=100; $i++) {
+        for($i=1; $i<=200; $i++) {
             DB::table('article')->insertGetId([
-                'article_category_id' => 1,
+                'article_category_id' => rand(1,10),
                 'title' => 'DEMO '.$i,
                 'slugs' => 'DEMO '.$i,
                 'thumbnail_img' => 'Images.Png',
@@ -54,7 +56,7 @@ class DemoSeeder extends Seeder
                 'preview' => '',
                 'publish_status' => 2,
                 'created_by' => 'demo'.$i.'@mailinator.com',
-                'updated_by' => 'demo'.$i.'@mailinator.com',    
+                'updated_by' => 'demo'.$i.'@mailinator.com',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
