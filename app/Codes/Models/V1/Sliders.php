@@ -16,7 +16,12 @@ class Sliders extends Model
         'status'
     ];
 
-    public function getUploadSlidersImage()
+    protected $appends = [
+        'upload_sliders_image'
+    ];
+
+
+    public function getUploadSlidersImageAttribute()
     {
         return strlen($this->image) > 0 ? asset('uploads/users/'.$this->image) : asset('assets/cms/images/no-img.png');
     }

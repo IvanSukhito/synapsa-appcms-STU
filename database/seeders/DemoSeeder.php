@@ -35,6 +35,29 @@ class DemoSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ]);
         }
-
+        //Article Category
+        DB::table('article_category')->insertGetId([
+            'id' => 1,
+            'name' => 'DEMO ', 
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
+        //Article
+        for($i=1; $i<=100; $i++) {
+            DB::table('article')->insertGetId([
+                'article_category_id' => 1,
+                'title' => 'DEMO '.$i,
+                'slugs' => 'DEMO '.$i,
+                'thumbnail_img' => 'Images.Png',
+                'image' => 'Images.Png',
+                'content' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+                'preview' => '',
+                'publish_status' => 2,
+                'created_by' => 'demo'.$i.'@mailinator.com',
+                'updated_by' => 'demo'.$i.'@mailinator.com',    
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ]);
+        }
     }
 }

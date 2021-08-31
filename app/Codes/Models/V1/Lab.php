@@ -20,6 +20,10 @@ class Lab extends Model
         'recommended_for'
     ];
 
+    protected $appends = [
+        'upload_lab_image'
+    ];
+
  
 
     
@@ -33,7 +37,7 @@ class Lab extends Model
         return $this->hasMany(LabSchedule::class, 'lab_id', 'id');
     }
     
-    public function getUploadLabImage()
+    public function getUploadLabImageAttribute()
     {
         return strlen($this->image) > 0 ? asset('uploads/users/'.$this->image) : asset('assets/cms/images/no-img.png');
     }

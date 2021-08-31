@@ -17,8 +17,14 @@ use Illuminate\Support\Facades\Route;
 // Login Only
 Route::group(['middleware' => ['jwtToken']], function () use ($router) {
     Route::post('check-login', ['uses' => 'App\Http\Controllers\API\V1\HomeController@login'])->name('api.check-login');
+   
+    Route::get('article', ['uses' => 'App\Http\Controllers\API\V1\ArticleController@getArticle'])->name('api.article');
+    Route::get('article/{id}', ['uses' => 'App\Http\Controllers\API\V1\ArticleController@getArticleDetail'])->name('api.article');
+
+
 });
 // Non Login
+   
 Route::post('login', ['uses' => 'App\Http\Controllers\API\V1\GeneralController@login'])->name('api.login');
 Route::get('logout', ['uses' => 'App\Http\Controllers\API\V1\GeneralController@logout'])->name('api.logout');
 

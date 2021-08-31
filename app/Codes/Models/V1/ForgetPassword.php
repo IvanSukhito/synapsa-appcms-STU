@@ -9,7 +9,7 @@ class ForgetPassword extends Model
     protected $table = 'forget_password';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'user_id',
+        'users_id',
         'email',
         'code',
         'status',

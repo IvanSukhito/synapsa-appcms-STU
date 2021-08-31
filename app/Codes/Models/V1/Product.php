@@ -20,6 +20,11 @@ class Product extends Model
         'stock_flag'
     ];
 
+    protected $appends = [
+        'upload_product_image'
+    ];
+
+
     public function getCategory()
     {
         return $this->belongsTo(ProductCategory::class, 'product_category_id', 'id');
@@ -30,7 +35,7 @@ class Product extends Model
         return $this->belongsToMany(Tagging::class, 'product_tagging', 'product_id', 'tagging_id');
     }
 
-    public function getUploadProductImage()
+    public function getUploadProductImageAttribute()
     {
         return strlen($this->image) > 0 ? asset('uploads/users/'.$this->image) : asset('assets/cms/images/no-img.png');
     }

@@ -36,7 +36,7 @@ class Users extends Model implements JWTSubject
         'upload_ktp_full'
     ];
 
-    public function getUploadKtpAttribute()
+    public function getUploadKtpFullAttribute()
     {
         return strlen($this->image) > 0 ? asset('uploads/users/'.$this->image) : asset('assets/cms/images/no-img.png');
     }

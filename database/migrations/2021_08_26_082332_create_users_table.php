@@ -30,11 +30,12 @@ class CreateUsersTable extends Migration
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
             $table->string('password')->nullable();
-            $table->tinyInteger('patient')->default(1);
-            $table->tinyInteger('doctor')->default(1);
-            $table->tinyInteger('nurse')->default(1);
-            $table->tinyInteger('verification_phone')->default(1);
-            $table->tinyInteger('verification_email')->default(1);
+            $table->tinyInteger('patient')->default(0);
+            $table->tinyInteger('doctor')->default(0);
+            $table->tinyInteger('nurse')->default(0);
+            $table->tinyInteger('verification_phone')->default(0);
+            $table->tinyInteger('verification_email')->default(0);
+            $table->tinyInteger('status')->default(1);
             $table->timestamps();
         });
     }
