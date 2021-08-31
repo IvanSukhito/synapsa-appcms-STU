@@ -44,3 +44,7 @@ Route::post('forgot-password', ['uses' => 'App\Http\Controllers\API\V1\GeneralCo
 Route::get('version', ['uses' => 'App\Http\Controllers\API\V1\GeneralController@version'])->name('api.version');
 Route::post('version', ['uses' => 'App\Http\Controllers\API\V1\GeneralController@compareVersion'])->name('api.compareVersion');
 
+Route::get('/', function() {
+    return LARAVEL_START;
+});
+
