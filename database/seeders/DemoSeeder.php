@@ -15,16 +15,16 @@ class DemoSeeder extends Seeder
      */
     public function run()
     {
-        for($i=1; $i<=10; $i++) {
+        for ($i = 1; $i <= 10; $i++) {
             DB::table('users')->insertGetId([
                 'klinik_id' => 1,
                 'city_id' => 0,
                 'district_id' => 0,
                 'sub_district_id' => 0,
-                'fullname' => 'DEMO '.$i,
+                'fullname' => 'DEMO ' . $i,
                 'address' => 'ALAMAT DEMO',
                 'address_detail' => 'ALAMAT DETAIL DEMO',
-                'email' => 'demo'.$i.'@mailinator.com',
+                'email' => 'demo' . $i . '@mailinator.com',
                 'password' => bcrypt('123456'),
                 'patient' => 1,
                 'doctor' => 0,
@@ -85,30 +85,52 @@ class DemoSeeder extends Seeder
             ]);
         }
         //Article Category
-        for ($i=1; $i<=10; $i++) {
+        for ($i = 1; $i <= 10; $i++) {
             DB::table('article_category')->insertGetId([
-                'name' => 'DEMO '.$i,
+                'name' => 'DEMO ' . $i,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
         }
 
         //Article
-        for($i=1; $i<=200; $i++) {
+        for ($i = 1; $i <= 200; $i++) {
             DB::table('article')->insertGetId([
-                'article_category_id' => rand(1,10),
-                'title' => 'DEMO '.$i,
-                'slugs' => 'DEMO '.$i,
+                'article_category_id' => rand(1, 10),
+                'title' => 'DEMO ' . $i,
+                'slugs' => 'DEMO ' . $i,
                 'thumbnail_img' => 'Images.Png',
                 'image' => 'Images.Png',
                 'content' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
                 'preview' => '',
                 'publish_status' => 2,
-                'created_by' => 'demo'.$i.'@mailinator.com',
-                'updated_by' => 'demo'.$i.'@mailinator.com',
+                'created_by' => 'demo' . $i . '@mailinator.com',
+                'updated_by' => 'demo' . $i . '@mailinator.com',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
+        }
+        //Doctor Category
+        for ($i = 1; $i <= 10; $i++) {
+            DB::table('doctor_category')->insertGetId([
+                'name' => 'DEMO ' . $i,
+                'icon_img' => 'Images.Png',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ]);
+        //Doctor
+        for ($i = 1; $i <= 100; $i++) {
+            DB::table('doctor')->insertGetId([
+                'user_id' => rand(1, 10),
+                'doctor_category_id' => rand(1, 10),
+                'price' => '99.000',
+                'formal_edu' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+                'nonformal_edu' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ]);
+
+            }
         }
     }
 }
