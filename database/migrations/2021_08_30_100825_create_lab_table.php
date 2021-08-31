@@ -23,7 +23,7 @@ class CreateLabTable extends Migration
             $table->text('desc_lab')->nullable();
             $table->text('desc_benefit')->nullable();
             $table->text('desc_preparation')->nullable();
-            $table->text('recommended _for')->nullable();
+            $table->text('recommended_for')->nullable();
             $table->timestamps();
         });
     }

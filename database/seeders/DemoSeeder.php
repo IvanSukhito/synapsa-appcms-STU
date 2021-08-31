@@ -120,7 +120,6 @@ class DemoSeeder extends Seeder
             ]);
         }
         //Doctor
-          //Doctor
         for ($i = 1; $i <= 100; $i++) {
                 DB::table('doctor')->insertGetId([
                     'user_id' => rand(1, 10),
@@ -131,7 +130,24 @@ class DemoSeeder extends Seeder
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now(),
                 ]);
-    
-                }
+            }
+          //Lab
+          for ($i = 1; $i <= 100; $i++) {
+            DB::table('lab')->insertGetId([
+                'parent_id' => 0,
+                'name' => 'DEMO ' . $i,
+                'price' => '99.000',
+                'thumbnail_img' => 'Images.Png',
+                'image' => 'Images.Png',
+                'desc_lab' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+                'desc_benefit' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+                'desc_preparation' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+                'recommended_for' => 'Pria','Wanita','Lansia','Anak-anak',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ]);
+        }  
+
+        
     }
 }
