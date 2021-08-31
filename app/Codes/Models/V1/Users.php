@@ -3,8 +3,9 @@
 namespace App\Codes\Models\V1;
 
 use Illuminate\Database\Eloquent\Model;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class Users extends Model
+class Users extends Model implements JWTSubject
 {
     protected $table = 'users';
     protected $primaryKey = 'id';
@@ -38,6 +39,21 @@ class Users extends Model
     public function getUploadKtpAttribute()
     {
         return strlen($this->image) > 0 ? asset('uploads/users/'.$this->image) : asset('assets/cms/images/no-img.png');
+    }
+
+    public function getDeviceToken()
+    {
+        return $this->belongsToMany(DeviceToken::class, 'user_device_token', 'user_id', 'device_token_id');
+    }
+
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return [];
     }
 
 }
