@@ -33,7 +33,7 @@ class InstallingSeeder extends Seeder
             'updated_at' => Carbon::now(),
         ]);
 
-        DB::table('settings')->insertGetId([
+        DB::table('setting')->insertGetId([
             'name' => 'IOS Version',
             'key' => 'ios-version',
             'value' => '1.0.0',
@@ -42,7 +42,7 @@ class InstallingSeeder extends Seeder
             'updated_at' => Carbon::now(),
         ]);
 
-        DB::table('settings')->insertGetId([
+        DB::table('setting')->insertGetId([
             'name' => 'IOS URL',
             'key' => 'ios-url',
             'value' => '',
@@ -51,7 +51,7 @@ class InstallingSeeder extends Seeder
             'updated_at' => Carbon::now(),
         ]);
 
-        DB::table('settings')->insertGetId([
+        DB::table('setting')->insertGetId([
             'name' => 'Android Version',
             'key' => 'android-version',
             'value' => '1.0.0',
@@ -60,7 +60,7 @@ class InstallingSeeder extends Seeder
             'updated_at' => Carbon::now(),
         ]);
 
-        DB::table('settings')->insertGetId([
+        DB::table('setting')->insertGetId([
             'name' => 'Android URL',
             'key' => 'android-url',
             'value' => '',

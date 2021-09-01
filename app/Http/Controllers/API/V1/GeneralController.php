@@ -98,7 +98,7 @@ class GeneralController extends Controller
                 $img->resize(1200, null, function ($constraint) {
                     $constraint->aspectRatio();
                 });
-                $img->rotate(-90);
+//                $img->rotate(-90);
                 $img->save();
             }
             catch (\Exception $e) {
@@ -133,7 +133,21 @@ class GeneralController extends Controller
 
             return response()->json([
                 'message' => 'Data Has Been Inserted',
-                'data' => $users
+                'data' => [
+                    'klinik_id' => $users->klinik_id,
+                    'fullname' => $users->fullname,
+                    'address' => $users->address,
+                    'address_detail' => $users->address_detail,
+                    'zip_code' => $users->zip_code,
+                    'gender' => $users->gender,
+                    'dob' => $users->dob,
+                    'nik' => $users->nik,
+                    'phone' => $users->phone,
+                    'email' => $users->email,
+                    'patient' => $users->patient,
+                    'doctor' => $users->doctor,
+                    'nurse' => $users->nurse,
+                ]
             ]);
 
         }
@@ -233,7 +247,7 @@ class GeneralController extends Controller
             ]);
         }
         $getEmail = $this->request->get('email');
-        $getUser = Users::where('email', $getEmail)->where('status', 2)->first();
+        $getUser = Users::where('email', $getEmail)->where('status', 80)->first();
         if (!$getUser) {
             return response()->json([
                 'success' => 0,
@@ -255,7 +269,7 @@ class GeneralController extends Controller
             'code' => $newPassword,
             'email' => $getEmail,
             'attempt' => 2,
-            'status' => 80
+            'status' => 1
         ]);
 
         return response()->json([

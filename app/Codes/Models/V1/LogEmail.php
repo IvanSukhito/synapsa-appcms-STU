@@ -9,14 +9,17 @@ class LogEmail extends Model
     protected $table = 'log-email';
     protected $primaryKey = 'id';
     protected $fillable = [
+        'user_id',
         'email',
-        'code_verification',
+        'subject',
+        'content',
+        'response',
+        'status',
+        'error_message',
         'browser',
         'ip_address',
-        'trigger'
+        'trigger',
+        'created_at',
     ];
-
-
-
 
 }

@@ -33,6 +33,8 @@ class Users extends Model implements JWTSubject
         'verification_email'
     ];
 
+    protected $hidden = ['password'];
+
     protected $appends = [
         'upload_ktp_full'
     ];
