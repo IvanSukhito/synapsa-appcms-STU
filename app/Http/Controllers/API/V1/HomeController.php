@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API\V1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Codes\Models\V1\Article;
+use App\Codes\Models\V1\Users;
+use App\Codes\Models\V1\Notifications;
 use App\Codes\Models\V1\Product;
 use App\Codes\Models\V1\Sliders;
 
@@ -35,20 +37,38 @@ class HomeController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
+        //dd($user->id);
         $data = [];
 
-        $limit = 10;
+        $limit = 4;
 
-         
-        $dataSliders = Sliders::orderBy('id','DESC')->paginate($limit);
+
+        $totalNotif = Notifications::where('user_id',$user->id)->where('is_read',1)->count();
+        $dataSliders = Sliders::orderBy('id','DESC')->get();
         $dataProduct = Product::orderBy('id','DESC')->paginate($limit);
-        $dataArticle = Article::orderBy('id','DESC')->paginate($limit);
+        $dataArticle = Article::orderBy('publish_date','DESC')->where('publish_status', 1)->paginate($limit);
 
        
 
         return response()->json([
             'success' => 1,
             'data' => [
+                'user' => [
+                    'klinik_id' => $user->klinik_id,
+                    'fullname' => $user->fullname,
+                    'address' => $user->address,
+                    'address_detail' => $user->address_detail,
+                    'zip_code' => $user->zip_code,
+                    'gender' => $user->gender,
+                    'dob' => $user->dob,
+                    'nik' => $user->nik,
+                    'phone' => $user->phone,
+                    'email' => $user->email,
+                    'patient' => $user->patient,
+                    'doctor' => $user->doctor,
+                    'nurse' => $user->nurse
+                ],
+                'totalNotif' => $totalNotif,
                 'sliders' => $dataSliders,
                 'product' => $dataProduct,
                 'article' => $dataArticle,
