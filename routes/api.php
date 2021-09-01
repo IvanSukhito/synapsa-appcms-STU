@@ -18,6 +18,14 @@ use Illuminate\Support\Facades\Route;
 Route::group(['middleware' => ['jwtToken']], function () use ($router) {
 
     Route::post('check-login', ['uses' => 'App\Http\Controllers\API\V1\HomeController@checkLogin'])->name('api.check-login');
+    $router->group(['prefix' => 'profile'], function () use ($router) {
+        $router->get('/', ['uses' => 'App\Http\Controllers\API\V1\ProfileController@profile'])->name('api.user.profile');
+        $router->post('/', ['uses' => 'App\Http\Controllers\API\V1\ProfileController@updateProfile'])->name('api.user.updateProfile');
+        $router->post('photo', ['uses' => 'App\Http\Controllers\API\V1\ProfileController@updatePhoto'])->name('api.user.updatePhoto');
+        $router->post('address', ['uses' => 'App\Http\Controllers\API\V1\ProfileController@updateAddress'])->name('api.user.updateAddress');
+        $router->get('address', ['uses' => 'App\Http\Controllers\API\V1\ProfileController@getAddress'])->name('api.user.getAddress');
+
+    });
     Route::get('home', ['uses' => 'App\Http\Controllers\API\V1\HomeController@home'])->name('api.home');
     Route::get('notifications', ['uses' => 'App\Http\Controllers\API\V1\HomeController@notifications'])->name('api.notifications');
 

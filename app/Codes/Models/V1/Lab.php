@@ -39,7 +39,7 @@ class Lab extends Model
     
     public function getUploadLabImageAttribute()
     {
-        return strlen($this->image) > 0 ? asset('uploads/users/'.$this->image) : asset('assets/cms/images/no-img.png');
+        return strlen($this->thumbnail_img) > 0 ? asset('uploads/users/'.$this->thumbnail_img) : asset('assets/cms/images/no-img.png');
     }
 
 

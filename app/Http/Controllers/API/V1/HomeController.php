@@ -61,7 +61,8 @@ class HomeController extends Controller
                     'email' => $user->email,
                     'patient' => $user->patient,
                     'doctor' => $user->doctor,
-                    'nurse' => $user->nurse
+                    'nurse' => $user->nurse,
+                    
                 ],
                 'totalNotif' => $totalNotif,
                 'sliders' => $dataSliders,

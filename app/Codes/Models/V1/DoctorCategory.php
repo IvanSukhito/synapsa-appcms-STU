@@ -25,7 +25,7 @@ class DoctorCategory extends Model
     
     public function getUploadIconImageAttribute()
     {
-        return strlen($this->image) > 0 ? asset('uploads/users/'.$this->image) : asset('assets/cms/images/no-img.png');
+        return strlen($this->icon_img) > 0 ? asset('uploads/users/'.$this->icon_img) : asset('assets/cms/images/no-img.png');
     }
 
 }

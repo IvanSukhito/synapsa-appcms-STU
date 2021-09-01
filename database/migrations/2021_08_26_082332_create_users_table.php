@@ -27,6 +27,7 @@ class CreateUsersTable extends Migration
             $table->integer('gender')->default(1);
             $table->string('nik')->nullable();
             $table->text('upload_ktp')->nullable();
+            $table->text('image')->nullable();
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
             $table->string('password')->nullable();

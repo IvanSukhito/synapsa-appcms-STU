@@ -46,6 +46,7 @@ class GeneralController extends Controller
             'gender' => 'required',
             'nik' => 'required',
             'upload_ktp' => 'required',
+            'image' => 'required',
             'phone' => 'required|regex:/^(08\d+)/|numeric|unique:users,phone',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|confirmed|min:6',
@@ -83,6 +84,31 @@ class GeneralController extends Controller
             }
         }
 
+        $getUploadImage = '';
+        if ($this->request->get('image')) {
+            try {
+                $image = base64_to_jpeg($this->request->get('image'));
+                $destinationPath = 'uploads/users';
+                $set_file_name = md5('image'.strtotime('now').rand(0, 100)).'.jpg';
+                file_put_contents($destinationPath.'/'.$set_file_name, $image);
+
+                $getUploadImage = $set_file_name;
+
+                $img = Image::make('./'.$destinationPath.'/'.$set_file_name);
+                $img->resize(1200, null, function ($constraint) {
+                    $constraint->aspectRatio();
+                });
+                $img->rotate(-90);
+                $img->save();
+            }
+            catch (\Exception $e) {
+                return response()->json([
+                    'success' => 0,
+                    'message' => ['Failed upload KTP Image'],
+                ]);
+            }
+        }
+
         try{
             $users = new Users();
             $users->klinik_id = $this->request->get('klinik_id');
@@ -102,6 +128,7 @@ class GeneralController extends Controller
             $users->status = $this->request->get('status');
             $users->patient = $this->request->get('patient');
             $users->upload_ktp = $getUploadKtp;
+            $users->image = $getUploadImage;
             $users->save();
 
             return response()->json([

@@ -22,6 +22,7 @@ class Users extends Model implements JWTSubject
         'gender',
         'nik',
         'upload_ktp',
+        'image',
         'phone',
         'email',
         'password',
@@ -39,6 +40,11 @@ class Users extends Model implements JWTSubject
     public function getUploadKtpFullAttribute()
     {
         return strlen($this->upload_ktp) > 0 ? asset('uploads/users/'.$this->upload_ktp) : asset('assets/cms/images/no-img.png');
+    }
+
+    public function getUploadImage()
+    {
+        return strlen($this->image) > 0 ? asset('uploads/users/'.$this->image) : asset('assets/cms/images/user-default.png');
     }
 
     public function getDeviceToken()
