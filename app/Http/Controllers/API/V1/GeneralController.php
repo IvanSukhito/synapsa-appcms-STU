@@ -263,13 +263,21 @@ class GeneralController extends Controller
             ]);
         }
 
+        $getForgetPassword = ForgetPassword::where('user_id', $getUser->id)->where('status', 1)->where('created_at <', date('Y-m-d H:i:s', strtotime("-1 hour")))->first();
+        if ($getForgetPassword) {
+            return response()->json([
+                'success' => 0,
+                'message' => [__('Account already request forgot password, must wait 1 hour to request again')]
+            ]);
+        }
+
         $newCode = generateNewCode(6);
 
         ForgetPassword::create([
             'user_id' => $getUser->id,
             'code' => $newCode,
             'email' => $getEmail,
-            'attempt' => 2,
+            'attempt' => 0,
             'status' => 1
         ]);
 
