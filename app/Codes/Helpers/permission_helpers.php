@@ -253,79 +253,13 @@ if ( ! function_exists('listAllMenu')) {
     {
         return [
             [
-                'name' => __('general.page'),
-                'icon' => '<i class="nav-icon fa fa-clipboard"></i>',
-                'title' => __('general.page'),
-                'active' => ['admin.page.'],
-                'route' => 'admin.page.index',
-                'key' => 'page',
+                'name' => __('general.article'),
+                'icon' => '<i class="nav-icon fa fa-newspaper-o"></i>',
+                'title' => __('general.article'),
+                'active' => ['admin.article.'],
+                'route' => 'admin.article.index',
+                'key' => 'article',
                 'type' => 1,
-            ],
-            [
-                'name' => __('general.how_to_play'),
-                'icon' => '<i class="nav-icon fa fa-question-circle-o"></i>',
-                'title' => __('general.how_to_play'),
-                'active' => ['admin.how-to-play.'],
-                'route' => 'admin.how-to-play.index',
-                'key' => 'how-to-play',
-                'type' => 1,
-            ],
-            [
-                'name' => __('general.riddle'),
-                'icon' => '<i class="nav-icon fa fa-gamepad"></i>',
-                'additional' => '<small class="label right bg-green">new</small>',
-                'title' => __('general.riddle'),
-                'active' => [
-                    'admin.v1-questions.',
-                    'admin.v1-question-details.',
-                    'admin.v1-mantra.',
-                    'admin.v1-users.',
-                    'admin.v1-log-login.',
-                    'admin.v1-games.'
-                ],
-                'type' => 2,
-                'data' => [
-                    [
-                        'name' => __('general.questions'),
-                        'title' => __('general.questions'),
-                        'active' => ['admin.v1-questions.', 'admin.v1-question-details'],
-                        'route' => 'admin.v1-questions.index',
-                        'key' => 'v1-questions',
-                        'type' => 1
-                    ],
-                    [
-                        'name' => __('general.mantra'),
-                        'title' => __('general.mantra'),
-                        'active' => ['admin.v1-mantra.'],
-                        'route' => 'admin.v1-mantra.index',
-                        'key' => 'v1-mantra',
-                        'type' => 1
-                    ],
-                    [
-                        'name' => __('general.users'),
-                        'title' => __('general.users'),
-                        'active' => ['admin.v1-users.'],
-                        'route' => 'admin.v1-users.index',
-                        'key' => 'v1-users',
-                        'type' => 1
-                    ],
-                    [
-                        'name' => __('general.log_login'),
-                        'title' => __('general.log_login'),
-                        'active' => ['admin.v1-log-login.'],
-                        'route' => 'admin.v1-log-login.index',
-                        'key' => 'v1-log-login',
-                        'type' => 1
-                    ],
-                    [
-                        'name' => __('general.games'),
-                        'title' => __('general.games'),
-                        'active' => ['admin.v1-games.'],
-                        'route' => 'admin.v1-games.index',
-                        'key' => 'v1-games',
-                        'type' => 1
-                    ]
-                ]
             ],
             [
                 'name' => __('general.setting'),
@@ -398,9 +332,7 @@ if ( ! function_exists('listAvailablePermission'))
         foreach ([
                      'admin',
                      'role',
-                     'privilege',
-                     'how-to-play',
-                     'v1-questions',
+                     'article',
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [
