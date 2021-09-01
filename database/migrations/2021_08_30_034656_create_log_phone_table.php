@@ -15,7 +15,9 @@ class CreateLogPhoneTable extends Migration
     {
         Schema::create('log_phone', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('user_id')->default(0);
             $table->string('phone')->nullable();
+            $table->text('content')->nullable();
             $table->string('code_verification')->nullable();
             $table->string('browser')->nullable();
             $table->string('ip_address')->nullable();

@@ -73,6 +73,60 @@ if (! function_exists('api_send_email_mail_gun')) {
     }
 }
 
+if (! function_exists('api_send_email_mailjet')) {
+    /**
+     * @param string $email_from
+     * @param string $email_to
+     * @param string $email_subject
+     * @param string $email_content
+     *
+     * @return mixed
+     */
+    function api_send_email_mailjet($email_from = 'test@example.com', $email_to = 'test@example.com', $email_subject = 'SendGrid PHP Library', $email_content = '<html<p>some text here</p></html>')
+    {
+        try {
+            $mj = new \Mailjet\Client(env('MJ_APIKEY_PUBLIC'), env('MJ_APIKEY_PRIVATE'), true, ['version' => 'v3.1']);
+
+            $body = [
+                'Messages' => [
+                    [
+                        'From' => [
+                            'Email' => $email_from,
+//                            'Name' => "Me"
+                        ],
+                        'To' => [
+                            [
+                                'Email' => $email_to,
+//                                'Name' => "You"
+                            ]
+                        ],
+                        'Subject' => $email_subject,
+//                        'TextPart' => "Greetings from Mailjet!",
+                        'HTMLPart' => $email_content
+                    ]
+                ]
+            ];
+
+            $response = $mj->post(\Mailjet\Resources::$Email, ['body' => $body]);
+
+            if ($response->success()) {
+                $response->getData();
+            }
+            else {
+
+            }
+
+        } catch (\Exception $e) {
+            \App\Codes\Models\V1\LogEmail::create([
+                'email'         => $email_to,
+                'subject'       => $email_subject,
+                'content'       => $email_content,
+                'error_message' => $e->getMessage(),
+            ]);
+        }
+    }
+}
+
 if (! function_exists('api_send_email')) {
     /**
      * @param string $email_from

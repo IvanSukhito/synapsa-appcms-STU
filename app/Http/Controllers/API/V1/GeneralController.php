@@ -15,6 +15,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Intervention\Image\Facades\Image;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -98,7 +99,7 @@ class GeneralController extends Controller
                 $img->resize(1200, null, function ($constraint) {
                     $constraint->aspectRatio();
                 });
-                $img->rotate(-90);
+//                $img->rotate(-90);
                 $img->save();
             }
             catch (\Exception $e) {
@@ -133,7 +134,21 @@ class GeneralController extends Controller
 
             return response()->json([
                 'message' => 'Data Has Been Inserted',
-                'data' => $users
+                'data' => [
+                    'klinik_id' => $users->klinik_id,
+                    'fullname' => $users->fullname,
+                    'address' => $users->address,
+                    'address_detail' => $users->address_detail,
+                    'zip_code' => $users->zip_code,
+                    'gender' => $users->gender,
+                    'dob' => $users->dob,
+                    'nik' => $users->nik,
+                    'phone' => $users->phone,
+                    'email' => $users->email,
+                    'patient' => $users->patient,
+                    'doctor' => $users->doctor,
+                    'nurse' => $users->nurse,
+                ]
             ]);
 
         }
@@ -233,7 +248,7 @@ class GeneralController extends Controller
             ]);
         }
         $getEmail = $this->request->get('email');
-        $getUser = Users::where('email', $getEmail)->where('status', 2)->first();
+        $getUser = Users::where('email', $getEmail)->first();
         if (!$getUser) {
             return response()->json([
                 'success' => 0,
@@ -241,22 +256,31 @@ class GeneralController extends Controller
             ]);
         }
 
-        if ($getUser->status != 2) {
+        if ($getUser->status != 80) {
             return response()->json([
                 'success' => 0,
                 'message' => [__('Account not active')]
             ]);
         }
 
-        $newPassword = generateNewCode(6);
+        $newCode = generateNewCode(6);
 
         ForgetPassword::create([
             'user_id' => $getUser->id,
-            'code' => $newPassword,
+            'code' => $newCode,
             'email' => $getEmail,
             'attempt' => 2,
-            'status' => 80
+            'status' => 1
         ]);
+
+        $subject = 'Lupa Password';
+
+        Mail::send('mail.forgot', [
+            'user' => $getUser,
+            'code' => $newCode
+        ], function($m) use ($getUser, $subject) {
+            $m->to($getUser->email, $getUser->name)->subject($subject);
+        });
 
         return response()->json([
             'success' => 1,

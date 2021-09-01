@@ -21,8 +21,13 @@ class Product extends Model
     ];
 
     protected $appends = [
-        'upload_product_image'
+        'image_full'
     ];
+
+    public function getImageFullAttribute()
+    {
+        return strlen($this->image) > 0 ? asset('uploads/product/'.$this->image) : asset('assets/cms/images/no-img.png');
+    }
 
 
     public function getCategory()
@@ -33,11 +38,6 @@ class Product extends Model
     public function getTagging()
     {
         return $this->belongsToMany(Tagging::class, 'product_tagging', 'product_id', 'tagging_id');
-    }
-
-    public function getUploadProductImageAttribute()
-    {
-        return strlen($this->image) > 0 ? asset('uploads/users/'.$this->image) : asset('assets/cms/images/no-img.png');
     }
 
 

@@ -17,13 +17,13 @@ class Sliders extends Model
     ];
 
     protected $appends = [
-        'upload_sliders_image'
+        'image_full'
     ];
 
 
-    public function getUploadSlidersImageAttribute()
+    public function getImageFullAttribute()
     {
-        return strlen($this->image) > 0 ? asset('uploads/users/'.$this->image) : asset('assets/cms/images/no-img.png');
+        return strlen($this->image) > 0 ? asset('uploads/sliders/'.$this->image) : asset('assets/cms/images/no-img.png');
     }
 
 

@@ -9,7 +9,9 @@ class LogPhone extends Model
     protected $table = 'log-phone';
     protected $primaryKey = 'id';
     protected $fillable = [
+        'user_id',
         'phone',
+        'content',
         'code_verification',
         'browser',
         'ip_address',

@@ -15,9 +15,8 @@
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
         "laravelcollective/html": "^6.2",
-        "mailgun/mailgun-php": "^3.5",
+        "mailjet/mailjet-apiv3-php": "^1.5",
         "phpoffice/phpspreadsheet": "^1.18",
-        "sendgrid/sendgrid": "^7.9",
         "tymon/jwt-auth": "dev-develop",
         "yajra/laravel-datatables-oracle": "^9.18"
     },
