@@ -71,4 +71,16 @@ class GeneralController extends Controller
 
     }
 
+    public function confirmEmail()
+    {
+        $getCode = $this->request->get('code');
+        $getEmail = $this->request->get('email');
+    }
+
+    public function confirmPhone()
+    {
+        $getCode = $this->request->get('code');
+        $getPhone = $this->request->get('phone');
+    }
+
 }
