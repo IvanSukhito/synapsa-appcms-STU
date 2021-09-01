@@ -10,6 +10,7 @@ return [
 
     'add' => 'Add',
     'address' => 'Address',
+    'article' => 'Article',
     'id' => 'Id',
     'name' => 'Name',
     'email' => 'Email',
@@ -145,7 +146,7 @@ return [
     'bottom_content' => 'Bottom Content',
     'header_image' => 'Header Image',
     'log_login' => 'Log Login',
-    'how_to_play' => 'How To Play', 
+    'how_to_play' => 'How To Play',
     'question' => 'question',
     'answer' => 'answer',
     'asking_pending' => 'Asking Pending',

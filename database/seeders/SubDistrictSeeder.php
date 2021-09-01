@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Flynsarmy\CsvSeeder\CsvSeeder;
 
-class CitySeeder extends CsvSeeder
+class SubDistrictSeeder extends CsvSeeder
 {
     /**
      * Run the database seeds.
@@ -16,8 +16,8 @@ class CitySeeder extends CsvSeeder
      */
     public function __construct()
 	{
-		$this->table = 'city';
-		$this->filename = base_path().'/database/seeders/csv/city.csv';
+		$this->table = 'sub_district';
+		$this->filename = base_path().'/database/seeders/csv/sub_district.csv';
 	}
 
 	public function run()
