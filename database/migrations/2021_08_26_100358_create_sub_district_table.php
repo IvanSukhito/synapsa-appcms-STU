@@ -17,11 +17,7 @@ class CreateSubDistrictTable extends Migration
             $table->id();
             $table->unsignedBigInteger('district_id')->default(0);
             $table->string('name')->nullable();
-            $table->timestamps();
-            $table->foreign('district_id', 'subdistrict_rel')
-                ->references('id')->on('district')
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
+          
         });
     }
 
