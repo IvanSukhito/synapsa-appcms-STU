@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\V1;
 
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\Users;
+use App\Codes\Models\V1\Notifications;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -268,8 +269,137 @@ class ProfileController extends Controller
 
     }
 
+
     public function updatePassword()
     {
+        $user = $this->request->attributes->get('_user');
+        $user = Users::where('id', $user->id)->first();
+
+        $validator = Validator::make($this->request->all(), [
+            'old_password' => 'required|min:6',
+            'password' => 'required|min:6|confirmed',
+            'password_confirmation' => 'required|min:6'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => 0,
+                'message' => $validator->messages()->all(),
+                'token' => $this->request->attributes->get('_refresh_token')
+            ]);
+        }
+        
+        if(!app('hash')->check($this->request->get('old_password'), $user->password)) {
+            return response()->json([
+                'success' => 0,
+                'token' => $this->request->attributes->get('_refresh_token'),
+                'message' => ['Old Password not match'],
+            ]);
+        }
+
+        $user->password = bcrypt($this->request->get('password'));
+        $user->save();
+
+        
+        return response()->json([
+            'success' => 1,
+            'token' => $this->request->attributes->get('_refresh_token'),
+            'message' => ['Success Update Password'],
+        ]);
+    }
+
+    public function verifEmail(){
+
+        $user = $this->request->attributes->get('_user');
+        $validator = Validator::make($this->request->all(), [
+            'email' => 'required|email'
+
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => 0,
+                'message' => $validator->messages()->all(),
+            ]);
+        }
+
+        $user = Users::where('id', $user->id)->first();
+        $getEmail = $this->request->get('email');
+
+        if($getEmail == $user->email){
+
+            return response()->json([
+                'success' => 1,
+                'message' => ['Success send link verification to your email'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ]);
+        }
+        else{
+            return response()->json([
+                'success' => 0,
+                'message' => ['Email not match'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ]);
+        }
+      
+    }
+
+    public function verifPhone(){
+    
+        $user = $this->request->attributes->get('_user');
+        $validator = Validator::make($this->request->all(), [
+            'phone' => 'required|regex:/^(08\d+)/|numeric|unique:users,phone'
+
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => 0,
+                'message' => $validator->messages()->all(),
+            ]);
+        }
+
+        $user = Users::where('id', $user->id)->first();
+        $getPhone = $this->request->get('phone');
+
+      
+        if($getPhone == $user->phone){
+
+            return response()->json([
+                'success' => 1,
+                'message' => ['Success send link verification to your phone'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ]);
+        }
+        else{
+            return response()->json([
+                'success' => 0,
+                'message' => ['Phone not match'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ]);
+        }
+        
+    }
+
+    public function notifications(){
+        $user = $this->request->attributes->get('_user');
+
+        $data = [];
+
+        $limit = 4;
+
+        $totalNotif = Notifications::where('user_id',$user->id)->where('is_read',1)->count();
+        $notif = Notifications::where('user_id',$user->id)->where('is_read',1)->paginate($limit);
+
+        return response()->json([
+            'success' => 1,
+            'data' => [
+            
+                'totalNotif' => $totalNotif,
+                'Notifications' => $notif,
+             
+            ],
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
+        
     }
 
 
