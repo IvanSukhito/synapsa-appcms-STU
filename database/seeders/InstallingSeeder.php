@@ -33,5 +33,41 @@ class InstallingSeeder extends Seeder
             'updated_at' => Carbon::now(),
         ]);
 
+        DB::table('settings')->insertGetId([
+            'name' => 'IOS Version',
+            'key' => 'ios-version',
+            'value' => '1.0.0',
+            'type' => 'text',
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
+
+        DB::table('settings')->insertGetId([
+            'name' => 'IOS URL',
+            'key' => 'ios-url',
+            'value' => '',
+            'type' => 'textarea',
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
+
+        DB::table('settings')->insertGetId([
+            'name' => 'Android Version',
+            'key' => 'android-version',
+            'value' => '1.0.0',
+            'type' => 'text',
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
+
+        DB::table('settings')->insertGetId([
+            'name' => 'Android URL',
+            'key' => 'android-url',
+            'value' => '',
+            'type' => 'textarea',
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
+
     }
 }
