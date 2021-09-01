@@ -147,7 +147,7 @@ class DemoSeeder extends Seeder
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
-        }  
+        }
 
         //Notif
         //Notifications
@@ -165,6 +165,6 @@ class DemoSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ]);
         }
-        
+
     }
 }
