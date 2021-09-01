@@ -15,6 +15,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Intervention\Image\Facades\Image;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -247,7 +248,7 @@ class GeneralController extends Controller
             ]);
         }
         $getEmail = $this->request->get('email');
-        $getUser = Users::where('email', $getEmail)->where('status', 80)->first();
+        $getUser = Users::where('email', $getEmail)->first();
         if (!$getUser) {
             return response()->json([
                 'success' => 0,
@@ -255,22 +256,31 @@ class GeneralController extends Controller
             ]);
         }
 
-        if ($getUser->status != 2) {
+        if ($getUser->status != 80) {
             return response()->json([
                 'success' => 0,
                 'message' => [__('Account not active')]
             ]);
         }
 
-        $newPassword = generateNewCode(6);
+        $newCode = generateNewCode(6);
 
         ForgetPassword::create([
             'user_id' => $getUser->id,
-            'code' => $newPassword,
+            'code' => $newCode,
             'email' => $getEmail,
             'attempt' => 2,
             'status' => 1
         ]);
+
+        $subject = 'Lupa Password';
+
+        Mail::send('mail.forgot', [
+            'user' => $getUser,
+            'code' => $newCode
+        ], function($m) use ($getUser, $subject) {
+            $m->to($getUser->email, $getUser->name)->subject($subject);
+        });
 
         return response()->json([
             'success' => 1,
