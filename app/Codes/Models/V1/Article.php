@@ -17,6 +17,7 @@ class Article extends Model
         'content',
         'preview',
         'publish_status',
+        'publish_date',
         'created_by',
         'updated_by'
     ];

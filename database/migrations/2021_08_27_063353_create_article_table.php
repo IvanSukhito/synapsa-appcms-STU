@@ -23,6 +23,7 @@ class CreateArticleTable extends Migration
             $table->text('content')->nullable();
             $table->string('preview')->nullable();
             $table->tinyInteger('publish_status')->default(1);
+            $table->date('publish_date')->nullable();
             $table->string('created_by')->nullable();
             $table->string('updated_by')->nullable();
             $table->timestamps();
