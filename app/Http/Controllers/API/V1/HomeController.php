@@ -5,7 +5,6 @@ namespace App\Http\Controllers\API\V1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Codes\Models\V1\Article;
-use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\Notifications;
 use App\Codes\Models\V1\Product;
 use App\Codes\Models\V1\Sliders;
@@ -37,18 +36,14 @@ class HomeController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        //dd($user->id);
         $data = [];
 
         $limit = 4;
 
-
         $totalNotif = Notifications::where('user_id',$user->id)->where('is_read',1)->count();
         $dataSliders = Sliders::orderBy('id','DESC')->get();
         $dataProduct = Product::orderBy('id','DESC')->paginate($limit);
-        $dataArticle = Article::orderBy('publish_date','DESC')->where('publish_status', 1)->paginate($limit);
-
-       
+        $dataArticle = Article::orderBy('publish_date','DESC')->where('publish_status', 1)->paginate($limit);       
 
         return response()->json([
             'success' => 1,
