@@ -36,6 +36,9 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
 
         $router->get('/', ['uses' => 'App\Http\Controllers\Admin\DashboardController@dashboard'])->name('admin');
 
+    });
+});
+
 Route::get('change-password', ['uses' => 'App\Http\Controllers\Website\V1\GeneralController@changeTokenPassword'])->name('web.changeTokenPassword');
 Route::post('change-password', ['uses' => 'App\Http\Controllers\Website\V1\GeneralController@updatePassword'])->name('web.updatePassword');
 
