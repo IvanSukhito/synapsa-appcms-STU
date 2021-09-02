@@ -38,6 +38,13 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
     Route::get('product', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getProduct'])->name('api.getProduct');
     Route::get('product/{id}', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getProductDetail'])->name('api.getProductDetail');
 
+    Route::get('doctor', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@getDoctor'])->name('api.getDoctor');
+    Route::get('doctor/{id}', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@getDoctorDetail'])->name('api.getDoctorDetail');
+
+    Route::get('lab', ['uses' => 'App\Http\Controllers\API\V1\LabController@getLab'])->name('api.getLab');
+    Route::get('lab/{id}', ['uses' => 'App\Http\Controllers\API\V1\LabController@getLabDetail'])->name('api.getLabDetail');
+
+
     Route::get('faqs', ['uses' => 'App\Http\Controllers\API\V1\FaqsController@getFaqs'])->name('api.getFaqs');
     Route::get('sliders', ['uses' => 'App\Http\Controllers\API\V1\SlidersController@getSliders'])->name('api.getSliders');
 });

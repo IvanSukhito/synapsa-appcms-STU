@@ -14,7 +14,8 @@ class DemoSeeder extends Seeder
      * @return void
      */
     public function run()
-    {
+    {   
+        //Users
         for ($i = 1; $i <= 10; $i++) {
             DB::table('users')->insertGetId([
                 'klinik_id' => 1,
@@ -26,8 +27,8 @@ class DemoSeeder extends Seeder
                 'address_detail' => 'ALAMAT DETAIL DEMO',
                 'email' => 'demo' . $i . '@mailinator.com',
                 'password' => bcrypt('123456'),
-                'patient' => 1,
-                'doctor' => 0,
+                'patient' => rand(0,1),
+                'doctor' => rand(0,1),
                 'nurse' => 0,
                 'verification_phone' => 1,
                 'verification_email' => 1,
@@ -135,7 +136,7 @@ class DemoSeeder extends Seeder
           //Lab
           for ($i = 1; $i <= 100; $i++) {
             DB::table('lab')->insertGetId([
-                'parent_id' => 0,
+                'parent_id' => rand(0,2),
                 'name' => 'DEMO ' . $i,
                 'price' => '99.000',
                 'thumbnail_img' => 'Images.Png',

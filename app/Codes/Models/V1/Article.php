@@ -34,12 +34,12 @@ class Article extends Model
 
     public function getUploadArticleThumbnailAttribute()
     {
-        return strlen($this->thumbnail_img) > 0 ? asset('uploads/users/'.$this->thumbnail_img) : asset('assets/cms/images/no-img.png');
+        return strlen($this->thumbnail_img) > 0 ? asset('uploads/article/'.$this->thumbnail_img) : asset('assets/cms/images/no-img.png');
     }
 
     public function getUploadArticleImageAttribute()
     {
-        return strlen($this->image) > 0 ? asset('uploads/users/'.$this->image) : asset('assets/cms/images/no-img.png');
+        return strlen($this->image) > 0 ? asset('uploads/article/'.$this->image) : asset('assets/cms/images/no-img.png');
     }
 
 }

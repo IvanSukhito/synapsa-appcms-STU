@@ -3,6 +3,7 @@
 namespace App\Codes\Models\V1;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Codes\Models\V1\DoctorCategory;
 
 class Doctor extends Model
 {
