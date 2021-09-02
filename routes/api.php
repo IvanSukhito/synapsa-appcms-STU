@@ -47,6 +47,12 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
 
     Route::get('faqs', ['uses' => 'App\Http\Controllers\API\V1\FaqsController@getFaqs'])->name('api.getFaqs');
     Route::get('sliders', ['uses' => 'App\Http\Controllers\API\V1\SlidersController@getSliders'])->name('api.getSliders');
+
+    $router->group(['prefix' => 'transaction'], function () use ($router) {
+        $router->post('cart', ['uses' => 'App\Http\Controllers\API\V1\ProductController@storeCart'])->name('api.user.storeCart');
+        $router->get('cart', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getCart'])->name('api.user.getCart');
+        $router->post('cart-receiver', ['uses' => 'App\Http\Controllers\API\V1\ProductController@updateReceiver'])->name('api.user.updateReceiver');
+    });
 });
 
 // Non Login

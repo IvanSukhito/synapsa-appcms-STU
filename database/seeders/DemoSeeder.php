@@ -45,7 +45,7 @@ class DemoSeeder extends Seeder
         //Product Category
         for ($i=1; $i<=10; $i++) {
             DB::table('product_category')->insertGetId([
-                'name' => 'DEMO_PRODUCT '.$i,
+                'name' => 'PRODUCT_CATEGORY '.$i,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
@@ -94,7 +94,7 @@ class DemoSeeder extends Seeder
         //Article Category
         for ($i = 1; $i <= 10; $i++) {
             DB::table('article_category')->insertGetId([
-                'name' => 'DEMO ' . $i,
+                'name' => 'ARTICLE_CATEGORY ' . $i,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
@@ -121,7 +121,7 @@ class DemoSeeder extends Seeder
         //Doctor Category
         for ($i = 1; $i <= 10; $i++) {
             DB::table('doctor_category')->insertGetId([
-                'name' => 'DEMO ' . $i,
+                'name' => 'DOCTOR_CATEGORY' . $i,
                 'icon_img' => 'Images.Png',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
