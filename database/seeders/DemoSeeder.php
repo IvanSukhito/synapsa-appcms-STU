@@ -16,8 +16,14 @@ class DemoSeeder extends Seeder
     public function run()
     {
         for ($i = 1; $i <= 10; $i++) {
+            DB::table('klinik')->insertGetId([
+                'name' => 'Klinik '.$i,
+                'status' => 80
+            ]);
+        }
+        for ($i = 1; $i <= 50; $i++) {
             DB::table('users')->insertGetId([
-                'klinik_id' => 1,
+                'klinik_id' => rand(1,10),
                 'city_id' => 0,
                 'district_id' => 0,
                 'sub_district_id' => 0,
@@ -149,7 +155,7 @@ class DemoSeeder extends Seeder
             ]);
         }
 
-      
+
         //Notif
         //Notifications
         for ($i = 1; $i <= 100; $i++) {

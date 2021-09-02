@@ -25,11 +25,13 @@ class GeneralController extends Controller
 {
     protected $request;
     protected $accessLogin;
+    protected $limit;
 
     public function __construct(Request $request, AccessLogin $accessLogin)
     {
         $this->request = $request;
         $this->accessLogin = $accessLogin;
+        $this->limit = 10;
     }
 
     public function signUp()
@@ -309,7 +311,7 @@ class GeneralController extends Controller
 
         return response()->json([
             'success' => 1,
-            'data' => $getData->paginate()
+            'data' => $getData->paginate($this->limit)
         ]);
 
     }
@@ -326,7 +328,7 @@ class GeneralController extends Controller
 
         return response()->json([
             'success' => 1,
-            'data' => $getData->paginate()
+            'data' => $getData->paginate($this->limit)
         ]);
     }
 
@@ -342,7 +344,7 @@ class GeneralController extends Controller
 
         return response()->json([
             'success' => 1,
-            'data' => $getData->paginate()
+            'data' => $getData->paginate($this->limit)
         ]);
     }
 
@@ -358,7 +360,7 @@ class GeneralController extends Controller
 
         return response()->json([
             'success' => 1,
-            'data' => $getData->paginate()
+            'data' => $getData->paginate($this->limit)
         ]);
     }
 
