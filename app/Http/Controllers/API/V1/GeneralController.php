@@ -10,6 +10,7 @@ use App\Codes\Models\V1\District;
 use App\Codes\Models\V1\Klinik;
 use App\Codes\Models\V1\SubDistrict;
 use App\Codes\Models\V1\Users;
+use App\Codes\Models\V1\UsersAddress;
 use App\Codes\Models\V1\ForgetPassword;
 use App\Http\Controllers\Controller;
 use Illuminate\Database\QueryException;
@@ -133,6 +134,26 @@ class GeneralController extends Controller
             $users->upload_ktp = $getUploadKtp;
             $users->image = $getUploadImage;
             $users->save();
+
+            //Insert to table Users_Address
+            $addressDetail = [
+                'address' => $users->address,
+                'address_detail' => $users->address_detail,
+                'city_id' => $users->city_id,
+                'district_id' => $users->district_id,
+                'sub_district_id' => $users->sub_district_id,
+                'zip_code' => $users->zip_code,
+            ];
+            $usersAddress = new UsersAddress();
+            $usersAddress->user_id = $users->id;
+            $usersAddress->city_id = $users->city_id;
+            $usersAddress->district_id = $users->district_id;
+            $usersAddress->sub_district_id = $users->sub_district_id;
+            $usersAddress->zip_code = $users->zip_code;
+            $usersAddress->address_name = $users->address;
+            $usersAddress->address = $users->address_detail;
+            $usersAddress->address_detail = json_encode($addressDetail);
+            $usersAddress->save();
 
             return response()->json([
                 'message' => 'Data Has Been Inserted',
