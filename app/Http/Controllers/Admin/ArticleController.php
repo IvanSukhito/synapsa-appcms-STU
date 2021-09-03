@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
-use App\Codes\Models\Golongan;
+use App\Codes\Models\V1\ArticleCategory;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Codes\Models\V1\Article;
@@ -98,16 +98,16 @@ class ArticleController extends _CrudController
         );
 
 
-        $getGolongan = Golongan::where('status', 1)->pluck('name', 'id')->toArray();
-        $listGolongan = [0 => 'Kosong'];
-        if($getGolongan) {
-            foreach($getGolongan as $key => $value) {
-                $listGolongan[$key] = $value;
+        $getArticleCategory = ArticleCategory::where('status', 1)->pluck('name', 'id')->toArray();
+        $listArticleCategory = [0 => 'Kosong'];
+        if($getArticleCategory) {
+            foreach($getArticleCategory as $key => $value) {
+                $listArticleCategory[$key] = $value;
             }
         }
 
 
-        $this->data['listSet']['golongan_id'] = $listGolongan;
+        $this->data['listSet']['article_category_id'] = $listArticleCategory;
         $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.article.forms';
         $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.article.forms';
         $this->listView['edit'] = env('ADMIN_TEMPLATE').'.page.article.forms';
