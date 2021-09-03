@@ -43,7 +43,7 @@ class FaqsController extends _CrudController
         ];
 
         parent::__construct(
-            $request, 'general.faqs', 'faqs', 'Faqs', 'faqs',
+            $request, 'general.faqs', 'faqs', 'V1\Faqs', 'faqs',
             $passingData
         );
     }

@@ -37,7 +37,7 @@ class _CrudController extends _GlobalFunctionController
 
         $this->masterId = $masterId;
         $this->route = $route;
-        $this->model = 'App\Codes\Models\V1\\' . $model;
+        $this->model = 'App\Codes\Models\\' . $model;
         $this->module = $module;
         $this->rootRoute = $rootRoute;
 

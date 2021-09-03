@@ -10,6 +10,7 @@ return [
 
     'add' => 'Add',
     'faqs' => 'Faqs',
+    'klinik' => 'Klinik',
     'address' => 'Address',
     'article' => 'Article',
     'id' => 'Id',

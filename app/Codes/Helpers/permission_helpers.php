@@ -271,6 +271,15 @@ if ( ! function_exists('listAllMenu')) {
                 'type' => 1,
             ],
             [
+                'name' => __('general.klinik'),
+                'icon' => '<i class="nav-icon fa fa-building"></i>',
+                'title' => __('general.klinik'),
+                'active' => ['admin.klinik.'],
+                'route' => 'admin.klinik.index',
+                'key' => 'klinik',
+                'type' => 1,
+            ],
+            [
                 'name' => __('general.setting'),
                 'icon' => '<i class="nav-icon fa fa-gear"></i>',
                 'title' => __('general.setting'),
@@ -343,6 +352,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'role',
                      'article',
                      'faqs',
+                     'klinik',
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [

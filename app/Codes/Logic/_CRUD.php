@@ -8,7 +8,7 @@ class _CRUD
 
     public function __construct($model)
     {
-        $this->model = 'App\Codes\Models\V1\\' . $model;
+        $this->model = 'App\Codes\Models\\' . $model;
     }
 
     public function all()
