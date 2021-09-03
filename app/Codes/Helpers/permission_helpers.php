@@ -262,34 +262,34 @@ if ( ! function_exists('listAllMenu')) {
                 'type' => 1,
             ],
             [
-                'name' => __('general.faqs'),
-                'icon' => '<i class="nav-icon fa fa-question"></i>',
-                'title' => __('general.faqs'),
-                'active' => ['admin.faqs.'],
-                'route' => 'admin.faqs.index',
-                'key' => 'faqs',
-                'type' => 1,
-            ],
-            [
-                'name' => __('general.klinik'),
-                'icon' => '<i class="nav-icon fa fa-building"></i>',
-                'title' => __('general.klinik'),
-                'active' => ['admin.klinik.'],
-                'route' => 'admin.klinik.index',
-                'key' => 'klinik',
-                'type' => 1,
-            ],
-            [
                 'name' => __('general.setting'),
                 'icon' => '<i class="nav-icon fa fa-gear"></i>',
                 'title' => __('general.setting'),
                 'active' => [
                     'admin.settings.',
                     'admin.admin.',
-                    'admin.role.'
+                    'admin.role.',
+                    'admin.faqs',
+                    'admin.klinik'
                 ],
                 'type' => 2,
                 'data' => [
+                    [
+                        'name' => __('general.faqs'),
+                        'title' => __('general.faqs'),
+                        'active' => ['admin.faqs.'],
+                        'route' => 'admin.faqs.index',
+                        'key' => 'faqs',
+                        'type' => 1,
+                    ],
+                    [
+                        'name' => __('general.klinik'),
+                        'title' => __('general.klinik'),
+                        'active' => ['admin.klinik.'],
+                        'route' => 'admin.klinik.index',
+                        'key' => 'klinik',
+                        'type' => 1,
+                    ],
                     [
                         'name' => __('general.setting'),
                         'title' => __('general.setting'),
@@ -313,10 +313,9 @@ if ( ! function_exists('listAllMenu')) {
                         'route' => 'admin.role.index',
                         'key' => 'role',
                         'type' => 1
-                    ]
-                ]
-            ],
-
+                    ],
+                ],
+            ]
         ];
     }
 }
@@ -331,6 +330,8 @@ if ( ! function_exists('listAvailablePermission'))
             'settings',
             'page',
             'v1-users',
+            'faqs',
+            'klinik',
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [
@@ -351,8 +352,6 @@ if ( ! function_exists('listAvailablePermission'))
                      'admin',
                      'role',
                      'article',
-                     'faqs',
-                     'klinik',
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [

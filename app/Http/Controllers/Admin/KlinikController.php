@@ -27,8 +27,14 @@ class KlinikController extends _CrudController
                     'create' => 'required',
                     'edit' => 'required'
                 ],
-                'type' => 'select',
+                'type' => 'select'
             ],
+            'action' => [
+                'create' => 0,
+                'edit' => 0,
+                'show' => 0,
+                'lang' => 'Aksi',
+            ]
         ];
 
         parent::__construct(

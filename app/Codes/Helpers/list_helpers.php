@@ -261,9 +261,8 @@ if ( ! function_exists('get_list_status')) {
     function get_list_status()
     {
         return [
-            1 => __('general.status1'),
-            2 => __('general.status2'),
-            3 => __('general.status3')
+            80 => __('general.active'),
+            99 => __('general.inactive'),
         ];
     }
 }
