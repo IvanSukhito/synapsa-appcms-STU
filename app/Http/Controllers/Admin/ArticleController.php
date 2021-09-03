@@ -23,6 +23,7 @@ class ArticleController extends _CrudController
                     'create' => 'required',
                     'edit' => 'required'
                 ],
+                'type' => 'select2',
             ],
             'title' => [
                 'validate' => [
@@ -93,7 +94,7 @@ class ArticleController extends _CrudController
         ];
 
         parent::__construct(
-            $request, 'general.article', 'article', 'Article', 'article',
+            $request, 'general.article', 'article', 'V1\Article', 'article',
             $passingData
         );
 
@@ -108,9 +109,6 @@ class ArticleController extends _CrudController
 
 
         $this->data['listSet']['article_category_id'] = $listArticleCategory;
-        $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.article.forms';
-        $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.article.forms';
-        $this->listView['edit'] = env('ADMIN_TEMPLATE').'.page.article.forms';
 
     }
 

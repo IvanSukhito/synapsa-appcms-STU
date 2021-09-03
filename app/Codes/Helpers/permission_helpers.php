@@ -288,7 +288,8 @@ if ( ! function_exists('listAllMenu')) {
                     'admin.admin.',
                     'admin.role.',
                     'admin.faqs',
-                    'admin.klinik'
+                    'admin.klinik',
+                    'admin.article-category'
                 ],
                 'type' => 2,
                 'data' => [
@@ -372,6 +373,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'article',
                      'product',
                      'lab',
+                     'article-category',
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [
