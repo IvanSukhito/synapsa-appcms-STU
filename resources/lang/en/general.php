@@ -9,6 +9,7 @@ return [
     */
 
     'add' => 'Add',
+    'faqs' => 'Faqs',
     'address' => 'Address',
     'article' => 'Article',
     'id' => 'Id',
@@ -147,8 +148,8 @@ return [
     'header_image' => 'Header Image',
     'log_login' => 'Log Login',
     'how_to_play' => 'How To Play',
-    'question' => 'question',
-    'answer' => 'answer',
+    'question' => 'Question',
+    'answer' => 'Answer',
     'asking_pending' => 'Asking Pending',
     'data_empty' => 'Data Empty',
     'no_ktp' => 'No KTP',

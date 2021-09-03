@@ -262,6 +262,15 @@ if ( ! function_exists('listAllMenu')) {
                 'type' => 1,
             ],
             [
+                'name' => __('general.faqs'),
+                'icon' => '<i class="nav-icon fa fa-question"></i>',
+                'title' => __('general.faqs'),
+                'active' => ['admin.faqs.'],
+                'route' => 'admin.faqs.index',
+                'key' => 'faqs',
+                'type' => 1,
+            ],
+            [
                 'name' => __('general.setting'),
                 'icon' => '<i class="nav-icon fa fa-gear"></i>',
                 'title' => __('general.setting'),
@@ -333,6 +342,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'admin',
                      'role',
                      'article',
+                     'faqs',
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [

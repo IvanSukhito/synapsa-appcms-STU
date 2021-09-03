@@ -25,6 +25,7 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                 'App\Http\Controllers\Admin\RoleController' => 'role',
                 'App\Http\Controllers\Admin\UserController' => 'user',
                 'App\Http\Controllers\Admin\ArticleController' => 'article',
+                'App\Http\Controllers\Admin\FaqsController' => 'faqs',
             ];
 
             foreach ($listRouter as $controller => $linkName) {
