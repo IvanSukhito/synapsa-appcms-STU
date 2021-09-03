@@ -35,7 +35,7 @@ class _CrudParentController extends _GlobalFunctionController
     {
         $this->request = $request;
         $this->crud = new _CRUD($model);
-        $this->parentModel = 'App\Codes\Models\\' . $parent['parentModel'];
+        $this->parentModel = 'App\Codes\Models\V1\\' . $parent['parentModel'];
         $this->parentKeyId = $parent['parentKeyId'];
         $this->parentId = $parent['parentId'];
         $this->parentRoute = $parent['parentRoute'];

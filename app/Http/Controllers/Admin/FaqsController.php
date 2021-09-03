@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
+use App\Codes\Models\V1\Faqs;
 use Illuminate\Http\Request;
-use App\Codes\Models\Faqs;
 
 class FaqsController extends _CrudController
 {
