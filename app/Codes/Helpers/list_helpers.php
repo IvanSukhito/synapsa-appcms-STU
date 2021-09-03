@@ -256,3 +256,14 @@ if ( ! function_exists('get_list_shift_data_status')) {
         ];
     }
 }
+
+if ( ! function_exists('get_list_status')) {
+    function get_list_status()
+    {
+        return [
+            1 => __('general.status1'),
+            2 => __('general.status2'),
+            3 => __('general.status3')
+        ];
+    }
+}

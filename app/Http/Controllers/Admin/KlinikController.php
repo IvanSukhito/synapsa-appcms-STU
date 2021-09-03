@@ -36,5 +36,6 @@ class KlinikController extends _CrudController
             $passingData
         );
 
+        $this->data['listSet']['status'] = get_list_status();
     }
 }
