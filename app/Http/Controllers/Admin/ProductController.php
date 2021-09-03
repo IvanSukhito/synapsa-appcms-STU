@@ -37,6 +37,13 @@ class ProductController extends _CrudController
                     'edit' => 'required'
                 ]
             ],
+            'image' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'type' => 'image',
+            ],
             'price' => [
                 'validate' => [
                     'create' => 'required',
@@ -53,7 +60,8 @@ class ProductController extends _CrudController
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
-                ]
+                ],
+                'type' => 'textarea',
             ],
             'stock' => [
                 'validate' => [
