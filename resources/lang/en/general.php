@@ -24,6 +24,7 @@ return [
     'desc_benefit' => 'Desc Benefit',
     'desc_preparation' => 'Desc Preparation',
     'recommended_for' => 'Recommended For',
+    'thumbnail' => 'Thumbnail',
     'address' => 'Address',
     'article' => 'Article',
     'id' => 'Id',
