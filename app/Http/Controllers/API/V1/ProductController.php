@@ -296,7 +296,37 @@ class ProductController extends Controller
 
     public function updateShipping(){
 
+        $user = $this->request->attributes->get('_user');
+        $getUsersCart = UsersCart::where('users_id', $user->id)->first();
+        $validator = Validator::make($this->request->all(), [
+            'name' => 'required',
+            'price' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => 0,
+                'message' => $validator->messages()->all(),
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ]);
+        }
 
+        $getShipping = [
+            'name' => $this->request->get('name'),
+            'price' => $this->request->get('price'),
+        ];
+        //dd($getUsersCart);
+        $getUsersCart->detail_shipping = $getShipping;
+        $getUsersCart->save();
+
+        $getData = ['detail_shipping' => $getShipping];
+
+
+        return response()->json([
+            'succes' => 1,
+            'message' => 'Detail Shipping Has Been Updated',
+            'data' => $getData
+        ]);
+    
     }
 
     public function getShipping(){
