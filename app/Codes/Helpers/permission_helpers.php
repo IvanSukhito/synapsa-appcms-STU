@@ -262,6 +262,15 @@ if ( ! function_exists('listAllMenu')) {
                 'type' => 1,
             ],
             [
+                'name' => __('general.product'),
+                'icon' => '<i class="nav-icon fa fa-product-hunt"></i>',
+                'title' => __('general.product'),
+                'active' => ['admin.product.'],
+                'route' => 'admin.product.index',
+                'key' => 'product',
+                'type' => 1,
+            ],
+            [
                 'name' => __('general.setting'),
                 'icon' => '<i class="nav-icon fa fa-gear"></i>',
                 'title' => __('general.setting'),
@@ -352,6 +361,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'admin',
                      'role',
                      'article',
+                     'product',
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [
