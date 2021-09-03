@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
-use App\Codes\Models\V1\Product;
-use App\Codes\Models\V1\ProductCategory;
+use App\Codes\Models\V1\Lab;
 use Illuminate\Http\Request;
 
-class ProductController extends _CrudController
+class LabController extends _CrudController
 {
     public function __construct(Request $request)
     {
@@ -16,20 +15,6 @@ class ProductController extends _CrudController
                 'create' => 0,
                 'edit' => 0,
                 'show' => 0
-            ],
-            'product_category_id' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'lang' => 'general.product_category_id',
-                'type' => 'select',
-            ],
-            'sku' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
             ],
             'name' => [
                 'validate' => [
@@ -41,32 +26,34 @@ class ProductController extends _CrudController
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
-                ]
+                ],
             ],
-            'unit' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ]
-            ],
-            'desc' => [
+            'desc_lab' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
                 ],
                 'type' => 'textarea',
             ],
-            'stock' => [
+            'desc_benefit' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
-                ]
+                ],
+                'type' => 'textarea'
             ],
-            'stock_flag' => [
+            'desc_preparation' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
-                ]
+                ],
+                'type' => 'textarea'
+            ],
+            'recommended_for' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
             ],
             'action' => [
                 'create' => 0,
@@ -77,18 +64,8 @@ class ProductController extends _CrudController
         ];
 
         parent::__construct(
-            $request, 'general.product', 'product', 'V1\Product', 'product',
+            $request, 'general.lab', 'lab', 'V1\Lab', 'lab',
             $passingData
         );
-
-        $getCategory = ProductCategory::get()->pluck('name', 'id')->toArray();
-        $listCategory = [0 => 'Kosong'];
-        if($getCategory) {
-            foreach($getCategory as $key => $value) {
-                $listCategory[$key] = $value;
-            }
-        }
-
-        $this->data['listSet']['product_category_id'] = $listCategory;
     }
 }

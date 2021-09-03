@@ -271,6 +271,15 @@ if ( ! function_exists('listAllMenu')) {
                 'type' => 1,
             ],
             [
+                'name' => __('general.lab'),
+                'icon' => '<i class="nav-icon fa fa-flask"></i>',
+                'title' => __('general.lab'),
+                'active' => ['admin.lab.'],
+                'route' => 'admin.lab.index',
+                'key' => 'lab',
+                'type' => 1,
+            ],
+            [
                 'name' => __('general.setting'),
                 'icon' => '<i class="nav-icon fa fa-gear"></i>',
                 'title' => __('general.setting'),
@@ -362,6 +371,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'role',
                      'article',
                      'product',
+                     'lab',
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [
