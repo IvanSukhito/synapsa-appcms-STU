@@ -84,7 +84,7 @@ class GeneralController extends Controller
                 return response()->json([
                     'success' => 0,
                     'message' => ['Failed upload KTP Image'],
-                ]);
+                ], 422);
             }
         }
 
@@ -106,10 +106,7 @@ class GeneralController extends Controller
                 $img->save();
             }
             catch (\Exception $e) {
-                return response()->json([
-                    'success' => 0,
-                    'message' => ['Failed upload KTP Image'],
-                ]);
+
             }
         }
 
