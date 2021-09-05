@@ -176,7 +176,8 @@ class GeneralController extends Controller
 
         catch (QueryException $e){
             return response()->json([
-                'message' => 'Insert Failed'
+                'message' => 'Insert Failed',
+                'error' => $e->getMessage()
             ], 500);
         }
     }
