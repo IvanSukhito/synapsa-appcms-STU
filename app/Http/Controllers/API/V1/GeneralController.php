@@ -266,7 +266,7 @@ class GeneralController extends Controller
             return response()->json([
                 'success' => 0,
                 'message' => $validator->messages()->all(),
-            ]);
+            ], 422);
         }
         $getEmail = $this->request->get('email');
         $getUser = Users::where('email', $getEmail)->first();
@@ -274,14 +274,14 @@ class GeneralController extends Controller
             return response()->json([
                 'success' => 0,
                 'message' => [__('Email not found')]
-            ]);
+            ], 422);
         }
 
         if ($getUser->status != 80) {
             return response()->json([
                 'success' => 0,
                 'message' => [__('Account not active')]
-            ]);
+            ], 422);
         }
 
         $getForgetPassword = ForgetPassword::where('user_id', $getUser->id)->where('status', 1)->where('created_at <', date('Y-m-d H:i:s', strtotime("-1 hour")))->first();
@@ -289,7 +289,7 @@ class GeneralController extends Controller
             return response()->json([
                 'success' => 0,
                 'message' => [__('Account already request forgot password, must wait 1 hour to request again')]
-            ]);
+            ], 422);
         }
 
         $newCode = generateNewCode(6);
