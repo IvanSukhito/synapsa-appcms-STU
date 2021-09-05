@@ -84,6 +84,7 @@ class GeneralController extends Controller
                 return response()->json([
                     'success' => 0,
                     'message' => ['Failed upload KTP Image'],
+                    'error' => $e->getMessage()
                 ], 422);
             }
         }
