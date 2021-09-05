@@ -127,7 +127,7 @@ class GeneralController extends Controller
             $users->phone = $this->request->get('phone');
             $users->email = $this->request->get('email');
             $users->password = bcrypt($this->request->get('password'));
-            $users->status = $this->request->get('status');
+            $users->status = 80;
             $users->patient = $this->request->get('patient');
             $users->upload_ktp = $getUploadKtp;
             $users->image = $getUploadImage;
