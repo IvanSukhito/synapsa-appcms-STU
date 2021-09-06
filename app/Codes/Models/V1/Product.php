@@ -26,7 +26,8 @@ class Product extends Model
 
     public function getImageFullAttribute()
     {
-        return strlen($this->image) > 0 ? asset('uploads/product/'.$this->image) : asset('assets/cms/images/no-img.png');
+        return asset('assets/cms/images/no-img.png');
+//        return strlen($this->image) > 0 ? asset('uploads/product/'.$this->image) : asset('assets/cms/images/no-img.png');
     }
 
 
