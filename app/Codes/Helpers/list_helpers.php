@@ -59,7 +59,7 @@ if ( ! function_exists('get_list_availabe')) {
     function get_list_availabe()
     {
         return [
-            88 => __('general.available'),
+            80 => __('general.available'),
             99 => __('general.unavailable')
         ];
     }

@@ -134,7 +134,7 @@ class DemoSeeder extends Seeder
                 'day' => rand(1, 7),
                 'time_start' => Carbon::now(),
                 'time_end' => Carbon::now(),
-                'book' => rand(0,1),
+                'book' => rand(0,1) == 1 ? 80 : 99,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
