@@ -9,6 +9,28 @@ if ( ! function_exists('get_list_active_inactive')) {
     }
 }
 
+if ( ! function_exists('get_list_gender')) {
+    function get_list_gender()
+    {
+        return [
+            1 => __('general.pria'),
+            2 => __('general.wanita')
+        ];
+    }
+}
+
+
+if ( ! function_exists('get_list_transaction')) {
+    function get_list_transaction()
+    {
+        return [
+            1 => __('general.pending'),
+            80 => __('general.success'),
+            99 => __('general.cancel'),
+        ];
+    }
+}
+
 if ( ! function_exists('get_list_lang')) {
     function get_list_lang()
     {
