@@ -169,6 +169,8 @@ class GeneralController extends Controller
                     'patient' => $users->patient,
                     'doctor' => $users->doctor,
                     'nurse' => $users->nurse,
+                    'status' => $users->status,
+                    'status_nice' => $users->status_nice
                 ]
             ]);
 

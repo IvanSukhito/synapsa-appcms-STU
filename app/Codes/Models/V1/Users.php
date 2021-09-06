@@ -36,12 +36,19 @@ class Users extends Model implements JWTSubject
     protected $hidden = ['password'];
 
     protected $appends = [
-        'upload_ktp_full'
+        'upload_ktp_full',
+        'status_nice'
     ];
 
     public function getUploadKtpFullAttribute()
     {
         return strlen($this->upload_ktp) > 0 ? asset('uploads/users/'.$this->upload_ktp) : asset('assets/cms/images/no-img.png');
+    }
+
+    public function getStatusNiceAttribute()
+    {
+        $getList = get_list_active_inactive();
+        return $getList[$this->status] ?? $this->status;
     }
 
     public function getUploadImage()
