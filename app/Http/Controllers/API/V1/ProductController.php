@@ -31,8 +31,12 @@ class ProductController extends Controller
     public function getProduct(){
 
         $user = $this->request->attributes->get('_user');
+        $getLimit = $this->request->get('limit');
+        if ($getLimit <= 0) {
+            $getLimit = $this->limit;
+        }
 
-        $data = Product::orderBy('id','DESC')->paginate($this->limit);
+        $data = Product::orderBy('id','DESC')->paginate($getLimit);
 
         return response()->json([
             'success' => 1,
@@ -327,7 +331,7 @@ class ProductController extends Controller
             'message' => 'Detail Shipping Has Been Updated',
             'data' => $getData
         ]);
-    
+
     }
 
     public function getShipping(){
