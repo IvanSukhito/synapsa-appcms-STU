@@ -256,19 +256,57 @@ if ( ! function_exists('listAllMenu')) {
                 'name' => __('general.article'),
                 'icon' => '<i class="nav-icon fa fa-newspaper-o"></i>',
                 'title' => __('general.article'),
-                'active' => ['admin.article.'],
-                'route' => 'admin.article.index',
-                'key' => 'article',
-                'type' => 1,
+                'active' => [
+                    'admin.article.',
+                    'admin.article-category.',
+                ],
+                'type' => 2,
+                'data' => [
+                    [
+                        'name' => __('general.article'),
+                        'title' => __('general.article'),
+                        'active' => ['admin.article.'],
+                        'route' => 'admin.article.index',
+                        'key' => 'article',
+                        'type' => 1,
+                    ],
+                    [
+                        'name' => __('general.article-category'),
+                        'title' => __('general.article-category'),
+                        'active' => ['admin.article-category.'],
+                        'route' => 'admin.article-category.index',
+                        'key' => 'article-category',
+                        'type' => 1,
+                    ],
+                ],
             ],
             [
                 'name' => __('general.product'),
                 'icon' => '<i class="nav-icon fa fa-product-hunt"></i>',
                 'title' => __('general.product'),
-                'active' => ['admin.product.'],
-                'route' => 'admin.product.index',
-                'key' => 'product',
-                'type' => 1,
+                'active' => [
+                    'admin.product.',
+                    'admin.product-category.',
+                ],
+                'type' => 2,
+                'data' => [
+                    [
+                        'name' => __('general.product'),
+                        'title' => __('general.product'),
+                        'active' => ['admin.product.'],
+                        'route' => 'admin.product.index',
+                        'key' => 'product',
+                        'type' => 1,
+                    ],
+                    [
+                        'name' => __('general.product-category'),
+                        'title' => __('general.product-category'),
+                        'active' => ['admin.product-category.'],
+                        'route' => 'admin.product-category.index',
+                        'key' => 'product-category',
+                        'type' => 1,
+                    ],
+                ],
             ],
             [
                 'name' => __('general.lab'),
@@ -351,6 +389,8 @@ if ( ! function_exists('listAvailablePermission'))
             'v1-users',
             'faqs',
             'klinik',
+            'product-category',
+            'article-category',
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [
@@ -373,7 +413,6 @@ if ( ! function_exists('listAvailablePermission'))
                      'article',
                      'product',
                      'lab',
-                     'article-category',
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [

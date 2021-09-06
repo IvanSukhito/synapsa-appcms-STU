@@ -35,6 +35,8 @@ return [
     'wanita' => 'Wanita',
     'lansia' => 'Lansia',
     'anak-anak' => 'Anak-anak',
+    'product-category' => 'Product Category',
+    'article-category' => 'Article Category',
     'image' => 'Image',
     'instagram' => 'Instagram',
     'pin' => 'PIN',

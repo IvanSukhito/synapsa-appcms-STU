@@ -88,7 +88,7 @@ class ProductController extends _CrudController
             $passingData
         );
 
-        $getCategory = ProductCategory::get()->pluck('name', 'id')->toArray();
+        $getCategory = ProductCategory::where('status', 1)->pluck('name', 'id')->toArray();
         $listCategory = [0 => 'Kosong'];
         if($getCategory) {
             foreach($getCategory as $key => $value) {

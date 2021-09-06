@@ -3,12 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
-use App\Codes\Models\V1\ArticleCategory;
-use App\Http\Controllers\Controller;
+use App\Codes\Models\V1\ProductCategory;
 use Illuminate\Http\Request;
-use App\Codes\Models\V1\Article;
 
-class ArticleCategoryController extends _CrudController
+class ProductCategoryController extends _CrudController
 {
     public function __construct(Request $request)
     {
@@ -22,30 +20,28 @@ class ArticleCategoryController extends _CrudController
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
-                ],
-           ],
+                ]
+            ],
             'status' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
                 ],
                 'type' => 'select',
-           ],
+            ],
             'action' => [
                 'create' => 0,
                 'edit' => 0,
                 'show' => 0,
-                'custom' => ',orderable:false'
+                'lang' => 'Aksi',
             ]
         ];
 
         parent::__construct(
-            $request, 'general.article-category', 'article-category', 'V1\ArticleCategory', 'article-category',
+            $request, 'general.product-category', 'product-category', 'V1\ProductCategory', 'product-category',
             $passingData
         );
 
         $this->data['listSet']['status'] = get_list_status();
-
     }
-
 }
