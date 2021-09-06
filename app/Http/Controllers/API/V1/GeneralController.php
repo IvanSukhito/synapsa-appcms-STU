@@ -219,11 +219,14 @@ class GeneralController extends Controller
                     $user->getDeviceToken()->sync([$getDeviceToken->id]);
                 }
 
+                $getKlinik = Klinik::where('id', $user->klinik_id)->first();
+
                 return response()->json([
                     'success' => 1,
                     'message' => 'Success Login',
                     'data' => [
                         'klinik_id' => $user->klinik_id,
+                        'klinik_name' => $getKlinik ? $getKlinik->name : '',
                         'fullname' => $user->fullname,
                         'address' => $user->address,
                         'address_detail' => $user->address_detail,

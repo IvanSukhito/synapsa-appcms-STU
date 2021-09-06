@@ -23,11 +23,13 @@ class HomeController extends Controller
     public function checkLogin()
     {
         $user = $this->request->attributes->get('_user');
+        $getKlinik = Klinik::where('id', $user->klinik_id)->first();
 
         return response()->json([
             'success' => 1,
             'data' => [
                 'klinik_id' => $user->klinik_id,
+                'klinik_name' => $getKlinik ? $getKlinik->name : '',
                 'fullname' => $user->fullname,
                 'address' => $user->address,
                 'address_detail' => $user->address_detail,
