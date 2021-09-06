@@ -49,9 +49,11 @@ class HomeController extends Controller
         $limit = 4;
 
         $totalNotif = Notifications::where('user_id',$user->id)->where('is_read',1)->count();
-        $dataSliders = Sliders::orderBy('id','DESC')->get();
-        $dataProduct = Product::orderBy('id','DESC')->limit($limit);
-        $dataArticle = Article::orderBy('publish_date','DESC')->where('publish_status', 1)->limit($limit);
+        $dataSliders = Sliders::orderBy('id','DESC')->paginate($limit);
+        $dataProduct = Product::orderBy('id','DESC')->paginate($limit);
+        //dd($dataProduct);
+        $dataArticle = Article::orderBy('publish_date','DESC')->where('publish_status', 1)->limit($limit)->get();
+        //$data = Article::orderBy('id','DESC')->paginate($limit);
 
         return response()->json([
             'success' => 1,

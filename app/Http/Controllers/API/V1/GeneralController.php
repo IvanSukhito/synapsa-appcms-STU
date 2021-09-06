@@ -221,6 +221,7 @@ class GeneralController extends Controller
 
                 return response()->json([
                     'success' => 1,
+                    'message' => 'Success Login',
                     'data' => [
                         'klinik_id' => $user->klinik_id,
                         'fullname' => $user->fullname,
@@ -287,18 +288,18 @@ class GeneralController extends Controller
             ], 422);
         }
 
-        $getForgetPassword = ForgetPassword::where('user_id', $getUser->id)->where('status', 1)->where('created_at <', date('Y-m-d H:i:s', strtotime("-1 hour")))->first();
-        if ($getForgetPassword) {
-            return response()->json([
-                'success' => 0,
-                'message' => [__('Account already request forgot password, must wait 1 hour to request again')]
-            ], 422);
-        }
+       $getForgetPassword = ForgetPassword::where('users_id', $getUser->id)->where('status', 1)->where('created_at', '<', date('Y-m-d H:i:s', strtotime("-1 hour")))->first();
+       if ($getForgetPassword) {
+           return response()->json([
+               'success' => 0,
+               'message' => [__('Account already request forgot password, must wait 1 hour to request again')]
+           ], 422);
+       }
 
         $newCode = generateNewCode(6);
 
         ForgetPassword::create([
-            'user_id' => $getUser->id,
+            'users_id' => $getUser->id,
             'code' => $newCode,
             'email' => $getEmail,
             'attempt' => 0,
@@ -307,12 +308,12 @@ class GeneralController extends Controller
 
         $subject = 'Lupa Password';
 
-        Mail::send('mail.forgot', [
-            'user' => $getUser,
-            'code' => $newCode
-        ], function($m) use ($getUser, $subject) {
-            $m->to($getUser->email, $getUser->name)->subject($subject);
-        });
+       Mail::send('mail.forgot', [
+           'user' => $getUser,
+           'code' => $newCode
+       ], function($m) use ($getUser, $subject) {
+           $m->to($getUser->email, $getUser->name)->subject($subject);
+       });
 
         return response()->json([
             'success' => 1,

@@ -17,7 +17,7 @@ class CreateDoctorScheduleTable extends Migration
             $table->id();
             $table->unsignedBigInteger('doctor_id')->default(0);
             $table->date('book_date')->nullable();
-            $table->string('book_at')->nullable();
+            $table->time('book_at')->nullable();
             $table->integer('orders')->default(1);
             $table->timestamps();
         });

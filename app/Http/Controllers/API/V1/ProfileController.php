@@ -33,7 +33,7 @@ class ProfileController extends Controller
         $getUser->image_full = strlen($user->image) > 0 ? asset('uploads/users/'.$user->image) : null;
         $getUser->join = date('d F Y', strtotime($user->created_at));
 
-      
+
         return response()->json([
             'success' => 1,
             'data' => $getUser,
@@ -62,7 +62,7 @@ class ProfileController extends Controller
         $validator->setAttributeNames([
             'dob' => 'Anda harus berusia 18 tahun untuk melanjutkan',
         ]);
-        
+
         if ($validator->fails()) {
             return response()->json([
                 'success' => 0,
@@ -202,7 +202,7 @@ class ProfileController extends Controller
         $getUser->join = date('d F Y', strtotime($user->created_at));
 
         $getUser = [
-         
+
             'address' => $user->address,
             'address_detail' => $user->address_detail,
             'city' => $user->city_id,
@@ -211,7 +211,7 @@ class ProfileController extends Controller
             'zip_code' => $user->zip_code
         ];
 
-      
+
         return response()->json([
             'success' => 1,
             'data' => $getUser,
@@ -239,7 +239,7 @@ class ProfileController extends Controller
             ]);
         }
 
-       
+
             $user->address = $this->request->get('address');
             $user->address_detail = $this->request->get('address_detail');
             $user->city_id = $this->request->get('city_id');
@@ -248,9 +248,9 @@ class ProfileController extends Controller
             $user->zip_code = $this->request->get('zip_code');
             $user->save();
 
-            
+
             $getUser = [
-            
+
                 'address' => $user->address,
                 'address_detail' => $user->address_detail,
                 'city' => $user->city_id,
@@ -258,7 +258,7 @@ class ProfileController extends Controller
                 'sub_district' => $user->sub_district_id,
                 'zip_code' => $user->zip_code
             ];
-            
+
             return response()->json([
                 'success' => 1,
                 'data' => $getUser,
@@ -288,7 +288,7 @@ class ProfileController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token')
             ]);
         }
-        
+
         if(!app('hash')->check($this->request->get('old_password'), $user->password)) {
             return response()->json([
                 'success' => 0,
@@ -300,7 +300,7 @@ class ProfileController extends Controller
         $user->password = bcrypt($this->request->get('password'));
         $user->save();
 
-        
+
         return response()->json([
             'success' => 1,
             'token' => $this->request->attributes->get('_refresh_token'),
@@ -340,14 +340,14 @@ class ProfileController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token'),
             ]);
         }
-      
+
     }
 
     public function verifPhone(){
-    
+
         $user = $this->request->attributes->get('_user');
         $validator = Validator::make($this->request->all(), [
-            'phone' => 'required|regex:/^(08\d+)/|numeric|unique:users,phone'
+            'phone' => 'required|regex:/^(08\d+)/|numeric'
 
         ]);
         if ($validator->fails()) {
@@ -360,7 +360,7 @@ class ProfileController extends Controller
         $user = Users::where('id', $user->id)->first();
         $getPhone = $this->request->get('phone');
 
-      
+
         if($getPhone == $user->phone){
 
             return response()->json([
@@ -376,7 +376,7 @@ class ProfileController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token'),
             ]);
         }
-        
+
     }
 
     public function notifications(){
@@ -392,17 +392,14 @@ class ProfileController extends Controller
         return response()->json([
             'success' => 1,
             'data' => [
-            
+
                 'totalNotif' => $totalNotif,
                 'Notifications' => $notif,
-             
+
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
-        
+
     }
-
-
-  
 
 }

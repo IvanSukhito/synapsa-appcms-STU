@@ -16,8 +16,7 @@ class CreateLabScheduleTable extends Migration
         Schema::create('lab_schedule', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('lab_id')->default(0);
-            $table->date('book_date')->nullable();
-            $table->string('book_at')->nullable();
+            $table->time('open_at')->nullable();
             $table->integer('orders')->default(1);
             $table->timestamps();
             $table->foreign('lab_id', 'lab1_rel')

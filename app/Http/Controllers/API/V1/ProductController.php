@@ -16,6 +16,7 @@ class ProductController extends Controller
 {
     protected $request;
     protected $setting;
+    protected $limit;
 
 
     public function __construct(Request $request)
@@ -24,14 +25,14 @@ class ProductController extends Controller
         $this->setting = Cache::remember('setting', env('SESSION_LIFETIME'), function () {
             return Settings::pluck('value', 'key')->toArray();
         });
+        $this->limit = 10;
     }
 
     public function getProduct(){
 
         $user = $this->request->attributes->get('_user');
 
-        $limit = 10;
-        $data = Product::orderBy('id','DESC')->paginate($limit);
+        $data = Product::orderBy('id','DESC')->paginate($this->limit);
 
         return response()->json([
             'success' => 1,
@@ -331,5 +332,20 @@ class ProductController extends Controller
 
     public function getShipping(){
 
+    }
+
+    public function searchProduct(){
+        $s = $this->request->get('s');
+
+        $getData = Product::query();
+
+        if ($s) {
+            $getData = $getData->where('name', 'LIKE', strip_tags($s));
+        }
+
+        return response()->json([
+            'success' => 1,
+            'data' => $getData->paginate($this->limit)
+        ]);
     }
 }
