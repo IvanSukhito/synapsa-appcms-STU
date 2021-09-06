@@ -3,8 +3,8 @@ if ( ! function_exists('get_list_active_inactive')) {
     function get_list_active_inactive()
     {
         return [
-            1 => __('general.active'),
-            2 => __('general.inactive')
+            80 => __('general.active'),
+            99 => __('general.inactive')
         ];
     }
 }
@@ -23,43 +23,24 @@ if ( ! function_exists('get_list_gender')) {
     function get_list_gender()
     {
         return [
-            'Pria' => __('Pria'),
-            'Wanita' => __('Wanita')
+            1 => __('Pria'),
+            2 => __('Wanita')
         ];
     }
 }
 
-if ( ! function_exists('get_list_condition')) {
-    function get_list_condition()
+if ( ! function_exists('get_list_order_status')) {
+    function get_list_order_status()
     {
         return [
-            1 => __('general.occupied'),
-            2 => __('general.rent'),
-            3 => __('general.empty')
-        ];
-    }
-}
-
-if ( ! function_exists('get_list_privilege')) {
-    function get_list_privilege()
-    {
-        return [
-            0 => __('general.pending'),
-            1 => __('general.active')
-        ];
-    }
-}
-
-if ( ! function_exists('get_list_billing_status')) {
-    function get_list_billing_status()
-    {
-        return [
-            1 => __('general.not_paid'),
+            1 => __('general.not_complete'),
             2 => __('general.waiting'),
-            3 => __('general.need_update'),
-            4 => __('general.due_date'),
-            5 => __('general.confirm'),
-            9 => __('general.void')
+            3 => __('general.driver_assign'),
+            4 => __('general.driver_pickup'),
+            5 => __('general.lab_receive'),
+            80 => __('general.complete'),
+            81 => __('general.billing'),
+            99 => __('general.void')
         ];
     }
 }
@@ -136,21 +117,6 @@ if ( ! function_exists('get_list_data')) {
     }
 }
 
-if ( ! function_exists('get_list_year')) {
-    function get_list_year()
-    {
-        return [
-            date('Y', strtotime('-2 year')) => date('Y', strtotime('-2 year')),
-            date('Y', strtotime('-1 year')) => date('Y', strtotime('-1 year')),
-            date('Y', strtotime("now")) => date('Y', strtotime("now")),
-            date('Y', strtotime('+1 year')) => date('Y', strtotime('+1 year'))
-        ];
-    }
-}
-
-
-
-
 if ( ! function_exists('get_list_show_hide')) {
     function get_list_show_hide()
     {
@@ -161,120 +127,3 @@ if ( ! function_exists('get_list_show_hide')) {
     }
 }
 
-if ( ! function_exists('get_list_position')) {
-    function get_list_position()
-    {
-        return [
-            1 => __('general.resident'),
-            2 => __('general.organization')
-        ];
-    }
-}
-
-if ( ! function_exists('get_list_householder')) {
-    function get_list_householder()
-    {
-        return [
-            0 => __('general.resident'),
-            1 => __('general.householder'),
-        ];
-    }
-}
-
-if ( ! function_exists('get_list_house_condition')) {
-    function get_list_house_condition()
-    {
-        return [
-            1 => __('general.ok'),
-            2 => __('general.rent'),
-            3 => __('general.empty'),
-            9 => __('general.problem')
-        ];
-    }
-}
-
-if ( ! function_exists('get_list_house_status')) {
-    function get_list_house_status()
-    {
-        return [
-            1 => __('general.active'),
-            2 => __('general.inactive'),
-        ];
-    }
-}
-
-if ( ! function_exists('get_list_type_report')) {
-    function get_list_type_report()
-    {
-        return [
-            1 => __('general.report'),
-            2 => __('general.emergency')
-        ];
-    }
-}
-
-if ( ! function_exists('get_list_report_status')) {
-    function get_list_report_status()
-    {
-        return [
-            1 => __('general.waiting'),
-            2 => __('general.process'),
-            3 => __('general.waiting_approve'),
-            5 => __('general.done'),
-            9 => __('general.cancel'),
-        ];
-    }
-}
-
-if ( ! function_exists('get_list_report_status2')) {
-    function get_list_report_status2()
-    {
-        return [
-            2 => __('general.process'),
-            3 => __('general.waiting_approve'),
-        ];
-    }
-}
-
-if ( ! function_exists('get_list_report_status_user_edit')) {
-    function get_list_report_status_user_edit()
-    {
-        return [
-            2 => __('general.process'),
-            5 => __('general.done')
-        ];
-    }
-}
-
-if ( ! function_exists('get_list_shift_data_status')) {
-    function get_list_shift_data_status()
-    {
-        return [
-            1 => __('general.normal'),
-            2 => __('general.full_day'),
-            3 => __('general.day_off')
-        ];
-    }
-}
-
-if ( ! function_exists('get_list_status')) {
-    function get_list_status()
-    {
-        return [
-            1 => __('general.active'),
-            0 => __('general.inactive'),
-        ];
-    }
-}
-
-if ( ! function_exists('get_list_recommended_for')) {
-    function get_list_recommended_for()
-    {
-        return [
-            'pria' => __('general.pria'),
-            'wanita' => __('general.wanita'),
-            'lansia' => __('general.lansia'),
-            'anak-anak' => __('general.anak-anak'),
-        ];
-    }
-}
