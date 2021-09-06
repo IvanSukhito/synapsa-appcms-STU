@@ -168,9 +168,7 @@ class GeneralController extends Controller
                     'email' => $users->email,
                     'patient' => $users->patient,
                     'doctor' => $users->doctor,
-                    'nurse' => $users->nurse,
-                    'status' => $users->status,
-                    'status_nice' => $users->status_nice
+                    'nurse' => $users->nurse
                 ]
             ]);
 
@@ -229,12 +227,14 @@ class GeneralController extends Controller
                         'address' => $user->address,
                         'address_detail' => $user->address_detail,
                         'zip_code' => $user->zip_code,
-                        'gender' => $user->gender,
+                        'gender' => intval($user->gender) == 1 ? 1 : 2,
                         'phone' => $user->phone,
                         'email' => $user->email,
                         'patient' => $user->patient,
                         'doctor' => $user->doctor,
-                        'nurse' => $user->nurse
+                        'nurse' => $user->nurse,
+                        'status' => $user->status,
+                        'status_nice' => $user->status_nice
                     ],
                     'token' => (string)$token
                 ]);
