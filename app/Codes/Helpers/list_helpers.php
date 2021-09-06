@@ -266,3 +266,15 @@ if ( ! function_exists('get_list_status')) {
         ];
     }
 }
+
+if ( ! function_exists('get_list_recommended_for')) {
+    function get_list_recommended_for()
+    {
+        return [
+            'pria' => __('general.pria'),
+            'wanita' => __('general.wanita'),
+            'lansia' => __('general.lansia'),
+            'anak-anak' => __('general.anak-anak'),
+        ];
+    }
+}
