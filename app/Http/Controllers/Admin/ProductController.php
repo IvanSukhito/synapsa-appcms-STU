@@ -22,8 +22,8 @@ class ProductController extends _CrudController
                     'create' => 'required',
                     'edit' => 'required'
                 ],
-                'lang' => 'general.product_category_id',
-                'type' => 'select',
+                'lang' => 'general.product-category',
+                'type' => 'select2',
             ],
             'sku' => [
                 'validate' => [

@@ -309,12 +309,70 @@ if ( ! function_exists('listAllMenu')) {
                 ],
             ],
             [
+                'name' => __('general.service'),
+                'icon' => '<i class="nav-icon fa fa-wrench"></i>',
+                'title' => __('general.service'),
+                'active' => [
+                    'admin.service.',
+                    'admin.service-doctor.',
+                    'admin.service-lab.'
+                ],
+                'type' => 2,
+                'data' => [
+                    [
+                        'name' => __('general.service'),
+                        'title' => __('general.service'),
+                        'active' => ['admin.service.'],
+                        'route' => 'admin.service.index',
+                        'key' => 'service',
+                        'type' => 1,
+                    ],
+                ],
+            ],
+            [
+                'name' => __('general.product'),
+                'icon' => '<i class="nav-icon fa fa-product-hunt"></i>',
+                'title' => __('general.product'),
+                'active' => [
+                    'admin.product.',
+                    'admin.product-category.',
+                ],
+                'type' => 2,
+                'data' => [
+                    [
+                        'name' => __('general.product'),
+                        'title' => __('general.product'),
+                        'active' => ['admin.product.'],
+                        'route' => 'admin.product.index',
+                        'key' => 'product',
+                        'type' => 1,
+                    ],
+                    [
+                        'name' => __('general.product-category'),
+                        'title' => __('general.product-category'),
+                        'active' => ['admin.product-category.'],
+                        'route' => 'admin.product-category.index',
+                        'key' => 'product-category',
+                        'type' => 1,
+                    ],
+                ],
+            ],
+            [
                 'name' => __('general.lab'),
                 'icon' => '<i class="nav-icon fa fa-flask"></i>',
                 'title' => __('general.lab'),
                 'active' => ['admin.lab.'],
                 'route' => 'admin.lab.index',
                 'key' => 'lab',
+                'type' => 1,
+            ],
+            [
+                'name' => __('general.users'),
+                'icon' => '<i class="nav-icon fa fa-user"></i>',
+                'title' => __('general.users'),
+                'active' => ['admin.users.'],
+                'route' => 'admin.users.index',
+                'key' => 'users',
                 'type' => 1,
             ],
             [
@@ -390,6 +448,8 @@ if ( ! function_exists('listAvailablePermission'))
             'klinik',
             'product-category',
             'article-category',
+            'doctor-category',
+            'service',
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [
@@ -412,6 +472,10 @@ if ( ! function_exists('listAvailablePermission'))
                      'article',
                      'product',
                      'lab',
+                     'users',
+                     'doctor',
+                     'doctor-service',
+                     'service-lab',
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [
