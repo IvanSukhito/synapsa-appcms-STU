@@ -448,7 +448,6 @@ if ( ! function_exists('listAvailablePermission'))
             'klinik',
             'product-category',
             'article-category',
-            'doctor-schedule',
             'service',
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
