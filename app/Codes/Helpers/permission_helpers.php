@@ -327,7 +327,6 @@ if ( ! function_exists('listAllMenu')) {
                     'admin.role.',
                     'admin.faqs',
                     'admin.klinik',
-                    'admin.article-category'
                 ],
                 'type' => 2,
                 'data' => [
