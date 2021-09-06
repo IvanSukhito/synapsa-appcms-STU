@@ -33,6 +33,7 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                 'App\Http\Controllers\Admin\LabController' => 'lab',
                 'App\Http\Controllers\Admin\UsersController' => 'users',
                 'App\Http\Controllers\Admin\DoctorController' => 'doctor',
+                'App\Http\Controllers\Admin\DoctorScheduleController' => 'doctor-schedule',
                 'App\Http\Controllers\Admin\DoctorCategoryController' => 'doctor-category',
                 'App\Http\Controllers\Admin\ServiceController' => 'service',
             ];
