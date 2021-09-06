@@ -19,6 +19,18 @@ if ( ! function_exists('get_list_lang')) {
     }
 }
 
+if ( ! function_exists('get_list_recommended_for')) {
+    function get_list_recommended_for()
+    {
+        return [
+            'Pria' => __('Pria'),
+            'Wanita' => __('Wanita'),
+            'Lansia' => __('Lansia'),
+            'Anak-anak' => __('Anak-anak'),
+        ];
+    }
+}
+
 if ( ! function_exists('get_list_gender')) {
     function get_list_gender()
     {
