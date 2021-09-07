@@ -127,7 +127,7 @@ class ProductController extends Controller
             return response()->json([
                 'success' => 0,
                 'message' => 'product not found',
-            ], 422);
+            ], 404);
         }
             try{
             $getUsersCart = UsersCart::where('users_id', $user->id)->first();
@@ -384,19 +384,25 @@ class ProductController extends Controller
 
         $user = $this->request->attributes->get('_user');
         $getData = UsersCartDetail::where('id', $id)->first();
-
         $validator = Validator::make($this->request->all(), [
-            'product_id' => 'required',
-            'qty' => 'required'
-        ]);
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => 0,
-                'message' => $validator->messages()->all(),
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
-
+            'product_id' => 'required|numeric',
+            'qty' => 'required|numeric',
+          ]);
+          $productId = $this->request->get('product_id');
+          if ($validator->fails()) {
+              return response()->json([
+                  'success' => 0,
+                  'message' => $validator->messages()->all(),
+              ], 422);
+          }
+  
+          $product = Product::where('id', $productId)->first();
+          if(!$product){
+              return response()->json([
+                  'success' => 0,
+                  'message' => 'product not found',
+              ], 404);
+          }
         if ($getData) {
             $getData->product_id = $this->request->get('product_id');
             $getData->qty = $this->request->get('qty');
@@ -530,7 +536,7 @@ class ProductController extends Controller
        }
        $listProduct = $temp;
 
-       dd($listProduct);
+       //dd($listProduct);
 
         $getAddress = json_decode($getUsersCart->detail_address, true);
         $getShipping = json_decode($getUsersCart->detail_shipping, true);
