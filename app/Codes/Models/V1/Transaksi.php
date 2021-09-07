@@ -9,7 +9,6 @@ class Transaksi extends Model
     protected $table = 'transaction';
     protected $primaryKey = 'id';
     protected $fillable = [
-
       'users_id',
       'payment',
       'payment_code',
@@ -19,7 +18,6 @@ class Transaksi extends Model
       'shipping',
       'list_order',
       'status'
-
     ];
     protected $appends = [
       'status_transaction'
