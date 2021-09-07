@@ -238,7 +238,8 @@ class GeneralController extends Controller
                         'doctor' => $user->doctor,
                         'nurse' => $user->nurse,
                         'status' => $user->status,
-                        'status_nice' => $user->status_nice
+                        'status_nice' => $user->status_nice,
+                        'gender_nice' => $user->gender_nice
                     ],
                     'token' => (string)$token
                 ]);
