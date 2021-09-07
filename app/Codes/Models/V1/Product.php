@@ -17,12 +17,19 @@ class Product extends Model
         'unit',
         'desc',
         'stock',
-        'stock_flag'
+        'stock_flag',
+        'status'
     ];
 
     protected $appends = [
+        'desc_details',
         'image_full'
     ];
+
+    public function getDescDetailsAttribute()
+    {
+        return json_decode($this->desc, TRUE);
+    }
 
     public function getImageFullAttribute()
     {

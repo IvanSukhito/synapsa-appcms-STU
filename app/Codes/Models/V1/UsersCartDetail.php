@@ -9,13 +9,10 @@ class UsersCartDetail extends Model
     protected $table = 'users_cart_detail';
     protected $primaryKey = 'id';
     protected $fillable = [
-      'users_cart_id',
-      'product_id',
-      'qty'
-
+        'users_cart_id',
+        'product_id',
+        'qty',
+        'choose'
     ];
-
-
-
 
 }

@@ -18,6 +18,7 @@ class CreateShippingTable extends Migration
             $table->string('name')->nullable();
             $table->text('icon')->nullable();
             $table->longtext('settings')->nullable();
+            $table->integer('orders')->default(1);
             $table->tinyInteger('status')->default(0);
             $table->timestamps();
         });
