@@ -10,9 +10,10 @@ class DoctorSchedule extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'doctor_id',
-        'book_date',
-        'book_at',
-        'orders'
+        'day',
+        'time_start',
+        'time_end',
+        'book'
     ];
 
     public function getDoctor()

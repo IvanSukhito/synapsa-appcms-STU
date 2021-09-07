@@ -489,6 +489,7 @@ class ProductController extends Controller
        foreach ($listProduct as $list) {
 
         $temp = [];
+        $totalPrice = 0;
         foreach($listCart as $data){
             $temp[] =
             [
@@ -497,6 +498,7 @@ class ProductController extends Controller
                 'qty' => $data->total_qty,
                 'total_price' => $list->price*$data->total_qty
             ];
+            $totalPrice +=  $list->price*$data->total_qty;
 
         }
 
@@ -510,8 +512,7 @@ class ProductController extends Controller
         $getInformation = json_decode($getUsersCart->detail_information, true);
 
         $getShipping = $getShipping['name'] ?? '';
-        //dd($getShipping);
-        $getShippingPrice = $getShipping['price'] ?? '';
+        $getShippingPrice = $getShipping['price'] ?? 0;
         $getCustomerName = $getInformation['receiver'] ?? '';
 
 
@@ -527,7 +528,7 @@ class ProductController extends Controller
         $trans = new Transaksi();
         $trans->payment  =  $this->request->get('payment');
         $trans->payment_code = $this->request->get('payment_code');
-        $trans->total_price = 0; //jumlah semua ditambah ongkir
+        $trans->total_price = $totalPrice + $getShippingPrice; //jumlah semua ditambah ongkir //
         $trans->customer_name = $getCustomerName;
         $trans->customer_address = json_encode($getAddress);
         $trans->shipping = $getShipping;
