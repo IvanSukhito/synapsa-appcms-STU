@@ -20,6 +20,17 @@ if ( ! function_exists('get_list_gender')) {
 }
 
 
+if ( ! function_exists('get_list_type_transaction')) {
+    function get_list_type_transaction()
+    {
+        return [
+            1 => __('Product'),
+            2 => __('Doctor Telemed'),
+            99 => __('general.cancel'),
+        ];
+    }
+}
+
 if ( ! function_exists('get_list_transaction')) {
     function get_list_transaction()
     {

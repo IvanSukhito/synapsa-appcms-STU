@@ -3,14 +3,18 @@
 namespace App\Http\Controllers\API\V1;
 
 use App\Codes\Models\Settings;
+use App\Codes\Models\V1\City;
+use App\Codes\Models\V1\District;
 use App\Codes\Models\V1\Payment;
 use App\Codes\Models\V1\Product;
 use App\Codes\Models\V1\ProductCategory;
 use App\Codes\Models\V1\Shipping;
+use App\Codes\Models\V1\SubDistrict;
+use App\Codes\Models\V1\TransactionDetails;
 use App\Codes\Models\V1\UsersAddress;
 use App\Codes\Models\V1\UsersCartDetail;
 use App\Codes\Models\V1\UsersCart;
-use App\Codes\Models\V1\Transaksi;
+use App\Codes\Models\V1\Transaction;
 use App\Http\Controllers\Controller;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -609,37 +613,85 @@ class ProductController extends Controller
 
         $paymentId = $this->request->get('payment_id');
         $getPayment = Payment::where('id', $paymentId)->first();
+        $paymentInfo = [];
 
         $getUsersCart = UsersCart::firstOrCreate([
             'users_id' => $user->id,
         ]);
 
-        $getUsersCartDetails = Product::selectRaw('users_cart_detail.id, product.name AS product_name,
+        $getDetailAddress = json_decode($getUsersCart->detail_address, true);
+        $getDetailsInformation = json_decode($getUsersCart->detail_information, true);
+        $getDetailsShipping = json_decode($getUsersCart->detail_shipping, true);
+        $shippingId = $getDetailsShipping['shipping_id'];
+        $getShipping = Shipping::where('id', $shippingId)->first();
+
+        $getCity = City::where('id', $getDetailAddress['city_id'])->first();
+        $getDistrict = District::where('id', $getDetailAddress['district_id'])->first();
+        $getSubDistrict = SubDistrict::where('id', $getDetailAddress['sub_district_id'])->first();
+
+        $getUsersCartDetails = Product::selectRaw('users_cart_detail.id, product.id AS product_id, product.name AS product_name,
             product.name, product.image, product.unit, product.price, users_cart_detail.qty')
             ->join('users_cart_detail', 'users_cart_detail.product_id', '=', 'product.id')
             ->where('users_cart_detail.users_cart_id', '=', $getUsersCart->id)
             ->where('choose', 1)->get();
 
+        $totalQty = 0;
         $subTotal = 0;
+        $shippingPrice = 15000;
+        $transactionDetails = [];
         foreach ($getUsersCartDetails as $list) {
+            $totalQty += $list->qty;
             $subTotal += ($list->qty * $list->price);
+            $transactionDetails[] = new TransactionDetails([
+                'product_id' => $list->product_id,
+                'product_name' => $list->product_name,
+                'product_qty' => $list->qty,
+                'product_price' => $list->price
+            ]);
         }
+        $total = $subTotal + $shippingPrice;
 
-        $getDetailsInformation = json_decode($getUsersCart->detail_information, true);
-        $getDetailsShipping = json_decode($getUsersCart->detail_shipping, true);
-        $shippingId = $getDetailsShipping['shipping_id'];
-        $getShipping = Shipping::where('id', $shippingId)->first();
-        if (!$getShipping) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Shipping Not Found'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
+        $getTotal = Transaction::where('klinik_id', $user->klinik_id)->whereYear('created_at', '=', date('Y'))
+            ->whereMonth('created_at', '=', date('m'))->count();
 
-        $getShippingPrice = 15000;
+        $newCode = date('Ym').str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT);
 
-        $paymentInfo = [];
+        DB::beginTransaction();
+
+        $getTransaction = Transaction::create([
+            'klinik_id' => $user->klinik_id,
+            'user_id' => $user->id,
+            'code' => $newCode,
+            'shipping_id' => $shippingId,
+            'shipping_name' => $getShipping->name,
+            'payment_id' => $paymentId,
+            'payment_name' => $getPayment->name,
+            'receiver_name' => $getDetailsInformation['receiver'] ?? '',
+            'receiver_address' => $getDetailsInformation['address'] ?? '',
+            'receiver_phone' => $getDetailsInformation['phone'] ?? '',
+            'shipping_address_name' => $getDetailAddress['address_name'] ?? '',
+            'shipping_address' => $getDetailAddress['address'] ?? '',
+            'shipping_city_id' => $getDetailAddress['city_id'] ?? '',
+            'shipping_city_name' => $getCity ? $getCity->name : '',
+            'shipping_district_id' => $getDetailAddress['district_id'] ?? '',
+            'shipping_district_name' => $getDistrict ? $getDistrict->name : '',
+            'shipping_subdistrict_id' => $getDetailAddress['sub_district_id'] ?? '',
+            'shipping_subdistrict_name' => $getSubDistrict ? $getSubDistrict->name : '',
+            'shipping_zipcode' => $getDetailAddress['zip_code'] ?? '',
+            'type' => 1,
+            'total_qty' => $totalQty,
+            'subtotal' => $subTotal,
+            'shipping_price' => $shippingPrice,
+            'total' => $total,
+            'status' => 1
+        ]);
+
+        $getTransaction->getTransactionDetails()->saveMany($transactionDetails);
+
+        UsersCartDetail::where('users_cart_id', '=', $getUsersCart->id)
+            ->where('choose', 1)->delete();
+
+        DB::commit();
 
         return response()->json([
             'success' => 1,
@@ -649,9 +701,9 @@ class ProductController extends Controller
                     'address' => $getDetailsInformation['address'] ?? '',
                     'phone' => $getDetailsInformation['phone'] ?? '',
                     'shipping_name' => $getShipping->name,
-                    'shipping_price' => $getShippingPrice,
+                    'shipping_price' => $shippingPrice,
                     'subtotal' => $subTotal,
-                    'total' => $subTotal + $getShippingPrice
+                    'total' => $subTotal + $shippingPrice
                 ],
                 'cart_details' => $getUsersCartDetails,
                 'payment_info' => $paymentInfo
@@ -788,7 +840,7 @@ class ProductController extends Controller
             'zip_code' => $getAddress['zip_code'] ?? '',
         ];
 
-        $trans = new Transaksi();
+        $trans = new Transaction();
         $trans->payment  =  $this->request->get('payment');
         $trans->payment_code = $this->request->get('payment_code');
         $trans->total_price = $totalPrice + $getShippingPrice; //jumlah semua ditambah ongkir //
@@ -798,7 +850,6 @@ class ProductController extends Controller
         $trans->list_order = json_encode($listProduct);
         $trans->status = 1;
         $trans->save();
-
 
         if($trans){
             $getUsersCart = UsersCart::where('users_id', $user->id)->first();
