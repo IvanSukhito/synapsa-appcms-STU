@@ -7,10 +7,12 @@ use App\Codes\Models\V1\Product;
 use App\Codes\Models\V1\UsersCartDetail;
 use App\Codes\Models\V1\UsersCart;
 use App\Codes\Models\V1\UsersAddress;
+use App\Codes\Models\V1\Transaksi;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Cache;
+use DB;
 
 class ProductController extends Controller
 {
@@ -99,7 +101,7 @@ class ProductController extends Controller
             return response()->json([
                 'success' => 0,
                 'message' => $validator->messages()->all(),
-            ]);
+            ], 422);
         }
 
             try{
@@ -158,7 +160,7 @@ class ProductController extends Controller
                 'success' => 0,
                 'message' => $validator->messages()->all(),
                 'token' => $this->request->attributes->get('_refresh_token'),
-            ]);
+            ], 422);
         }
 
         $getInformation = [
@@ -177,9 +179,6 @@ class ProductController extends Controller
             'message' => 'Detail Information Has Been Updated',
             'data' => $getData
         ]);
-
-
-
     }
 
     public function getReceiver(){
@@ -191,7 +190,7 @@ class ProductController extends Controller
                 'success' => 0,
                 'data' => $getData,
                 'token' => $this->request->attributes->get('_refresh_token'),
-            ]);
+            ], 422);
         }
 
         $getData = json_decode($getData->detail_information, true);
@@ -233,7 +232,7 @@ class ProductController extends Controller
                 'success' => 0,
                 'data' => $getData,
                 'token' => $this->request->attributes->get('_refresh_token'),
-            ]);
+            ], 422);
         }
 
         $getData = json_decode($getData->detail_address, true);
@@ -275,7 +274,7 @@ class ProductController extends Controller
                 'success' => 0,
                 'message' => $validator->messages()->all(),
                 'token' => $this->request->attributes->get('_refresh_token'),
-            ]);
+            ], 422);
         }
 
         $getAddress = [
@@ -312,7 +311,7 @@ class ProductController extends Controller
                 'success' => 0,
                 'message' => $validator->messages()->all(),
                 'token' => $this->request->attributes->get('_refresh_token'),
-            ]);
+            ], 422);
         }
 
         $getShipping = [
@@ -339,6 +338,8 @@ class ProductController extends Controller
     }
 
     public function searchProduct(){
+
+        $user = $this->request->attributes->get('_user');
         $s = $this->request->get('s');
 
         $getData = Product::query();
@@ -349,7 +350,216 @@ class ProductController extends Controller
 
         return response()->json([
             'success' => 1,
-            'data' => $getData->paginate($this->limit)
+            'data' => $getData->paginate($this->limit),
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
+    }
+
+    Public function updateCart($id){
+
+        $user = $this->request->attributes->get('_user');
+        $getData = UsersCartDetail::where('id', $id)->first();
+
+        $validator = Validator::make($this->request->all(), [
+            'product_id' => 'required',
+            'qty' => 'required'
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => 0,
+                'message' => $validator->messages()->all(),
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
+        if ($getData) {
+            $getData->product_id = $this->request->get('product_id');
+            $getData->qty = $this->request->get('qty');
+            $getData->save();
+
+            $dataProduct = Product::where('id', $getData->id)->first();
+            return response()->json([
+                'success' => 1,
+                'data' => [
+                    'product_name' => $dataProduct->name,
+                    'product_price' => $dataProduct->price,
+                    'jumlah' => $getData->qty,
+                ],
+                'token' => $this->request->attributes->get('_refresh_token'),
+                'message' => ['Success Update Cart'],
+            ]);
+        }
+        else {
+
+            return response()->json([
+                'success' => 0,
+                'message' => ['failed to update'],
+                'token' => $this->request->attributes->get('_refresh_token')
+            ], 422);
+        }
+    }
+
+    public function deleteCart($id){
+
+        $user = $this->request->attributes->get('_user');
+        $getData = UsersCartDetail::findOrFail($id);
+
+        if ($getData) {
+            $getData->delete();
+            return response()->json([
+                'success' => 1,
+                'message' => ['1 Product has been remove'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+
+            ]);
+        }
+        else {
+            return response()->json([
+                'success' => 0,
+                'message' => ['failed to remove'],
+                'token' => $this->request->attributes->get('_refresh_token')
+            ], 422);
+        }
+    }
+
+    public function updatePaymentOld(){
+        $user = $this->request->attributes->get('_user');
+
+        $validator = Validator::make($this->request->all(), [
+            'payment' => 'required',
+            'total_price' => 'required',
+
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => 0,
+                'message' => $validator->messages()->all(),
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+        $getUsersCart = UsersCart::where('users_id', $user->id)->first();
+
+        $getData = json_decode($getUsersCart->detail_information, true);
+
+
+        $getInformation = [
+            'receiver' => $getData['receiver'] ?? '',
+            'address' => $getData['address'] ?? '',
+            'phone' => $getData['phone'] ?? '',
+            'payment' => $this->request->get('payment'),
+            'total_price' => $this->request->get('total_price'),
+        ];
+
+        $getUsersCart->detail_information = $getInformation;
+        $getUsersCart->save();
+
+        $getData = ['detail_information' => $getInformation];
+
+
+        return response()->json([
+            'succes' => 1,
+            'message' => 'Detail Payment Has Been Updated',
+            'data' => $getData
+        ]);
+    }
+
+    public function updatePayment(){
+        $user = $this->request->attributes->get('_user');
+
+        $validator = Validator::make($this->request->all(), [
+            'payment' => 'required',
+            'payment_code' => 'required',
+
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => 0,
+                'message' => $validator->messages()->all(),
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
+        $getUsersCart = UsersCart::where('users_id', $user->id)->first();
+
+        $getCart = UsersCartDetail::where('users_cart_id', $getUsersCart->id)->get();
+        $listProduct = Product::all();
+        $listCart = DB::select(DB::raw("SELECT product_id, SUM(qty) AS total_qty FROM users_cart_detail
+        WHERE users_cart_id = $getUsersCart->id GROUP BY product_id"));
+
+       foreach ($listProduct as $list) {
+
+        $temp = [];
+        foreach($listCart as $data){
+            $temp[] =
+            [
+                'name' => $list->name,
+                'price' => $list->price,
+                'qty' => $data->total_qty,
+                'total_price' => $list->price*$data->total_qty
+            ];
+
+        }
+
+       }
+       $listProduct = $temp;
+
+       //dd($listProduct);
+
+        $getAddress = json_decode($getUsersCart->detail_address, true);
+        $getShipping = json_decode($getUsersCart->detail_shipping, true);
+        $getInformation = json_decode($getUsersCart->detail_information, true);
+
+        $getShipping = $getShipping['name'] ?? '';
+        //dd($getShipping);
+        $getShippingPrice = $getShipping['price'] ?? '';
+        $getCustomerName = $getInformation['receiver'] ?? '';
+
+
+        $getAddress = [
+            'address' => $getAddress['address'] ?? '',
+            'address_detail' => $getAddress['address_detail'] ?? '',
+            'city_id' => $getAddress['city_id'] ?? '',
+            'district_id' => $getAddress['district_id'] ?? '',
+            'sub_district_id' => $getAddress['sub_district_id'] ?? '',
+            'zip_code' => $getAddress['zip_code'] ?? '',
+        ];
+
+        $trans = new Transaksi();
+        $trans->payment  =  $this->request->get('payment');
+        $trans->payment_code = $this->request->get('payment_code');
+        $trans->total_price = 0; //jumlah semua ditambah ongkir
+        $trans->customer_name = $getCustomerName;
+        $trans->customer_address = json_encode($getAddress);
+        $trans->shipping = $getShipping;
+        $trans->list_order = json_encode($listProduct);
+        $trans->status = 1;
+        $trans->save();
+
+
+        if($trans){
+            $getUsersCart = UsersCart::where('users_id', $user->id)->first();
+            $getUsersCart->delete();
+            $getCart = UsersCartDetail::where('users_cart_id', $getUsersCart->id)->truncate();
+        }
+
+
+        //$getUsersCart->detail_information = $getInformation;
+        //$getUsersCart->save();
+
+        $getData = [
+            'payment' => $trans->payment,
+            'payment_code' => $trans->payment_code,
+            'total_price' => $trans->total_price,
+            'customer_name' => $trans->customer_name,
+            'customer_address' => json_decode($trans->customer_address),
+            'shipping' => $trans->shipping,
+            'list_order' => json_decode($trans->list_order),
+            'status_transaction' => $trans->status,
+        ];
+        return response()->json([
+            'succes' => 1,
+            'message' => 'Transaction Payment Already Created',
+            'data' => $getData
         ]);
     }
 }

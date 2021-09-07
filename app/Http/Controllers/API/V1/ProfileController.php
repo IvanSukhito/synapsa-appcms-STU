@@ -68,7 +68,7 @@ class ProfileController extends Controller
                 'success' => 0,
                 'message' => $validator->messages()->all(),
                 'token' => $this->request->attributes->get('_refresh_token')
-            ]);
+            ], 422);
         }
 
         $getUploadKtp = '';
@@ -92,7 +92,7 @@ class ProfileController extends Controller
                 return response()->json([
                     'success' => 0,
                     'message' => ['Failed upload KTP Image'],
-                ]);
+                ], 422);
             }
         }
 
@@ -144,7 +144,7 @@ class ProfileController extends Controller
                 'success' => 0,
                 'message' => $validator->messages()->all(),
                 'token' => $this->request->attributes->get('_refresh_token'),
-            ]);
+            ], 422);
         }
 
         try {
@@ -167,7 +167,7 @@ class ProfileController extends Controller
                 'success' => 0,
                 'token' => $this->request->attributes->get('_refresh_token'),
                 'message' => ['Failed upload Image']
-            ]);
+            ], 422);
         }
 
         if ($getImage) {
@@ -191,7 +191,7 @@ class ProfileController extends Controller
                 'success' => 0,
                 'message' => ['failed to upload'],
                 'token' => $this->request->attributes->get('_refresh_token')
-            ]);
+            ], 422);
         }
     }
 
@@ -236,7 +236,7 @@ class ProfileController extends Controller
                 'success' => 0,
                 'message' => $validator->messages()->all(),
                 'token' => $this->request->attributes->get('_refresh_token'),
-            ]);
+            ], 422);
         }
 
 
@@ -286,7 +286,7 @@ class ProfileController extends Controller
                 'success' => 0,
                 'message' => $validator->messages()->all(),
                 'token' => $this->request->attributes->get('_refresh_token')
-            ]);
+            ], 422);
         }
 
         if(!app('hash')->check($this->request->get('old_password'), $user->password)) {
@@ -294,7 +294,7 @@ class ProfileController extends Controller
                 'success' => 0,
                 'token' => $this->request->attributes->get('_refresh_token'),
                 'message' => ['Old Password not match'],
-            ]);
+            ],422);
         }
 
         $user->password = bcrypt($this->request->get('password'));
@@ -319,7 +319,7 @@ class ProfileController extends Controller
             return response()->json([
                 'success' => 0,
                 'message' => $validator->messages()->all(),
-            ]);
+            ], 422);
         }
 
         $user = Users::where('id', $user->id)->first();
@@ -338,7 +338,7 @@ class ProfileController extends Controller
                 'success' => 0,
                 'message' => ['Email not match'],
                 'token' => $this->request->attributes->get('_refresh_token'),
-            ]);
+            ], 422);
         }
 
     }
@@ -354,7 +354,7 @@ class ProfileController extends Controller
             return response()->json([
                 'success' => 0,
                 'message' => $validator->messages()->all(),
-            ]);
+            ], 422);
         }
 
         $user = Users::where('id', $user->id)->first();
@@ -374,7 +374,7 @@ class ProfileController extends Controller
                 'success' => 0,
                 'message' => ['Phone not match'],
                 'token' => $this->request->attributes->get('_refresh_token'),
-            ]);
+            ], 422);
         }
 
     }

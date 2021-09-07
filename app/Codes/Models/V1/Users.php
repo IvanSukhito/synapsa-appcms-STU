@@ -37,7 +37,8 @@ class Users extends Model implements JWTSubject
 
     protected $appends = [
         'upload_ktp_full',
-        'status_nice'
+        'status_nice',
+        'gender_nice'
     ];
 
     public function getUploadKtpFullAttribute()
@@ -49,6 +50,12 @@ class Users extends Model implements JWTSubject
     {
         $getList = get_list_active_inactive();
         return $getList[$this->status] ?? $this->status;
+    }
+
+    public function getGenderNiceAttribute()
+    {
+        $getList = get_list_gender();
+        return $getList[$this->gender] ?? $this->gender;
     }
 
     public function getUploadImage()
