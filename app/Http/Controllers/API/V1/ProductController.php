@@ -74,17 +74,34 @@ class ProductController extends Controller
         $user = $this->request->attributes->get('_user');
 
         $limit = 10;
+        $getUsersCart = UsersCart::where('users_id', $user->id)->first();
 
-        $data = UsersCartDetail::selectRaw('product.name as product_name, product.price as product_price, users_cart_detail.qty as product_qty')
-        ->join('users_cart','users_cart.id','=','users_cart_detail.users_cart_id')
-        ->join('product','product.id','=','users_cart_detail.product_id')
-        ->where('users_cart.users_id', $user->id);
+        $listProduct = Product::all();
+        $listCart = DB::select(DB::raw("SELECT product_id, SUM(qty) AS total_qty FROM users_cart_detail
+        WHERE users_cart_id = $getUsersCart->id GROUP BY product_id"));
 
-        $getData = $data->limit($limit)->get();
+       foreach ($listProduct as $list) {
+
+        $temp = [];
+        $totalPrice = 0;
+        foreach($listCart as $data){
+            $temp[] =
+            [
+                'name' => $list->name,
+                'qty' => $data->total_qty,
+                'price' => $list->price*$data->total_qty
+            ];
+            $totalPrice +=  $list->price*$data->total_qty;
+
+        }
+
+       }
+       $listProduct = $temp;
+
 
         return response()->json([
             'success' => 1,
-            'data' => $getData,
+            'data' => $listProduct,
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
 
@@ -94,9 +111,10 @@ class ProductController extends Controller
         $user = $this->request->attributes->get('_user');
 
         $validator = Validator::make($this->request->all(), [
-          'product_id' => 'required',
-          'qty' => 'required',
+          'product_id' => 'required|numeric',
+          'qty' => 'required|numeric',
         ]);
+        $productId = $this->request->get('product_id');
         if ($validator->fails()) {
             return response()->json([
                 'success' => 0,
@@ -104,6 +122,13 @@ class ProductController extends Controller
             ], 422);
         }
 
+        $product = Product::where('id', $productId)->first();
+        if(!$product){
+            return response()->json([
+                'success' => 0,
+                'message' => 'product not found',
+            ], 422);
+        }
             try{
             $getUsersCart = UsersCart::where('users_id', $user->id)->first();
 
@@ -505,7 +530,7 @@ class ProductController extends Controller
        }
        $listProduct = $temp;
 
-       //dd($listProduct);
+       dd($listProduct);
 
         $getAddress = json_decode($getUsersCart->detail_address, true);
         $getShipping = json_decode($getUsersCart->detail_shipping, true);
