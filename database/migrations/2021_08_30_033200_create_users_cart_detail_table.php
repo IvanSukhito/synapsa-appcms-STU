@@ -18,8 +18,9 @@ class CreateUsersCartDetailTable extends Migration
             $table->unsignedBigInteger('users_cart_id')->default(0);
             $table->unsignedBigInteger('product_id')->default(0);
             $table->integer('qty')->default(0);
+            $table->tinyInteger('choose')->default(0);
             $table->timestamps();
-          
+
             $table->foreign('product_id', 'proc_rel')
                 ->references('id')->on('product')
                 ->onUpdate('cascade')

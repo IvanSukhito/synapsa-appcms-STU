@@ -13,10 +13,11 @@ class UsersCart extends Model
       'detail_address',
       'detail_shipping',
       'detail_information'
-
     ];
 
-
-
+    public function cartDetails()
+    {
+        return $this->hasMany(UsersCartDetail::class, 'users_cart_id', 'id');
+    }
 
 }

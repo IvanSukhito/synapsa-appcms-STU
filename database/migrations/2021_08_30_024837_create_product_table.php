@@ -21,9 +21,10 @@ class CreateProductTable extends Migration
             $table->text('image')->nullable();
             $table->decimal('price', 26, 2)->nullable();
             $table->string('unit')->nullable();
-            $table->text('desc')->nullable();
+            $table->longText('desc')->nullable();
             $table->integer('stock')->default(0);
             $table->integer('stock_flag')->default(0);
+            $table->integer('status')->default(1);
             $table->timestamps();
             $table->foreign('product_category_id', 'procat_rel')
                 ->references('id')->on('product_category')

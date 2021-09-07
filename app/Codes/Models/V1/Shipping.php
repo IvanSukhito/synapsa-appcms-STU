@@ -11,6 +11,7 @@ class Shipping extends Model
     protected $fillable = [
         'name',
         'icon',
+        'orders',
         'settings',
         'status'
     ];
