@@ -19,8 +19,8 @@ class CreateLabProductTable extends Migration
             $table->string('title')->nullable();
             $table->longText('desc')->nullable();
             $table->text('image')->nullable();
-            $table->string('benefit')->nullable();
-            $table->string('preparation')->nullable();
+            $table->longText('benefit')->nullable();
+            $table->longText('preparation')->nullable();
 
             $table->timestamps();
         });
