@@ -47,7 +47,7 @@ class ProductController extends Controller
             $getLimit = $this->limit;
         }
 
-        $data = Product::selectRaw('id, name, image, unit, price, qty, stock, stock_flag');
+        $data = Product::selectRaw('id, name, image, unit, price, stock, stock_flag');
         if (strlen($s) > 0) {
             $data = $data->where('name', 'LIKE', $s)->orWhere('desc', 'LIKE', $s);
         }
