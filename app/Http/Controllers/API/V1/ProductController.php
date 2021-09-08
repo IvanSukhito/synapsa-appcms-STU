@@ -94,7 +94,7 @@ class ProductController extends Controller
 
         $listProduct = Product::selectRaw('product.id, product.name, product.image, product.price, product.unit, users_cart_detail.qty')
             ->join('users_cart_detail', 'users_cart_detail.product_id', '=', 'product.id')
-            ->where('users_cart_detail.users_cart_id', '=', $getUsersCart->id);
+            ->where('users_cart_detail.users_cart_id', '=', $getUsersCart->id)->get();
 
         $totalQty = 0;
         $totalPrice = 0;
