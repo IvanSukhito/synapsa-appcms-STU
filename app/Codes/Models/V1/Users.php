@@ -38,7 +38,8 @@ class Users extends Model implements JWTSubject
     protected $appends = [
         'upload_ktp_full',
         'status_nice',
-        'gender_nice'
+        'gender_nice',
+        'image_doctor'
     ];
 
     public function getUploadKtpFullAttribute()
@@ -58,7 +59,7 @@ class Users extends Model implements JWTSubject
         return $getList[$this->gender] ?? $this->gender;
     }
 
-    public function getUploadImage()
+    public function getImageDoctorAttribute()
     {
         return strlen($this->image) > 0 ? asset('uploads/users/'.$this->image) : asset('assets/cms/images/user-default.png');
     }
