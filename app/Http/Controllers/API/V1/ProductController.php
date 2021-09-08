@@ -51,7 +51,7 @@ class ProductController extends Controller
         if (strlen($s) > 0) {
             $data = $data->where('name', 'LIKE', "%$s%")->orWhere('desc', 'LIKE', "%$s%");
         }
-        $data = $data->orderBy('id','DESC')->paginate($getLimit);
+        $data = $data->where('status', 80)->orderBy('id','DESC')->paginate($getLimit);
         $category = ProductCategory::where('status', 80)->get();
 
         return response()->json([
