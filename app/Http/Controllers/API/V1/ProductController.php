@@ -242,7 +242,7 @@ class ProductController extends Controller
         }
     }
 
-    public function getCartChooseProduct()
+    public function postCartChooseProduct()
     {
         $user = $this->request->attributes->get('_user');
 
