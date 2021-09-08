@@ -52,7 +52,7 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
         $router->post('update-cart/{id}', ['uses' => 'App\Http\Controllers\API\V1\ProductController@updateCart'])->name('api.user.updateCart');
         $router->delete('delete-cart/{id}', ['uses' => 'App\Http\Controllers\API\V1\ProductController@deleteCart'])->name('api.user.deleteCart');
         $router->get('cart', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getCart'])->name('api.user.getCart');
-        $router->get('cart-choose-product', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getCartChooseProduct'])->name('api.user.getCartChooseProduct');
+        $router->post('cart-choose-product', ['uses' => 'App\Http\Controllers\API\V1\ProductController@postCartChooseProduct'])->name('api.user.postCartChooseProduct');
 
         $router->get('cart-receiver', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getReceiver'])->name('api.user.getReceiver');
         $router->post('cart-receiver', ['uses' => 'App\Http\Controllers\API\V1\ProductController@updateReceiver'])->name('api.user.updateReceiver');

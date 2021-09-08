@@ -93,7 +93,7 @@ class ProductController extends Controller
         $getUsersCart = UsersCart::where('users_id', $user->id)->first();
 
         //dd($getUsersCart);
-        $listProduct = Product::selectRaw('product.id as product_id, users_cart_detail.id as cart_id, product.name, product.image, product.price, product.unit, users_cart_detail.qty')
+        $listProduct = Product::selectRaw('users_cart_detail.id, product.id as product_id, product.name, product.image, product.price, product.unit, users_cart_detail.qty')
             ->join('users_cart_detail', 'users_cart_detail.product_id', '=', 'product.id')
             ->where('users_cart_detail.users_cart_id', '=', $getUsersCart->id)->get();
 
@@ -242,14 +242,14 @@ class ProductController extends Controller
         }
     }
 
-    public function getCartChooseProduct()
+    public function postCartChooseProduct()
     {
         $user = $this->request->attributes->get('_user');
 
         $validator = Validator::make($this->request->all(), [
             'product_ids' => 'required|array',
         ]);
-     
+
         if ($validator->fails()) {
             return response()->json([
                 'success' => 0,
@@ -674,7 +674,7 @@ class ProductController extends Controller
             'receiver_phone' => $getDetailsInformation['phone'] ?? '',
             'shipping_address_name' => $getDetailAddress['address_name'] ?? '',
             'shipping_address' => $getDetailAddress['address'] ?? '',
-            'shipping_city_id' => $getDetailAddress['city_id'] ?? '',   
+            'shipping_city_id' => $getDetailAddress['city_id'] ?? '',
             'shipping_city_name' => $getCity ? $getCity->name : '',
             'shipping_district_id' => $getDetailAddress['district_id'] ?? '',
             'shipping_district_name' => $getDistrict ? $getDistrict->name : '',
