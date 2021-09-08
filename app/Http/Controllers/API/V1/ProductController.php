@@ -49,7 +49,7 @@ class ProductController extends Controller
 
         $data = Product::selectRaw('id, name, image, unit, price, stock, stock_flag');
         if (strlen($s) > 0) {
-            $data = $data->where('name', 'LIKE', "%$s%")->orWhere('desc', 'LIKE', "%$s%");
+            $data = $data->where('name', 'LIKE', strip_tags($s))->orWhere('desc', 'LIKE', strip_tags($s));
         }
         $data = $data->where('status', 80)->orderBy('id','DESC')->paginate($getLimit);
         $category = ProductCategory::where('status', 80)->get();
@@ -92,10 +92,12 @@ class ProductController extends Controller
 
         $getUsersCart = UsersCart::where('users_id', $user->id)->first();
 
+        //dd($getUsersCart);
         $listProduct = Product::selectRaw('product.id, product.name, product.image, product.price, product.unit, users_cart_detail.qty')
             ->join('users_cart_detail', 'users_cart_detail.product_id', '=', 'product.id')
-            ->where('users_cart_detail.users_cart_id', '=', $getUsersCart->id);
+            ->where('users_cart_detail.users_cart_id', '=', $getUsersCart->id)->get();
 
+            //dd($listProduct->get());
         $totalQty = 0;
         $totalPrice = 0;
         foreach ($listProduct as $list) {
@@ -190,7 +192,7 @@ class ProductController extends Controller
 
         $getUsersCartDetail = UsersCartDetail::selectRaw('users_cart_detail.*')
             ->join('users_cart', 'users_cart.id', '=', 'users_cart_detail.users_cart_id')
-            ->where('id', $id)->where('users_id', $user->id)->first();
+            ->where('users_cart_detail.id', $id)->where('users_cart.users_id', $user->id)->first();
         if (!$getUsersCartDetail) {
             return response()->json([
                 'success' => 0,
@@ -220,7 +222,7 @@ class ProductController extends Controller
 
         $getUsersCartDetail = UsersCartDetail::selectRaw('users_cart_detail.*')
             ->join('users_cart', 'users_cart.id', '=', 'users_cart_detail.users_cart_id')
-            ->where('id', $id)->where('users_id', $user->id)->first();
+            ->where('users_cart_detail.id', $id)->where('users_cart.users_id', $user->id)->first();
 
         if ($getUsersCartDetail) {
             $getUsersCartDetail->delete();
@@ -247,13 +249,14 @@ class ProductController extends Controller
         $validator = Validator::make($this->request->all(), [
             'product_ids' => 'required|array',
         ]);
-
+     
         if ($validator->fails()) {
             return response()->json([
                 'success' => 0,
                 'message' => $validator->messages()->all(),
             ], 422);
         }
+        //
 
         $getListproductIds = $this->request->get('product_ids');
         if (!is_array($getListproductIds)) {
@@ -264,11 +267,11 @@ class ProductController extends Controller
 
         UsersCartDetail::join('users_cart', 'users_cart.id', '=', 'users_cart_detail.users_cart_id')
             ->where('users_id', $user->id)
-            ->whereIn('id', $getListproductIds)->update([
+            ->whereIn('users_cart_detail.product_id', $getListproductIds)->update([
                 'choose' => 0
             ]);
 
-        UsersCartDetail::whereIn('id', $getListproductIds)->update([
+        UsersCartDetail::whereIn('users_cart_detail.product_id', $getListproductIds)->update([
             'choose' => 1
         ]);
 
@@ -671,7 +674,7 @@ class ProductController extends Controller
             'receiver_phone' => $getDetailsInformation['phone'] ?? '',
             'shipping_address_name' => $getDetailAddress['address_name'] ?? '',
             'shipping_address' => $getDetailAddress['address'] ?? '',
-            'shipping_city_id' => $getDetailAddress['city_id'] ?? '',
+            'shipping_city_id' => $getDetailAddress['city_id'] ?? '',   
             'shipping_city_name' => $getCity ? $getCity->name : '',
             'shipping_district_id' => $getDetailAddress['district_id'] ?? '',
             'shipping_district_name' => $getDistrict ? $getDistrict->name : '',

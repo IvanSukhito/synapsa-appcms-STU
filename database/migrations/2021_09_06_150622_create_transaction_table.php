@@ -15,14 +15,33 @@ class CreateTransactionTable extends Migration
     {
         Schema::create('transaction', function (Blueprint $table) {
             $table->id();
-            $table->string('payment')->nullable();
-            $table->string('payment_code')->nullable();
-            $table->decimal('total_price', 26, 2)->nullable();
-            $table->string('customer_name')->nullable();
-            $table->text('customer_address')->nullable();
-            $table->string('shipping')->nullable();
-            $table->text('list_order')->nullable();
-            $table->tinyInteger('status')->nullable();
+            $table->unsignedBigInteger('klinik_id')->default(0);
+            $table->unsignedBigInteger('user_id')->default(0);
+            $table->unsignedBigInteger('payment_id')->default(0);
+            $table->unsignedBigInteger('shipping_id')->default(0);
+            $table->string('code')->nullable();
+            $table->string('payment_name')->nullable();
+            $table->text('payment_detail')->nullable();
+            $table->string('shipping_name')->nullable();
+            $table->text('shipping_address_name')->nullable();
+            $table->string('shipping_address')->nullable();
+            $table->integer('shipping_city_id')->default(0);
+            $table->string('shipping_city_name')->nullable();
+            $table->integer('shipping_district_id')->default(0);
+            $table->string('shipping_district_name')->nullable();
+            $table->integer('shipping_subdistrict_id')->default(0);
+            $table->string('shipping_subdistrict_name')->nullable();
+            $table->string('shipping_zipcode')->nullable();
+            $table->decimal('shipping_price', 26, 2)->nullable();
+            $table->string('total_qty')->nullable();
+            $table->decimal('subtotal', 26, 2)->nullable();
+            $table->decimal('total', 26, 2)->nullable();
+            $table->string('receiver_name')->nullable();
+            $table->string('receiver_phone')->nullable();
+            $table->text('receiver_address')->nullable();
+            $table->tinyInteger('type')->default(0);
+            $table->text('extra_info')->nullable();
+            $table->tinyInteger('status')->default(0);
             $table->timestamps();
         });
     }

@@ -20,6 +20,7 @@ class CreatePaymentTable extends Migration
             $table->integer('orders')->default(0);
             $table->longtext('settings')->nullable();
             $table->integer('type')->default(0);
+            $table->tinyInteger('status')->default(0);
             $table->timestamps();
         });
     }

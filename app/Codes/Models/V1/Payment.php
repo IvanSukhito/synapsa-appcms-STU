@@ -13,6 +13,7 @@ class Payment extends Model
         'icon',
         'orders',
         'settings',
-        'type'
+        'type',
+        'status'
     ];
 }
