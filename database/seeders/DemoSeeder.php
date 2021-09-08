@@ -46,6 +46,7 @@ class DemoSeeder extends Seeder
         for ($i = 1; $i <= 10; $i++) {
             DB::table('product_category')->insertGetId([
                 'name' => 'PRODUCT_CATEGORY ' . $i,
+                'status' => 80,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
@@ -69,7 +70,7 @@ class DemoSeeder extends Seeder
                 'image' => 'image.png',
                 'target' => '',
                 'orders' => 1,
-                'status' => 1,
+                'status' => 80,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
@@ -87,6 +88,7 @@ class DemoSeeder extends Seeder
                 'desc' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
                 'stock' => 99,
                 'stock_flag' => 2,
+                'status' => 80,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
@@ -95,6 +97,7 @@ class DemoSeeder extends Seeder
         for ($i = 1; $i <= 10; $i++) {
             DB::table('article_category')->insertGetId([
                 'name' => 'ARTICLE_CATEGORY ' . $i,
+                'status' => 80,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
