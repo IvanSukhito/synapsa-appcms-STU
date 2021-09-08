@@ -93,7 +93,7 @@ class ProductController extends Controller
         $getUsersCart = UsersCart::where('users_id', $user->id)->first();
 
         //dd($getUsersCart);
-        $listProduct = Product::selectRaw('product.id, users_cart_detail.id as cart_id, product.name, product.image, product.price, product.unit, users_cart_detail.qty')
+        $listProduct = Product::selectRaw('product.id as product_id, users_cart_detail.id as cart_id, product.name, product.image, product.price, product.unit, users_cart_detail.qty')
             ->join('users_cart_detail', 'users_cart_detail.product_id', '=', 'product.id')
             ->where('users_cart_detail.users_cart_id', '=', $getUsersCart->id)->get();
 
