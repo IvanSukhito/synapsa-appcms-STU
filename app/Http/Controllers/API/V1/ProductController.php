@@ -52,7 +52,7 @@ class ProductController extends Controller
             $data = $data->where('name', 'LIKE', $s)->orWhere('desc', 'LIKE', $s);
         }
         $data = $data->orderBy('id','DESC')->paginate($getLimit);
-        $category = ProductCategory::where('status', 80)->where('name', 'id')->toArray();
+        $category = ProductCategory::where('status', 80)->get();
 
         return response()->json([
             'success' => 1,
