@@ -584,7 +584,7 @@ class ProductController extends Controller
 
         $getShippingPrice = 15000;
 
-        $getPayment = Payment::where('status', 80)->get();
+        $getPayment = Payment::where('status', 80)->orderBy('orders', 'ASC')->get();
 
         return response()->json([
             'success' => 1,
