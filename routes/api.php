@@ -69,10 +69,19 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
     $router->group(['prefix' => 'transaction/doctor'], function () use ($router) {
 
         $router->get('/', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@getDoctor'])->name('api.getDoctor');
-        $router->get('/{id}', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@getDoctorDetail'])->name('api.getDoctorDetail');
-        $router->post('/{id}/book', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@bookDoctor'])->name('api.user.bookDoctor');
+        $router->get('/detail/{id}', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@getDoctorDetail'])->name('api.getDoctorDetail');
+        $router->post('/book/{id}', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@bookDoctor'])->name('api.user.bookDoctor');
+        $router->get('cart-address', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@getAddress'])->name('api.user.getDoctorAddress');
+        $router->post('cart-address', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@updateAddress'])->name('api.user.updateDoctorAddress');
+        $router->get('cart-receiver', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@getReceiver'])->name('api.user.getReceiver');
+        $router->post('cart-receiver', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@updateReceiver'])->name('api.user.updateReceiver');
+        $router->get('cart-summary', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@cartSummary'])->name('api.user.cartSummary');
+        $router->get('cart-payment', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@getPayment'])->name('api.user.getPayment');
+        $router->post('cart-checkout', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@checkout'])->name('api.user.checkout');
 
     });
+
+
 });
 
 // Non Login

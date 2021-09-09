@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateJanjiTemuDoctorTable extends Migration
+class CreateTempAdTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,13 @@ class CreateJanjiTemuDoctorTable extends Migration
      */
     public function up()
     {
-        Schema::create('janji_temu_doctor', function (Blueprint $table) {
+        Schema::create('temp_ad', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('doctor_id')->default(0);
-            $table->date('book_day')->nullable();
-            $table->time('book_at')->nullable();
+            $table->unsignedBigInteger('users_id')->default(0);
+            $table->text('detail_address')->nullable();
+            $table->text('detail_shipping')->nullable();
+            $table->text('detail_information')->nullable();
+      
             $table->timestamps();
         });
     }
@@ -29,6 +31,6 @@ class CreateJanjiTemuDoctorTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('janji_temu_doctor');
+        Schema::dropIfExists('temp_ad');
     }
 }
