@@ -10,7 +10,7 @@ class DoctorSchedule extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'doctor_id',
-        'day',
+        'date_available',
         'time_start',
         'time_end',
         'book'
@@ -20,6 +20,6 @@ class DoctorSchedule extends Model
     {
         return $this->belongsTo(Doctor::class, 'doctor_id', 'id');
     }
-    
+
 
 }

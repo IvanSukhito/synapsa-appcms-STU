@@ -135,11 +135,11 @@ class DemoSeeder extends Seeder
         //Doctor Schedule
         for ($i = 1; $i <= 10; $i++) {
             DB::table('doctor_schedule')->insertGetId([
-                'doctor_id' => rand(1, 10),
-                'day' => rand(1, 7),
+                'doctor_id' => rand(1, 2),
+                'date_available' => date('Y-m-d', strtotime("+".$i.' day')),
                 'time_start' => rand(8, 11) . ':00 ',
-                'time_end' => rand(8, 11) . ':00',
-                'book' => rand(0, 1) == 1 ? 80 : 99,
+                'time_end' => rand(12, 17) . ':00',
+                'book' => 80,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);

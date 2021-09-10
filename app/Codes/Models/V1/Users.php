@@ -20,6 +20,7 @@ class Users extends Model implements JWTSubject
         'address',
         'address_detail',
         'zip_code',
+        'pob',
         'dob',
         'gender',
         'nik',

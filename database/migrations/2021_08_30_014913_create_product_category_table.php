@@ -17,6 +17,7 @@ class CreateProductCategoryTable extends Migration
             $table->id();
             $table->string('name')->nullable();
             $table->text('icon')->nullable();
+            $table->integer('orders')->default(1);
             $table->tinyInteger('status')->default(1);
             $table->timestamps();
         });

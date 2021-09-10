@@ -49,7 +49,7 @@ class DoctorController extends Controller
         }
 
         $service = Service::orderBy('orders', 'ASC')->get();
-        $category = DoctorCategory::orderBy('orders', 'ASC')->limit(3)->get();
+        $category = DoctorCategory::orderBy('orders', 'ASC')->get();
 
         $getInterestService = $user->interest_service_id;
         $getInterestCategory = $user->interest_category_id;
@@ -98,13 +98,29 @@ class DoctorController extends Controller
 
     }
 
+    public function doctorCategory()
+    {
+        $category = DoctorCategory::orderBy('orders', 'ASC')->get();
+
+        return response()->json([
+            'success' => 1,
+            'data' => [
+                'category' => $category,
+            ],
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
+    }
+
     public function getDoctorDetail($id){
+
         $user = $this->request->attributes->get('_user');
 
-        $data = Doctor::selectRaw('users.id, users.fullname as doctor_name, users.dob as dob, users.gender as gender, users.phone as phone, users.address as address, users.image as image ,doctor.price as doctor_price, doctor.formal_edu as doctor_edu, doctor.nonformal_edu as doctor_nonformal_edu, doctor_category.name as category')
-        ->join('users', 'users.id', '=', 'doctor.user_id')
-        ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')->where('users.doctor','=', 1)->where('doctor.id', $id)->first();
-
+        $data = Users::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
+            phone, gender, doctor.price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
+            ->join('doctor', 'doctor.user_id', '=', 'users.id')
+            ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
+            ->where('doctor.id', '=', $id)
+            ->where('users.doctor','=', 1)->first();
 
         if (!$data) {
             return response()->json([
@@ -121,6 +137,29 @@ class DoctorController extends Controller
             ]);
         }
 
+    }
+
+    public function listBookDoctor($id)
+    {
+        $data = Users::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
+            phone, gender, doctor.price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
+            ->join('doctor', 'doctor.user_id', '=', 'users.id')
+            ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
+            ->where('doctor.id', '=', $id)
+            ->where('users.doctor','=', 1)->first();
+
+        if (!$data) {
+            return response()->json([
+                'success' => 0,
+                'message' => 'Doctor Not Found',
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+        else {
+
+
+
+        }
     }
 
     public function bookDoctor($id){

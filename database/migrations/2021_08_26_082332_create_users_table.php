@@ -25,6 +25,7 @@ class CreateUsersTable extends Migration
             $table->string('address')->nullable();
             $table->text('address_detail')->nullable();
             $table->string('zip_code')->nullable();
+            $table->string('pob')->nullable();
             $table->date('dob')->nullable();
             $table->integer('gender')->default(1);
             $table->string('nik')->nullable();
