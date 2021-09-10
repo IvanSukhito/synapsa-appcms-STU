@@ -200,6 +200,31 @@ class DemoSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ]);
         }
+        //Shipping
+        for ($i = 1; $i <= 10; $i++) {
+            DB::table('shipping')->insertGetId([
+                'name' => 'NAME' . $i,
+                'icon' => 'image.png',
+                'settings' => '',
+                'orders' => rand(0, 1),
+                'status' => rand(0, 1),
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ]);
+        }
+        //Payment
+        for ($i = 1; $i <= 5; $i++) {
+            DB::table('payment')->insertGetId([
+                'name' => 'NAME' . $i,
+                'icon_img' => 'image.png',
+                'orders' => rand(0, 1),
+                'settings' => '',
+                'type' => rand(0, 4),
+                'status' => rand(0, 1),
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ]);
+        }
 
     }
 }
