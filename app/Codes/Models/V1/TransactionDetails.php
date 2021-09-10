@@ -13,7 +13,14 @@ class TransactionDetails extends Model
         'product_id',
         'product_name',
         'product_qty',
-        'product_price'
+        'product_price',
+        'schedule_id',
+        'doctor_id',
+        'doctor_name',
+        'doctor_price',
+        'lab_id',
+        'lab_name',
+        'lab_price'
     ];
 
     protected $appends = [

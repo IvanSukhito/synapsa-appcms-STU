@@ -19,6 +19,16 @@ if ( ! function_exists('get_list_gender')) {
     }
 }
 
+if ( ! function_exists('get_list_book')) {
+    function get_list_book()
+    {
+        return [
+            80 => __('Available'),
+            99 => __('Book')
+        ];
+    }
+}
+
 
 if ( ! function_exists('get_list_type_transaction')) {
     function get_list_type_transaction()

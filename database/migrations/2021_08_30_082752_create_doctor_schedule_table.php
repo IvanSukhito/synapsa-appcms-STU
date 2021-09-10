@@ -16,6 +16,7 @@ class CreateDoctorScheduleTable extends Migration
         Schema::create('doctor_schedule', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('doctor_id')->default(0);
+            $table->unsignedBigInteger('service_id')->default(0);
             $table->date('date_available')->nullable();
             $table->time('time_start')->nullable();
             $table->time('time_end')->nullable();

@@ -10,16 +10,26 @@ class DoctorSchedule extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'doctor_id',
+        'service_id',
         'date_available',
         'time_start',
         'time_end',
         'book'
     ];
 
+    protected $appends = [
+        'book_nice'
+    ];
+
+    public function getBookNiceAttribute()
+    {
+        $getList = get_list_book();
+        return $getList[$this->book] ?? $this->book;
+    }
+
     public function getDoctor()
     {
         return $this->belongsTo(Doctor::class, 'doctor_id', 'id');
     }
-
 
 }

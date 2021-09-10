@@ -44,7 +44,7 @@ class ArticleController extends Controller
             return response()->json([
                 'success' => 0,
                 'data' => $data,
-                'message' => 'Article Not Found',
+                'message' => ['Article Not Found'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }

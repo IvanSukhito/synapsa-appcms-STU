@@ -20,6 +20,10 @@ class CreateTransactionDetailsTable extends Migration
             $table->string('product_name')->nullable();
             $table->integer('product_qty')->default(0);
             $table->decimal('product_price', 26, 2)->default(0);
+            $table->unsignedBigInteger('schedule_id')->default(0);
+            $table->unsignedBigInteger('doctor_id')->default(0);
+            $table->string('doctor_name')->nullable();
+            $table->decimal('doctor_price', 26, 2)->default(0);
             $table->timestamps();
         });
     }

@@ -48,30 +48,35 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
     Route::get('sliders', ['uses' => 'App\Http\Controllers\API\V1\SlidersController@getSliders'])->name('api.getSliders');
 
     $router->group(['prefix' => 'transaction/product'], function () use ($router) {
-        $router->post('cart', ['uses' => 'App\Http\Controllers\API\V1\ProductController@storeCart'])->name('api.user.storeCart');
-        $router->post('update-cart/{id}', ['uses' => 'App\Http\Controllers\API\V1\ProductController@updateCart'])->name('api.user.updateCart');
-        $router->delete('delete-cart/{id}', ['uses' => 'App\Http\Controllers\API\V1\ProductController@deleteCart'])->name('api.user.deleteCart');
-        $router->get('cart', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getCart'])->name('api.user.getCart');
-        $router->post('cart-choose-product', ['uses' => 'App\Http\Controllers\API\V1\ProductController@postCartChooseProduct'])->name('api.user.postCartChooseProduct');
+        $router->post('cart', ['uses' => 'App\Http\Controllers\API\V1\ProductController@storeCart'])->name('api.product.storeCart');
+        $router->post('update-cart/{id}', ['uses' => 'App\Http\Controllers\API\V1\ProductController@updateCart'])->name('api.product.updateCart');
+        $router->delete('delete-cart/{id}', ['uses' => 'App\Http\Controllers\API\V1\ProductController@deleteCart'])->name('api.product.deleteCart');
+        $router->get('cart', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getCart'])->name('api.product.getCart');
+        $router->post('cart-choose-product', ['uses' => 'App\Http\Controllers\API\V1\ProductController@postCartChooseProduct'])->name('api.product.postCartChooseProduct');
 
-        $router->get('cart-receiver', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getReceiver'])->name('api.user.getReceiver');
-        $router->post('cart-receiver', ['uses' => 'App\Http\Controllers\API\V1\ProductController@updateReceiver'])->name('api.user.updateReceiver');
-        $router->get('cart-address', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getAddress'])->name('api.user.getAddress');
-        $router->post('cart-address', ['uses' => 'App\Http\Controllers\API\V1\ProductController@updateAddress'])->name('api.user.updateAddress');
-        $router->get('cart-shipping', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getShipping'])->name('api.user.getShipping');
-        $router->post('cart-shipping', ['uses' => 'App\Http\Controllers\API\V1\ProductController@updateShipping'])->name('api.user.updateShipping');
-        $router->get('cart-summary', ['uses' => 'App\Http\Controllers\API\V1\ProductController@cartSummary'])->name('api.user.cartSummary');
-        $router->get('cart-payment', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getPayment'])->name('api.user.getPayment');
-        $router->post('cart-checkout', ['uses' => 'App\Http\Controllers\API\V1\ProductController@checkout'])->name('api.user.checkout');
+        $router->get('cart-receiver', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getReceiver'])->name('api.product.getReceiver');
+        $router->post('cart-receiver', ['uses' => 'App\Http\Controllers\API\V1\ProductController@updateReceiver'])->name('api.product.updateReceiver');
+        $router->get('cart-address', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getAddress'])->name('api.product.getAddress');
+        $router->post('cart-address', ['uses' => 'App\Http\Controllers\API\V1\ProductController@updateAddress'])->name('api.product.updateAddress');
+        $router->get('cart-shipping', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getShipping'])->name('api.product.getShipping');
+        $router->post('cart-shipping', ['uses' => 'App\Http\Controllers\API\V1\ProductController@updateShipping'])->name('api.product.updateShipping');
+        $router->get('cart-summary', ['uses' => 'App\Http\Controllers\API\V1\ProductController@cartSummary'])->name('api.product.cartSummary');
+        $router->get('cart-payment', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getPayment'])->name('api.product.getPayment');
+        $router->post('cart-checkout', ['uses' => 'App\Http\Controllers\API\V1\ProductController@checkout'])->name('api.product.checkout');
 
     });
 
     $router->group(['prefix' => 'transaction/doctor'], function () use ($router) {
 
-        $router->get('/', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@getDoctor'])->name('api.getDoctor');
-        $router->get('doctor-category', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@doctorCategory'])->name('api.doctorCategory');
-        $router->get('detail/{id}', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@getDoctorDetail'])->name('api.getDoctorDetail');
-        $router->get('list-book/{id}', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@listBookDoctor'])->name('api.listBookDoctor');
+        $router->get('/', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@getDoctor'])->name('api.doctor.getDoctor');
+        $router->get('doctor-category', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@doctorCategory'])->name('api.doctor.doctorCategory');
+        $router->get('detail/{id}', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@getDoctorDetail'])->name('api.doctor.getDoctorDetail');
+        $router->get('list-book/{id}', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@listBookDoctor'])->name('api.doctor.listBookDoctor');
+        $router->get('check-schedule/{id}', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@checkSchedule'])->name('api.doctor.checkSchedule');
+        $router->get('schedule-summary/{id}', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@scheduleSummary'])->name('api.doctor.scheduleSummary');
+        $router->get('doctor-payment/{id}', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@getPayment'])->name('api.doctor.getPayment');
+        $router->get('doctor-checkout/{id}', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@checkout'])->name('api.doctor.checkout');
+
         $router->post('book/{id}', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@bookDoctor'])->name('api.user.bookDoctor');
         $router->get('cart-address', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@getAddress'])->name('api.user.getDoctorAddress');
         $router->post('cart-address', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@updateAddress'])->name('api.user.updateDoctorAddress');

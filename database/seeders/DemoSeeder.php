@@ -136,6 +136,7 @@ class DemoSeeder extends Seeder
         for ($i = 1; $i <= 10; $i++) {
             DB::table('doctor_schedule')->insertGetId([
                 'doctor_id' => rand(1, 2),
+                'service_id' => rand(1, 3),
                 'date_available' => date('Y-m-d', strtotime("+".$i.' day')),
                 'time_start' => rand(8, 11) . ':00 ',
                 'time_end' => rand(12, 17) . ':00',
