@@ -29,7 +29,7 @@ class DemoSeeder extends Seeder
                 'city_id' => 0,
                 'district_id' => 0,
                 'sub_district_id' => 0,
-                'fullname' => 'DEMO ' . $i,
+                'fullname' => 'USER ' . $i,
                 'address' => 'ALAMAT DEMO',
                 'address_detail' => 'ALAMAT DETAIL DEMO',
                 'email' => 'demo' . $i . '@mailinator.com',
@@ -86,7 +86,7 @@ class DemoSeeder extends Seeder
                 'name' => 'PRODUCT ' . $i,
                 'image' => '',
                 'price' => '99000',
-                'unit' => 'DEMO ' . $i,
+                'unit' => 'UNIT ' . $i,
                 'desc' => '[{"title":"title 1","content":"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."},{"title":"title 2","content":"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."},{"title":"title 3","content":"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."}]',
                 'stock' => 99,
                 'stock_flag' => 2,
@@ -109,8 +109,8 @@ class DemoSeeder extends Seeder
         for ($i = 1; $i <= 200; $i++) {
             DB::table('article')->insertGetId([
                 'article_category_id' => rand(1, 10),
-                'title' => 'DEMO ' . $i,
-                'slugs' => 'DEMO ' . $i,
+                'title' => 'ARTICLE ' . $i,
+                'slugs' => 'article-' . $i,
                 'thumbnail_img' => '',
                 'image' => '',
                 'content' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
