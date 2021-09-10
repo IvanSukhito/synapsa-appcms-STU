@@ -36,7 +36,8 @@ if ( ! function_exists('get_list_type_transaction')) {
         return [
             1 => __('Product'),
             2 => __('Doctor Telemed'),
-            99 => __('general.cancel'),
+            3 => __('Doctor HomeCare'),
+            4 => __('Doctor Visit'),
         ];
     }
 }

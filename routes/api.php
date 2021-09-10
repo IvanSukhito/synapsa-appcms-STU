@@ -75,16 +75,7 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
         $router->get('check-schedule/{id}', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@checkSchedule'])->name('api.doctor.checkSchedule');
         $router->get('schedule-summary/{id}', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@scheduleSummary'])->name('api.doctor.scheduleSummary');
         $router->get('doctor-payment/{id}', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@getPayment'])->name('api.doctor.getPayment');
-        $router->get('doctor-checkout/{id}', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@checkout'])->name('api.doctor.checkout');
-
-        $router->post('book/{id}', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@bookDoctor'])->name('api.user.bookDoctor');
-        $router->get('cart-address', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@getAddress'])->name('api.user.getDoctorAddress');
-        $router->post('cart-address', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@updateAddress'])->name('api.user.updateDoctorAddress');
-        $router->get('cart-receiver', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@getReceiver'])->name('api.user.getReceiver');
-        $router->post('cart-receiver', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@updateReceiver'])->name('api.user.updateReceiver');
-        $router->get('cart-summary', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@cartSummary'])->name('api.user.cartSummary');
-        $router->get('cart-payment', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@getPayment'])->name('api.user.getPayment');
-        $router->post('cart-checkout', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@checkout'])->name('api.user.checkout');
+        $router->post('doctor-checkout/{id}', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@checkout'])->name('api.doctor.checkout');
 
     });
 

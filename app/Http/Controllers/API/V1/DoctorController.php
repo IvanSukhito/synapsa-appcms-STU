@@ -188,7 +188,7 @@ class DoctorController extends Controller
             ], 404);
 
         }
-        else if ($getDoctorSchedule->status != 80) {
+        else if ($getDoctorSchedule->book != 80) {
             return response()->json([
                 'success' => 0,
                 'message' => ['Schedule Already Book'],
@@ -207,7 +207,7 @@ class DoctorController extends Controller
 
     public function scheduleSummary($id)
     {
-        $getDoctorSchedule = DoctorSchedule::where('id', '=', $id)->where('status', '=', 80)->first();
+        $getDoctorSchedule = DoctorSchedule::where('id', '=', $id)->where('book', '=', 80)->first();
         if (!$getDoctorSchedule) {
             return response()->json([
                 'success' => 0,
@@ -236,7 +236,7 @@ class DoctorController extends Controller
 
     public function getPayment($id)
     {
-        $getDoctorSchedule = DoctorSchedule::where('id', '=', $id)->where('status', '=', 80)->first();
+        $getDoctorSchedule = DoctorSchedule::where('id', '=', $id)->where('book', '=', 80)->first();
         if (!$getDoctorSchedule) {
             return response()->json([
                 'success' => 0,
@@ -282,7 +282,7 @@ class DoctorController extends Controller
 
         $paymentId = $this->request->get('payment_id');
 
-        $getDoctorSchedule = DoctorSchedule::where('id', '=', $id)->where('status', '=', 80)->first();
+        $getDoctorSchedule = DoctorSchedule::where('id', '=', $id)->where('book', '=', 80)->first();
         if (!$getDoctorSchedule) {
             return response()->json([
                 'success' => 0,

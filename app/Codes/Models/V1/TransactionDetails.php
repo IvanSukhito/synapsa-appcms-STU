@@ -23,10 +23,6 @@ class TransactionDetails extends Model
         'lab_price'
     ];
 
-    protected $appends = [
-        'status_transaction'
-    ];
-
     public function getTransaction()
     {
         return $this->belongsTo(Transaction::class, 'transaction_id', 'id');

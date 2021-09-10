@@ -42,7 +42,8 @@ class Users extends Model implements JWTSubject
         'upload_ktp_full',
         'status_nice',
         'gender_nice',
-        'image_full'
+        'image_full',
+        'price_nice'
     ];
 
     public function getUploadKtpFullAttribute()
@@ -65,6 +66,11 @@ class Users extends Model implements JWTSubject
     public function getImageFullAttribute()
     {
         return strlen($this->image) > 0 ? asset('uploads/users/'.$this->image) : asset('assets/cms/images/user-default.png');
+    }
+
+    public function getPriceNiceAttribute()
+    {
+        return isset($this->price) && intval($this->price) > 0 ? number_format($this->price, 0) : 0;
     }
 
     public function getDeviceToken()

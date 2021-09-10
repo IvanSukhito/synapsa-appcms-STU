@@ -238,8 +238,8 @@ class DemoSeeder extends Seeder
                 'icon_img' => '',
                 'orders' => rand(0, 1),
                 'settings' => '',
-                'type' => rand(0, 4),
-                'status' => rand(0, 1),
+                'type' => rand(1,2),
+                'status' => 80,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
