@@ -29,6 +29,6 @@ class CreateAppointmentDoctorTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('janji_temu_doctor');
+        Schema::dropIfExists('appointment_doctor');
     }
 }

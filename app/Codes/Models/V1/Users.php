@@ -14,6 +14,8 @@ class Users extends Model implements JWTSubject
         'city_id',
         'district_id',
         'sub_district_id',
+        'interest_service_id',
+        'interest_category_id',
         'fullname',
         'address',
         'address_detail',
@@ -39,7 +41,7 @@ class Users extends Model implements JWTSubject
         'upload_ktp_full',
         'status_nice',
         'gender_nice',
-        'image_doctor'
+        'image_full'
     ];
 
     public function getUploadKtpFullAttribute()
@@ -59,7 +61,7 @@ class Users extends Model implements JWTSubject
         return $getList[$this->gender] ?? $this->gender;
     }
 
-    public function getImageDoctorAttribute()
+    public function getImageFullAttribute()
     {
         return strlen($this->image) > 0 ? asset('uploads/users/'.$this->image) : asset('assets/cms/images/user-default.png');
     }

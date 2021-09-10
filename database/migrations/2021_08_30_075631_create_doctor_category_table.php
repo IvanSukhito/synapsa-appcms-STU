@@ -17,6 +17,7 @@ class CreateDoctorCategoryTable extends Migration
             $table->id();
             $table->string('name')->nullable();
             $table->text('icon_img')->nullable();
+            $table->integer('orders')->default(1);
             $table->timestamps();
         });
     }

@@ -19,6 +19,8 @@ class CreateUsersTable extends Migration
             $table->unsignedBigInteger('city_id')->default(0);
             $table->unsignedBigInteger('district_id')->default(0);
             $table->unsignedBigInteger('sub_district_id')->default(0);
+            $table->unsignedBigInteger('interest_service_id')->default(0);
+            $table->unsignedBigInteger('interest_category_id')->default(0);
             $table->string('fullname')->nullable();
             $table->string('address')->nullable();
             $table->text('address_detail')->nullable();

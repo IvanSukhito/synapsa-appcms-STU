@@ -10,10 +10,11 @@ class Service extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
       'name',
+      'orders',
       'status'
     ];
 
-    
+
     public function getDoctor()
     {
         return $this->belongsToMany(Doctor::class, 'doctor-service', 'doctor_id', 'service_id');

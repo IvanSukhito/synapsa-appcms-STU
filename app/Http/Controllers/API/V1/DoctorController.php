@@ -7,6 +7,7 @@ use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\DoctorSchedule;
 use App\Codes\Models\V1\DoctorCategory;
 use App\Codes\Models\V1\AppointmentDoctor;
+use App\Codes\Models\V1\Service;
 use App\Codes\Models\V1\TempAd;
 use App\Codes\Models\V1\TempAdDetail;
 use App\Codes\Models\V1\TransactionDetails;
@@ -38,6 +39,7 @@ class DoctorController extends Controller
     }
 
     public function getDoctor(){
+
         $user = $this->request->attributes->get('_user');
 
         $s = strip_tags($this->request->get('s'));
@@ -46,22 +48,50 @@ class DoctorController extends Controller
             $getLimit = $this->limit;
         }
 
-        $data = Doctor::selectRaw('users.id, users.fullname as doctor_name, users.image as image ,doctor.price as doctor_price, doctor_category.name as category')
-        ->join('users', 'users.id', '=', 'doctor.user_id')
-        ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')->where('users.doctor','=', 1);
+        $service = Service::orderBy('orders', 'ASC')->get();
+        $category = DoctorCategory::orderBy('orders', 'ASC')->limit(3)->get();
 
-       
-        if (strlen($s) > 0) {
-            $data = $data->where('users.fullname', 'LIKE', strip_tags($s))->orWhere('doctor_category.name', 'LIKE', strip_tags($s));
+        $getInterestService = $user->interest_service_id;
+        $getInterestCategory = $user->interest_category_id;
+        if ($getInterestService <= 0) {
+            foreach ($service as $index => $list) {
+                if ($index == 0) {
+                    $getInterestService = $list->id;
+                }
+            }
         }
-        $data = $data->orderBy('id','DESC')->paginate($getLimit);
-        $category = DoctorCategory::get();
+        if ($getInterestCategory <= 0) {
+            foreach ($category as $index => $list) {
+                if ($index == 0) {
+                    $getInterestCategory = $list->id;
+                }
+            }
+        }
+
+        $data = Users::selectRaw('doctor.id, users.fullname as doctor_name, image, doctor.price, doctor_category.name as category')
+            ->join('doctor', 'doctor.user_id', '=', 'users.id')
+            ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
+            ->join('doctor_service', 'doctor_service.doctor_id','=','doctor.id')
+            ->where('doctor.doctor_category_id','=', $getInterestCategory)
+            ->where('doctor_service.service_id','=', $getInterestService)
+            ->where('users.doctor','=', 1);
+
+        if (strlen($s) > 0) {
+            $data = $data->where('users.fullname', 'LIKE', "%$s%");
+        }
+
+        $data = $data->orderBy('users.fullname', 'ASC')->paginate($getLimit);
 
         return response()->json([
             'success' => 1,
             'data' => [
                 'doctor' => $data,
-                'category' => $category
+                'service' => $service,
+                'category' => $category,
+                'active' => [
+                    'service' => $getInterestService,
+                    'category' => $getInterestCategory
+                ]
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
@@ -75,7 +105,7 @@ class DoctorController extends Controller
         ->join('users', 'users.id', '=', 'doctor.user_id')
         ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')->where('users.doctor','=', 1)->where('doctor.id', $id)->first();
 
-     
+
         if (!$data) {
             return response()->json([
                 'success' => 0,
@@ -111,9 +141,9 @@ class DoctorController extends Controller
             ], 422);
         }
 
-        
+
         $doctorSchedule = DoctorSchedule::where('time_start', '<=',$bookAt)->where('time_end', '>=',$bookAt)->where('doctor_id', $id)->first();
-        //dd($doctorSchedule);  
+        //dd($doctorSchedule);
 
         if(!$doctorSchedule){
 
@@ -124,7 +154,7 @@ class DoctorController extends Controller
             ], 422);
         }
         else{
-          
+
             $janjiTemu = new AppointmentDoctor();
             $janjiTemu->doctor_id = $id;
             $janjiTemu->book_day = $this->request->get('book_day');
@@ -140,9 +170,9 @@ class DoctorController extends Controller
                         'temp_ad_id' => $TempAd->id,
                         'appointment_doctor_id' => $janjiTemu->id,
                         'doctor_id' => $id
-                    ]);                  
+                    ]);
                 }
-        
+
                 catch (QueryException $e){
                     return response()->json([
                         'message' => 'Insert Failed'
@@ -247,12 +277,12 @@ class DoctorController extends Controller
 
         $getData = json_decode($getData->detail_information, true);
         if ($getData) {
-       
+
             $getAddress = $getData['address'] ?? '';
             $getPhone = $getData['phone'] ?? '';
         }
         else {
-       
+
             $getAddress = $user->address ?? '';
             $getPhone = $user->phone ?? '';
         }
@@ -261,7 +291,7 @@ class DoctorController extends Controller
             'success' => 1,
             'data' => [
                 [
-                  
+
                     'address' => $getAddress ?? '',
                     'phone' => $getPhone ?? '',
                 ]
@@ -269,11 +299,11 @@ class DoctorController extends Controller
         ]);
     }
 
-    
+
     public function updateReceiver(){
         $user = $this->request->attributes->get('_user');
         $validator = Validator::make($this->request->all(), [
-         
+
             'address' => 'required',
             'phone' => 'required'
         ]);
@@ -285,7 +315,7 @@ class DoctorController extends Controller
             ], 422);
         }
 
-      
+
         $address = $this->request->get('address');
         $phone = $this->request->get('phone');
 
@@ -325,12 +355,12 @@ class DoctorController extends Controller
             ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
             ->join('temp_ad_detail', 'temp_ad_detail.doctor_id', '=', 'doctor.id')
             ->where('temp_ad_detail.temp_ad_id', '=', $getUsersCart->id)->get();
-            
 
-       
+
+
         $subTotal = 0;
         foreach ($getUsersCartDetails as $list) {
-          
+
             $subTotal += $list->doctor_price;
         }
 
@@ -353,7 +383,7 @@ class DoctorController extends Controller
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
     }
-    
+
     public function cartSummary()
     {
         $user = $this->request->attributes->get('_user');
@@ -362,21 +392,21 @@ class DoctorController extends Controller
             'users_id' => $user->id,
         ]);
 
-      
+
         $getUsersCartDetails = Doctor::selectRaw('temp_ad_detail.id, users.fullname AS doctor_name,
         users.image as image ,doctor.price as doctor_price, doctor_category.name as category')
             ->join('users', 'users.id', '=', 'doctor.user_id')
             ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
             ->join('temp_ad_detail', 'temp_ad_detail.doctor_id', '=', 'doctor.id')
             ->where('temp_ad_detail.temp_ad_id', '=', $getUsersCart->id)->get();
-            
+
         $subTotal = 0;
         foreach ($getUsersCartDetails as $list) {
             $subTotal +=$list->doctor_price;
         }
 
         $getDetailsInformation = json_decode($getUsersCart->detail_information, true);
-     
+
         return response()->json([
             'success' => 1,
             'data' => [
@@ -384,7 +414,7 @@ class DoctorController extends Controller
                     'address' => $getDetailsInformation['address'] ?? '',
                     'phone' => $getDetailsInformation['phone'] ?? '',
                     'subtotal' => $subTotal,
-                    'total' => $subTotal 
+                    'total' => $subTotal
                 ],
                 'cart_details' => $getUsersCartDetails
             ],
@@ -412,7 +442,7 @@ class DoctorController extends Controller
 
         $getDetailAddress = json_decode($getUsersCart->detail_address, true);
         $getDetailsInformation = json_decode($getUsersCart->detail_information, true);
-      
+
 
         $getUsersCartDetails = Doctor::selectRaw('temp_ad_detail.id, users.fullname AS doctor_name,
         users.image as image ,doctor.price as doctor_price, doctor_category.name as category')
@@ -420,15 +450,15 @@ class DoctorController extends Controller
             ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
             ->join('temp_ad_detail', 'temp_ad_detail.doctor_id', '=', 'doctor.id')
             ->where('temp_ad_detail.temp_ad_id', '=', $getUsersCart->id)->get();
-            
+
 
         $totalQty = 0;
         $subTotal = 0;
-     
+
         foreach ($getUsersCartDetails as $list) {
-        
+
             $subTotal += $list->doctor_price;
-          
+
         }
         $total = $subTotal;
 
@@ -453,7 +483,7 @@ class DoctorController extends Controller
             'status' => 1
         ]);
 
-       
+
         TempAdDetail::where('temp_ad_id', '=', $getUsersCart->id)->delete();
 
         DB::commit();
