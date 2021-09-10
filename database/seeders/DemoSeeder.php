@@ -82,8 +82,8 @@ class DemoSeeder extends Seeder
         for ($i = 1; $i <= 100; $i++) {
             DB::table('product')->insertGetId([
                 'product_category_id' => rand(1, 10),
-                'sku' => 'DEMO ' . $i,
-                'name' => 'DEMO ' . $i,
+                'sku' => 'PRO' . $i,
+                'name' => 'PRODUCT ' . $i,
                 'image' => '',
                 'price' => '99000',
                 'unit' => 'DEMO ' . $i,
@@ -177,7 +177,7 @@ class DemoSeeder extends Seeder
         for ($i = 1; $i <= 100; $i++) {
             DB::table('lab')->insertGetId([
                 'parent_id' => rand(0, 2),
-                'name' => 'DEMO ' . $i,
+                'name' => 'LAB ' . $i,
                 'price' => '99000',
                 'thumbnail_img' => '',
                 'image' => '',
@@ -221,7 +221,7 @@ class DemoSeeder extends Seeder
         //Shipping
         for ($i = 1; $i <= 10; $i++) {
             DB::table('shipping')->insertGetId([
-                'name' => 'NAME' . $i,
+                'name' => 'SHIPPING' . $i,
                 'icon' => '',
                 'settings' => '',
                 'orders' => rand(0, 1),
@@ -232,17 +232,17 @@ class DemoSeeder extends Seeder
         }
         //Payment
         for ($i = 1; $i <= 5; $i++) {
-                    DB::table('payment')->insertGetId([
-                        'name' => 'NAME' . $i,
-                        'icon_img' => '',
-                        'orders' => rand(0, 1),
-                        'settings' => '',
-                        'type' => rand(0, 4),
-                        'status' => rand(0, 1),
-                        'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now(),
-                    ]);
-                }
+            DB::table('payment')->insertGetId([
+                'name' => 'PAYMENT' . $i,
+                'icon_img' => '',
+                'orders' => rand(0, 1),
+                'settings' => '',
+                'type' => rand(0, 4),
+                'status' => rand(0, 1),
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ]);
+        }
 
     }
 }
