@@ -21,10 +21,14 @@ class Lab extends Model
     ];
 
     protected $appends = [
-        'upload_lab_image'
+        'upload_lab_image',
+        'price_nice'
     ];
 
- 
+    public function getPriceNiceAttribute()
+    {
+        return intval($this->price) > 0 ? number_format($this->price, 0) : 0;
+    }
 
     
     public function getService()

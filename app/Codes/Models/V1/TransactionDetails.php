@@ -22,6 +22,28 @@ class TransactionDetails extends Model
         'lab_name',
         'lab_price'
     ];
+    
+    protected $appends = [
+        'product_price_nice',
+        'doctor_price_nice',
+        'lab_price_nice',
+     
+    ];
+
+    public function getLabPriceNiceAttribute()
+    {
+        return intval($this->lab_price) > 0 ? number_format($this->lab_price, 0) : 0;
+    }
+    
+    public function getDoctorPriceNiceAttribute()
+    {
+        return intval($this->doctor_price) > 0 ? number_format($this->doctor_price, 0) : 0;
+    }
+
+    public function getProductPriceNiceAttribute()
+    {
+        return intval($this->product_price) > 0 ? number_format($this->product_price, 0) : 0;
+    }
 
     public function getTransaction()
     {

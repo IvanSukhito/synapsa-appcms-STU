@@ -154,7 +154,7 @@ class GeneralController extends Controller
             $usersAddress->save();
 
             return response()->json([
-                'message' => 'Data Has Been Inserted',
+                'message' => ['Data Has Been Inserted'],
                 'data' => [
                     'klinik_id' => $users->klinik_id,
                     'fullname' => $users->fullname,
@@ -176,7 +176,7 @@ class GeneralController extends Controller
 
         catch (QueryException $e){
             return response()->json([
-                'message' => 'Insert Failed',
+                'message' => ['Insert Failed'],
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -223,7 +223,7 @@ class GeneralController extends Controller
 
                 return response()->json([
                     'success' => 1,
-                    'message' => 'Success Login',
+                    'message' => ['Success Login'],
                     'data' => [
                         'klinik_id' => $user->klinik_id,
                         'klinik_name' => $getKlinik ? $getKlinik->name : '',

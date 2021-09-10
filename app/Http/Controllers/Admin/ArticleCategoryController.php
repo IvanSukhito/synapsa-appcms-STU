@@ -44,7 +44,7 @@ class ArticleCategoryController extends _CrudController
             $passingData
         );
 
-        $this->data['listSet']['status'] = get_list_status();
+        $this->data['listSet']['status'] = get_list_active_inactive();
 
     }
 

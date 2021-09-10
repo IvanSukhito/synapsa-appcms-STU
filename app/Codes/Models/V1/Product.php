@@ -23,8 +23,13 @@ class Product extends Model
 
     protected $appends = [
         'desc_details',
-        'image_full'
+        'image_full',
+        'price_nice',
     ];
+    public function getPriceNiceAttribute()
+    {
+        return intval($this->price) > 0 ? number_format($this->price, 0) : 0;
+    }
 
     public function getDescDetailsAttribute()
     {

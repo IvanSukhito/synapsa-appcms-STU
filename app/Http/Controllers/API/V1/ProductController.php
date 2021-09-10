@@ -73,7 +73,7 @@ class ProductController extends Controller
             return response()->json([
                 'success' => 0,
                 'data' => $data,
-                'message' => 'Product Not Found',
+                'message' => ['Product Not Found'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
@@ -136,7 +136,7 @@ class ProductController extends Controller
         if(!$product){
             return response()->json([
                 'success' => 0,
-                'message' => 'product not found',
+                'message' => ['product not found'],
             ], 404);
         }
         $productId = $this->request->get('product_id');
@@ -168,7 +168,7 @@ class ProductController extends Controller
 
         catch (QueryException $e){
             return response()->json([
-                'message' => 'Insert Failed'
+                'message' => ['Insert Failed']
             ], 500);
         }
     }
@@ -196,7 +196,7 @@ class ProductController extends Controller
         if (!$getUsersCartDetail) {
             return response()->json([
                 'success' => 0,
-                'message' => 'cart not found',
+                'message' => ['cart not found'],
             ], 404);
         }
 
@@ -352,7 +352,7 @@ class ProductController extends Controller
 
         return response()->json([
             'success' => 1,
-            'message' => 'Detail Information Has Been Updated',
+            'message' => ['Detail Information Has Been Updated'],
             'data' => $getData
         ]);
     }
@@ -429,7 +429,7 @@ class ProductController extends Controller
 
         return response()->json([
             'success' => 1,
-            'message' => 'Detail Address Has Been Updated',
+            'message' => ['Detail Address Has Been Updated'],
             'data' => $getDetailAddress
         ]);
     }

@@ -40,8 +40,27 @@ class Transaction extends Model
 
     protected $appends = [
         'type_transaction',
-        'status_transaction'
+        'status_transaction',
+        'total_nice',
+        'subtotal_nice',
+        'shipping_price_nice'
     ];
+
+
+    public function getShippingPriceNiceAttribute()
+    {
+        return intval($this->shipping_price) > 0 ? number_format($this->shipping_price, 0) : 0;
+    }
+
+    public function getTotalNiceAttribute()
+    {
+        return intval($this->total) > 0 ? number_format($this->total, 0) : 0;
+    }
+
+    public function getSubtotalNiceAttribute()
+    {
+        return intval($this->subtotal) > 0 ? number_format($this->subtotal, 0) : 0;
+    }
 
     public function getTypeTransactionAttribute()
     {

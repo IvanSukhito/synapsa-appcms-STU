@@ -60,7 +60,7 @@ class LabController extends Controller
             return response()->json([
                 'success' => 0,
                 'data' => $data,
-                'message' => 'Doctor Not Found',
+                'message' => ['Doctor Not Found'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
