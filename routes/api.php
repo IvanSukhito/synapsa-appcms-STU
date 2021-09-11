@@ -68,6 +68,7 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
         $router->get('detail/{id}', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@getDoctorDetail'])->name('api.doctor.getDoctorDetail');
         $router->get('list-book/{id}', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@listBookDoctor'])->name('api.doctor.listBookDoctor');
         $router->get('check-schedule/{id}', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@checkSchedule'])->name('api.doctor.checkSchedule');
+        $router->get('schedule-address', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@getAddress'])->name('api.doctor.getAddress');
         $router->get('schedule-summary/{id}', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@scheduleSummary'])->name('api.doctor.scheduleSummary');
         $router->get('doctor-payment/{id}', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@getPayment'])->name('api.doctor.getPayment');
         $router->post('doctor-checkout/{id}', ['uses' => 'App\Http\Controllers\API\V1\DoctorController@checkout'])->name('api.doctor.checkout');
@@ -75,7 +76,7 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
     });
 
     $router->group(['prefix' => 'transaction/lab'], function () use ($router) {
-        
+
         $router->get('/', ['uses' => 'App\Http\Controllers\API\V1\LabController@getLab'])->name('api.getLab');
         $router->get('detail/{id}', ['uses' => 'App\Http\Controllers\API\V1\LabController@getLabDetail'])->name('api.getLabDetail');
         $router->get('cart', ['uses' => 'App\Http\Controllers\API\V1\LabController@getCart'])->name('api.lab.getCart');

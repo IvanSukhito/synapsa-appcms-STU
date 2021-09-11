@@ -3,22 +3,17 @@
 namespace App\Http\Controllers\API\V1;
 
 use App\Codes\Models\Settings;
-use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\DoctorSchedule;
 use App\Codes\Models\V1\DoctorCategory;
-use App\Codes\Models\V1\AppointmentDoctor;
 use App\Codes\Models\V1\Service;
-use App\Codes\Models\V1\TempAd;
-use App\Codes\Models\V1\TempAdDetail;
 use App\Codes\Models\V1\TransactionDetails;
 use App\Codes\Models\V1\Transaction;
-use App\Codes\Models\V1\UsersAddress;
 use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\Payment;
+use App\Codes\Models\V1\UsersAddress;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
-use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
@@ -27,7 +22,6 @@ class DoctorController extends Controller
     protected $request;
     protected $setting;
     protected $limit;
-
 
     public function __construct(Request $request)
     {
@@ -38,7 +32,8 @@ class DoctorController extends Controller
         $this->limit = 5;
     }
 
-    public function getDoctor(){
+    public function getDoctor()
+    {
 
         $user = $this->request->attributes->get('_user');
 
@@ -111,7 +106,8 @@ class DoctorController extends Controller
         ]);
     }
 
-    public function getDoctorDetail($id){
+    public function getDoctorDetail($id)
+    {
 
         $user = $this->request->attributes->get('_user');
 
@@ -205,6 +201,33 @@ class DoctorController extends Controller
         ]);
     }
 
+    public function getAddress(){
+        $user = $this->request->attributes->get('_user');
+
+        $getUsersAddress = UsersAddress::where('user_id', $user->id)->first();
+
+        $getAddressName = $getData['address_name'] ?? $getUsersAddress->address_name;
+        $getAddress = $getData['address'] ?? $getUsersAddress->address;
+        $getCity = $getData['city_id'] ?? $getUsersAddress->city_id;
+        $getDistrict = $getData['district_id'] ?? $getUsersAddress->district_id;
+        $getSubDistrict = $getData['sub_district_id'] ?? $getUsersAddress->sub_district_id;
+        $getZipCode = $getData['zip_code'] ?? $getUsersAddress->zip_code;
+        $getPhone = $getData['phone'] ?? $user->phone;
+
+        return response()->json([
+            'success' => 1,
+            'data' => [
+                'address_name' => $getAddressName,
+                'address' => $getAddress,
+                'city_id' => $getCity,
+                'district_id' => $getDistrict,
+                'sub_district_id' => $getSubDistrict,
+                'zip_code' => $getZipCode,
+                'phone' => $getPhone,
+            ]
+        ]);
+    }
+
     public function scheduleSummary($id)
     {
         $getDoctorSchedule = DoctorSchedule::where('id', '=', $id)->where('book', '=', 80)->first();
@@ -272,6 +295,13 @@ class DoctorController extends Controller
 
         $validator = Validator::make($this->request->all(), [
             'payment_id' => 'required|numeric',
+            'address_name' => '',
+            'address' => '',
+            'city_id' => '',
+            'district_id' => '',
+            'sub_district_id' => '',
+            'zip_code' => '',
+            'phone' => ''
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -281,6 +311,13 @@ class DoctorController extends Controller
         }
 
         $paymentId = $this->request->get('payment_id');
+        $getAddressName = $this->request->get('address_name');
+        $getAddress = $this->request->get('address');
+        $getCityId = $this->request->get('city_id');
+        $getDistrictId = $this->request->get('district_id');
+        $getSubDistrictId = $this->request->get('sub_district_id');
+        $getZipCode = $this->request->get('zip_code');
+        $getPhone = $this->request->get('phone');
 
         $getDoctorSchedule = DoctorSchedule::where('id', '=', $id)->where('book', '=', 80)->first();
         if (!$getDoctorSchedule) {
@@ -290,6 +327,23 @@ class DoctorController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
+
+        switch ($getDoctorSchedule->service_id) {
+            case 2 : $getType = 3; break;
+            case 3 : $getType = 4; break;
+            default : $getType = 2; break;
+        }
+
+        $extraInfo = [
+            'service_id' => $getDoctorSchedule->service_id,
+            'address_name' => $getAddressName,
+            'address' => $getAddress,
+            'city_id' => $getCityId,
+            'district_id' => $getDistrictId,
+            'sub_district_id' => $getSubDistrictId,
+            'zip_code' => $getZipCode,
+            'phone' => $getPhone
+        ];
 
         $data = Users::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
             phone, gender, doctor.price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
@@ -317,9 +371,10 @@ class DoctorController extends Controller
             'code' => $newCode,
             'payment_id' => $paymentId,
             'payment_name' => $getPayment->name,
-            'type' => 2,
+            'type' => $getType,
             'subtotal' => $subTotal,
             'total' => $total,
+            'extra_info' => json_encode($extraInfo),
             'status' => 1
         ]);
 
