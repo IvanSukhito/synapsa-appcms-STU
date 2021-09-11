@@ -12,7 +12,6 @@ class Lab extends Model
         'parent_id',
         'name',
         'price',
-        'thumbnail_img',
         'image',
         'desc_lab',
         'desc_benefit',
@@ -21,8 +20,9 @@ class Lab extends Model
     ];
 
     protected $appends = [
-        'upload_lab_image',
+        'image_full',
         'price_nice'
+
     ];
 
     public function getPriceNiceAttribute()
@@ -41,9 +41,10 @@ class Lab extends Model
         return $this->hasMany(LabSchedule::class, 'lab_id', 'id');
     }
     
-    public function getUploadLabImageAttribute()
+    public function getImageFullAttribute()
     {
-        return strlen($this->thumbnail_img) > 0 ? asset('uploads/lab/'.$this->thumbnail_img) : asset('assets/cms/images/no-img.png');
+       // return asset('assets/cms/images/no-img.png');
+        return strlen($this->image) > 0 ? asset('uploads/lab/'.$this->image) : asset('assets/cms/images/no-img.png');
     }
 
 

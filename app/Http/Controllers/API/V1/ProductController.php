@@ -157,7 +157,7 @@ class ProductController extends Controller
             $cart->save();
 
             return response()->json([
-                'message' => 'Data Has Been Inserted',
+                'message' => ['Data Has Been Inserted'],
                 'data' => [
                     'product_id' => $productId,
                     'qty' => $cart->qty,

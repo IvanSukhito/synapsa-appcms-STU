@@ -39,11 +39,6 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
     Route::get('product', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getProduct'])->name('api.getProduct');
     Route::get('product/{id}', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getProductDetail'])->name('api.getProductDetail');
 
-
-    Route::get('lab', ['uses' => 'App\Http\Controllers\API\V1\LabController@getLab'])->name('api.getLab');
-    Route::get('lab/{id}', ['uses' => 'App\Http\Controllers\API\V1\LabController@getLabDetail'])->name('api.getLabDetail');
-
-
     Route::get('faqs', ['uses' => 'App\Http\Controllers\API\V1\FaqsController@getFaqs'])->name('api.getFaqs');
     Route::get('sliders', ['uses' => 'App\Http\Controllers\API\V1\SlidersController@getSliders'])->name('api.getSliders');
 
@@ -79,7 +74,17 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
 
     });
 
+    $router->group(['prefix' => 'transaction/lab'], function () use ($router) {
+        
+        $router->get('/', ['uses' => 'App\Http\Controllers\API\V1\LabController@getLab'])->name('api.getLab');
+        $router->get('detail/{id}', ['uses' => 'App\Http\Controllers\API\V1\LabController@getLabDetail'])->name('api.getLabDetail');
+        $router->get('cart', ['uses' => 'App\Http\Controllers\API\V1\LabController@getCart'])->name('api.lab.getCart');
+        $router->get('list-book/{id}', ['uses' => 'App\Http\Controllers\API\V1\LabController@listBookLab'])->name('api.lab.listBookLab');
+        $router->get('check-schedule/{id}', ['uses' => 'App\Http\Controllers\API\V1\LabController@checkSchedule'])->name('api.lab.checkSchedule');
+        $router->get('schedule-summary/{id}', ['uses' => 'App\Http\Controllers\API\V1\LabController@scheduleSummary'])->name('api.lab.scheduleSummary');
+        $router->get('lab-payment/{id}', ['uses' => 'App\Http\Controllers\API\V1\LabController@getPayment'])->name('api.lab.getPayment');
 
+    });
 });
 
 // Non Login

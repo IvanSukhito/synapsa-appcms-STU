@@ -16,13 +16,12 @@ class CreateLabScheduleTable extends Migration
         Schema::create('lab_schedule', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('lab_id')->default(0);
-            $table->time('open_at')->nullable();
-            $table->integer('orders')->default(1);
+            $table->unsignedBigInteger('service_id')->default(0);
+            $table->date('date_available')->nullable();
+            $table->time('time_start')->nullable();
+            $table->time('time_end')->nullable();
+            $table->integer('book')->default(0);
             $table->timestamps();
-            $table->foreign('lab_id', 'lab1_rel')
-            ->references('id')->on('lab')
-            ->onUpdate('cascade')
-            ->onDelete('cascade');
         });
     }
 
