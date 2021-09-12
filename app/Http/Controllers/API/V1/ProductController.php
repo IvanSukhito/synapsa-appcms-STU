@@ -444,11 +444,17 @@ class ProductController extends Controller
         $getDataShipping = Shipping::where('status', 80)->get();
         $getShipping = json_decode($getData->detail_shipping, true);
 
+        $getUsersCart = UsersCart::firstOrCreate([
+            'users_id' => $user->id,
+        ]);
+
         $getUsersCartDetails = Product::selectRaw('users_cart_detail.id, product.name AS product_name,
             product.name, product.image, product.unit, product.price, users_cart_detail.qty')
             ->join('users_cart_detail', 'users_cart_detail.product_id', '=', 'product.id')
             ->where('users_cart_detail.users_cart_id', '=', $getUsersCart->id)
             ->where('choose', 1)->get();
+
+        $getDetailsInformation = json_decode($getUsersCart->detail_information, true);
 
         $subTotal = 0;
         foreach ($getUsersCartDetails as $list) {
