@@ -31,8 +31,8 @@ class ProfileController extends Controller
 
         $getUser = $user;
         $getUser->image_full = strlen($user->image) > 0 ? asset('uploads/users/'.$user->image) : null;
+        $getUser->upload_ktp_full = strlen($user->upload_ktp) > 0 ? asset('uploads/users/'.$user->upload_ktp) : null;
         $getUser->join = date('d F Y', strtotime($user->created_at));
-
 
         return response()->json([
             'success' => 1,
