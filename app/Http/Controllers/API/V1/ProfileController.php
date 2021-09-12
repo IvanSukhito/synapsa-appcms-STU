@@ -158,7 +158,6 @@ class ProfileController extends Controller
             $img->resize(1200, null, function ($constraint) {
                 $constraint->aspectRatio();
             });
-            $img->rotate();
             $img->save();
 
         }
@@ -166,7 +165,8 @@ class ProfileController extends Controller
             return response()->json([
                 'success' => 0,
                 'token' => $this->request->attributes->get('_refresh_token'),
-                'message' => ['Failed upload Image']
+                'message' => ['Failed upload Image'],
+                'error' => $e->getMessage()
             ], 422);
         }
 
