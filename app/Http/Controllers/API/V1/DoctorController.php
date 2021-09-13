@@ -228,6 +228,13 @@ class DoctorController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
+        else if (date('Y-m-d', strtotime($getDoctorSchedule->date_date_available)) < date('Y-m-d')) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Schedule Already Past'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
 
         return response()->json([
             'success' => 1,
