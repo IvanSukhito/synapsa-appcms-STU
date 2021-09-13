@@ -305,6 +305,8 @@ class DoctorController extends Controller
             ], 422);
         }
 
+        $getService = Service::where('id', $getDoctorSchedule->service_id)->first();
+
         $data = Users::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
             phone, gender, doctor.price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
             ->join('doctor', 'doctor.user_id', '=', 'users.id')
@@ -316,7 +318,8 @@ class DoctorController extends Controller
             'success' => 1,
             'data' => [
                 'schedule' => $getDoctorSchedule,
-                'doctor' => $data
+                'doctor' => $data,
+                'service' => $getService
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
