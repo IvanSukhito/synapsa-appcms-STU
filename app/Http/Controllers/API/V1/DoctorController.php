@@ -34,9 +34,10 @@ class DoctorController extends Controller
 
     public function getDoctor()
     {
-
         $user = $this->request->attributes->get('_user');
 
+        $serviceId = intval($this->request->get('service_id'));
+        $categoryId = intval($this->request->get('category_id'));
         $s = strip_tags($this->request->get('s'));
         $getLimit = $this->request->get('limit');
         if ($getLimit <= 0) {
@@ -46,29 +47,62 @@ class DoctorController extends Controller
         $service = Service::orderBy('orders', 'ASC')->get();
         $category = DoctorCategory::orderBy('orders', 'ASC')->get();
 
-        $getInterestService = $user->interest_service_id;
-        $getInterestCategory = $user->interest_category_id;
-        if ($getInterestService <= 0) {
-            foreach ($service as $index => $list) {
-                if ($index == 0) {
-                    $getInterestService = $list->id;
-                }
+        $getInterestService = $serviceId > 0 ? $serviceId : $user->interest_service_id;
+        $getInterestCategory = $categoryId > 0 ? $categoryId : $user->interest_category_id;
+        $tempService = [];
+        $firstService = 0;
+        $getService = 0;
+        foreach ($service as $index => $list) {
+            $temp = [
+                'id' => $list->id,
+                'name' => $list->name,
+                'active' => 0
+            ];
+
+            if ($index == 0) {
+                $firstService = $list->id;
+            }
+
+            if ($list->id == $getInterestService) {
+                $temp['active'] = 1;
+                $getService = $list->id;
+            }
+
+            $tempService[] = $temp;
+        }
+
+        $service = $tempService;
+        if ($getService == 0) {
+            $getService = $firstService;
+        }
+
+        $firstCategory = 0;
+        $getCategory = 0;
+        $getCategoryDataTemp1 = false;
+        $getCategoryDataTemp2 = false;
+        foreach ($category as $index => $list) {
+            if ($index == 0) {
+                $firstCategory = $list->id;
+                $getCategoryDataTemp1 = $list;
+            }
+            if ($list->id == $getInterestCategory) {
+                $getCategory = $list->id;
+                $getCategoryDataTemp2 = $list;
             }
         }
-        if ($getInterestCategory <= 0) {
-            foreach ($category as $index => $list) {
-                if ($index == 0) {
-                    $getInterestCategory = $list->id;
-                }
-            }
+
+        $getCategoryData = $getCategoryDataTemp2;
+        if ($getCategory == 0) {
+            $getCategory = $firstCategory;
+            $getCategoryData = $getCategoryDataTemp1;
         }
 
         $data = Users::selectRaw('doctor.id, users.fullname as doctor_name, image, doctor.price, doctor_category.name as category')
             ->join('doctor', 'doctor.user_id', '=', 'users.id')
             ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
             ->join('doctor_service', 'doctor_service.doctor_id','=','doctor.id')
-            ->where('doctor.doctor_category_id','=', $getInterestCategory)
-            ->where('doctor_service.service_id','=', $getInterestService)
+            ->where('doctor.doctor_category_id','=', $getCategory)
+            ->where('doctor_service.service_id','=', $getService)
             ->where('users.doctor','=', 1);
 
         if (strlen($s) > 0) {
@@ -82,10 +116,10 @@ class DoctorController extends Controller
             'data' => [
                 'doctor' => $data,
                 'service' => $service,
-                'category' => $category,
                 'active' => [
                     'service' => $getInterestService,
-                    'category' => $getInterestCategory
+                    'category' => $getInterestCategory,
+                    'category_name' => $getCategoryData ? $getCategoryData->name : '-'
                 ]
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
@@ -138,6 +172,9 @@ class DoctorController extends Controller
     public function listBookDoctor($id)
     {
         $serviceId = $this->request->get('service_id');
+        $getDate = strtotime($this->request->get('date')) > 0 ?
+            date('Y-m-d', strtotime($this->request->get('date'))) :
+            date('Y-m-d', strtotime("+1 day"));
 
         $data = Users::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
             phone, gender, doctor.price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
@@ -156,7 +193,7 @@ class DoctorController extends Controller
         else {
 
             $getDoctorSchedule = DoctorSchedule::where('doctor_id', '=', $id)->where('service_id', '=', $serviceId)
-                ->where('date_available', '>=', date('Y-m-d'))
+                ->where('date_available', '=', $getDate)
                 ->get();
 
             return response()->json([
