@@ -27,10 +27,10 @@ class Lab extends Model
 
     public function getPriceNiceAttribute()
     {
-        return intval($this->price) > 0 ? number_format($this->price, 0) : 0;
+        return intval($this->price) > 0 ? number_format($this->price, 0, '.', '.') : 0;
     }
 
-    
+
     public function getService()
     {
         return $this->belongsToMany(Service::class, 'lab_service', 'service_id', 'lab_id');
@@ -40,7 +40,7 @@ class Lab extends Model
     {
         return $this->hasMany(LabSchedule::class, 'lab_id', 'id');
     }
-    
+
     public function getImageFullAttribute()
     {
        // return asset('assets/cms/images/no-img.png');

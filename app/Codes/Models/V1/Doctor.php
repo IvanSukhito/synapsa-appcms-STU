@@ -23,7 +23,7 @@ class Doctor extends Model
 
     public function getPriceNiceAttribute()
     {
-        return intval($this->price) > 0 ? number_format($this->price, 0) : 0;
+        return intval($this->price) > 0 ? number_format($this->price, 0, '.', '.') : 0;
     }
 
     public function getCategory()
