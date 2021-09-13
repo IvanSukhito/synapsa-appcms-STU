@@ -203,7 +203,7 @@ class DoctorController extends Controller
                 'success' => 1,
                 'data' => [
                     'schedule_start' => date('Y-m-d', strtotime("+1 day")),
-                    'schedule_end' => date('Y-m-d', strtotime("+31 day")),
+                    'schedule_end' => date('Y-m-d', strtotime("+366 day")),
                     'date' => $getDate,
                     'schedule' => $getDoctorSchedule,
                     'doctor' => $data,
