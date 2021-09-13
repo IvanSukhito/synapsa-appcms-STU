@@ -204,9 +204,9 @@ class DoctorController extends Controller
                 'data' => [
                     'schedule_start' => date('Y-m-d', strtotime("+1 day")),
                     'schedule_end' => date('Y-m-d', strtotime("+31 day")),
+                    'date' => $getDate,
                     'schedule' => $getDoctorSchedule,
                     'doctor' => $data,
-                    'date' => $getDate
                 ],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ]);
