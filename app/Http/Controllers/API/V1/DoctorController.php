@@ -52,6 +52,8 @@ class DoctorController extends Controller
         $tempService = [];
         $firstService = 0;
         $getService = 0;
+        $getServiceDataTemp1 = false;
+        $getServiceData = false;
         foreach ($service as $index => $list) {
             $temp = [
                 'id' => $list->id,
@@ -61,11 +63,13 @@ class DoctorController extends Controller
 
             if ($index == 0) {
                 $firstService = $list->id;
+                $getServiceDataTemp1 = $list;
             }
 
             if ($list->id == $getInterestService) {
                 $temp['active'] = 1;
                 $getService = $list->id;
+                $getServiceData = $list;
             }
 
             $tempService[] = $temp;
@@ -77,12 +81,13 @@ class DoctorController extends Controller
                 $service[0]['active'] = 1;
             }
             $getService = $firstService;
+            $getServiceData = $getServiceDataTemp1;
         }
 
         $firstCategory = 0;
         $getCategory = 0;
         $getCategoryDataTemp1 = false;
-        $getCategoryDataTemp2 = false;
+        $getCategoryData = false;
         foreach ($category as $index => $list) {
             if ($index == 0) {
                 $firstCategory = $list->id;
@@ -90,17 +95,16 @@ class DoctorController extends Controller
             }
             if ($list->id == $getInterestCategory) {
                 $getCategory = $list->id;
-                $getCategoryDataTemp2 = $list;
+                $getCategoryData = $list;
             }
         }
 
-        $getCategoryData = $getCategoryDataTemp2;
         if ($getCategory == 0) {
             $getCategory = $firstCategory;
             $getCategoryData = $getCategoryDataTemp1;
         }
 
-        $data = Users::selectRaw('doctor.id, users.fullname as doctor_name, image, doctor.price, doctor_category.name as category')
+        $data = Users::selectRaw('doctor.id, users.fullname as doctor_name, image, doctor_service.price, doctor_category.name as category')
             ->join('doctor', 'doctor.user_id', '=', 'users.id')
             ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
             ->join('doctor_service', 'doctor_service.doctor_id','=','doctor.id')
@@ -120,8 +124,9 @@ class DoctorController extends Controller
                 'doctor' => $data,
                 'service' => $service,
                 'active' => [
-                    'service' => $getInterestService,
-                    'category' => $getInterestCategory,
+                    'service' => $getService,
+                    'service_name' => $getServiceData ? $getServiceData->name : '-',
+                    'category' => $getCategory,
                     'category_name' => $getCategoryData ? $getCategoryData->name : '-'
                 ]
             ],
@@ -145,13 +150,15 @@ class DoctorController extends Controller
 
     public function getDoctorDetail($id)
     {
-
         $user = $this->request->attributes->get('_user');
+        $serviceId = $this->request->get('service_id');
 
         $data = Users::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
-            phone, gender, doctor.price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
+            phone, gender, doctor_service.price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
             ->join('doctor', 'doctor.user_id', '=', 'users.id')
             ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
+            ->join('doctor_service', 'doctor_service.doctor_id','=','doctor.id')
+            ->where('doctor_service.service_id', '=', $serviceId)
             ->where('doctor.id', '=', $id)
             ->where('users.doctor','=', 1)->first();
 
@@ -180,9 +187,11 @@ class DoctorController extends Controller
             date('Y-m-d', strtotime("+1 day"));
 
         $data = Users::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
-            phone, gender, doctor.price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
+            phone, gender, doctor_service.price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
             ->join('doctor', 'doctor.user_id', '=', 'users.id')
             ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
+            ->join('doctor_service', 'doctor_service.doctor_id','=','doctor.id')
+            ->where('doctor_service.service_id', '=', $serviceId)
             ->where('doctor.id', '=', $id)
             ->where('users.doctor','=', 1)->first();
 
@@ -308,10 +317,12 @@ class DoctorController extends Controller
         $getService = Service::where('id', $getDoctorSchedule->service_id)->first();
 
         $data = Users::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
-            phone, gender, doctor.price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
+            phone, gender, doctor_service.price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
             ->join('doctor', 'doctor.user_id', '=', 'users.id')
             ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
+            ->join('doctor_service', 'doctor_service.doctor_id','=','doctor.id')
             ->where('doctor.id', '=', $getDoctorSchedule->doctor_id)
+            ->where('doctor_service.service_id', '=', $getDoctorSchedule->service_id)
             ->where('users.doctor','=', 1)->first();
 
         return response()->json([
@@ -354,10 +365,12 @@ class DoctorController extends Controller
         }
 
         $data = Users::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
-            phone, gender, doctor.price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
+            phone, gender, doctor_service.price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
             ->join('doctor', 'doctor.user_id', '=', 'users.id')
             ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
+            ->join('doctor_service', 'doctor_service.doctor_id','=','doctor.id')
             ->where('doctor.id', '=', $getDoctorSchedule->doctor_id)
+            ->where('doctor_service.service_id', '=', $getDoctorSchedule->service_id)
             ->where('users.doctor','=', 1)->first();
 
         $getPayment = Payment::where('status', 80)->get();
@@ -435,10 +448,12 @@ class DoctorController extends Controller
         ];
 
         $data = Users::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
-            phone, gender, doctor.price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
+            phone, gender, doctor_service.price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
             ->join('doctor', 'doctor.user_id', '=', 'users.id')
             ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
+            ->join('doctor_service', 'doctor_service.doctor_id','=','doctor.id')
             ->where('doctor.id', '=', $getDoctorSchedule->doctor_id)
+            ->where('doctor_service.service_id', '=', $getDoctorSchedule->service_id)
             ->where('users.doctor','=', 1)->first();
 
         if (!$data) {

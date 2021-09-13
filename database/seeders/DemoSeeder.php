@@ -34,8 +34,8 @@ class DemoSeeder extends Seeder
                 'address_detail' => 'ALAMAT DETAIL DEMO',
                 'email' => 'demo' . $i . '@mailinator.com',
                 'password' => bcrypt('123456'),
-                'patient' => rand(0, 1),
-                'doctor' => rand(0, 1),
+                'patient' => $i > 10 ? 1 : 0,
+                'doctor' => $i <= 10 ? 1 : 0,
                 'nurse' => 0,
                 'verification_phone' => 1,
                 'verification_email' => 1,
@@ -132,19 +132,6 @@ class DemoSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ]);
         }
-        //Doctor Schedule
-        for ($i = 1; $i <= 10; $i++) {
-            DB::table('doctor_schedule')->insertGetId([
-                'doctor_id' => rand(1, 2),
-                'service_id' => rand(1, 3),
-                'date_available' => date('Y-m-d', strtotime("+".$i.' day')),
-                'time_start' => rand(8, 11) . ':00 ',
-                'time_end' => rand(12, 17) . ':00',
-                'book' => 80,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ]);
-        }
         //Service
         foreach (['Telemed', 'Homecare', 'Visit'] as $index => $name) {
             DB::table('service')->insertGetId([
@@ -168,18 +155,36 @@ class DemoSeeder extends Seeder
             ]);
         }
         //Doctor
-        for ($i = 1; $i <= 100; $i++) {
+        for ($i = 1; $i <= 10; $i++) {
+            $serviceId = rand(1, 3);
             DB::table('doctor_service')->insertGetId([
                 'doctor_id' => $i,
-                'service_id' => rand(1, 3)
+                'service_id' => $serviceId,
+                'type' => $serviceId == 2 ? 2 : 1,
+                'price' => rand(10,20) * 1000
             ]);
+
+            //Doctor Schedule
+            for ($j = 1; $j <= 60; $j++) {
+                DB::table('doctor_schedule')->insertGetId([
+                    'doctor_id' => $i,
+                    'service_id' => $serviceId,
+                    'date_available' => date('Y-m-d', strtotime("+".$j.' day')),
+                    'time_start' => rand(8, 11) . ':00 ',
+                    'time_end' => rand(12, 17) . ':00',
+                    'book' => 80,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ]);
+            }
+
         }
 
         //Lab
         for ($i = 1; $i <= 100; $i++) {
             DB::table('lab')->insertGetId([
-                'parent_id' => rand(0,10),
-                'name' => 'LAB ' . $i,
+                'parent_id' => $i > 10 ? rand(0,10) : 0,
+                'name' => 'LAB Product ' . $i,
                 'price' => '99000',
                 'image' => '',
                 'desc_lab' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
@@ -203,24 +208,12 @@ class DemoSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ]);
         }
-        //Lab Product
-        for ($i = 1; $i <= 100; $i++) {
-            DB::table('lab_product')->insertGetId([
-                'parent_id' => 0,
-                'title' => 'test' . $i,
-                'desc' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-                'image' => '',
-                'benefit' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-                'preparation' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ]);
-        }
          //Lab Service
          for ($i = 1; $i <= 100; $i++) {
             DB::table('lab_service')->insertGetId([
                 'lab_id' => $i,
-                'service_id' => rand(1, 3)
+                'service_id' => rand(1, 3),
+                'price' => rand(1,10) * 10000
             ]);
         }
         //Notifications
