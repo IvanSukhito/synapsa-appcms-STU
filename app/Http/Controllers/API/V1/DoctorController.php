@@ -73,6 +73,9 @@ class DoctorController extends Controller
 
         $service = $tempService;
         if ($getService == 0) {
+            if ($firstService > 0) {
+                $service[0]['active'] = 1;
+            }
             $getService = $firstService;
         }
 
@@ -199,8 +202,10 @@ class DoctorController extends Controller
             return response()->json([
                 'success' => 1,
                 'data' => [
+                    'schedule_start' => date('Y-m-d', strtotime("+1 day")),
+                    'schedule_end' => date('Y-m-d', strtotime("+31 day")),
                     'schedule' => $getDoctorSchedule,
-                    'doctor' => $data
+                    'doctor' => $data,
                 ],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ]);
@@ -274,13 +279,29 @@ class DoctorController extends Controller
 
     public function scheduleSummary($id)
     {
-        $getDoctorSchedule = DoctorSchedule::where('id', '=', $id)->where('book', '=', 80)->first();
+        $getDoctorSchedule = DoctorSchedule::where('id', '=', $id)->first();
         if (!$getDoctorSchedule) {
+
             return response()->json([
                 'success' => 0,
-                'message' => ['Schedule Not Found or Already Book'],
+                'message' => ['Schedule Not Found'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
+
+        }
+        else if ($getDoctorSchedule->book != 80) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Schedule Already Book'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+        else if (date('Y-m-d', strtotime($getDoctorSchedule->date_date_available)) < date('Y-m-d')) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Schedule Already Past'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
         }
 
         $data = Users::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
@@ -303,13 +324,29 @@ class DoctorController extends Controller
 
     public function getPayment($id)
     {
-        $getDoctorSchedule = DoctorSchedule::where('id', '=', $id)->where('book', '=', 80)->first();
+        $getDoctorSchedule = DoctorSchedule::where('id', '=', $id)->first();
         if (!$getDoctorSchedule) {
+
             return response()->json([
                 'success' => 0,
-                'message' => ['Schedule Not Found or Already Book'],
+                'message' => ['Schedule Not Found'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
+
+        }
+        else if ($getDoctorSchedule->book != 80) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Schedule Already Book'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+        else if (date('Y-m-d', strtotime($getDoctorSchedule->date_date_available)) < date('Y-m-d')) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Schedule Already Past'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
         }
 
         $data = Users::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
@@ -363,13 +400,29 @@ class DoctorController extends Controller
         $getZipCode = $this->request->get('zip_code');
         $getPhone = $this->request->get('phone');
 
-        $getDoctorSchedule = DoctorSchedule::where('id', '=', $id)->where('book', '=', 80)->first();
+        $getDoctorSchedule = DoctorSchedule::where('id', '=', $id)->first();
         if (!$getDoctorSchedule) {
+
             return response()->json([
                 'success' => 0,
-                'message' => ['Schedule Not Found or Already Book'],
+                'message' => ['Schedule Not Found'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
+
+        }
+        else if ($getDoctorSchedule->book != 80) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Schedule Already Book'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+        else if (date('Y-m-d', strtotime($getDoctorSchedule->date_date_available)) < date('Y-m-d')) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Schedule Already Past'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
         }
 
         switch ($getDoctorSchedule->service_id) {
