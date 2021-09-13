@@ -166,16 +166,18 @@ class DemoSeeder extends Seeder
 
             //Doctor Schedule
             for ($j = 1; $j <= 60; $j++) {
-                DB::table('doctor_schedule')->insertGetId([
-                    'doctor_id' => $i,
-                    'service_id' => $serviceId,
-                    'date_available' => date('Y-m-d', strtotime("+".$j.' day')),
-                    'time_start' => rand(8, 11) . ':00 ',
-                    'time_end' => rand(12, 17) . ':00',
-                    'book' => 80,
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now(),
-                ]);
+                for($k=0; $k <= rand(3,5); $k++) {
+                    DB::table('doctor_schedule')->insertGetId([
+                        'doctor_id' => $i,
+                        'service_id' => $serviceId,
+                        'date_available' => date('Y-m-d', strtotime("+".$j.' day')),
+                        'time_start' => rand(8 + $k, 11 + $k) . ':00 ',
+                        'time_end' => rand(12 + $k, 15 + $k) . ':00',
+                        'book' => 80,
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now(),
+                    ]);
+                }
             }
 
         }
@@ -196,9 +198,9 @@ class DemoSeeder extends Seeder
             ]);
         }
           //lab Schedule
-          for ($i = 1; $i <= 10; $i++) {
+          for ($i = 1; $i <= 30; $i++) {
             DB::table('lab_schedule')->insertGetId([
-                'lab_id' => rand(1, 2),
+                'lab_id' => 0,
                 'service_id' => rand(1, 3),
                 'date_available' => date('Y-m-d', strtotime("+".$i.' day')),
                 'time_start' => rand(8, 11) . ':00 ',
