@@ -364,15 +364,14 @@ class ProductController extends Controller
             'users_id' => $user->id,
         ]);
 
-        $getData = json_decode($getData->detail_address, true);
         $getUsersAddress = UsersAddress::where('user_id', $user->id)->first();
 
-        $getAddressName = $getData['address_name'] ?? $getUsersAddress->address_name;
-        $getAddress = $getData['address'] ?? $getUsersAddress->address;
-        $getCity = $getData['city_id'] ?? $getUsersAddress->city_id;
-        $getDistrict = $getData['district_id'] ?? $getUsersAddress->district_id;
-        $getSubDistrict = $getData['sub_district_id'] ?? $getUsersAddress->sub_district_id;
-        $getZipCode = $getData['zip_code'] ?? $getUsersAddress->zip_code;
+        $getAddressName = $getUsersAddress ? $getUsersAddress->address_name : '';
+        $getAddress = $getUsersAddress ? $getUsersAddress->address : '';
+        $getCity = $getUsersAddress ? $getUsersAddress->city_id : '';
+        $getDistrict = $getUsersAddress ? $getUsersAddress->district_id : '';
+        $getSubDistrict = $getUsersAddress ? $getUsersAddress->sub_district_id : '';
+        $getZipCode = $getUsersAddress ? $getUsersAddress->zip_code : '';
 
         return response()->json([
             'success' => 1,
@@ -384,53 +383,6 @@ class ProductController extends Controller
                 'sub_district_id' => $getSubDistrict,
                 'zip_code' => $getZipCode,
             ]
-        ]);
-    }
-
-    public function updateAddress(){
-        $user = $this->request->attributes->get('_user');
-        $validator = Validator::make($this->request->all(), [
-            'address_name' => 'required',
-            'address' => 'required',
-            'city_id' => '',
-            'district_id' => '',
-            'sub_district_id' => '',
-            'zip_code' => ''
-        ]);
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => 0,
-                'message' => $validator->messages()->all(),
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
-
-        $getAddressName = $this->request->get('address_name');
-        $getAddress = $this->request->get('address');
-        $getCity = $this->request->get('city_id');
-        $getDistrict = $this->request->get('district_id');
-        $getSubDistrict = $this->request->get('sub_district_id');
-        $getZipCode = $this->request->get('zip_code');
-
-        $getUsersCart = UsersCart::firstOrCreate([
-            'users_id' => $user->id,
-        ]);
-
-        $getDetailAddress = [
-            'address_name' => $getAddressName,
-            'address' => $getAddress,
-            'city_id' => $getCity,
-            'district_id' => $getDistrict,
-            'sub_district_id' => $getSubDistrict,
-            'zip_code' => $getZipCode,
-        ];
-        $getUsersCart->detail_address = json_encode($getDetailAddress);
-        $getUsersCart->save();
-
-        return response()->json([
-            'success' => 1,
-            'message' => ['Detail Address Has Been Updated'],
-            'data' => $getDetailAddress
         ]);
     }
 
@@ -542,7 +494,7 @@ class ProductController extends Controller
 
         $getDetailsInformation = json_decode($getUsersCart->detail_information, true);
         $getDetailsShipping = json_decode($getUsersCart->detail_shipping, true);
-        $shippingId = $getDetailsShipping['shipping_id'];
+        $shippingId = $getDetailsShipping['shipping_id'] ?? 0;
         $getShipping = Shipping::where('id', $shippingId)->first();
         if (!$getShipping) {
             return response()->json([
@@ -651,15 +603,23 @@ class ProductController extends Controller
             'users_id' => $user->id,
         ]);
 
-        $getDetailAddress = json_decode($getUsersCart->detail_address, true);
+        $getUsersAddress = UsersAddress::where('user_id', $user->id)->first();
+
         $getDetailsInformation = json_decode($getUsersCart->detail_information, true);
         $getDetailsShipping = json_decode($getUsersCart->detail_shipping, true);
         $shippingId = $getDetailsShipping['shipping_id'];
         $getShipping = Shipping::where('id', $shippingId)->first();
+        if (!$getShipping) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Shipping Not Found'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
 
-        $getCity = City::where('id', $getDetailAddress['city_id'])->first();
-        $getDistrict = District::where('id', $getDetailAddress['district_id'])->first();
-        $getSubDistrict = SubDistrict::where('id', $getDetailAddress['sub_district_id'])->first();
+        $getCity = City::where('id', $getUsersAddress->city_id)->first();
+        $getDistrict = District::where('id', $getUsersAddress->district_id)->first();
+        $getSubDistrict = SubDistrict::where('id', $getUsersAddress->sub_district_id)->first();
 
         $getUsersCartDetails = Product::selectRaw('users_cart_detail.id, product.id AS product_id, product.name AS product_name,
             product.name, product.image, product.unit, product.price, users_cart_detail.qty')
@@ -701,15 +661,15 @@ class ProductController extends Controller
             'receiver_name' => $getDetailsInformation['receiver'] ?? '',
             'receiver_address' => $getDetailsInformation['address'] ?? '',
             'receiver_phone' => $getDetailsInformation['phone'] ?? '',
-            'shipping_address_name' => $getDetailAddress['address_name'] ?? '',
-            'shipping_address' => $getDetailAddress['address'] ?? '',
-            'shipping_city_id' => $getDetailAddress['city_id'] ?? '',
+            'shipping_address_name' => $getUsersAddress->address_name ?? '',
+            'shipping_address' => $getUsersAddress->address ?? '',
+            'shipping_city_id' => $getUsersAddress->city_id ?? '',
             'shipping_city_name' => $getCity ? $getCity->name : '',
-            'shipping_district_id' => $getDetailAddress['district_id'] ?? '',
+            'shipping_district_id' => $getUsersAddress->district_id ?? '',
             'shipping_district_name' => $getDistrict ? $getDistrict->name : '',
-            'shipping_subdistrict_id' => $getDetailAddress['sub_district_id'] ?? '',
+            'shipping_subdistrict_id' => $getUsersAddress->sub_district_id ?? '',
             'shipping_subdistrict_name' => $getSubDistrict ? $getSubDistrict->name : '',
-            'shipping_zipcode' => $getDetailAddress['zip_code'] ?? '',
+            'shipping_zipcode' => $getUsersAddress->zip_code ?? '',
             'type' => 1,
             'total_qty' => $totalQty,
             'subtotal' => $subTotal,

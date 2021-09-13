@@ -206,6 +206,7 @@ class DoctorController extends Controller
                     'schedule_end' => date('Y-m-d', strtotime("+31 day")),
                     'schedule' => $getDoctorSchedule,
                     'doctor' => $data,
+                    'date' => $getDate
                 ],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ]);
@@ -233,7 +234,7 @@ class DoctorController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
-        else if (date('Y-m-d', strtotime($getDoctorSchedule->date_date_available)) < date('Y-m-d')) {
+        else if (date('Y-m-d', strtotime($getDoctorSchedule->date_available)) < date('Y-m-d')) {
             return response()->json([
                 'success' => 0,
                 'message' => ['Schedule Already Past'],
@@ -250,18 +251,18 @@ class DoctorController extends Controller
         ]);
     }
 
-    public function getAddress(){
+    public function scheduleAddress(){
         $user = $this->request->attributes->get('_user');
 
         $getUsersAddress = UsersAddress::where('user_id', $user->id)->first();
 
-        $getAddressName = $getData['address_name'] ?? $getUsersAddress->address_name;
-        $getAddress = $getData['address'] ?? $getUsersAddress->address;
-        $getCity = $getData['city_id'] ?? $getUsersAddress->city_id;
-        $getDistrict = $getData['district_id'] ?? $getUsersAddress->district_id;
-        $getSubDistrict = $getData['sub_district_id'] ?? $getUsersAddress->sub_district_id;
-        $getZipCode = $getData['zip_code'] ?? $getUsersAddress->zip_code;
-        $getPhone = $getData['phone'] ?? $user->phone;
+        $getAddressName = $getUsersAddress->address_name ?? '';
+        $getAddress = $getUsersAddress->address ?? '';
+        $getCity = $getUsersAddress->city_id ?? '';
+        $getDistrict = $getUsersAddress->district_id ?? '';
+        $getSubDistrict = $getUsersAddress->sub_district_id ?? '';
+        $getZipCode = $getUsersAddress->zip_code ?? '';
+        $getPhone = $user->phone ?? '';
 
         return response()->json([
             'success' => 1,
@@ -272,7 +273,7 @@ class DoctorController extends Controller
                 'district_id' => $getDistrict,
                 'sub_district_id' => $getSubDistrict,
                 'zip_code' => $getZipCode,
-                'phone' => $getPhone,
+                'phone' => $getPhone
             ]
         ]);
     }
@@ -296,7 +297,7 @@ class DoctorController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
-        else if (date('Y-m-d', strtotime($getDoctorSchedule->date_date_available)) < date('Y-m-d')) {
+        else if (date('Y-m-d', strtotime($getDoctorSchedule->date_available)) < date('Y-m-d')) {
             return response()->json([
                 'success' => 0,
                 'message' => ['Schedule Already Past'],
@@ -341,7 +342,7 @@ class DoctorController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
-        else if (date('Y-m-d', strtotime($getDoctorSchedule->date_date_available)) < date('Y-m-d')) {
+        else if (date('Y-m-d', strtotime($getDoctorSchedule->date_available)) < date('Y-m-d')) {
             return response()->json([
                 'success' => 0,
                 'message' => ['Schedule Already Past'],
@@ -375,14 +376,7 @@ class DoctorController extends Controller
         $user = $this->request->attributes->get('_user');
 
         $validator = Validator::make($this->request->all(), [
-            'payment_id' => 'required|numeric',
-            'address_name' => '',
-            'address' => '',
-            'city_id' => '',
-            'district_id' => '',
-            'sub_district_id' => '',
-            'zip_code' => '',
-            'phone' => ''
+            'payment_id' => 'required|numeric'
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -392,13 +386,8 @@ class DoctorController extends Controller
         }
 
         $paymentId = $this->request->get('payment_id');
-        $getAddressName = $this->request->get('address_name');
-        $getAddress = $this->request->get('address');
-        $getCityId = $this->request->get('city_id');
-        $getDistrictId = $this->request->get('district_id');
-        $getSubDistrictId = $this->request->get('sub_district_id');
-        $getZipCode = $this->request->get('zip_code');
-        $getPhone = $this->request->get('phone');
+
+        $getUsersAddress = UsersAddress::where('user_id', $user->id)->first();
 
         $getDoctorSchedule = DoctorSchedule::where('id', '=', $id)->first();
         if (!$getDoctorSchedule) {
@@ -417,7 +406,7 @@ class DoctorController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
-        else if (date('Y-m-d', strtotime($getDoctorSchedule->date_date_available)) < date('Y-m-d')) {
+        else if (date('Y-m-d', strtotime($getDoctorSchedule->date_available)) < date('Y-m-d')) {
             return response()->json([
                 'success' => 0,
                 'message' => ['Schedule Already Past'],
@@ -433,13 +422,13 @@ class DoctorController extends Controller
 
         $extraInfo = [
             'service_id' => $getDoctorSchedule->service_id,
-            'address_name' => $getAddressName,
-            'address' => $getAddress,
-            'city_id' => $getCityId,
-            'district_id' => $getDistrictId,
-            'sub_district_id' => $getSubDistrictId,
-            'zip_code' => $getZipCode,
-            'phone' => $getPhone
+            'address_name' => $getUsersAddress->address_name ?? '',
+            'address' => $getUsersAddress->address ?? '',
+            'city_id' => $getUsersAddress->city_id ?? '',
+            'district_id' => $getUsersAddress->district_id ?? '',
+            'sub_district_id' => $getUsersAddress->sub_district_id ?? '',
+            'zip_code' => $getUsersAddress->zip_code ?? '',
+            'phone' => $user->phone ?? ''
         ];
 
         $data = Users::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
