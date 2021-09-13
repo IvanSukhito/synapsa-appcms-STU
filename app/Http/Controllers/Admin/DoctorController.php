@@ -67,7 +67,7 @@ class DoctorController extends _CrudController
             $passingData
         );
 
-        $getUsers = Users::where('status', 1)->pluck('fullname', 'id')->toArray();
+        $getUsers = Users::where('status', 80)->where('doctor',1)->pluck('fullname', 'id')->toArray();
         $listUsers = [0 => 'Kosong'];
         if($getUsers) {
             foreach($getUsers as $key => $value) {

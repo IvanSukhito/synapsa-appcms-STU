@@ -12,6 +12,7 @@
     @section('css')
     <link rel="stylesheet" href="{{ asset('assets/cms/css/app.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/cms/css/custom.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/cms/js/dropify/dist/css/dropify.min.css') }}">
     @show
     @section('script-top')
     @show
@@ -77,9 +78,12 @@
 
 </div>
 @section('script-bottom')
+<script src="https://cdn.ckeditor.com/ckeditor5/29.2.0/classic/ckeditor.js"></script>
+<script src="{{ asset('/assets/cms/js/ckeditor/ckeditor.js') }}"></script>
 <script src="{{ asset('/assets/cms/js/app.js') }}"></script>
 <script src="{{ asset('/assets/cms/js/moment.min.js') }}"></script>
 <script src="{{ asset('/assets/cms/js/money.js') }}"></script>
+<script src="{{ asset('/assets/cms/js/dropify/src/js/dropify.js') }}"></script>
 @if(session()->has('message'))
     <?php
     switch (session()->get('message_alert')) {
@@ -101,6 +105,11 @@
             align: "right"
         },
     });
+    ClassicEditor
+        .create( document.querySelector( '#text-editor' ) )
+        .catch( error => {
+            console.error( error );
+        });
 </script>
 @endif
 @show

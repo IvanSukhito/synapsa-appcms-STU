@@ -9,6 +9,17 @@ if ( ! function_exists('get_list_active_inactive')) {
     }
 }
 
+if ( ! function_exists('get_list_stock_flag')) {
+    function get_list_stock_flag()
+    {
+        return [
+            1 => __('general.unlimited'),
+            2 => __('general.limited')
+        ];
+    }
+}
+
+
 if ( ! function_exists('get_list_gender')) {
     function get_list_gender()
     {

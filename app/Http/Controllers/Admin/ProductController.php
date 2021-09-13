@@ -4,7 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
 use App\Codes\Models\V1\Product;
+use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\ProductCategory;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image;
 use Illuminate\Http\Request;
 
 class ProductController extends _CrudController
@@ -25,24 +29,11 @@ class ProductController extends _CrudController
                 'lang' => 'general.product-category',
                 'type' => 'select2',
             ],
-            'sku' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-            ],
             'name' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
                 ]
-            ],
-            'image' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'type' => 'image',
             ],
             'price' => [
                 'validate' => [
@@ -56,25 +47,34 @@ class ProductController extends _CrudController
                     'edit' => 'required'
                 ]
             ],
-            'desc' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
+            'image_full' => [
+                'create' => 0,
+                'edit' => 0,
                 'type' => 'textarea',
+                'lang' => 'image'
             ],
             'stock' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
-                ]
+                ],
+                'type' => 'number',
             ],
             'stock_flag' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
-                ]
+                ],
+                'type' => 'select2',
             ],
+            'status' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'type' => 'select2',
+            ],
+
             'action' => [
                 'create' => 0,
                 'edit' => 0,
@@ -88,7 +88,7 @@ class ProductController extends _CrudController
             $passingData
         );
 
-        $getCategory = ProductCategory::where('status', 1)->pluck('name', 'id')->toArray();
+        $getCategory = ProductCategory::where('status', 80)->pluck('name', 'id')->toArray();
         $listCategory = [0 => 'Kosong'];
         if($getCategory) {
             foreach($getCategory as $key => $value) {
@@ -97,5 +97,274 @@ class ProductController extends _CrudController
         }
 
         $this->data['listSet']['product_category_id'] = $listCategory;
+        $this->data['listSet']['status'] = get_list_active_inactive();
+        $this->data['listSet']['stock_flag'] = get_list_stock_flag();
+        //$this->listView['index'] = env('ADMIN_TEMPLATE').'.page.product.list';
+        $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.product.forms';
+        $this->listView['edit'] = env('ADMIN_TEMPLATE').'.page.product.forms';
+        $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.product.forms';
+    }
+
+    public function create(){
+        $this->callPermission();
+
+        $adminId = session()->get('admin_id');
+        $getData = Users::where('id', $adminId)->first();
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $data = $this->data;
+
+        $data['thisLabel'] = __('general.product');
+        $data['viewType'] = 'create';
+        $data['formsTitle'] = __('general.title_create', ['field' => __('general.product') . ' ' . $getData->name]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['data'] = $getData;
+
+        return view($this->listView[$data['viewType']], $data);
+    }
+
+    public function edit($id){
+        $this->callPermission();
+
+        $adminId = session()->get('admin_id');
+        $getUsers = Users::where('id', $adminId)->first();
+        if (!$getUsers) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+
+        $getData = $this->crud->show($id);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $data = $this->data;
+
+        $product = Product::where('id',$id)->first();
+        $getDescProduct = json_decode($product->desc, true);
+
+        $temp = [];
+        foreach($getDescProduct as $index => $listProduct){
+
+            $temp = $listProduct;
+        }
+
+        $listProduct = $temp;
+
+        $data['thisLabel'] = __('general.product');
+        $data['viewType'] = 'edit';
+        $data['formsTitle'] = __('general.title_edit', ['field' => __('general.product') . ' ' . $getData->name]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['listProduct'] = $listProduct;
+        $data['data'] = $getData;
+
+        return view($this->listView[$data['viewType']], $data);
+    }
+
+    public function show($id){
+        $this->callPermission();
+
+        $adminId = session()->get('admin_id');
+        $getUsers = Users::where('id', $adminId)->first();
+        if (!$getUsers) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+
+        $getData = $this->crud->show($id);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $data = $this->data;
+
+        $product = Product::where('id',$id)->first();
+        $getDescProduct = json_decode($product->desc, true);
+
+        $temp = [];
+        foreach($getDescProduct as $index => $listProduct){
+
+            $temp = $listProduct;
+        }
+
+        $listProduct = $temp;
+
+        $data['thisLabel'] = __('general.product');
+        $data['viewType'] = 'show';
+        $data['formsTitle'] = __('general.title_show', ['field' => __('general.product') . ' ' . $getData->name]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['listProduct'] = $listProduct;
+        $data['data'] = $getData;
+
+        return view($this->listView[$data['viewType']], $data);
+    }
+
+    public function store(){
+        $this->callPermission();
+
+        $adminId = session()->get('admin_id');
+        $getData = Users::where('id', $adminId)->first();
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+
+        $viewType = 'create';
+
+        $this->request->validate([
+            'product_category_id' => 'required',
+            'name' => 'required',
+            'price' => 'required',
+            'unit' => 'required',
+            'stock' => 'required',
+            'status' => 'required',
+            'image' => 'required',
+            'information' => '',
+            'Indication' => '',
+            'Dosis' => '',
+        ]);
+
+
+        $productCategoryId = $this->request->get('product_category_id');
+        $productName = $this->request->get('name');
+        $productPrice = $this->request->get('price');
+        $productUnit = $this->request->get('unit');
+        $productStock = $this->request->get('stock');
+        $productStockFlag = $this->request->get('stock_flag');
+        $productStatus = $this->request->get('status');
+        $productInformation = $this->request->get('information');
+        $productIndication = $this->request->get('indication');
+        $productDosis = $this->request->get('dosis');
+        $dokument = $this->request->file('image');
+
+        $descProduct = [];
+
+        $descProduct[] = [
+            'information' => $productInformation,
+            'indication' => $productIndication,
+            'dosis' => $productDosis
+        ];
+
+        if ($dokument) {
+            if ($dokument->getError() != 1) {
+
+                $getFileName = $dokument->getClientOriginalName();
+                $ext = explode('.', $getFileName);
+                $ext = end($ext);
+                $destinationPath = 'uploads/product';
+                if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
+
+                    $dokumentImage = Storage::putFile($destinationPath, $dokument);
+                }
+
+            }
+        }
+
+        $product = new Product();
+        $product->product_category_id = $productCategoryId;
+        $product->name = $productName;
+        $product->price = $productPrice;
+        $product->unit = $productUnit;
+        $product->stock = $productStock;
+        $product->status = $productStatus;
+        $product->desc = json_encode($descProduct);
+        $product->image = $dokumentImage;
+        $product->stock_flag = $productStockFlag;
+        $product->save();
+
+        if($this->request->ajax()){
+            return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
+        }
+        else {
+            session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
+            session()->flash('message_alert', 2);
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+    }
+
+    public function update($id){
+        $this->callPermission();
+
+        $adminId = session()->get('admin_id');
+        $getData = Users::where('id', $adminId)->first();
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+
+        $viewType = 'edit';
+
+        $this->request->validate([
+            'product_category_id' => 'required',
+            'name' => 'required',
+            'price' => 'required',
+            'unit' => 'required',
+            'stock' => 'required',
+            'status' => 'required',
+            'image' => 'required',
+            'information' => '',
+            'Indication' => '',
+            'Dosis' => '',
+        ]);
+
+
+        $productCategoryId = $this->request->get('product_category_id');
+        $productName = $this->request->get('name');
+        $productPrice = $this->request->get('price');
+        $productUnit = $this->request->get('unit');
+        $productStock = $this->request->get('stock');
+        $productStockFlag = $this->request->get('stock_flag');
+        $productStatus = $this->request->get('status');
+        $productInformation = $this->request->get('information');
+        $productIndication = $this->request->get('indication');
+        $productDosis = $this->request->get('dosis');
+        $dokument = $this->request->file('image');
+
+        $descProduct = [];
+
+        $descProduct[] = [
+            'information' => $productInformation,
+            'indication' => $productIndication,
+            'dosis' => $productDosis
+        ];
+
+        if ($dokument) {
+            if ($dokument->getError() != 1) {
+
+                $getFileName = $dokument->getClientOriginalName();
+                $ext = explode('.', $getFileName);
+                $ext = end($ext);
+                $destinationPath = 'uploads/product';
+                if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
+
+                    $dokumentImage = Storage::putFile($destinationPath, $dokument);
+                }
+
+            }
+        }
+
+        $product = Product::where('id',$id)->update([
+            'product_category_id' => $productCategoryId,
+            'name' => $productName,
+            'price' => $productPrice,
+            'unit' => $productUnit,
+            'stock' => $productStock,
+            'status' => $productStatus,
+            'desc' => json_encode($descProduct),
+            'image' => $dokumentImage,
+            'stock_flag' => $productStockFlag,
+        ]);
+
+
+        if($this->request->ajax()){
+            return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
+        }
+        else {
+            session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
+            session()->flash('message_alert', 2);
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
     }
 }

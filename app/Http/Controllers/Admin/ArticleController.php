@@ -99,7 +99,7 @@ class ArticleController extends _CrudController
         );
 
 
-        $getArticleCategory = ArticleCategory::where('status', 1)->pluck('name', 'id')->toArray();
+        $getArticleCategory = ArticleCategory::where('status', 80)->pluck('name', 'id')->toArray();
         $listArticleCategory = [0 => 'Kosong'];
         if($getArticleCategory) {
             foreach($getArticleCategory as $key => $value) {

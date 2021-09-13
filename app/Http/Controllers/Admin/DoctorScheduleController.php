@@ -27,26 +27,26 @@ class DoctorScheduleController extends _CrudController
                 ],
                 'type' => 'select2',
             ],
-            'day' => [
+            'date_available' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
                 ],
-                'type' => 'select2',
+                'type' => 'datepicker',
             ],
             'time_start' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
                 ],
-                'type' => 'datetime',
+                'type' => 'time',
             ],
             'time_end' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
                 ],
-                'type' => 'datetime',
+                'type' => 'time',
             ],
             'book' => [
                 'validate' => [
@@ -67,7 +67,7 @@ class DoctorScheduleController extends _CrudController
             $request, 'general.doctor_schedule', 'doctor-schedule', 'V1\DoctorSchedule', 'doctor-schedule',
             $passingData
         );
-        $getUsers = Users::where('status', 1)->pluck('fullname', 'id')->toArray();
+        $getUsers = Users::where('status', 80)->where('doctor',1)->pluck('fullname', 'id')->toArray();
         $listUsers = [0 => 'Kosong'];
         if($getUsers) {
             foreach($getUsers as $key => $value) {
