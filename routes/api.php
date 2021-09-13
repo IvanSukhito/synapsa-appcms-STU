@@ -79,7 +79,7 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
 
         $router->get('/', ['uses' => 'App\Http\Controllers\API\V1\LabController@getLab'])->name('api.getLab');
         $router->get('detail/{id}', ['uses' => 'App\Http\Controllers\API\V1\LabController@getLabDetail'])->name('api.getLabDetail');
-        $router->get('cart', ['uses' => 'App\Http\Controllers\API\V1\LabController@getCart'])->name('api.lab.getCart');
+        $router->post('cart', ['uses' => 'App\Http\Controllers\API\V1\LabController@getCart'])->name('api.lab.getCart');
         $router->get('list-book/{id}', ['uses' => 'App\Http\Controllers\API\V1\LabController@listBookLab'])->name('api.lab.listBookLab');
         $router->get('check-schedule/{id}', ['uses' => 'App\Http\Controllers\API\V1\LabController@checkSchedule'])->name('api.lab.checkSchedule');
         $router->get('schedule-summary/{id}', ['uses' => 'App\Http\Controllers\API\V1\LabController@scheduleSummary'])->name('api.lab.scheduleSummary');

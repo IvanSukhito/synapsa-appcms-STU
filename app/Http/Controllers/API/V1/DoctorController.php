@@ -352,6 +352,14 @@ class DoctorController extends Controller
             ->where('doctor.id', '=', $getDoctorSchedule->doctor_id)
             ->where('users.doctor','=', 1)->first();
 
+        //dd($data);
+        if (!$data) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Doctor Not Found'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
         $getPayment = Payment::where('id', $paymentId)->first();
         $paymentInfo = [];
 

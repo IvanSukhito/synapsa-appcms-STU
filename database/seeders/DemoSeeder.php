@@ -174,11 +174,11 @@ class DemoSeeder extends Seeder
                 'service_id' => rand(1, 3)
             ]);
         }
-    
+
         //Lab
         for ($i = 1; $i <= 100; $i++) {
             DB::table('lab')->insertGetId([
-                'parent_id' => $i,
+                'parent_id' => rand(0,10),
                 'name' => 'LAB ' . $i,
                 'price' => '99000',
                 'image' => '',

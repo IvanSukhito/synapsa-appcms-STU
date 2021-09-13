@@ -38,7 +38,7 @@ class LabController extends Controller
         }
 
         $service = Service::orderBy('orders', 'ASC')->get();
-    
+
         $getInterestService = $user->interest_service_id;
         if ($getInterestService <= 0) {
             foreach ($service as $index => $list) {
@@ -51,8 +51,9 @@ class LabController extends Controller
         $data = Lab::selectRaw('lab.id ,lab.name, lab.price, lab.image')
         ->join('lab_service', 'lab_service.lab_id','=','lab.id')
         ->where('lab_service.service_id','=', $getInterestService)
-        ->where('lab.parent_id', 0);    
-        
+        ->where('lab.parent_id', '=', 0);
+
+        // dd($data->get());
         if (strlen($s) > 0) {
             $data = $data->where('name', 'LIKE', "%$s%");
         }
@@ -81,7 +82,7 @@ class LabController extends Controller
         $parentId = $data ? $data->id : 0;
         $dataLabTerkait = Lab::where('parent_id', $data->id)->get();
 
-        $getData = [    
+        $getData = [
           'Lab' => $data,
           'Lab Terkait' => $dataLabTerkait
         ];
@@ -103,32 +104,37 @@ class LabController extends Controller
         }
 
     }
- 
-    public function deleteCart($id){
-
+    public function getCart(){
         $user = $this->request->attributes->get('_user');
+        $labId = $this->request->get('lab_id');
 
-        //$getLab = Lab::findOrFail($id);
+        $data = Lab::selectRaw('lab.id ,lab.name, lab.price, lab.image')
+        ->join('lab_service', 'lab_service.lab_id','=','lab.id')
+        ->whereIn('lab.id', $labId)
+        ->get();
 
-        if ($getLab) {
-            $getLab->delete();
+        if (!$data) {
             return response()->json([
-                'success' => 1,
-                'message' => ['Lab has been remove'],
+                'success' => 0,
+                'message' => ['Lab Not Found'],
                 'token' => $this->request->attributes->get('_refresh_token'),
-
-            ]);
+            ], 404);
         }
         else {
             return response()->json([
-                'success' => 0,
-                'message' => ['failed to remove'],
-                'token' => $this->request->attributes->get('_refresh_token')
-            ], 422);
+                'success' => 1,
+                'data' => [
+
+                    'lab' => $data
+                ],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ]);
         }
+
+
     }
 
-   
+
     public function listBookLab($id)
     {
         $serviceId = $this->request->get('service_id');
@@ -136,7 +142,7 @@ class LabController extends Controller
         $data = Lab::selectRaw('lab.id ,lab.name, lab.price, lab.image')
         ->join('lab_service', 'lab_service.lab_id','=','lab.id')
         ->where('lab_service.service_id','=', $serviceId)
-        ->where('lab.id', $id);  
+        ->where('lab.id', $id);
 
         if (!$data) {
             return response()->json([
@@ -205,7 +211,7 @@ class LabController extends Controller
         }
 
         $data = Lab::selectRaw('lab.id ,lab.name, lab.price, lab.image')
-        ->where('lab.id', $id)->get();  
+        ->where('lab.id', $id)->get();
 
         return response()->json([
             'success' => 1,
@@ -230,8 +236,8 @@ class LabController extends Controller
         }
 
         $data = Lab::selectRaw('lab.id ,lab.name, lab.price, lab.image')
-        ->where('lab.id', $id)->get();  
-   
+        ->where('lab.id', $id)->get();
+
         $getPayment = Payment::where('status', 80)->get();
 
         return response()->json([
@@ -246,6 +252,6 @@ class LabController extends Controller
 
     }
 
- 
-    
+
+
 }
