@@ -16,6 +16,7 @@ class CreateLabServiceTable extends Migration
         Schema::create('lab_service', function (Blueprint $table) {
             $table->unsignedBigInteger('service_id')->default(0);
             $table->unsignedBigInteger('lab_id')->default(0);
+            $table->decimal('price', 26, 2)->default(0);
             $table->foreign('service_id', 'ls1_rel')
                 ->references('id')->on('service')
                 ->onUpdate('cascade')
