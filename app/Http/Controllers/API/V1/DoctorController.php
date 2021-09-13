@@ -352,7 +352,6 @@ class DoctorController extends Controller
             ->where('doctor.id', '=', $getDoctorSchedule->doctor_id)
             ->where('users.doctor','=', 1)->first();
 
-        //dd($data);
         if (!$data) {
             return response()->json([
                 'success' => 0,

@@ -53,12 +53,20 @@ class LabController extends Controller
         ->where('lab_service.service_id','=', $getInterestService)
         ->where('lab.parent_id', '=', 0);
 
-        // dd($data->get());
         if (strlen($s) > 0) {
             $data = $data->where('name', 'LIKE', "%$s%");
         }
 
         $data = $data->orderBy('name', 'ASC')->paginate($getLimit);
+
+        if (!$data) {
+            return response()->json([
+                'success' => 0,
+                'data' => $data,
+                'message' => ['Lab Not Found'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
 
         return response()->json([
             'success' => 1,
@@ -91,7 +99,7 @@ class LabController extends Controller
             return response()->json([
                 'success' => 0,
                 'data' => $data,
-                'message' => ['Doctor Not Found'],
+                'message' => ['Lab Not Found'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
@@ -124,134 +132,12 @@ class LabController extends Controller
             return response()->json([
                 'success' => 1,
                 'data' => [
-
                     'lab' => $data
                 ],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ]);
         }
 
-
     }
-
-
-    public function listBookLab($id)
-    {
-        $serviceId = $this->request->get('service_id');
-
-        $data = Lab::selectRaw('lab.id ,lab.name, lab.price, lab.image')
-        ->join('lab_service', 'lab_service.lab_id','=','lab.id')
-        ->where('lab_service.service_id','=', $serviceId)
-        ->where('lab.id', $id);
-
-        if (!$data) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['lab Not Found'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-        else {
-
-            $getLabSchedule = LabSchedule::where('lab_id', '=', $id)->where('lab_id', '=', $serviceId)
-                ->where('date_available', '>=', date('Y-m-d'))
-                ->get();
-
-            return response()->json([
-                'success' => 1,
-                'data' => [
-                    'schedule' => $getLabSchedule,
-                    'lab' => $data
-                ],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ]);
-
-        }
-    }
-
-    public function checkSchedule($id)
-    {
-        $getLabSchedule = LabSchedule::where('id', '=', $id)->first();
-
-        if (!$getLabSchedule) {
-
-            return response()->json([
-                'success' => 0,
-                'message' => ['Schedule Not Found'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-
-        }
-        else if ($getLabSchedule->book != 80) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Schedule Already Book'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
-
-        return response()->json([
-            'success' => 1,
-            'data' => [
-                'schedule' => $getLabSchedule,
-            ],
-            'token' => $this->request->attributes->get('_refresh_token'),
-        ]);
-    }
-
-    public function scheduleSummary($id)
-    {
-        $getLabSchedule = DoctorSchedule::where('id', '=', $id)->where('book', '=', 80)->first();
-        if (!$getLabSchedule) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Schedule Not Found or Already Book'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-
-        $data = Lab::selectRaw('lab.id ,lab.name, lab.price, lab.image')
-        ->where('lab.id', $id)->get();
-
-        return response()->json([
-            'success' => 1,
-            'data' => [
-                'schedule' => $getLabSchedule,
-                'doctor' => $data
-            ],
-            'token' => $this->request->attributes->get('_refresh_token'),
-        ]);
-
-    }
-
-    public function getPayment($id)
-    {
-        $getLabSchedule = DoctorSchedule::where('id', '=', $id)->where('book', '=', 80)->first();
-        if (!$getLabSchedule) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Schedule Not Found or Already Book'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-
-        $data = Lab::selectRaw('lab.id ,lab.name, lab.price, lab.image')
-        ->where('lab.id', $id)->get();
-
-        $getPayment = Payment::where('status', 80)->get();
-
-        return response()->json([
-            'success' => 1,
-            'data' => [
-                'schedule' => $getLabSchedule,
-                'lab' => $data,
-                'payment' => $getPayment
-            ],
-            'token' => $this->request->attributes->get('_refresh_token'),
-        ]);
-
-    }
-
-
-
+   
 }
