@@ -23,7 +23,7 @@ class DemoSeeder extends Seeder
         }
 
         //Users
-        for ($i = 1; $i <= 50; $i++) {
+        for ($i = 1; $i <= 200; $i++) {
             DB::table('users')->insertGetId([
                 'klinik_id' => rand(1, 10),
                 'city_id' => 0,
@@ -34,8 +34,8 @@ class DemoSeeder extends Seeder
                 'address_detail' => 'ALAMAT DETAIL DEMO',
                 'email' => 'demo' . $i . '@mailinator.com',
                 'password' => bcrypt('123456'),
-                'patient' => $i > 10 ? 1 : 0,
-                'doctor' => $i <= 10 ? 1 : 0,
+                'patient' => $i > 100 ? 1 : 0,
+                'doctor' => $i <= 100 ? 1 : 0,
                 'nurse' => 0,
                 'verification_phone' => 1,
                 'verification_email' => 1,
@@ -145,7 +145,7 @@ class DemoSeeder extends Seeder
         //Doctor
         for ($i = 1; $i <= 100; $i++) {
             DB::table('doctor')->insertGetId([
-                'user_id' => rand(1, 10),
+                'user_id' => $i,
                 'doctor_category_id' => rand(1, 10),
                 'formal_edu' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
                 'nonformal_edu' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
@@ -154,7 +154,7 @@ class DemoSeeder extends Seeder
             ]);
         }
         //Doctor
-        for ($i = 1; $i <= 10; $i++) {
+        for ($i = 1; $i <= 100; $i++) {
             $serviceId = rand(1, 3);
             DB::table('doctor_service')->insertGetId([
                 'doctor_id' => $i,
