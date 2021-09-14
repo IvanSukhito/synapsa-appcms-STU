@@ -18,6 +18,7 @@ class CreateLabCartTable extends Migration
             $table->unsignedBigInteger('user_id')->default(0);
             $table->unsignedBigInteger('lab_id')->default(0);
             $table->unsignedBigInteger('service_id')->default(0);
+            $table->tinyInteger('choose')->default(0);
             $table->timestamps();
             $table->foreign('user_id', 'lc1_rel')
                 ->references('id')->on('users')

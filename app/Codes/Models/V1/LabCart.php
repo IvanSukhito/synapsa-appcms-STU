@@ -11,7 +11,8 @@ class LabCart extends Model
     protected $fillable = [
         'user_id',
         'lab_id',
-        'service_id'
+        'service_id',
+        'choose'
     ];
 
 }

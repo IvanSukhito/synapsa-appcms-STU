@@ -81,12 +81,12 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
         $router->get('cart', ['uses' => 'App\Http\Controllers\API\V1\LabController@getCart'])->name('api.lab.getCart');
         $router->post('cart', ['uses' => 'App\Http\Controllers\API\V1\LabController@storeCart'])->name('api.lab.storeCart');
         $router->delete('cart/{id}', ['uses' => 'App\Http\Controllers\API\V1\LabController@deleteCart'])->name('api.lab.deleteCart');
-        $router->get('list-book/{id}', ['uses' => 'App\Http\Controllers\API\V1\LabController@listBookLab'])->name('api.lab.listBookLab');
-        $router->get('check-schedule/{id}', ['uses' => 'App\Http\Controllers\API\V1\LabController@checkSchedule'])->name('api.lab.checkSchedule');
+        $router->post('choose-cart', ['uses' => 'App\Http\Controllers\API\V1\LabController@chooseCart'])->name('api.lab.chooseCart');
+        $router->get('list-book', ['uses' => 'App\Http\Controllers\API\V1\LabController@listBookLab'])->name('api.lab.listBookLab');
         $router->get('schedule-address', ['uses' => 'App\Http\Controllers\API\V1\LabController@scheduleAddress'])->name('api.lab.scheduleAddress');
         $router->get('schedule-summary/{id}', ['uses' => 'App\Http\Controllers\API\V1\LabController@scheduleSummary'])->name('api.lab.scheduleSummary');
         $router->get('lab-payment/{id}', ['uses' => 'App\Http\Controllers\API\V1\LabController@getPayment'])->name('api.lab.getPayment');
-        $router->post('lab-checkout/{id}', ['uses' => 'App\Http\Controllers\API\V1\LabController@checkout'])->name('api.lab.checkout');
+        $router->post('lab-checkout', ['uses' => 'App\Http\Controllers\API\V1\LabController@checkout'])->name('api.lab.checkout');
 
     });
 });
