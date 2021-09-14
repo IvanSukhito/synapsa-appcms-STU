@@ -8,6 +8,7 @@ use App\Codes\Models\V1\Notifications;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Intervention\Image\Facades\Image;
 
@@ -152,15 +153,17 @@ class ProfileController extends Controller
             $image = base64_to_jpeg($this->request->get('image'));
             $destinationPath = 'uploads/users';
             $set_file_name = md5('image'.strtotime('now').rand(0, 100)).'.jpg';
-            file_put_contents($destinationPath.'/'.$set_file_name, $image);
-            $getImage = $set_file_name;
-
-            $img = Image::make('./'.$destinationPath.'/'.$set_file_name);
-            $img->resize(1200, null, function ($constraint) {
-                $constraint->aspectRatio();
-            });
-            $img->save();
-
+            $getFile = Storage::put($destinationPath.'/'.$set_file_name, $image);
+            if ($getFile) {
+                $getImage = $destinationPath.'/'.$set_file_name;
+            }
+            else {
+                return response()->json([
+                    'success' => 0,
+                    'token' => $this->request->attributes->get('_refresh_token'),
+                    'message' => ['Failed upload Image'],
+                ], 422);
+            }
         }
         catch (\Exception $e) {
             return response()->json([
