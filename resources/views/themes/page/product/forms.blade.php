@@ -1,7 +1,7 @@
 <?php
-$dosis = isset($listProduct['dosis']) ? $listProduct['dosis'] : null;
-$information = isset($listProduct['information']) ? $listProduct['information'] : null;
-$indication = isset($listProduct['indication']) ? $listProduct['indication'] : null;
+$dosis = isset($listDescProduct['dosis']) ? $listDescProduct['dosis'] : null;
+$information = isset($listDescProduct['information']) ? $listDescProduct['information'] : null;
+$indication = isset($listDescProduct['indication']) ? $listDescProduct['indication'] : null;
 switch ($viewType) {
     case 'create': $printCard = 'card-success'; break;
     case 'edit': $printCard = 'card-primary'; break;
@@ -71,31 +71,27 @@ else {
 
                 <div class="card-body">
                     @include(env('ADMIN_TEMPLATE').'._component.generate_forms')
-                    @if(in_array($viewType, ['create','edit','show']) )
+                    @if(in_array($viewType, ['create','edit']) )
                     <label>Upload File</label>
                       <br/>
                       <div id="list_other1">
-                                <div class="d-flex align-items-center">
-                                    <div class="p-2">
-                                        <input type="file" name="image" class="dropify" 
-                                               data-allowed-file-extensions="jpg jpeg png" accept="image/png, image/gif, image/jpeg" data-max-file-size="10M" required>
-                                    </div>
+                            <div class="d-flex align-items-center">
+                                <div class="p-2">
+                                    <input type="file" name="image" class="dropify" 
+                                           data-allowed-file-extensions="jpg jpeg png" accept="image/png, image/gif, image/jpeg" data-max-file-size="10M" required>
                                 </div>
                             </div>
-                        
-                        <div class="form-group">
-                            <label for="information">{{ __('general.information') }}</label>
-                            {{ Form::textarea('information', $information, ['id' => 'information', 'class' => 'texteditor', 'placeholder' => __('general.information')]) }}
-                        </div>
-                        <div class="form-group">
-                            <label for="indication">{{ __('general.indication') }}</label>
-                            {{ Form::textarea('indication', $indication, ['id' => 'indication', 'class' => 'texteditor', 'placeholder' => __('general.indication')]) }}
-                        </div>
-                        <div class="form-group">
-                            <label for="dosis">{{ __('general.dosis') }}</label>
-                            {{ Form::textarea('dosis', $dosis, ['id' => 'dosis', 'class' => 'texteditor', 'placeholder' => __('general.indication')]) }}
-                        </div>
-                    @endif
+                      </div>
+
+                       <div id="list_desc">
+                           <div class="form-group">
+                               <label for="desc">{{ __('general.desc') }}</label>
+                               {{ Form::textarea('desc', old('desc'), ['id' => 'desc', 'name'=>'desc[]', 'class' => 'editor', 'placeholder' => __('general.information')]) }} 
+                               <br>
+                               <a href="#" onclick="return add_desc1()" class="btn btn-warning">Tambah</a>
+                           </div> 
+                       </div>
+                      @endif
                 </div>
                 <!-- /.card-body -->
              
@@ -134,6 +130,7 @@ else {
     @parent
     @include(env('ADMIN_TEMPLATE').'._component.generate_forms_script')
     <script src="{{ asset('/assets/cms/js/ckeditor/ckeditor.js') }}"></script>
+    <script src="{{ asset('/assets/cms/js/ckeditor/adapters/jquery.js') }}"></script>
     <script>  
     
     let setIndex1 = 1;
@@ -142,34 +139,33 @@ else {
 
         $(document).ready(function() {
             $('.dropify').dropify();
-            
+            $( 'textarea.editor' ).ckeditor();
         });
+
         
      
 
-        function add_other1() {
-        let html = '<div class="d-flex align-items-center">' +
+        function add_desc1() {
+        let html = '<div class="form-group">' +
+        '<textarea id="desc_' + setIndex1 +'" name="desc[]" class="editor"> ' +
+        '</textarea>' +
         '<div class="p-2">' +
-        '<input type="file" id="upload_file_pemuktahiran_' + setIndex1 +'" name="upload_file_pemuktahiran[]" class="dropify" accept=".pdf"' +
-        ' data-allowed-file-extensions="pdf" data-max-file-size="10M">' +
-        '</div>' +
-        '<div class="p-2">' +
-        '<a href="#" onclick="return remove_other(this)">{!! __('general.delete') !!}</a>' +
+        '<a href="#" onclick="return remove_other(this)" style="color:red;">&nbsp;<i class="nav-icon fa fa-trash">{!! __('general.delete') !!}</i></a>' +
         '</div>' +
         '</div>';
 
-            $('#list_other1').append(html);
-            $('#upload_file_pemuktahiran_' + setIndex1).dropify();
+            $('#list_desc').append(html);
+            $('#desc_' + setIndex1).ckeditor();
 
             setIndex1++;
 
             return false;
 
             }
-    function remove_other(curr) {
+            function remove_other(curr) {
             $(curr).parent().parent().remove();
             return false;
-        }
+            }
 
 
      </script>   
