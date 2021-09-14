@@ -92,6 +92,7 @@ class ProfileController extends Controller
                 return response()->json([
                     'success' => 0,
                     'message' => ['Failed upload KTP Image'],
+                    'token' => $this->request->attributes->get('_refresh_token'),
                 ], 422);
             }
         }
@@ -166,7 +167,7 @@ class ProfileController extends Controller
                 'success' => 0,
                 'token' => $this->request->attributes->get('_refresh_token'),
                 'message' => ['Failed upload Image'],
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 422);
         }
 
@@ -319,6 +320,7 @@ class ProfileController extends Controller
             return response()->json([
                 'success' => 0,
                 'message' => $validator->messages()->all(),
+                'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
 
@@ -354,6 +356,7 @@ class ProfileController extends Controller
             return response()->json([
                 'success' => 0,
                 'message' => $validator->messages()->all(),
+                'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
 

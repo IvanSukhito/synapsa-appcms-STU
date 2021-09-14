@@ -147,7 +147,6 @@ class DemoSeeder extends Seeder
             DB::table('doctor')->insertGetId([
                 'user_id' => rand(1, 10),
                 'doctor_category_id' => rand(1, 10),
-                'price' => '99000',
                 'formal_edu' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
                 'nonformal_edu' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
                 'created_at' => Carbon::now(),
@@ -187,7 +186,6 @@ class DemoSeeder extends Seeder
             DB::table('lab')->insertGetId([
                 'parent_id' => $i > 10 ? rand(0,10) : 0,
                 'name' => 'LAB Product ' . $i,
-                'price' => '99000',
                 'image' => '',
                 'desc_lab' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
                 'desc_benefit' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
@@ -196,12 +194,20 @@ class DemoSeeder extends Seeder
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
+            //Lab Service
+            for ($j = 1; $j <= 3; $j++) {
+                DB::table('lab_service')->insertGetId([
+                    'lab_id' => $i,
+                    'service_id' => $j,
+                    'price' => rand(1,10) * 10000
+                ]);
+            }
         }
           //lab Schedule
           for ($i = 1; $i <= 30; $i++) {
             DB::table('lab_schedule')->insertGetId([
                 'lab_id' => 0,
-                'service_id' => rand(1, 3),
+                'service_id' => 1,
                 'date_available' => date('Y-m-d', strtotime("+".$i.' day')),
                 'time_start' => rand(8, 11) . ':00 ',
                 'time_end' => rand(12, 17) . ':00',
@@ -209,13 +215,25 @@ class DemoSeeder extends Seeder
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
-        }
-         //Lab Service
-         for ($i = 1; $i <= 100; $i++) {
-            DB::table('lab_service')->insertGetId([
-                'lab_id' => $i,
-                'service_id' => rand(1, 3),
-                'price' => rand(1,10) * 10000
+            DB::table('lab_schedule')->insertGetId([
+                'lab_id' => 0,
+                'service_id' => 2,
+                'date_available' => date('Y-m-d', strtotime("+".$i.' day')),
+                'time_start' => rand(8, 11) . ':00 ',
+                'time_end' => rand(12, 17) . ':00',
+                'book' => 80,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ]);
+            DB::table('lab_schedule')->insertGetId([
+                'lab_id' => 0,
+                'service_id' => 3,
+                'date_available' => date('Y-m-d', strtotime("+".$i.' day')),
+                'time_start' => rand(8, 11) . ':00 ',
+                'time_end' => rand(12, 17) . ':00',
+                'book' => 80,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
             ]);
         }
         //Notifications

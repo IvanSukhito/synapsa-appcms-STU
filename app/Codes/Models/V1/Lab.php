@@ -11,7 +11,6 @@ class Lab extends Model
     protected $fillable = [
         'parent_id',
         'name',
-        'price',
         'image',
         'desc_lab',
         'desc_benefit',
@@ -27,7 +26,7 @@ class Lab extends Model
 
     public function getPriceNiceAttribute()
     {
-        return intval($this->price) > 0 ? number_format($this->price, 0, '.', '.') : 0;
+        return isset($this->price) && intval($this->price) > 0 ? number_format($this->price, 0, '.', '.') : 0;
     }
 
 

@@ -39,6 +39,7 @@ class ProductController extends Controller
     }
 
     public function getProduct(){
+
         $user = $this->request->attributes->get('_user');
 
         $s = strip_tags($this->request->get('s'));
@@ -72,7 +73,6 @@ class ProductController extends Controller
         if (!$data) {
             return response()->json([
                 'success' => 0,
-                'data' => $data,
                 'message' => ['Product Not Found'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
@@ -90,7 +90,9 @@ class ProductController extends Controller
     public function getCart(){
         $user = $this->request->attributes->get('_user');
 
-        $getUsersCart = UsersCart::where('users_id', $user->id)->first();
+        $getUsersCart = UsersCart::firstOrCreate([
+            'users_id' => $user->id,
+        ]);
 
         //dd($getUsersCart);
         $listProduct = Product::selectRaw('users_cart_detail.id, product.id as product_id, product.name, product.image, product.price, product.unit, users_cart_detail.qty')
@@ -129,6 +131,7 @@ class ProductController extends Controller
             return response()->json([
                 'success' => 0,
                 'message' => $validator->messages()->all(),
+                'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
 
@@ -137,6 +140,7 @@ class ProductController extends Controller
             return response()->json([
                 'success' => 0,
                 'message' => ['product not found'],
+                'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
         $productId = $this->request->get('product_id');
@@ -185,6 +189,7 @@ class ProductController extends Controller
             return response()->json([
                 'success' => 0,
                 'message' => $validator->messages()->all(),
+                'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
 
@@ -197,6 +202,7 @@ class ProductController extends Controller
             return response()->json([
                 'success' => 0,
                 'message' => ['cart not found'],
+                'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
 
@@ -254,6 +260,7 @@ class ProductController extends Controller
             return response()->json([
                 'success' => 0,
                 'message' => $validator->messages()->all(),
+                'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
         //
@@ -441,6 +448,7 @@ class ProductController extends Controller
             return response()->json([
                 'success' => 0,
                 'message' => $validator->messages()->all(),
+                'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
 
@@ -592,6 +600,7 @@ class ProductController extends Controller
             return response()->json([
                 'success' => 0,
                 'message' => $validator->messages()->all(),
+                'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
 

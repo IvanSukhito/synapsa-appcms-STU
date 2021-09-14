@@ -12,7 +12,6 @@ class Doctor extends Model
     protected $fillable = [
         'user_id',
         'doctor_category_id',
-        'price',
         'formal_edu',
         'nonformal_edu',
     ];
@@ -23,7 +22,7 @@ class Doctor extends Model
 
     public function getPriceNiceAttribute()
     {
-        return intval($this->price) > 0 ? number_format($this->price, 0, '.', '.') : 0;
+        return isset($this->price) && intval($this->price) > 0 ? number_format($this->price, 0, '.', '.') : 0;
     }
 
     public function getCategory()

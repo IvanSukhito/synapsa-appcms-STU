@@ -398,6 +398,7 @@ class DoctorController extends Controller
             return response()->json([
                 'success' => 0,
                 'message' => $validator->messages()->all(),
+                'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
 

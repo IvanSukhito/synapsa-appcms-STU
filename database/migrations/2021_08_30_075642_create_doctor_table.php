@@ -17,7 +17,6 @@ class CreateDoctorTable extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id')->default(0);
             $table->unsignedBigInteger('doctor_category_id')->default(0);
-            $table->decimal('price', 26, 2)->nullable();
             $table->text('formal_edu')->nullable();
             $table->text('nonformal_edu')->nullable();
             $table->foreign('doctor_category_id', 'docat_rel')
