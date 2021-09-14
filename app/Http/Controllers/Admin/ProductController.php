@@ -50,9 +50,9 @@ class ProductController extends _CrudController
             'image_full' => [
                 'create' => 0,
                 'edit' => 0,
-                'type' => 'textarea',
-                'lang' => 'image'
+                'type' => 'image',
             ],
+            
             'stock' => [
                 'validate' => [
                     'create' => 'required',
@@ -89,7 +89,6 @@ class ProductController extends _CrudController
         );
 
         $getCategory = ProductCategory::where('status', 80)->pluck('name', 'id')->toArray();
-        $listCategory = [0 => 'Kosong'];
         if($getCategory) {
             foreach($getCategory as $key => $value) {
                 $listCategory[$key] = $value;
@@ -151,13 +150,13 @@ class ProductController extends _CrudController
             $temp = $listProduct;
         }
 
-        $listProduct = $temp;
+        $listDescProduct = $temp;
 
         $data['thisLabel'] = __('general.product');
         $data['viewType'] = 'edit';
         $data['formsTitle'] = __('general.title_edit', ['field' => __('general.product') . ' ' . $getData->name]);
         $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
-        $data['listProduct'] = $listProduct;
+        $data['listProduct'] = $listDescProduct;
         $data['data'] = $getData;
 
         return view($this->listView[$data['viewType']], $data);
@@ -213,19 +212,19 @@ class ProductController extends _CrudController
 
         $viewType = 'create';
 
-        $this->request->validate([
-            'product_category_id' => 'required',
-            'name' => 'required',
-            'price' => 'required',
-            'unit' => 'required',
-            'stock' => 'required',
-            'status' => 'required',
-            'image' => 'required',
-            'information' => '',
-            'Indication' => '',
-            'Dosis' => '',
-        ]);
 
+        $getListCollectData = collectPassingData($this->passingData, $viewType);
+        $validate = $this->setValidateData($getListCollectData, $viewType);
+        if (count($validate) > 0)
+        {
+            $data = $this->validate($this->request, $validate);
+        }
+        else {
+            $data = [];
+            foreach ($getListCollectData as $key => $val) {
+                $data[$key] = $this->request->get($key);
+            }
+        }
 
         $productCategoryId = $this->request->get('product_category_id');
         $productName = $this->request->get('name');
@@ -234,18 +233,16 @@ class ProductController extends _CrudController
         $productStock = $this->request->get('stock');
         $productStockFlag = $this->request->get('stock_flag');
         $productStatus = $this->request->get('status');
-        $productInformation = $this->request->get('information');
-        $productIndication = $this->request->get('indication');
-        $productDosis = $this->request->get('dosis');
         $dokument = $this->request->file('image');
+        $desc = $this->request->get('desc');
 
         $descProduct = [];
 
-        $descProduct[] = [
-            'information' => $productInformation,
-            'indication' => $productIndication,
-            'dosis' => $productDosis
-        ];
+        foreach($desc as $listDesc){
+            $descProduct[] = [
+                'desc' => $listDesc,
+            ];
+        }
 
         if ($dokument) {
             if ($dokument->getError() != 1) {
@@ -296,18 +293,18 @@ class ProductController extends _CrudController
 
         $viewType = 'edit';
 
-        $this->request->validate([
-            'product_category_id' => 'required',
-            'name' => 'required',
-            'price' => 'required',
-            'unit' => 'required',
-            'stock' => 'required',
-            'status' => 'required',
-            'image' => 'required',
-            'information' => '',
-            'Indication' => '',
-            'Dosis' => '',
-        ]);
+        $getListCollectData = collectPassingData($this->passingData, $viewType);
+        $validate = $this->setValidateData($getListCollectData, $viewType);
+        if (count($validate) > 0)
+        {
+            $data = $this->validate($this->request, $validate);
+        }
+        else {
+            $data = [];
+            foreach ($getListCollectData as $key => $val) {
+                $data[$key] = $this->request->get($key);
+            }
+        }
 
 
         $productCategoryId = $this->request->get('product_category_id');
@@ -321,14 +318,14 @@ class ProductController extends _CrudController
         $productIndication = $this->request->get('indication');
         $productDosis = $this->request->get('dosis');
         $dokument = $this->request->file('image');
-
+  
         $descProduct = [];
 
-        $descProduct[] = [
-            'information' => $productInformation,
-            'indication' => $productIndication,
-            'dosis' => $productDosis
-        ];
+        foreach($desc as $listDesc){
+            $descProduct[] = [
+                'desc' => $listDesc,
+            ];
+        }
 
         if ($dokument) {
             if ($dokument->getError() != 1) {

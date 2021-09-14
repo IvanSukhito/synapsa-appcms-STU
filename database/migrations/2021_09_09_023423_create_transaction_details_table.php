@@ -24,6 +24,9 @@ class CreateTransactionDetailsTable extends Migration
             $table->unsignedBigInteger('doctor_id')->default(0);
             $table->string('doctor_name')->nullable();
             $table->decimal('doctor_price', 26, 2)->default(0);
+            $table->unsignedBigInteger('lab_id')->default(0);
+            $table->string('lab_name')->nullable();
+            $table->decimal('lab_price', 26, 2)->default(0);
             $table->timestamps();
         });
     }

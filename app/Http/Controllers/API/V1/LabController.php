@@ -329,7 +329,7 @@ class LabController extends Controller
             date('Y-m-d', strtotime($this->request->get('date'))) :
             date('Y-m-d', strtotime("+1 day"));
 
-        $getData = LabCart::where('user_id', '=', $user->id)->where('id', '=', $user->id)->where('choose', '=', 1)->first();
+        $getData = LabCart::where('user_id', '=', $user->id)->where('choose', '=', 1)->first();
         if (!$getData) {
             return response()->json([
                 'success' => 0,
@@ -386,7 +386,7 @@ class LabController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $getCart = LabCart::where('user_id', '=', $user->id)->where('id', '=', $user->id)->where('choose', '=', 1)->first();
+        $getCart = LabCart::where('user_id', '=', $user->id)->where('id', '=', $id)->where('choose', '=', 1)->first();
         if (!$getCart) {
             return response()->json([
                 'success' => 0,
@@ -432,7 +432,7 @@ class LabController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $getCart = LabCart::where('user_id', '=', $user->id)->where('id', '=', $user->id)->where('choose', '=', 1)->first();
+        $getCart = LabCart::where('user_id', '=', $user->id)->where('id', '=', $id)->where('choose', '=', 1)->first();
         if (!$getCart) {
             return response()->json([
                 'success' => 0,
@@ -477,7 +477,7 @@ class LabController extends Controller
         ]);
     }
 
-    public function checkout()
+    public function checkout($id)
     {
         $user = $this->request->attributes->get('_user');
 
@@ -496,7 +496,7 @@ class LabController extends Controller
         $paymentId = $this->request->get('payment_id');
         $scheduleId = $this->request->get('schedule_id');
 
-        $getPayment = Payment::where('id', $paymentId)->where('status', 80)->get();
+        $getPayment = Payment::where('id', $paymentId)->where('status', 80)->first();
         $paymentInfo = [];
         if (!$getPayment) {
             return response()->json([
@@ -506,7 +506,7 @@ class LabController extends Controller
             ], 404);
         }
 
-        $getCart = LabCart::where('user_id', '=', $user->id)->where('id', '=', $user->id)->where('choose', '=', 1)->first();
+        $getCart = LabCart::where('user_id', '=', $user->id)->where('id', '=', $id)->where('choose', '=', 1)->first();
         if (!$getCart) {
             return response()->json([
                 'success' => 0,

@@ -445,10 +445,7 @@ if ( ! function_exists('listAvailablePermission'))
             'page',
             'v1-users',
             'faqs',
-            'klinik',
-            'product-category',
-            'article-category',
-            'service',
+           
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [
@@ -476,6 +473,10 @@ if ( ! function_exists('listAvailablePermission'))
                      'doctor-schedule',
                      'doctor-service',
                      'service-lab',
+                     'product-category',
+                     'article-category',
+                     'service',
+                     'klinik',
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [
