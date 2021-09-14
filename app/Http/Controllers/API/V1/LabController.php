@@ -9,6 +9,7 @@ use App\Codes\Models\V1\LabSchedule;
 use App\Codes\Models\V1\Payment;
 use App\Codes\Models\V1\Service;
 use App\Codes\Models\V1\Transaction;
+use App\Codes\Models\V1\TransactionDetails;
 use App\Codes\Models\V1\UsersAddress;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -495,12 +496,64 @@ class LabController extends Controller
         $paymentId = $this->request->get('payment_id');
         $scheduleId = $this->request->get('schedule_id');
 
-        switch ($getDoctorSchedule->service_id) {
+        $getPayment = Payment::where('id', $paymentId)->where('status', 80)->get();
+        $paymentInfo = [];
+        if (!$getPayment) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Payment Not Found'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+
+        $getCart = LabCart::where('user_id', '=', $user->id)->where('id', '=', $user->id)->where('choose', '=', 1)->first();
+        if (!$getCart) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Test Lab Not Found'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+
+        $getLabSchedule = LabSchedule::where('service_id', $getCart->service_id)->where('id', '=', $scheduleId)
+            ->where('book', '=', 80)->first();
+        if (!$getLabSchedule) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Schedule Not Found'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+
+        $total = 0;
+        $getData = Lab::selectRaw('lab_cart.id, lab.id AS lab_id, lab.parent_id ,lab.name, lab_service.price,
+                lab.image, lab_cart.choose')
+            ->join('lab_service', 'lab_service.lab_id','=','lab.id')
+            ->join('lab_cart', 'lab_cart.lab_id','=','lab.id')
+            ->where('lab_service.service_id', $getCart->service_id)
+            ->where('user_id', $user->id)->where('choose', 1)->get();
+        foreach ($getData as $list) {
+            $total += $list->price;
+        }
+
+        $getUsersAddress = UsersAddress::where('user_id', $user->id)->first();
+
+        switch ($getLabSchedule->service_id) {
             case 2 : $getType = 6; break;
             case 3 : $getType = 7; break;
             default : $getType = 5; break;
         }
 
+        $extraInfo = [
+            'service_id' => $getLabSchedule->service_id,
+            'address_name' => $getUsersAddress->address_name ?? '',
+            'address' => $getUsersAddress->address ?? '',
+            'city_id' => $getUsersAddress->city_id ?? '',
+            'district_id' => $getUsersAddress->district_id ?? '',
+            'sub_district_id' => $getUsersAddress->sub_district_id ?? '',
+            'zip_code' => $getUsersAddress->zip_code ?? '',
+            'phone' => $user->phone ?? ''
+        ];
 
         $getTotal = Transaction::where('klinik_id', $user->klinik_id)->whereYear('created_at', '=', date('Y'))
             ->whereMonth('created_at', '=', date('m'))->count();
@@ -508,13 +561,41 @@ class LabController extends Controller
         $newCode = date('Ym').str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT);
 
         DB::beginTransaction();
+
+        $getTransaction = Transaction::create([
+            'klinik_id' => $user->klinik_id,
+            'user_id' => $user->id,
+            'code' => $newCode,
+            'payment_id' => $paymentId,
+            'payment_name' => $getPayment->name,
+            'type' => $getType,
+            'subtotal' => $total,
+            'total' => $total,
+            'extra_info' => json_encode($extraInfo),
+            'status' => 1
+        ]);
+
+        $listTransactionDetails = [];
+        foreach ($getData as $list) {
+            $getTransactionDetails = TransactionDetails::create([
+                'transaction_id' => $getTransaction->id,
+                'schedule_id' => $scheduleId,
+                'lab_id' => $list->lab_id,
+                'lab_name' => $list->name,
+                'lab_price' => $list->price
+            ]);
+            $listTransactionDetails[] = $getTransactionDetails;
+        }
+
+        LabCart::where('user_id', $user->id)->where('choose', '=', 1)->delete();
+
         DB::commit();
 
         return response()->json([
             'success' => 1,
             'data' => [
                 'checkout_info' => $getTransaction,
-                'checkout_details' => $getTransactionDetails,
+                'checkout_details' => $listTransactionDetails,
                 'payment_info' => $paymentInfo
             ],
             'message' => ['Success'],
