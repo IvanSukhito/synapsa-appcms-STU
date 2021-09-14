@@ -75,7 +75,7 @@ class ProfileController extends Controller
         $getUploadKtp = '';
         if ($this->request->get('upload_ktp')) {
                  try {
-                     $image = base64_to_jpeg($this->request->get('image'));
+                     $image = base64_to_jpeg($this->request->get('upload_ktp'));
                  $destinationPath = 'uploads/users';
                  $set_file_name = md5('image'.strtotime('now').rand(0, 100)).'.jpg';
                  $getFile = Storage::put($destinationPath.'/'.$set_file_name, $image);
@@ -125,7 +125,8 @@ class ProfileController extends Controller
                 'email' => $user->email,
                 'patient' => $user->patient,
                 'doctor' => $user->doctor,
-                'nurse' => $user->nurse
+                'nurse' => $user->nurse,
+                'image' => $user->upload_ktp_full
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
             'message' => ['Success Update Profile'],
