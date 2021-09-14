@@ -23,19 +23,19 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
         $router->post('/', ['uses' => 'App\Http\Controllers\API\V1\ProfileController@updateProfile'])->name('api.user.updateProfile');
         $router->post('photo', ['uses' => 'App\Http\Controllers\API\V1\ProfileController@updatePhoto'])->name('api.user.updatePhoto');
         $router->post('password', ['uses' => 'App\Http\Controllers\API\V1\ProfileController@updatePassword'])->name('api.user.updatePassword');
-        $router->post('address', ['uses' => 'App\Http\Controllers\API\V1\ProfileController@updateAddress'])->name('api.user.updateAddress');
         $router->get('address', ['uses' => 'App\Http\Controllers\API\V1\ProfileController@getAddress'])->name('api.user.getAddress');
+        $router->post('address', ['uses' => 'App\Http\Controllers\API\V1\ProfileController@updateAddress'])->name('api.user.updateAddress');
         $router->post('verification-email', ['uses' => 'App\Http\Controllers\API\V1\ProfileController@verifEmail'])->name('api.user.verifEmail');
         $router->post('verification-phone', ['uses' => 'App\Http\Controllers\API\V1\ProfileController@verifPhone'])->name('api.user.verifPhone');
         $router->get('notification', ['uses' => 'App\Http\Controllers\API\V1\ProfileController@notifications'])->name('api.user.notifications');
     });
+
     Route::get('home', ['uses' => 'App\Http\Controllers\API\V1\HomeController@home'])->name('api.home');
     Route::get('', ['uses' => 'App\Http\Controllers\API\V1\HomeController@notifications'])->name('api.notifications');
 
     Route::get('article', ['uses' => 'App\Http\Controllers\API\V1\ArticleController@getArticle'])->name('api.getArticle');
     Route::get('article/{id}', ['uses' => 'App\Http\Controllers\API\V1\ArticleController@getArticleDetail'])->name('api.getArticleDetail');
 
-    Route::get('search-product', ['uses' => 'App\Http\Controllers\API\V1\ProductController@searchProduct'])->name('api.searchProduct');
     Route::get('product', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getProduct'])->name('api.getProduct');
     Route::get('product/{id}', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getProductDetail'])->name('api.getProductDetail');
 
@@ -44,10 +44,10 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
 
     $router->group(['prefix' => 'transaction/product'], function () use ($router) {
 
+        $router->get('cart', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getCart'])->name('api.product.getCart');
         $router->post('cart', ['uses' => 'App\Http\Controllers\API\V1\ProductController@storeCart'])->name('api.product.storeCart');
         $router->post('update-cart/{id}', ['uses' => 'App\Http\Controllers\API\V1\ProductController@updateCart'])->name('api.product.updateCart');
         $router->delete('delete-cart/{id}', ['uses' => 'App\Http\Controllers\API\V1\ProductController@deleteCart'])->name('api.product.deleteCart');
-        $router->get('cart', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getCart'])->name('api.product.getCart');
         $router->post('cart-choose-product', ['uses' => 'App\Http\Controllers\API\V1\ProductController@postCartChooseProduct'])->name('api.product.postCartChooseProduct');
         $router->get('cart-receiver', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getReceiver'])->name('api.product.getReceiver');
         $router->post('cart-receiver', ['uses' => 'App\Http\Controllers\API\V1\ProductController@updateReceiver'])->name('api.product.updateReceiver');
@@ -90,12 +90,12 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
 
     });
 
-    $router->group(['prefix' => 'transaction/history'], function () use ($router) {
-
-        $router->get('/', ['uses' => 'App\Http\Controllers\API\V1\HistoryController@index'])->name('api.transaction.index');
-        $router->get('detail/{id}', ['uses' => 'App\Http\Controllers\API\V1\HistoryController@detail'])->name('api.transaction.detail');
-
-    });
+//    $router->group(['prefix' => 'transaction/history'], function () use ($router) {
+//
+//        $router->get('/', ['uses' => 'App\Http\Controllers\API\V1\HistoryController@index'])->name('api.transaction.index');
+//        $router->get('detail/{id}', ['uses' => 'App\Http\Controllers\API\V1\HistoryController@detail'])->name('api.transaction.detail');
+//
+//    });
 });
 
 // Non Login
