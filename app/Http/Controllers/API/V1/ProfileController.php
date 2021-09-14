@@ -355,7 +355,6 @@ class ProfileController extends Controller
 
 
         if($getPhone == $user->phone){
-
             return response()->json([
                 'success' => 1,
                 'message' => ['Success send link verification to your phone'],
@@ -375,9 +374,10 @@ class ProfileController extends Controller
     public function notifications(){
         $user = $this->request->attributes->get('_user');
 
-        $data = [];
-
-        $limit = 4;
+        $limit = intval($this->request->get('limit'));
+        if ($limit <= 0) {
+            $limit = 10;
+        }
 
         $totalNotif = Notifications::where('user_id',$user->id)->where('is_read',1)->count();
         $notif = Notifications::where('user_id',$user->id)->where('is_read',1)->paginate($limit);
@@ -385,10 +385,8 @@ class ProfileController extends Controller
         return response()->json([
             'success' => 1,
             'data' => [
-
                 'totalNotif' => $totalNotif,
                 'Notifications' => $notif,
-
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
