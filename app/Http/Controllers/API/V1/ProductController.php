@@ -94,12 +94,10 @@ class ProductController extends Controller
             'users_id' => $user->id,
         ]);
 
-        //dd($getUsersCart);
         $listProduct = Product::selectRaw('users_cart_detail.id, product.id as product_id, product.name, product.image, product.price, product.unit, users_cart_detail.qty')
             ->join('users_cart_detail', 'users_cart_detail.product_id', '=', 'product.id')
             ->where('users_cart_detail.users_cart_id', '=', $getUsersCart->id)->get();
 
-            //dd($listProduct->get());
         $totalQty = 0;
         $totalPrice = 0;
         foreach ($listProduct as $list) {

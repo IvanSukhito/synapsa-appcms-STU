@@ -199,11 +199,7 @@ class ProfileController extends Controller
     public function getAddress(){
         $user = $this->request->attributes->get('_user');
 
-        $getUser = $user;
-        $getUser->join = date('d F Y', strtotime($user->created_at));
-
         $getUser = [
-
             'address' => $user->address,
             'address_detail' => $user->address_detail,
             'city' => $user->city_id,
@@ -211,7 +207,6 @@ class ProfileController extends Controller
             'sub_district' => $user->sub_district_id,
             'zip_code' => $user->zip_code
         ];
-
 
         return response()->json([
             'success' => 1,
@@ -240,33 +235,29 @@ class ProfileController extends Controller
             ], 422);
         }
 
+        $user->address = strip_tags($this->request->get('address'));
+        $user->address_detail = strip_tags($this->request->get('address_detail'));
+        $user->city_id = intval($this->request->get('city_id'));
+        $user->district_id = intval($this->request->get('district_id'));
+        $user->sub_district_id = intval($this->request->get('sub_district_id'));
+        $user->zip_code = strip_tags($this->request->get('zip_code'));
+        $user->save();
 
-            $user->address = $this->request->get('address');
-            $user->address_detail = $this->request->get('address_detail');
-            $user->city_id = $this->request->get('city_id');
-            $user->district_id = $this->request->get('district_id');
-            $user->sub_district_id = $this->request->get('sub_district_id');
-            $user->zip_code = $this->request->get('zip_code');
-            $user->save();
+        $getUser = [
+            'address' => $user->address,
+            'address_detail' => $user->address_detail,
+            'city' => $user->city_id,
+            'district' => $user->district_id,
+            'sub_district' => $user->sub_district_id,
+            'zip_code' => $user->zip_code
+        ];
 
-
-            $getUser = [
-
-                'address' => $user->address,
-                'address_detail' => $user->address_detail,
-                'city' => $user->city_id,
-                'district' => $user->district_id,
-                'sub_district' => $user->sub_district_id,
-                'zip_code' => $user->zip_code
-            ];
-
-            return response()->json([
-                'success' => 1,
-                'data' => $getUser,
-                'token' => $this->request->attributes->get('_refresh_token'),
-                'message' => ['Success Update Address Profile'],
-            ]);
-
+        return response()->json([
+            'success' => 1,
+            'data' => $getUser,
+            'token' => $this->request->attributes->get('_refresh_token'),
+            'message' => ['Success Update Address Profile'],
+        ]);
 
     }
 
@@ -300,7 +291,6 @@ class ProfileController extends Controller
 
         $user->password = bcrypt($this->request->get('password'));
         $user->save();
-
 
         return response()->json([
             'success' => 1,
