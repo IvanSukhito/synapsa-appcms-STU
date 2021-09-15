@@ -74,20 +74,21 @@ class ProfileController extends Controller
 
         $getUploadKtp = '';
         if ($this->request->get('upload_ktp')) {
-            try {
-                $image = base64_to_jpeg($this->request->get('upload_ktp'));
-                $destinationPath = 'uploads/users';
-                $set_file_name = md5('upload_ktp'.strtotime('now').rand(0, 100)).'.jpg';
-                file_put_contents($destinationPath.'/'.$set_file_name, $image);
-
-                $getUploadKtp = $set_file_name;
-
-                $img = Image::make('./'.$destinationPath.'/'.$set_file_name);
-                $img->resize(1200, null, function ($constraint) {
-                    $constraint->aspectRatio();
-                });
-                $img->rotate(-90);
-                $img->save();
+                 try {
+                     $image = base64_to_jpeg($this->request->get('upload_ktp'));
+                 $destinationPath = 'uploads/users';
+                 $set_file_name = md5('image'.strtotime('now').rand(0, 100)).'.jpg';
+                 $getFile = Storage::put($destinationPath.'/'.$set_file_name, $image);
+                 if ($getFile) {
+                     $getImage = $destinationPath.'/'.$set_file_name;
+                 }
+                 else {
+                     return response()->json([
+                         'success' => 0,
+                         'token' => $this->request->attributes->get('_refresh_token'),
+                         'message' => ['Failed upload Image'],
+                     ], 422);
+                 }
             }
             catch (\Exception $e) {
                 return response()->json([
@@ -104,7 +105,7 @@ class ProfileController extends Controller
         $user->dob = $this->request->get('dob');
         $user->gender = $this->request->get('gender');
         $user->nik = $this->request->get('nik');
-        $user->upload_ktp = $getUploadKtp;
+        $user->upload_ktp = $getImage;
         $user->email = $this->request->get('email');
         $user->phone = $this->request->get('phone');
         $user->save();
@@ -124,7 +125,8 @@ class ProfileController extends Controller
                 'email' => $user->email,
                 'patient' => $user->patient,
                 'doctor' => $user->doctor,
-                'nurse' => $user->nurse
+                'nurse' => $user->nurse,
+                'image' => $user->upload_ktp_full
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
             'message' => ['Success Update Profile'],
