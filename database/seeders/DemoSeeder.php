@@ -257,8 +257,8 @@ class DemoSeeder extends Seeder
                 'name' => 'SHIPPING' . $i,
                 'icon' => '',
                 'settings' => '',
-                'orders' => rand(0, 1),
-                'status' => rand(0, 1),
+                'orders' => $i,
+                'status' => 80,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
@@ -268,7 +268,7 @@ class DemoSeeder extends Seeder
             DB::table('payment')->insertGetId([
                 'name' => 'PAYMENT' . $i,
                 'icon_img' => '',
-                'orders' => rand(0, 1),
+                'orders' => $i,
                 'settings' => '',
                 'type' => rand(1,2),
                 'status' => 80,
