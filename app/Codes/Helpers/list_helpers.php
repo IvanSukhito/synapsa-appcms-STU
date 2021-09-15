@@ -49,6 +49,9 @@ if ( ! function_exists('get_list_type_transaction')) {
             2 => __('Doctor Telemed'),
             3 => __('Doctor HomeCare'),
             4 => __('Doctor Visit'),
+            5 => __('Lab Telemed'),
+            6 => __('Lab HomeCare'),
+            7 => __('Lab Visit'),
         ];
     }
 }
