@@ -235,14 +235,17 @@ class ProductController extends _CrudController
         $productStatus = $this->request->get('status');
         $dokument = $this->request->file('image');
         $desc = $this->request->get('desc');
+        $title = $this->request->get('title');
 
         $descProduct = [];
-
-        foreach($desc as $listDesc){
-            $descProduct[] = [
-                'desc' => $listDesc,
-            ];
+        foreach($title as $listTitle){
+            foreach($desc as $listDesc){
+                $descProduct[] = [
+                    $listTitle => $listDesc,
+                ];
+            }
         }
+      
 
         if ($dokument) {
             if ($dokument->getError() != 1) {
@@ -318,14 +321,18 @@ class ProductController extends _CrudController
         $productIndication = $this->request->get('indication');
         $productDosis = $this->request->get('dosis');
         $dokument = $this->request->file('image');
-  
-        $descProduct = [];
+        $title = $this->request->get('title');
 
-        foreach($desc as $listDesc){
-            $descProduct[] = [
-                'desc' => $listDesc,
-            ];
+        $descProduct = [];
+        foreach($title as $listTitle){
+            foreach($desc as $listDesc){
+                $descProduct[] = [
+                    $listTitle => $listDesc,
+                ];
+            }
         }
+  
+     
 
         if ($dokument) {
             if ($dokument->getError() != 1) {

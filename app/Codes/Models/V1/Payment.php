@@ -10,7 +10,7 @@ class Payment extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'name',
-        'icon',
+        'icon_img',
         'orders',
         'settings',
         'type',
