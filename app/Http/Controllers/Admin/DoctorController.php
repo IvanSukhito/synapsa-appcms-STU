@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
 use App\Codes\Models\V1\Doctor;
+use App\Codes\Models\V1\DoctorService;
 use App\Codes\Models\V1\DoctorCategory;
 use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\Service;
@@ -35,14 +36,6 @@ class DoctorController extends _CrudController
                 'lang' => 'general.doctor-category',
                 'type' => 'select2',
             ],
-            'service_id' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'lang' => 'general.service',
-                'type' => 'select2',
-            ],
             'formal_edu' => [
                 'validate' => [
                     'create' => 'required',
@@ -64,6 +57,25 @@ class DoctorController extends _CrudController
                 'lang' => 'Aksi',
             ]
         ];
+
+        $this->passingData2 = generatePassingData([
+            'total_service' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'type' => 'number'
+            ],
+           // 'service_id' => [
+           //     'validate' => [
+           //         'create' => 'required',
+           //         'edit' => 'required'
+           //     ],
+           //     'lang' => 'general.service',
+           //     'type' => 'select2',
+           //     
+           // ]
+        ]);
 
         parent::__construct(
             $request, 'general.doctor', 'doctor', 'V1\Doctor', 'doctor',
@@ -92,10 +104,31 @@ class DoctorController extends _CrudController
         };
 
 
-
+        $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.doctor.forms';
         $this->data['listSet']['user_id'] = $listUsers;
         $this->data['listSet']['service_id'] = $service_id;
         $this->data['listSet']['doctor_category_id'] = $listDoctorCategory;
+    }
+  
+    public function create(){
+        $this->callPermission();
+
+        $adminId = session()->get('admin_id');
+        $getData = Users::where('id', $adminId)->first();
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $data = $this->data;
+
+        $data['thisLabel'] = __('general.doctor');
+        $data['viewType'] = 'create';
+        $data['formsTitle'] = __('general.title_create', ['field' => __('general.doctor') . ' ' . $getData->name]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['passing2'] = collectPassingData($this->passingData2, $data['viewType']);
+        $data['data'] = $getData;
+
+        return view($this->listView[$data['viewType']], $data);
     }
 
     public function store()
@@ -118,20 +151,33 @@ class DoctorController extends _CrudController
         }
 
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
-       
-        $getService = [];
-        if (isset($data['service_id'])) {
-            if ($data['service_id'] > 0) {
-                $getService = [$data['service_id']];
-            }
-            unset($data['service_id']);
-        }
 
         $getData = $this->crud->store($data);       
-      
-        //if (count($getService) > 0) {
-        //    $getData->getService()->sync($getService);
-        //}
+
+        //Data Service
+        $getListCollectData2 = collectPassingData($this->passingData2, $viewType);
+        $validate = $this->setValidateData($getListCollectData2, $viewType);
+        if (count($validate) > 0)
+        {
+            $data2 = $this->validate($this->request, $validate);
+        }
+        else {
+            $data2 = [];
+            foreach ($getListCollectData2 as $key => $val) {
+                $data2[$key] = $this->request->get($key);
+            }
+        }
+
+        $data2 = $this->getCollectedData($getListCollectData2, $viewType, $data2);
+        
+        if ($data2) {
+                DoctorService::create([
+                    'doctor_id' => $getData->id,
+                    'service_id' => $data2['service_id'],
+                    'type' => $data2['type'],
+                    'price' => $data2['price']
+                ]);       
+        }
 
 
         $id = $getData->id;
@@ -142,7 +188,7 @@ class DoctorController extends _CrudController
         else {
             session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
             session()->flash('message_alert', 2);
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.show', $id);
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
     }
 }

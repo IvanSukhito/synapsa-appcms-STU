@@ -22,12 +22,6 @@ class LabController extends _CrudController
                     'edit' => 'required'
                 ]
             ],
-            'price' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-            ],
             'thumbnail_img' => [
                 'validate' => [
                     'create' => 'required',
