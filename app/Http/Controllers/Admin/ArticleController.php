@@ -67,24 +67,8 @@ class ArticleController extends _CrudController
                     'edit' => 'required'
                 ],
             ],
-            'publish_date' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-            ],
-            'created_by' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-            ],
-            'updated_by' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-            ],
+        
+     
             'action' => [
                 'create' => 0,
                 'edit' => 0,

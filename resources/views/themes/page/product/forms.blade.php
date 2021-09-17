@@ -1,7 +1,10 @@
 <?php
-$dosis = isset($listDescProduct['dosis']) ? $listDescProduct['dosis'] : null;
-$information = isset($listDescProduct['information']) ? $listDescProduct['information'] : null;
-$indication = isset($listDescProduct['indication']) ? $listDescProduct['indication'] : null;
+$title = isset($listProduct['title']) ? $listProduct['title'] : null;
+$desc = isset($listProduct['desc']) ? $listProduct['desc'] : null;
+
+//$title = json_decode(json_encode($title), false);
+//dd($title);
+
 switch ($viewType) {
     case 'create': $printCard = 'card-success'; break;
     case 'edit': $printCard = 'card-primary'; break;
@@ -71,6 +74,24 @@ else {
 
                 <div class="card-body">
                     @include(env('ADMIN_TEMPLATE').'._component.generate_forms')
+                    @if(in_array($viewType, ['show']) )
+                    <?php $no = 0; ?>
+                    @foreach($title as $title)
+                    <?php $no++; ?>
+                    <b>Title - {!! $no !!}</b>
+                    {{ Form::text('title', $title, ['id' => 'desc', 'readonly' => 'readonly','name'=>'title[]', 'class' => 'form-control', 'placeholder' => __('general.title')]) }}            
+                    <br>
+                    @endforeach
+                    <br>
+                    <?php  $no = 0; ?>
+                    @foreach($desc as $desc)
+                    <?php $no++; ?>
+                    <b>Desc - {!! $no !!}</b>
+                    <br>
+                    {{ Form::textarea('desc', $desc, ['id' => 'desc', 'name'=>'desc[]', 'readonly' => 'readonly', 'class' => 'editor', 'placeholder' => __('general.information')]) }} 
+                    <br>
+                    @endforeach
+                    @endif
                     @if(in_array($viewType, ['create','edit']) )
                     <label>Upload File</label>
                       <br/>
@@ -86,7 +107,9 @@ else {
                        <div id="list_desc">
                            <div class="form-group">
                                <label for="desc">{{ __('general.desc') }}</label>
-                               {{ Form::textarea('desc', old('desc'), ['id' => 'desc', 'name'=>'desc[]', 'class' => 'editor', 'placeholder' => __('general.information')]) }} 
+                               {{ Form::text('title', old('title'), ['id' => 'desc', 'name'=>'title[]', 'class' => 'form-control', 'placeholder' => __('general.title')]) }} 
+                               <br>
+                               {{ Form::textarea('desc', $desc, ['id' => 'desc', 'name'=>'desc[]', 'class' => 'editor', 'placeholder' => __('general.information')]) }} 
                                <br>
                                <a href="#" onclick="return add_desc1()" class="btn btn-warning">Tambah</a>
                            </div> 
@@ -147,6 +170,8 @@ else {
 
         function add_desc1() {
         let html = '<div class="form-group">' +
+        '<input type="text" id="title_' + setIndex1 +'" name="title[]" class="form-control" placeholder="title"> ' +
+        '<br>'+
         '<textarea id="desc_' + setIndex1 +'" name="desc[]" class="editor"> ' +
         '</textarea>' +
         '<div class="p-2">' +

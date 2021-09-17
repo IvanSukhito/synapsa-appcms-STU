@@ -183,12 +183,23 @@ class ProductController extends _CrudController
         $getDescProduct = json_decode($product->desc, true);
 
         $temp = [];
+        foreach($getDescProduct as $index => $descProduct){
+            
+            $temp = $descProduct;
+           
+        }
+     
+        $descProduct = $temp;
+     
+    
+        $temp = [];
         foreach($getDescProduct as $index => $listProduct){
 
             $temp = $listProduct;
         }
 
         $listProduct = $temp;
+        
 
         $data['thisLabel'] = __('general.product');
         $data['viewType'] = 'show';
@@ -238,15 +249,23 @@ class ProductController extends _CrudController
         $title = $this->request->get('title');
 
         $descProduct = [];
-        foreach($title as $listTitle){
-            foreach($desc as $listDesc){
-                $descProduct[] = [
-                    $listTitle => $listDesc,
-                ];
-            }
-        }
-      
-
+        
+        //foreach($title as $listTitle){
+//
+        //    $descProduct[] = [
+        //        'title' =>$listTitle,
+        //    ];
+        //} 
+        //foreach($desc as $listDesc){           
+        // 
+        //    $descProduct[] = [
+        //        'desc' => $listDesc,
+        //    ];
+        //  
+        //}
+        $descProduct[]  =
+        ['title' => $title,
+         'desc' => $desc];
         if ($dokument) {
             if ($dokument->getError() != 1) {
 
@@ -322,15 +341,12 @@ class ProductController extends _CrudController
         $productDosis = $this->request->get('dosis');
         $dokument = $this->request->file('image');
         $title = $this->request->get('title');
-
+        $desc = $this->request->get('desc');
         $descProduct = [];
-        foreach($title as $listTitle){
-            foreach($desc as $listDesc){
-                $descProduct[] = [
-                    $listTitle => $listDesc,
-                ];
-            }
-        }
+        $descProduct[]  =
+        [   'title' => $title,
+            'desc' => $desc   ];
+        
   
      
 
