@@ -278,6 +278,8 @@ class LabController extends Controller
             ], 404);
         }
 
+        $getData->delete();
+
         return response()->json([
             'success' => 1,
             'token' => $this->request->attributes->get('_refresh_token'),
