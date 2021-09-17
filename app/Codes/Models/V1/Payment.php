@@ -22,11 +22,11 @@ class Payment extends Model
         'price_nice',
     ];
 
-    public function getImageFullAttribute()
+    public function getIconFullAttribute()
     {
         return asset('assets/cms/images/no-img.png');
-        if (strlen($this->icon) > 0) {
-            return env('OSS_URL').'/'.$this->icon;
+        if (strlen($this->icon_img) > 0) {
+            return env('OSS_URL').'/'.$this->icon_img;
         }
         return asset('assets/cms/images/no-img.png');
     }
