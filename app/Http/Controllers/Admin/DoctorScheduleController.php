@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
-use App\Codes\Models\Golongan;
+
 use App\Codes\Models\V1\Doctor;
+use App\Codes\Models\V1\Service;
 use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\DoctorSchedule;
 use Illuminate\Http\Request;
@@ -21,6 +22,13 @@ class DoctorScheduleController extends _CrudController
                 'show' => 0
             ],
             'doctor_id' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'type' => 'select2',
+            ],
+            'service_id' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
@@ -75,8 +83,16 @@ class DoctorScheduleController extends _CrudController
             }
         }
 
+        $getService = Service::where('status', 80)->pluck('name', 'id')->toArray();
+        if($getService) {
+            foreach($getService as $key => $value) {
+                $listService[$key] = $value;
+            }
+        }
+
 
         $this->data['listSet']['doctor_id'] = $listUsers;
+        $this->data['listSet']['service_id'] = $listService;
         $this->data['listSet']['day'] = get_list_day();
         $this->data['listSet']['book'] = get_list_availabe();
     }

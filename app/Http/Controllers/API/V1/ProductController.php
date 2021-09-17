@@ -634,6 +634,7 @@ class ProductController extends Controller
             ->where('users_cart_detail.users_cart_id', '=', $getUsersCart->id)
             ->where('choose', 1)->get();
 
+            //dd($getUsersCart);
         $totalQty = 0;
         $subTotal = 0;
         $shippingPrice = 15000;

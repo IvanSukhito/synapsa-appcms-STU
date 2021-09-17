@@ -129,9 +129,9 @@ class DoctorController extends _CrudController
 
         $getData = $this->crud->store($data);       
       
-        if (count($getService) > 0) {
-            $getData->getService()->sync($getService);
-        }
+        //if (count($getService) > 0) {
+        //    $getData->getService()->sync($getService);
+        //}
 
 
         $id = $getData->id;

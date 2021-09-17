@@ -306,6 +306,14 @@ if ( ! function_exists('listAllMenu')) {
                         'key' => 'doctor-schedule',
                         'type' => 1,
                     ],
+                    [
+                        'name' => __('general.doctor_service'),
+                        'title' => __('general.doctor_service'),
+                        'active' => ['admin.doctor-service.'],
+                        'route' => 'admin.doctor-service.index',
+                        'key' => 'doctor-service',
+                        'type' => 1,
+                    ],
                 ],
             ],
             [
@@ -477,6 +485,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'article-category',
                      'service',
                      'klinik',
+                     'doctor-service',
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [
