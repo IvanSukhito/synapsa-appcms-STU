@@ -14,7 +14,7 @@
         ];
 
         $arrayPassing = [];
-        if (in_array($fieldData['type'], ['select', 'select2', 'tagging'])) {
+        if (in_array($fieldData['type'], ['select', 'select2', 'tagging', 'multiselect2'])) {
             $arrayPassing = isset($listSet[$fieldName]) ? $listSet[$fieldName] : [];
         }
         $listPassing['listFieldName'] = $arrayPassing;

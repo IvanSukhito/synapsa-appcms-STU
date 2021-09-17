@@ -50,6 +50,13 @@ class DoctorController extends _CrudController
                 ],
                 'type' => 'textarea',
             ],
+            'service_id' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'type' => 'multiselect2',
+            ],
             'action' => [
                 'create' => 0,
                 'edit' => 0,
@@ -73,7 +80,7 @@ class DoctorController extends _CrudController
            //     ],
            //     'lang' => 'general.service',
            //     'type' => 'select2',
-           //     
+           //
            // ]
         ]);
 
@@ -109,7 +116,7 @@ class DoctorController extends _CrudController
         $this->data['listSet']['service_id'] = $service_id;
         $this->data['listSet']['doctor_category_id'] = $listDoctorCategory;
     }
-  
+
     public function create(){
         $this->callPermission();
 
@@ -152,7 +159,7 @@ class DoctorController extends _CrudController
 
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
-        $getData = $this->crud->store($data);       
+        $getData = $this->crud->store($data);
 
         //Data Service
         $getListCollectData2 = collectPassingData($this->passingData2, $viewType);
@@ -169,14 +176,14 @@ class DoctorController extends _CrudController
         }
 
         $data2 = $this->getCollectedData($getListCollectData2, $viewType, $data2);
-        
+
         if ($data2) {
                 DoctorService::create([
                     'doctor_id' => $getData->id,
                     'service_id' => $data2['service_id'],
                     'type' => $data2['type'],
                     'price' => $data2['price']
-                ]);       
+                ]);
         }
 
 

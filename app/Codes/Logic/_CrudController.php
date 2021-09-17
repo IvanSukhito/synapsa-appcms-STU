@@ -90,7 +90,7 @@ class _CrudController extends _GlobalFunctionController
         $listRaw = [];
         $listRaw[] = 'action';
         foreach (collectPassingData($this->passingData) as $fieldName => $list) {
-            if (in_array($list['type'], ['select', 'select2'])) {
+            if (in_array($list['type'], ['select', 'select2', 'multiselect2'])) {
                 $dataTables = $dataTables->editColumn($fieldName, function ($query) use ($fieldName) {
                     $getList = isset($this->data['listSet'][$fieldName]) ? $this->data['listSet'][$fieldName] : [];
                     return isset($getList[$query->$fieldName]) ? $getList[$query->$fieldName] : $query->$fieldName;

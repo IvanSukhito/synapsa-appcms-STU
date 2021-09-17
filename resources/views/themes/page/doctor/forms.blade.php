@@ -68,11 +68,10 @@ else {
 
                 <div class="card-body">
                     @include(env('ADMIN_TEMPLATE').'._component.generate_forms')
-                    @include(env('ADMIN_TEMPLATE').'.page.doctor.generate_forms2')
                     <div class="form-group">
                         <p id="infoService">Input 0 Service</p>
                     </div>
-                    <div id="listService">
+                    <div id="listService"></div>
                 </div>
                 <!-- /.card-body -->
 
@@ -111,37 +110,49 @@ else {
     @parent
     @include(env('ADMIN_TEMPLATE').'._component.generate_forms_script')
     <script>
+
+        let listDataService = JSON.parse('{!! json_encode($listSet['service_id']) !!}');
+
        $(document).ready(function() {
-            $('#total_service').change();
-            var elements = document.getElementById("#service_id").elements;
+            $('#service_id').change();
         });
 
-        $('#total_service').change(function() {
-            let totalService = 0;
-            if ($(this).val() !== '') {
-                totalService = parseInt($(this).val());
-            }
-
+        $('#service_id').on('change', function() {
+            let getListService = $(this).val();
+            let totalService = getListService.length;
             $('#infoService').html('Input' + '&nbsp;' + totalService +'&nbsp;'+'Service');
+
             $('#listService').empty();
+
             let html = '';
-            for (let i=0; i<totalService; i++) {
-                html += '<div class="form-group">' +
-                    '<label for="service">{{ __('general.service') }} ' + (i + 1) + ' <span class="text-red">*</span></label>' +
-                    '<select class="form-control" data-width="100%" name="judul" id="judul" required>'+
-                    '<option type="select2" selected="selected">'+'</option>'+
-                    '</select>'+
-                    '<br>'+
-                    '</div>'+
-                    '<div class="form-group">' +
-                    '<label for="price">{{ __('general.price') }} ' + (i + 1) + ' <span class="text-red">*</span></label>' +
-                    '<input type="text" id="price_' + i +'" name="price[]" class="form-control" placeholder="price"> ' +
-                    '<br>'+
-                    '</div>';
-            }
+            let i = 0;
+            $.each(listDataService, function(index, item) {
+                $.each(getListService, function(index2, item2) {
+                    if (parseInt(index) === parseInt(item2)) {
+                        let getValue = item;
+                        html += '<div class="form-group">' +
+                            '<label for="service">{{ __('general.service') }} ' + (i + 1) + ' <span class="text-red">*</span></label>' +
+                            '<input type="text" id="service_' + i +'" name="service[ ' + i + ']" class="form-control" placeholder="service" disabled value="' + getValue + '"> ' +
+                            '</div>'+
+                            '<div class="form-group">' +
+                            '<label for="price">{{ __('general.price') }} ' + (i + 1) + ' <span class="text-red">*</span></label>' +
+                            '<input type="text" id="price_' + i +'" name="price[ ' + i + ']" class="form-control setMoney" placeholder="price"> ' +
+                            '</div>';
+                        i++;
+                    }
+                });
+            });
 
             $('#listService').html(html);
-            $('.image_ktp').dropify();
+
+            $('.setMoney').inputmask('numeric', {
+                radixPoint: ".",
+                groupSeparator: ",",
+                digits: 2,
+                autoGroup: true,
+                prefix: '', //Space after $, this will not truncate the first character.
+                rightAlign: false
+            });
 
         });
     </script>

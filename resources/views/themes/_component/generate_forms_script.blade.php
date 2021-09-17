@@ -61,6 +61,9 @@
         $('.tagging').select2({
             tags: true
         });
+        $('.multiselect2').select2({
+            tags: true
+        });
 
         $('.money-format').inputmask('numeric', {
             radixPoint: ".",
