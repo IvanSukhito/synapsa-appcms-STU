@@ -33,7 +33,7 @@ class Doctor extends Model
 
     public function getService()
     {
-        return $this->belongsToMany(Service::class, 'doctor_service', 'service_id', 'doctor_id');
+        return $this->belongsToMany(Service::class, 'doctor_service', 'doctor_id', 'service_id');
     }
 
     public function getDoctorSchedule()

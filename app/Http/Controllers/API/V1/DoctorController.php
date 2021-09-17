@@ -47,6 +47,7 @@ class DoctorController extends Controller
         $service = Service::orderBy('orders', 'ASC')->get();
         $category = DoctorCategory::orderBy('orders', 'ASC')->get();
 
+
         $getInterestService = $serviceId > 0 ? $serviceId : $user->interest_service_id;
         $getInterestCategory = $categoryId > 0 ? $categoryId : $user->interest_category_id;
         $tempService = [];
@@ -494,7 +495,7 @@ class DoctorController extends Controller
             'transaction_id' => $getTransaction->id,
             'schedule_id' => $id,
             'doctor_id' => $data->id,
-            'doctor_name' => $data->full_name,
+            'doctor_name' => $data->doctor_name,
             'doctor_price' => $subTotal
         ]);
 
