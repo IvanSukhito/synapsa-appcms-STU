@@ -6,6 +6,8 @@ use App\Codes\Models\V1\ForgetPassword;
 use App\Codes\Models\V1\Users;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Xendit\Balance;
+use Xendit\Xendit;
 
 class GeneralController extends Controller
 {
@@ -14,6 +16,13 @@ class GeneralController extends Controller
     public function __construct(Request $request)
     {
         $this->request = $request;
+    }
+
+    public function xendit()
+    {
+        Xendit::setApiKey(env('XENDIT_SECRET_KEY'));
+        $getBalance = Balance::getBalance('CASH');
+        dd($getBalance);
     }
 
     public function changeTokenPassword()

@@ -11,6 +11,7 @@
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
         "intervention/image": "^2.5",
+        "jacobcyl/ali-oss-storage": "^1.1",
         "laravel/framework": "^8.54",
         "laravel/horizon": "^5.7",
         "laravel/sanctum": "^2.11",
@@ -19,8 +20,8 @@
         "mailjet/mailjet-apiv3-php": "^1.5",
         "phpoffice/phpspreadsheet": "^1.18",
         "tymon/jwt-auth": "dev-develop",
-        "yajra/laravel-datatables-oracle": "^9.18",
-        "jacobcyl/ali-oss-storage": "^1.1"
+        "xendit/xendit-php": "^2.13",
+        "yajra/laravel-datatables-oracle": "^9.18"
     },
     "require-dev": {
         "facade/ignition": "^2.5",
