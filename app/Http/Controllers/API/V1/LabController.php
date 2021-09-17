@@ -304,8 +304,10 @@ class LabController extends Controller
 
         DB::beginTransaction();
         $getData = LabCart::where('user_id', $user->id)->get();
+        $haveProduct = 0;
         foreach ($getData as $list) {
             if (in_array($list->id, $getCartIds)) {
+                $haveProduct = 1;
                 $list->choose = 1;
             }
             else {
@@ -316,10 +318,20 @@ class LabController extends Controller
         }
         DB::commit();
 
-        return response()->json([
-            'success' => 1,
-            'token' => $this->request->attributes->get('_refresh_token'),
-        ]);
+        if ($haveProduct > 0) {
+            return response()->json([
+                'success' => 1,
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ]);
+        }
+        else {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Test Lab Cart Not Found'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ]);
+        }
+
     }
 
     public function listBookLab()
