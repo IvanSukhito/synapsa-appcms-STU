@@ -9,6 +9,16 @@ if ( ! function_exists('get_list_active_inactive')) {
     }
 }
 
+if ( ! function_exists('get_list_status_article')) {
+    function get_list_status_article()
+    {
+        return [
+            1 => __('general.draft'),
+            80 => __('general.publish')
+        ];
+    }
+}
+
 if ( ! function_exists('get_list_stock_flag')) {
     function get_list_stock_flag()
     {

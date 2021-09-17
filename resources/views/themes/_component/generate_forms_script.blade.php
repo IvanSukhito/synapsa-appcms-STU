@@ -1,6 +1,8 @@
 <script type="text/javascript">
     'use strict';
     $(document).ready(function() {
+        $('.dropify').dropify();
+        //$( 'textarea.editor' ).ckeditor();
         $('.texteditor').each(function(i, item) {
             CKEDITOR.replace(item.id, {
                 autoParagraph: true,

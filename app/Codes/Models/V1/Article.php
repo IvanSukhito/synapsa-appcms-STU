@@ -22,6 +22,11 @@ class Article extends Model
         'updated_by'
     ];
 
+    protected $appends = [
+        'image_full',
+        'thumbnail_img_full'
+    ];
+
     public function getCategory()
     {
         return $this->belongsTo(ArticleCategory::class, 'article_category_id', 'id');
@@ -32,16 +37,23 @@ class Article extends Model
         return $this->belongsToMany(Tagging::class, 'article_tagging', 'article_id', 'tagging_id');
     }
 
-    public function getUploadArticleThumbnailAttribute()
+    public function getImageFullAttribute()
     {
+       
+        if (strlen($this->image) > 0) {
+            return env('OSS_URL').'/'.$this->image;
+        }
         return asset('assets/cms/images/no-img.png');
-//        return strlen($this->thumbnail_img) > 0 ? asset('uploads/article/'.$this->thumbnail_img) : asset('assets/cms/images/no-img.png');
+        //return strlen($this->image) > 0 ? asset($this->image) : asset('assets/cms/images/no-img.png');
     }
-
-    public function getUploadArticleImageAttribute()
+    public function getThumbnailImgFullAttribute()
     {
+       
+        if (strlen($this->thumbnail_img) > 0) {
+            return env('OSS_URL').'/'.$this->thumbnail_img;
+        }
         return asset('assets/cms/images/no-img.png');
-//        return strlen($this->image) > 0 ? asset('uploads/article/'.$this->image) : asset('assets/cms/images/no-img.png');
+        //return strlen($this->image) > 0 ? asset($this->image) : asset('assets/cms/images/no-img.png');
     }
 
 }

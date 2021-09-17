@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Codes\Logic\_CrudController;
 use App\Codes\Models\V1\ArticleCategory;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use App\Codes\Models\V1\Article;
 
@@ -31,44 +32,47 @@ class ArticleController extends _CrudController
                     'edit' => 'required'
                 ],
             ],
-            'slugs' => [
+            'preview' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
                 ],
+                'type' => 'texteditor',
             ],
             'thumbnail_img' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
                 ],
+                'type' => 'image',
+                'path' => 'synapapps/article',
+                'lang' => 'thumbnail_image'
             ],
+            
             'image' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
                 ],
+                'type' => 'image',
+                'path' => 'synapapps/article',
+                'lang' => 'image'
             ],
             'content' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
                 ],
-            ],
-            'preview' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
+                'type' => 'texteditor',
             ],
             'publish_status' => [
                 'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
+                    'create' => '',
+                    'edit' => ''
                 ],
+                'type' => 'checkbox',
+                'lang' => 'publish',
             ],
-        
-     
             'action' => [
                 'create' => 0,
                 'edit' => 0,
@@ -84,7 +88,7 @@ class ArticleController extends _CrudController
 
 
         $getArticleCategory = ArticleCategory::where('status', 80)->pluck('name', 'id')->toArray();
-        $listArticleCategory = [0 => 'Kosong'];
+
         if($getArticleCategory) {
             foreach($getArticleCategory as $key => $value) {
                 $listArticleCategory[$key] = $value;
@@ -93,17 +97,18 @@ class ArticleController extends _CrudController
 
 
         $this->data['listSet']['article_category_id'] = $listArticleCategory;
-
+       // $this->data['listSet']['publish_status'] = get_list_status_article();
     }
+
 
     public function store()
     {
         $this->callPermission();
 
-        $view_type = 'create';
+        $viewType = 'create';
 
-        $getListCollectData = collectPassingData($this->passingData, $view_type);
-        $validate = $this->setValidateData($getListCollectData, $view_type);
+        $getListCollectData = collectPassingData($this->passingData, $viewType);
+        $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
         {
             $data = $this->validate($this->request, $validate);
@@ -115,13 +120,54 @@ class ArticleController extends _CrudController
             }
         }
 
-        $data = $this->getCollectedData($getListCollectData, $view_type, $data);
+        $dokument = $data['image'];
+        if ($dokument) {
+            if ($dokument->getError() != 1) {
 
-        $permission = getValidatePermissionMenu($this->request->get('permission'));
+                $getFileName = $dokument->getClientOriginalName();
+                $ext = explode('.', $getFileName);
+                $ext = end($ext);
+                $destinationPath = 'synapapps/article';
+                if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
 
-        $data['permission_data'] = json_encode($permission);
-        $data['permission_route'] = json_encode(getPermissionRouteList($permission));
+                    $dokumentImage = Storage::putFile($destinationPath, $dokument);
+                }
 
+            }
+        }
+
+        $dokumentThumbnail = $data['thumbnail_img'];
+        if ($dokumentThumbnail) {
+            if ($dokumentThumbnail->getError() != 1) {
+
+                $getFileName = $dokumentThumbnail->getClientOriginalName();
+                $ext = explode('.', $getFileName);
+                $ext = end($ext);
+                $destinationPath = 'synapapps/article';
+                if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
+
+                    $dokumentThumbnailImage = Storage::putFile($destinationPath, $dokumentThumbnail);
+                }
+
+            }
+        }
+
+        $statusPublish = $this->request->get('publish_status');
+        //dd($statusPublish);
+        if($statusPublish == null){
+            $publish = 0;
+        }else{
+            $publish = 1;
+        }
+
+        $title = $data['title'];
+    
+        $data = $this->getCollectedData($getListCollectData, $viewType, $data);
+
+        $data['image'] = $dokumentImage;
+        $data['thumbnail_img'] = $dokumentThumbnailImage;
+        $data['publish_status'] = $publish;
+        $data['slugs'] = create_slugs($title);
         $getData = $this->crud->store($data);
 
         $id = $getData->id;
@@ -132,52 +178,8 @@ class ArticleController extends _CrudController
         else {
             session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
             session()->flash('message_alert', 2);
-            return redirect()->route('admin.' . $this->route . '.show', $id);
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
     }
-
-    public function update($id)
-    {
-        $this->callPermission();
-
-        $view_type = 'edit';
-
-        $getData = $this->crud->show($id);
-        if (!$getData) {
-            return redirect()->route('admin.' . $this->route . '.index');
-        }
-
-        $getListCollectData = collectPassingData($this->passingData, $view_type);
-        $validate = $this->setValidateData($getListCollectData, $view_type, $id);
-        if (count($validate) > 0)
-        {
-            $data = $this->validate($this->request, $validate);
-        }
-        else {
-            $data = [];
-            foreach ($getListCollectData as $key => $val) {
-                $data[$key] = $this->request->get($key);
-            }
-        }
-
-        $data = $this->getCollectedData($getListCollectData, $view_type, $data, $getData);
-
-        $permission = getValidatePermissionMenu($this->request->get('permission'));
-
-        $data['permission_data'] = json_encode($permission);
-        $data['permission_route'] = json_encode(getPermissionRouteList($permission));
-
-        $getData = $this->crud->update($data, $id);
-
-        $id = $getData->id;
-
-        if($this->request->ajax()){
-            return response()->json(['result' => 1, 'message' => __('general.success_edit_', ['field' => $this->data['thisLabel']])]);
-        }
-        else {
-            session()->flash('message', __('general.success_edit_', ['field' => $this->data['thisLabel']]));
-            session()->flash('message_alert', 2);
-            return redirect()->route('admin.' . $this->route . '.show', $id);
-        }
-    }
+  
 }
