@@ -333,7 +333,7 @@ class LabController extends Controller
         if (!$getData) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Test Lab Not Found'],
+                'message' => ['Tidak ada Test Lab yang di pilih'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
