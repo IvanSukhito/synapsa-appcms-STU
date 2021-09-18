@@ -52,7 +52,7 @@ class LabController extends Controller
         $firstService = 0;
         $tempService = [];
         foreach ($service as $index => $list) {
-            $temp[] = [
+            $temp = [
                 'id' => $list->id,
                 'name' => $list->name,
                 'active' => 0
