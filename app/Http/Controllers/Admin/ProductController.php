@@ -249,20 +249,7 @@ class ProductController extends _CrudController
         $title = $this->request->get('title');
 
         $descProduct = [];
-        
-        //foreach($title as $listTitle){
-//
-        //    $descProduct[] = [
-        //        'title' =>$listTitle,
-        //    ];
-        //} 
-        //foreach($desc as $listDesc){           
-        // 
-        //    $descProduct[] = [
-        //        'desc' => $listDesc,
-        //    ];
-        //  
-        //}
+  
         $descProduct[]  =
         ['title' => $title,
          'desc' => $desc];

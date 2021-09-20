@@ -70,6 +70,7 @@ class ArticleController extends _CrudController
                     'create' => '',
                     'edit' => ''
                 ],
+                'list' => 0,
                 'type' => 'checkbox',
                 'lang' => 'publish',
             ],

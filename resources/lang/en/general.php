@@ -27,6 +27,8 @@ return [
     'available' => 'Available',
     'preview' => 'Preview',
     'unavailable' => 'Unavailable',
+    'users_doctor' => 'Doctor',
+    'users_patient' => 'Patient',
     'patient' => 'Patient',
     'doctor' => 'Doctor',
     'doctor_id' => 'Doctor',

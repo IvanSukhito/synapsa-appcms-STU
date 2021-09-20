@@ -32,11 +32,12 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                 'App\Http\Controllers\Admin\ProductCategoryController' => 'product-category',
                 'App\Http\Controllers\Admin\LabController' => 'lab',
                 'App\Http\Controllers\Admin\UsersController' => 'users',
+                'App\Http\Controllers\Admin\UsersDoctorController' => 'users-doctor',
+                'App\Http\Controllers\Admin\UsersPatientController' => 'users-patient',
                 'App\Http\Controllers\Admin\DoctorController' => 'doctor',
                 'App\Http\Controllers\Admin\DoctorScheduleController' => 'doctor-schedule',
                 'App\Http\Controllers\Admin\DoctorCategoryController' => 'doctor-category',
                 'App\Http\Controllers\Admin\ServiceController' => 'service',
-                'App\Http\Controllers\Admin\DoctorServiceController' => 'doctor-service',
             ];
 
             foreach ($listRouter as $controller => $linkName) {

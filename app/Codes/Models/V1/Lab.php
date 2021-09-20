@@ -42,9 +42,11 @@ class Lab extends Model
 
     public function getImageFullAttribute()
     {
-       // return asset('assets/cms/images/no-img.png');
-        return strlen($this->image) > 0 ? asset('uploads/lab/'.$this->image) : asset('assets/cms/images/no-img.png');
-    }
+        if (strlen($this->image) > 0) {
+            return env('OSS_URL').'/'.$this->image;
+        }
+        return asset('assets/cms/images/no-img.png');
+     }
 
 
 }

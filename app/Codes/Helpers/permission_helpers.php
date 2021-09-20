@@ -287,6 +287,7 @@ if ( ! function_exists('listAllMenu')) {
                 'active' => [
                     'admin.doctor.',
                     'admin.doctor-schedule.',
+                    'admin.doctor-service.'
                 ],
                 'type' => 2,
                 'data' => [
@@ -304,14 +305,6 @@ if ( ! function_exists('listAllMenu')) {
                         'active' => ['admin.doctor-schedule.'],
                         'route' => 'admin.doctor-schedule.index',
                         'key' => 'doctor-schedule',
-                        'type' => 1,
-                    ],
-                    [
-                        'name' => __('general.doctor_service'),
-                        'title' => __('general.doctor_service'),
-                        'active' => ['admin.doctor-service.'],
-                        'route' => 'admin.doctor-service.index',
-                        'key' => 'doctor-service',
                         'type' => 1,
                     ],
                 ],
@@ -366,6 +359,35 @@ if ( ! function_exists('listAllMenu')) {
                 ],
             ],
             [
+                'name' => __('general.users'),
+                'icon' => '<i class="nav-icon fa fa-user"></i>',
+                'title' => __('general.users'),
+                'active' => [
+                    'admin.users.',
+                    'admin.users-doctor.',
+                    'admin.users-patient.'
+                ],
+                'type' => 2,
+                'data' => [
+                    [
+                        'name' => __('general.users_doctor'),
+                        'title' => __('general.users_doctor'),
+                        'active' => ['admin.users-doctor.'],
+                        'route' => 'admin.users-doctor.index',
+                        'key' => 'users-doctor',
+                        'type' => 1,
+                    ],
+                    [
+                        'name' => __('general.users_patient'),
+                        'title' => __('general.users_patient'),
+                        'active' => ['admin.users-patient.'],
+                        'route' => 'admin.users-patient.index',
+                        'key' => 'users-patient',
+                        'type' => 1,
+                    ],     
+                ],
+            ],
+            [
                 'name' => __('general.lab'),
                 'icon' => '<i class="nav-icon fa fa-flask"></i>',
                 'title' => __('general.lab'),
@@ -374,15 +396,7 @@ if ( ! function_exists('listAllMenu')) {
                 'key' => 'lab',
                 'type' => 1,
             ],
-            [
-                'name' => __('general.users'),
-                'icon' => '<i class="nav-icon fa fa-user"></i>',
-                'title' => __('general.users'),
-                'active' => ['admin.users.'],
-                'route' => 'admin.users.index',
-                'key' => 'users',
-                'type' => 1,
-            ],
+
             [
                 'name' => __('general.setting'),
                 'icon' => '<i class="nav-icon fa fa-gear"></i>',
@@ -472,6 +486,8 @@ if ( ! function_exists('listAvailablePermission'))
 
         foreach ([
                      'admin',
+                     'users-doctor',
+                     'users-patient',
                      'role',
                      'article',
                      'product',
@@ -485,7 +501,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'article-category',
                      'service',
                      'klinik',
-                     'doctor-service',
+                     
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [
@@ -540,8 +556,9 @@ if ( ! function_exists('listAvailablePermission'))
                     'admin.'.$keyPermission.'.index',
                     'admin.'.$keyPermission.'.dataTable'
                 ],
-                'show' => [
-                    'admin.'.$keyPermission.'.show'
+                'create' => [
+                    'admin.'.$keyPermission.'.create',
+                    'admin.'.$keyPermission.'.store'
                 ]
             ];
         }
