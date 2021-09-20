@@ -55,10 +55,8 @@ class ProfileController extends Controller
             'gender' => 'required',
             'nik' => 'required',
             'upload_ktp' => 'required',
-            'phone' => 'required|regex:/^(08\d+)/|numeric|unique:users,phone',
-            'email' => 'required|email|unique:users,email',
-        ], [
-            'before' => ':attribute'
+            'phone' => 'required|regex:/^(8\d+)/|numeric|unique:users,phone',
+            'email' => 'required|email|unique:users,email,'.$user->id,
         ]);
         $validator->setAttributeNames([
             'dob' => 'Anda harus berusia 18 tahun untuk melanjutkan',
@@ -86,14 +84,14 @@ class ProfileController extends Controller
                      return response()->json([
                          'success' => 0,
                          'token' => $this->request->attributes->get('_refresh_token'),
-                         'message' => ['Failed upload Image'],
+                         'message' => ['Gagal Mengunggah Foto'],
                      ], 422);
                  }
             }
             catch (\Exception $e) {
                 return response()->json([
                     'success' => 0,
-                    'message' => ['Failed upload KTP Image'],
+                    'message' => ['Gagal Mengunggah Foto KTP'],
                     'token' => $this->request->attributes->get('_refresh_token'),
                 ], 422);
             }
@@ -129,7 +127,7 @@ class ProfileController extends Controller
                 'image' => $user->upload_ktp_full
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
-            'message' => ['Success Update Profile'],
+            'message' => ['Berhasil Memperbarui profil'],
         ]);
 
     }
@@ -163,7 +161,7 @@ class ProfileController extends Controller
                 return response()->json([
                     'success' => 0,
                     'token' => $this->request->attributes->get('_refresh_token'),
-                    'message' => ['Failed upload Image'],
+                    'message' => ['Gagal Mengunggah Foto'],
                 ], 422);
             }
         }
@@ -171,7 +169,7 @@ class ProfileController extends Controller
             return response()->json([
                 'success' => 0,
                 'token' => $this->request->attributes->get('_refresh_token'),
-                'message' => ['Failed upload Image'],
+                'message' => ['Gagal Mengunggah Foto'],
                 'error' => $e->getMessage(),
             ], 422);
         }
@@ -188,14 +186,14 @@ class ProfileController extends Controller
                 'success' => 1,
                 'data' => $getUser,
                 'token' => $this->request->attributes->get('_refresh_token'),
-                'message' => ['Success Update Photo Profile'],
+                'message' => ['Berhasil Memperbarui Foto Profile'],
             ]);
         }
         else {
 
             return response()->json([
                 'success' => 0,
-                'message' => ['failed to upload'],
+                'message' => ['Gagal Untuk Mengunggah'],
                 'token' => $this->request->attributes->get('_refresh_token')
             ], 422);
         }
@@ -261,7 +259,7 @@ class ProfileController extends Controller
             'success' => 1,
             'data' => $getUser,
             'token' => $this->request->attributes->get('_refresh_token'),
-            'message' => ['Success Update Address Profile'],
+            'message' => ['Sukses Memperbarui Alamat Profil'],
         ]);
 
     }
@@ -290,7 +288,7 @@ class ProfileController extends Controller
             return response()->json([
                 'success' => 0,
                 'token' => $this->request->attributes->get('_refresh_token'),
-                'message' => ['Old Password not match'],
+                'message' => ['Kata Sandi Lama Tidak Cocok'],
             ],422);
         }
 
@@ -300,7 +298,7 @@ class ProfileController extends Controller
         return response()->json([
             'success' => 1,
             'token' => $this->request->attributes->get('_refresh_token'),
-            'message' => ['Success Update Password'],
+            'message' => ['Berhasil Memperbarui Kata Sandi'],
         ]);
     }
 
@@ -326,14 +324,14 @@ class ProfileController extends Controller
 
             return response()->json([
                 'success' => 1,
-                'message' => ['Success send link verification to your email'],
+                'message' => ['Berhasil Mengirim Link Verifikasi Kepada Email Anda'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ]);
         }
         else{
             return response()->json([
                 'success' => 0,
-                'message' => ['Email not match'],
+                'message' => ['Email Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
@@ -344,7 +342,7 @@ class ProfileController extends Controller
 
         $user = $this->request->attributes->get('_user');
         $validator = Validator::make($this->request->all(), [
-            'phone' => 'required|regex:/^(08\d+)/|numeric'
+            'phone' => 'required|regex:/^(8\d+)/|numeric'
 
         ]);
         if ($validator->fails()) {
@@ -362,14 +360,14 @@ class ProfileController extends Controller
         if($getPhone == $user->phone){
             return response()->json([
                 'success' => 1,
-                'message' => ['Success send link verification to your phone'],
+                'message' => ['Berhasil Mengirim Link Verifikasi Kepada Nomor Handphone Anda'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ]);
         }
         else{
             return response()->json([
                 'success' => 0,
-                'message' => ['Phone not match'],
+                'message' => ['Nomor Handphone Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }

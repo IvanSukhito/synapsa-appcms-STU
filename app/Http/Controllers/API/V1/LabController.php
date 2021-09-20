@@ -93,7 +93,7 @@ class LabController extends Controller
         if (!$data) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Test Lab Not Found'],
+                'message' => ['Test Lab Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
@@ -142,7 +142,7 @@ class LabController extends Controller
         if (!$data) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Test Lab Not Found'],
+                'message' => ['Test Lab Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
@@ -273,7 +273,7 @@ class LabController extends Controller
         if (!$getData) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Test Lab Not Found'],
+                'message' => ['Test Lab Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
@@ -329,7 +329,7 @@ class LabController extends Controller
         else {
             return response()->json([
                 'success' => 0,
-                'message' => ['Test Lab Cart Not Found'],
+                'message' => ['Keranjang Test Lab Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ]);
         }
@@ -404,7 +404,7 @@ class LabController extends Controller
         if (!$getCart) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Test Lab Not Found'],
+                'message' => ['Test Lab Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
@@ -414,7 +414,7 @@ class LabController extends Controller
         if (!$getLabSchedule) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Schedule Not Found'],
+                'message' => ['Jadwal Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
@@ -446,11 +446,11 @@ class LabController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $getCart = LabCart::where('user_id', '=', $user->id)->where('id', '=', $id)->where('choose', '=', 1)->first();
+        $getCart = LabCart::where('user_id', '=', $user->id)->where('choose', '=', 1)->first();
         if (!$getCart) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Test Lab Not Found'],
+                'message' => ['Test Lab Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
@@ -460,7 +460,7 @@ class LabController extends Controller
         if (!$getLabSchedule) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Schedule Not Found'],
+                'message' => ['Jadwal Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
@@ -491,7 +491,7 @@ class LabController extends Controller
         ]);
     }
 
-    public function checkout($id)
+    public function checkout()
     {
         $user = $this->request->attributes->get('_user');
 
@@ -515,16 +515,16 @@ class LabController extends Controller
         if (!$getPayment) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Payment Not Found'],
+                'message' => ['Pembayaran Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
 
-        $getCart = LabCart::where('user_id', '=', $user->id)->where('id', '=', $id)->where('choose', '=', 1)->first();
+        $getCart = LabCart::where('user_id', '=', $user->id)->where('choose', '=', 1)->first();
         if (!$getCart) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Test Lab Not Found'],
+                'message' => ['Test Lab Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
@@ -534,7 +534,7 @@ class LabController extends Controller
         if (!$getLabSchedule) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Schedule Not Found'],
+                'message' => ['Jadwal Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }

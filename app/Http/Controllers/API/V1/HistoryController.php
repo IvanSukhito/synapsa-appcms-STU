@@ -98,7 +98,7 @@ class HistoryController extends Controller
                 case 3 : $getType = 4; break;
                 default : $getType = 2; break;
             }
-            
+
             $getDataDoctor = Transaction::selectRaw('transaction.id, transaction_details.doctor_name as doctor_name, transaction_details.doctor_price as doctor_price, transaction.status as status, type, users.image as image')
             ->join('transaction_details', 'transaction_details.transaction_id', '=', 'transaction.id')
             ->join('doctor', 'doctor.id','=','transaction_details.doctor_id')
@@ -106,13 +106,13 @@ class HistoryController extends Controller
             ->where('transaction.user_id', $user->id)
             ->where('type', $getType)
             ->get();
-            
+
             if(!$getDataDoctor){
                 return response()->json([
                     'success' => 0,
-                    'message' => ['History Transaction Not Found'],
+                    'message' => ['Sejarah Transaksi Tidak Ditemukan'],
                     'token' => $this->request->attributes->get('_refresh_token'),
-                ], 404);  
+                ], 404);
             }
 
             return response()->json([
@@ -141,11 +141,11 @@ class HistoryController extends Controller
             if(!$getDataLab){
                 return response()->json([
                     'success' => 0,
-                    'message' => ['History Transaction Not Found'],
+                    'message' => ['Sejarah Transaksi Tidak Ditemukan'],
                     'token' => $this->request->attributes->get('_refresh_token'),
-                ], 404);  
+                ], 404);
             }
-            
+
             return response()->json([
                 'success' => 1,
                 'data' => [
@@ -163,15 +163,15 @@ class HistoryController extends Controller
             ->where('transaction.user_id', $user->id)
             ->where('type', 1)
             ->get();
-            
+
             if(!$getDataProduct){
                 return response()->json([
                     'success' => 0,
-                    'message' => ['History Transaction Not Found'],
+                    'message' => ['Sejarah Transaksi Tidak Ditemukan'],
                     'token' => $this->request->attributes->get('_refresh_token'),
-                ], 404);  
+                ], 404);
             }
-            
+
             return response()->json([
                 'success' => 1,
                 'data' => [
@@ -181,12 +181,12 @@ class HistoryController extends Controller
             ]);
         }
 
-   
+
     }
     Public function detail($id){
         $user = $this->request->attributes->get('_user');
 
-    
+
         $getDataDoctor = Transaction::selectRaw('transaction.id, code, transaction_details.doctor_name as doctor_name, doctor_category.name as category, klinik.name as clinic_name, transaction.total as total_price,
          transaction.status as status, users.image as image, payment_name, payment.icon_img as icon')
         ->join('klinik','klinik.id', '=', 'transaction.klinik_id')
@@ -198,7 +198,7 @@ class HistoryController extends Controller
         ->where('transaction.user_id', $user->id)
         ->where('transaction.id', $id)
         ->first();
-        
+
         if ($getDataDoctor) {
             return response()->json([
                 'success' => 0,
@@ -230,8 +230,8 @@ class HistoryController extends Controller
        ->where('transaction.id', $id)
        ->where('type', 1)
        ->first();
-       
-       
+
+
        $listProduct = Product::selectRaw('transaction_details.id, product.id as product_id, product.name, product.image, product.price')
        ->join('transaction_details', 'transaction_details.product_id', '=', 'product.id')
        ->where('transaction_details.transaction_id', $getDataProduct->id)->get();
@@ -245,7 +245,7 @@ class HistoryController extends Controller
       if (!$getDataProduct) {
           return response()->json([
               'success' => 0,
-              'message' => ['History Not Found'],
+              'message' => ['Sejarah Tidak Ditemukan'],
               'token' => $this->request->attributes->get('_refresh_token'),
           ], 404);
       }else{
@@ -256,6 +256,6 @@ class HistoryController extends Controller
           ]);
       }
 
-     
+
     }
 }
