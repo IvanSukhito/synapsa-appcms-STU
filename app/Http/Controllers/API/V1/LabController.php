@@ -491,7 +491,7 @@ class LabController extends Controller
         ]);
     }
 
-    public function checkout($id)
+    public function checkout()
     {
         $user = $this->request->attributes->get('_user');
 
@@ -520,7 +520,7 @@ class LabController extends Controller
             ], 404);
         }
 
-        $getCart = LabCart::where('user_id', '=', $user->id)->where('id', '=', $id)->where('choose', '=', 1)->first();
+        $getCart = LabCart::where('user_id', '=', $user->id)->where('choose', '=', 1)->first();
         if (!$getCart) {
             return response()->json([
                 'success' => 0,
