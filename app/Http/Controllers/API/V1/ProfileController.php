@@ -54,7 +54,7 @@ class ProfileController extends Controller
             'dob' => 'required|date|before:'.date('Y-m-d', strtotime("-18 years")),
             'gender' => 'required',
             'nik' => 'required',
-            'upload_ktp' => 'required',
+            'upload_ktp' => '',
             'phone' => 'required|regex:/^(8\d+)/|numeric|unique:users,phone',
             'email' => 'required|email|unique:users,email,'.$user->id,
         ]);
@@ -72,8 +72,8 @@ class ProfileController extends Controller
 
         $getUploadKtp = '';
         if ($this->request->get('upload_ktp')) {
-                 try {
-                     $image = base64_to_jpeg($this->request->get('upload_ktp'));
+             try {
+                 $image = base64_to_jpeg($this->request->get('upload_ktp'));
                  $destinationPath = 'uploads/users';
                  $set_file_name = md5('image'.strtotime('now').rand(0, 100)).'.jpg';
                  $getFile = Storage::put($destinationPath.'/'.$set_file_name, $image);
