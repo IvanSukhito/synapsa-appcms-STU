@@ -156,7 +156,7 @@ class ProfileController extends Controller
             $image = base64_to_jpeg($this->request->get('image'));
             $destinationPath = 'uploads/users';
             $set_file_name = md5('image'.strtotime('now').rand(0, 100)).'.jpg';
-            $getFile = Storage::putFile($destinationPath.'/'.$set_file_name, $image);
+            $getFile = Storage::putFileAs($destinationPath.'/'.$set_file_name, $image);
             if ($getFile) {
                 $getImage = $destinationPath.'/'.$set_file_name;
             }
