@@ -55,7 +55,7 @@ class ProfileController extends Controller
             'gender' => 'required',
             'nik' => 'required',
             'upload_ktp' => '',
-            'phone' => 'required|regex:/^(8\d+)/|numeric|unique:users,phone',
+            'phone' => 'required|regex:/^(8\d+)/|numeric|unique:users,phone,'.$user->id,
             'email' => 'required|email|unique:users,email,'.$user->id,
         ]);
         $validator->setAttributeNames([
