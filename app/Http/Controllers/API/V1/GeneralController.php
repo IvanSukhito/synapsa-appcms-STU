@@ -57,6 +57,9 @@ class GeneralController extends Controller
             'password' => 'required|confirmed|min:6',
             'password_confirmation' => 'required|min:6'
         ]);
+        $validator->setAttributeNames([
+            'dob' => 'Anda harus berusia 18 tahun untuk melanjutkan',
+        ]);
         if ($validator->fails()) {
             return response()->json([
                 'success' => 0,
@@ -224,7 +227,7 @@ class GeneralController extends Controller
 
                 return response()->json([
                     'success' => 1,
-                    'message' => ['Success Login'],
+                    'message' => ['Sukses Login'],
                     'data' => [
                         'klinik_id' => $user->klinik_id,
                         'klinik_name' => $getKlinik ? $getKlinik->name : '',
@@ -282,14 +285,14 @@ class GeneralController extends Controller
         if (!$getUser) {
             return response()->json([
                 'success' => 0,
-                'message' => [__('Email not found')]
+                'message' => [__('Alamat Surel Tidak Ditemukan')]
             ], 422);
         }
 
         if ($getUser->status != 80) {
             return response()->json([
                 'success' => 0,
-                'message' => [__('Account not active')]
+                'message' => [__('Akun tidak Aktif')]
             ], 422);
         }
 
@@ -297,7 +300,7 @@ class GeneralController extends Controller
        if ($getForgetPassword) {
            return response()->json([
                'success' => 0,
-               'message' => [__('Account already request forgot password, must wait 1 hour to request again')]
+               'message' => [__('Akun Sudah Meminta Lupa Sandi, Tunggu 1 Jam untuk meminta ulang lagi.')]
            ], 422);
        }
 

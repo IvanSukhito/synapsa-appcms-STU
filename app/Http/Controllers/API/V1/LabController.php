@@ -93,7 +93,7 @@ class LabController extends Controller
         if (!$data) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Test Lab Not Found'],
+                'message' => ['Test Lab Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
@@ -142,7 +142,7 @@ class LabController extends Controller
         if (!$data) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Test Lab Not Found'],
+                'message' => ['Test Lab Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
@@ -273,7 +273,7 @@ class LabController extends Controller
         if (!$getData) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Test Lab Not Found'],
+                'message' => ['Test Lab Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
@@ -329,7 +329,7 @@ class LabController extends Controller
         else {
             return response()->json([
                 'success' => 0,
-                'message' => ['Test Lab Cart Not Found'],
+                'message' => ['Keranjang Test Lab Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ]);
         }
@@ -404,7 +404,7 @@ class LabController extends Controller
         if (!$getCart) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Test Lab Not Found'],
+                'message' => ['Test Lab Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
@@ -414,7 +414,7 @@ class LabController extends Controller
         if (!$getLabSchedule) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Schedule Not Found'],
+                'message' => ['Jadwal Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
@@ -450,7 +450,7 @@ class LabController extends Controller
         if (!$getCart) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Test Lab Not Found'],
+                'message' => ['Test Lab Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
@@ -460,7 +460,7 @@ class LabController extends Controller
         if (!$getLabSchedule) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Schedule Not Found'],
+                'message' => ['Jadwal Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
@@ -515,7 +515,7 @@ class LabController extends Controller
         if (!$getPayment) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Payment Not Found'],
+                'message' => ['Pembayaran Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
@@ -524,7 +524,7 @@ class LabController extends Controller
         if (!$getCart) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Test Lab Not Found'],
+                'message' => ['Test Lab Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
@@ -534,7 +534,7 @@ class LabController extends Controller
         if (!$getLabSchedule) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Schedule Not Found'],
+                'message' => ['Jadwal Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }

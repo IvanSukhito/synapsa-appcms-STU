@@ -73,7 +73,7 @@ class ProductController extends Controller
         if (!$data) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Product Not Found'],
+                'message' => ['Produk Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
@@ -137,7 +137,7 @@ class ProductController extends Controller
         if(!$product){
             return response()->json([
                 'success' => 0,
-                'message' => ['product not found'],
+                'message' => ['Produk Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
@@ -159,7 +159,7 @@ class ProductController extends Controller
             $cart->save();
 
             return response()->json([
-                'message' => ['Data Has Been Inserted'],
+                'message' => ['Data Berhasil Dimasukan'],
                 'data' => [
                     'product_id' => $productId,
                     'qty' => $cart->qty,
@@ -170,7 +170,7 @@ class ProductController extends Controller
 
         catch (QueryException $e){
             return response()->json([
-                'message' => ['Insert Failed']
+                'message' => ['Gagal Memasukan']
             ], 500);
         }
     }
@@ -199,7 +199,7 @@ class ProductController extends Controller
         if (!$getUsersCartDetail) {
             return response()->json([
                 'success' => 0,
-                'message' => ['cart not found'],
+                'message' => ['Keranjang Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
@@ -215,7 +215,7 @@ class ProductController extends Controller
                 'qty' => $getUsersCartDetail->qty,
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
-            'message' => ['Success Update Cart'],
+            'message' => ['Berhasil Memperbarui Keranjang'],
         ]);
 
     }
@@ -232,7 +232,7 @@ class ProductController extends Controller
             $getUsersCartDetail->delete();
             return response()->json([
                 'success' => 1,
-                'message' => ['Product has been remove'],
+                'message' => ['Produk berhasil dihapus'],
                 'token' => $this->request->attributes->get('_refresh_token'),
 
             ]);
@@ -240,7 +240,7 @@ class ProductController extends Controller
         else {
             return response()->json([
                 'success' => 0,
-                'message' => ['failed to remove'],
+                'message' => ['Gagal Menghapus'],
                 'token' => $this->request->attributes->get('_refresh_token')
             ], 422);
         }
@@ -285,7 +285,7 @@ class ProductController extends Controller
         return response()->json([
             'success' => 1,
             'token' => $this->request->attributes->get('_refresh_token'),
-            'message' => ['Success Choose Product'],
+            'message' => ['Berhasil Memilih Produk'],
         ]);
 
     }
@@ -357,7 +357,7 @@ class ProductController extends Controller
 
         return response()->json([
             'success' => 1,
-            'message' => ['Detail Information Has Been Updated'],
+            'message' => ['Detail Informasi Berhasil Diperbarui'],
             'data' => $getData
         ]);
     }
@@ -455,7 +455,7 @@ class ProductController extends Controller
         if (!$getShipping) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Shipping Not Found'],
+                'message' => ['Pengiriman Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
@@ -505,7 +505,7 @@ class ProductController extends Controller
         if (!$getShipping) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Shipping Not Found'],
+                'message' => ['Pengiriman Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
@@ -558,7 +558,7 @@ class ProductController extends Controller
         if (!$getShipping) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Shipping Not Found'],
+                'message' => ['Pengiriman Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
@@ -619,7 +619,7 @@ class ProductController extends Controller
         if (!$getShipping) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Shipping Not Found'],
+                'message' => ['Pengiriman Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }

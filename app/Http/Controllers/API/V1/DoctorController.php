@@ -199,7 +199,7 @@ class DoctorController extends Controller
         if (!$data) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Doctor Not Found'],
+                'message' => ['Doktor Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
@@ -232,7 +232,7 @@ class DoctorController extends Controller
 
             return response()->json([
                 'success' => 0,
-                'message' => ['Schedule Not Found'],
+                'message' => ['Jadwal Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
 
@@ -240,14 +240,14 @@ class DoctorController extends Controller
         else if ($getDoctorSchedule->book != 80) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Schedule Already Book'],
+                'message' => ['Jadwal Sudah Dipesan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
         else if (date('Y-m-d', strtotime($getDoctorSchedule->date_available)) < date('Y-m-d')) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Schedule Already Past'],
+                'message' => ['Jadwal Sudah Lewat Waktunya'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
@@ -295,7 +295,7 @@ class DoctorController extends Controller
 
             return response()->json([
                 'success' => 0,
-                'message' => ['Schedule Not Found'],
+                'message' => ['Jadwal Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
 
@@ -303,14 +303,14 @@ class DoctorController extends Controller
         else if ($getDoctorSchedule->book != 80) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Schedule Already Book'],
+                'message' => ['Jadwal Sudah Dipesan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
         else if (date('Y-m-d', strtotime($getDoctorSchedule->date_available)) < date('Y-m-d')) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Schedule Already Past'],
+                'message' => ['Jadwal Sudah Lewat Waktunya'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
@@ -345,7 +345,7 @@ class DoctorController extends Controller
 
             return response()->json([
                 'success' => 0,
-                'message' => ['Schedule Not Found'],
+                'message' => ['Jadwal Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
 
@@ -353,14 +353,14 @@ class DoctorController extends Controller
         else if ($getDoctorSchedule->book != 80) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Schedule Already Book'],
+                'message' => ['Jadwal Sudah Dipesan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
         else if (date('Y-m-d', strtotime($getDoctorSchedule->date_available)) < date('Y-m-d')) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Schedule Already Past'],
+                'message' => ['Jadwal Sudah Lewat Waktunya'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
@@ -395,6 +395,9 @@ class DoctorController extends Controller
         $validator = Validator::make($this->request->all(), [
             'payment_id' => 'required|numeric'
         ]);
+        $validator->setAttributeNames([
+            'payment_id' => 'Pembayaran Harus Diisi Dengan Angka',
+        ]);
         if ($validator->fails()) {
             return response()->json([
                 'success' => 0,
@@ -412,7 +415,7 @@ class DoctorController extends Controller
 
             return response()->json([
                 'success' => 0,
-                'message' => ['Schedule Not Found'],
+                'message' => ['Jadwal Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
 
@@ -420,14 +423,14 @@ class DoctorController extends Controller
         else if ($getDoctorSchedule->book != 80) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Schedule Already Book'],
+                'message' => ['Jadwal Sudah Dipesan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
         else if (date('Y-m-d', strtotime($getDoctorSchedule->date_available)) < date('Y-m-d')) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Schedule Already Past'],
+                'message' => ['Jadwal Sudah Lewat Waktunya'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
@@ -461,7 +464,7 @@ class DoctorController extends Controller
         if (!$data) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Doctor Not Found'],
+                'message' => ['Doktor Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
@@ -512,7 +515,7 @@ class DoctorController extends Controller
                 'checkout_details' => $getTransactionDetails,
                 'payment_info' => $paymentInfo
             ],
-            'message' => ['Success'],
+            'message' => ['Berhasil'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
 
