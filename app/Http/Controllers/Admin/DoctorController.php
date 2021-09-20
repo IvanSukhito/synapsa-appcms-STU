@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
 use App\Codes\Models\V1\Doctor;
+use App\Codes\Models\V1\DoctorSchedule;
 use App\Codes\Models\V1\DoctorService;
 use App\Codes\Models\V1\DoctorCategory;
 use App\Codes\Models\V1\Users;
@@ -111,7 +112,6 @@ class DoctorController extends _CrudController
         };
 
 
-        $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.doctor.forms';
         $this->data['listSet']['user_id'] = $listUsers;
         $this->data['listSet']['service_id'] = $service_id;
         $this->data['listSet']['doctor_category_id'] = $listDoctorCategory;
@@ -198,4 +198,6 @@ class DoctorController extends _CrudController
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
     }
+
+
 }

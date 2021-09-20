@@ -13,7 +13,9 @@ else {
     $addAttribute = [
     ];
 }
+$getListAvailabe = get_list_availabe();
 ?>
+
 @extends(env('ADMIN_TEMPLATE').'._base.layout')
 
 @section('title', $formsTitle)
@@ -68,10 +70,35 @@ else {
 
                 <div class="card-body">
                     @include(env('ADMIN_TEMPLATE').'._component.generate_forms')
-                    <div class="form-group">
-                        <p id="infoService">Input 0 Service</p>
-                    </div>
-                    <div id="listService"></div>
+                </div>
+
+                <div class="card-body">
+                    <table class="table table-bordered table-striped" id="data1">
+                        <thead>
+                        <tr>
+                            <th>@lang('general.id')</th>
+                            <th>@lang('general.doctor_id')</th>
+                            <th>@lang('general.service_id')</th>
+                            <th>@lang('general.date_available')</th>
+                            <th>@lang('general.time_start')</th>
+                            <th>@lang('general.time_end')</th>
+                            <th>@lang('general.book')</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach($getScheduleData as $list)
+                            <tr>
+                                <td>{{ $list->id }}</td>
+                                <td>{{ $list->doctor_id }}</td>
+                                <td>{{ $list->service_id }}</td>
+                                <td>{{ $list->date_available }}</td>
+                                <td>{{ $list->time_start }}</td>
+                                <td>{{ $list->time_end }}</td>
+                                <td>{{ $getListAvailabe[$list->book] ?? $list->book }}</td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
                 </div>
                 <!-- /.card-body -->
 
@@ -109,51 +136,4 @@ else {
 @section('script-bottom')
     @parent
     @include(env('ADMIN_TEMPLATE').'._component.generate_forms_script')
-    <script>
-
-        let listDataService = JSON.parse('{!! json_encode($listSet['service_id']) !!}');
-
-       $(document).ready(function() {
-            $('#service_id').change();
-        });
-
-        $('#service_id').on('change', function() {
-            let getListService = $(this).val();
-            let totalService = getListService.length;
-            $('#infoService').html('Input' + '&nbsp;' + totalService +'&nbsp;'+'Service');
-
-            $('#listService').empty();
-
-            let html = '';
-            let i = 0;
-            $.each(listDataService, function(index, item) {
-                $.each(getListService, function(index2, item2) {
-                    if (parseInt(index) === parseInt(item2)) {
-                        let getValue = item;
-                        html += '<div class="form-group">' +
-                            '<label for="service">{{ __('general.service') }} ' + (i + 1) + ' <span class="text-red">*</span></label>' +
-                            '<input type="text" id="service_' + i +'" name="service[ ' + i + ']" class="form-control" placeholder="service" disabled value="' + getValue + '"> ' +
-                            '</div>'+
-                            '<div class="form-group">' +
-                            '<label for="price">{{ __('general.price') }} ' + (i + 1) + ' <span class="text-red">*</span></label>' +
-                            '<input type="text" id="price_' + i +'" name="price[ ' + i + ']" class="form-control setMoney" placeholder="price"> ' +
-                            '</div>';
-                        i++;
-                    }
-                });
-            });
-
-            $('#listService').html(html);
-
-            $('.setMoney').inputmask('numeric', {
-                radixPoint: ".",
-                groupSeparator: ",",
-                digits: 2,
-                autoGroup: true,
-                prefix: '', //Space after $, this will not truncate the first character.
-                rightAlign: false
-            });
-
-        });
-    </script>
 @stop
