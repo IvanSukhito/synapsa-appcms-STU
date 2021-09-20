@@ -56,7 +56,7 @@ class ProfileController extends Controller
             'nik' => 'required',
             'upload_ktp' => 'required',
             'phone' => 'required|regex:/^(8\d+)/|numeric|unique:users,phone',
-            'email' => 'required|email|unique:users,email',
+            'email' => 'required|email|unique:users,email,'.$user->id,
         ]);
         $validator->setAttributeNames([
             'dob' => 'Anda harus berusia 18 tahun untuk melanjutkan',
