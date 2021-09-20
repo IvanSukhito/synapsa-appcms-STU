@@ -98,8 +98,6 @@ class ProfileController extends Controller
             }
         }
 
-
-
         $user->fullname = $this->request->get('fullname');
         $user->dob = $this->request->get('dob');
         $user->gender = $this->request->get('gender');
