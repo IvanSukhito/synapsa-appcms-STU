@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Website\V1;
 
+use App\Codes\Logic\XenditLogic;
 use App\Codes\Models\V1\ForgetPassword;
 use App\Codes\Models\V1\Users;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Xendit\Balance;
-use Xendit\Xendit;
+use Xendit\EWallets;
 
 class GeneralController extends Controller
 {
@@ -20,9 +20,13 @@ class GeneralController extends Controller
 
     public function xendit()
     {
-        Xendit::setApiKey(env('XENDIT_SECRET_KEY'));
-        $getBalance = Balance::getBalance('CASH');
-        dd($getBalance);
+        $xenditLogic = new XenditLogic();
+        $getData = $xenditLogic->createEWallet('123456789002', 'OVO', 160000, '08211495299');
+        dd($getData);
+
+//        $getData = $xenditLogic->simulatePaymentVA('va-123456789002', 150000);
+        $getData = $xenditLogic->getInfoVa('6148460013deaf1ca3d26de2');
+        dd($getData);
     }
 
     public function changeTokenPassword()
