@@ -52,7 +52,7 @@ class ProductController extends _CrudController
                 'edit' => 0,
                 'type' => 'image',
             ],
-            
+
             'stock' => [
                 'validate' => [
                     'create' => 'required',
@@ -135,6 +135,7 @@ class ProductController extends _CrudController
 
 
         $getData = $this->crud->show($id);
+        //dd($getData);
         if (!$getData) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
@@ -184,14 +185,14 @@ class ProductController extends _CrudController
 
         $temp = [];
         foreach($getDescProduct as $index => $descProduct){
-            
+
             $temp = $descProduct;
-           
+
         }
-     
+
         $descProduct = $temp;
-     
-    
+
+
         $temp = [];
         foreach($getDescProduct as $index => $listProduct){
 
@@ -199,7 +200,7 @@ class ProductController extends _CrudController
         }
 
         $listProduct = $temp;
-        
+
 
         $data['thisLabel'] = __('general.product');
         $data['viewType'] = 'show';
@@ -249,7 +250,7 @@ class ProductController extends _CrudController
         $title = $this->request->get('title');
 
         $descProduct = [];
-  
+
         $descProduct[]  =
         ['title' => $title,
          'desc' => $desc];
@@ -333,9 +334,9 @@ class ProductController extends _CrudController
         $descProduct[]  =
         [   'title' => $title,
             'desc' => $desc   ];
-        
-  
-     
+
+
+
 
         if ($dokument) {
             if ($dokument->getError() != 1) {

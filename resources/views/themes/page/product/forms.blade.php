@@ -2,8 +2,6 @@
 $title = isset($listProduct['title']) ? $listProduct['title'] : null;
 $desc = isset($listProduct['desc']) ? $listProduct['desc'] : null;
 
-//$title = json_decode(json_encode($title), false);
-//dd($title);
 
 switch ($viewType) {
     case 'create': $printCard = 'card-success'; break;
@@ -74,12 +72,12 @@ else {
 
                 <div class="card-body">
                     @include(env('ADMIN_TEMPLATE').'._component.generate_forms')
-                    @if(in_array($viewType, ['show']) )
+                    @if(in_array($viewType, ['show','edit']) )
                     <?php $no = 0; ?>
                     @foreach($title as $title)
                     <?php $no++; ?>
                     <b>Title - {!! $no !!}</b>
-                    {{ Form::text('title', $title, ['id' => 'desc', 'readonly' => 'readonly','name'=>'title[]', 'class' => 'form-control', 'placeholder' => __('general.title')]) }}            
+                    {{ Form::text('title', $title, array_merge(['id' => 'desc','name'=>'title[]', 'class' => 'form-control', 'placeholder' => __('general.title')], $addAttribute)) }}
                     <br>
                     @endforeach
                     <br>
@@ -88,7 +86,7 @@ else {
                     <?php $no++; ?>
                     <b>Desc - {!! $no !!}</b>
                     <br>
-                    {{ Form::textarea('desc', $desc, ['id' => 'desc', 'name'=>'desc[]', 'readonly' => 'readonly', 'class' => 'editor', 'placeholder' => __('general.information')]) }} 
+                    {{ Form::textarea('desc', $desc, array_merge(['id' => 'desc', 'name'=>'desc[]', 'class' => 'editor', 'placeholder' => __('general.information')], $addAttribute)) }}
                     <br>
                     @endforeach
                     @endif
@@ -98,7 +96,7 @@ else {
                       <div id="list_other1">
                             <div class="d-flex align-items-center">
                                 <div class="p-2">
-                                    <input type="file" name="image" class="dropify" 
+                                    <input type="file" name="image" class="dropify"
                                            data-allowed-file-extensions="jpg jpeg png" accept="image/png, image/gif, image/jpeg" data-max-file-size="10M" required>
                                 </div>
                             </div>
@@ -107,17 +105,17 @@ else {
                        <div id="list_desc">
                            <div class="form-group">
                                <label for="desc">{{ __('general.desc') }}</label>
-                               {{ Form::text('title', old('title'), ['id' => 'desc', 'name'=>'title[]', 'class' => 'form-control', 'placeholder' => __('general.title')]) }} 
+                               {{ Form::text('title', old('title'), ['id' => 'desc', 'name'=>'title[]', 'class' => 'form-control', 'placeholder' => __('general.title')]) }}
                                <br>
-                               {{ Form::textarea('desc', $desc, ['id' => 'desc', 'name'=>'desc[]', 'class' => 'editor', 'placeholder' => __('general.information')]) }} 
+                               {{ Form::textarea('desc', old('desc'), ['id' => 'desc', 'name'=>'desc[]', 'class' => 'editor', 'placeholder' => __('general.information')]) }}
                                <br>
                                <a href="#" onclick="return add_desc1()" class="btn btn-warning">Tambah</a>
-                           </div> 
+                           </div>
                        </div>
                       @endif
                 </div>
                 <!-- /.card-body -->
-             
+
                 <div class="card-footer">
 
                     @if(in_array($viewType, ['create']))
@@ -154,19 +152,19 @@ else {
     @include(env('ADMIN_TEMPLATE').'._component.generate_forms_script')
     <script src="{{ asset('/assets/cms/js/ckeditor/ckeditor.js') }}"></script>
     <script src="{{ asset('/assets/cms/js/ckeditor/adapters/jquery.js') }}"></script>
-    <script>  
-    
+    <script>
+
     let setIndex1 = 1;
 
-     
+
 
         $(document).ready(function() {
             $('.dropify').dropify();
             $( 'textarea.editor' ).ckeditor();
         });
 
-        
-     
+
+
 
         function add_desc1() {
         let html = '<div class="form-group">' +
@@ -193,5 +191,5 @@ else {
             }
 
 
-     </script>   
+     </script>
 @stop
