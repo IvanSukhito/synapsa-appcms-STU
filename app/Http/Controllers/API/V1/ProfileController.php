@@ -31,8 +31,8 @@ class ProfileController extends Controller
         $user = $this->request->attributes->get('_user');
 
         $getUser = $user;
-        $getUser->image_full = strlen($user->image) > 0 ? asset('uploads/users/'.$user->image) : null;
-        $getUser->upload_ktp_full = strlen($user->upload_ktp) > 0 ? asset('uploads/users/'.$user->upload_ktp) : null;
+        $getUser->image_full = strlen($user->image) > 0 ? env('OSS_URL').'/'.$user->image : asset('assets/cms/images/no-img.png');
+        $getUser->upload_ktp_full = strlen($user->upload_ktp) > 0 ? env('OSS_URL').'/'.$user->upload_ktp : asset('assets/cms/images/no-img.png');
         $getUser->join = date('d F Y', strtotime($user->created_at));
 
         return response()->json([
