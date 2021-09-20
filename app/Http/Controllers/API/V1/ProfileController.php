@@ -79,6 +79,7 @@ class ProfileController extends Controller
                  $getFile = Storage::put($destinationPath.'/'.$set_file_name, $image);
                  if ($getFile) {
                      $getImage = $destinationPath.'/'.$set_file_name;
+                     $getUploadKtp = $getImage;
                  }
                  else {
                      return response()->json([
@@ -103,7 +104,9 @@ class ProfileController extends Controller
         $user->dob = $this->request->get('dob');
         $user->gender = $this->request->get('gender');
         $user->nik = $this->request->get('nik');
-        $user->upload_ktp = $getImage;
+        if (strlen($getUploadKtp) > 0) {
+            $user->upload_ktp = $getUploadKtp;
+        }
         $user->email = $this->request->get('email');
         $user->phone = $this->request->get('phone');
         $user->save();
