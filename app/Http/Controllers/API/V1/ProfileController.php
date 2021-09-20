@@ -156,7 +156,7 @@ class ProfileController extends Controller
             $image = base64_to_jpeg($this->request->get('image'));
             $destinationPath = 'uploads/users';
             $set_file_name = md5('image'.strtotime('now').rand(0, 100)).'.jpg';
-            $getFile = Storage::putFile($destinationPath.'/'.$set_file_name, $image);
+            $getFile = Storage::put($destinationPath.'/'.$set_file_name, $image);
             if ($getFile) {
                 $getImage = $destinationPath.'/'.$set_file_name;
             }
@@ -182,7 +182,7 @@ class ProfileController extends Controller
             $user->save();
 
             $getUser = [
-                'image' => asset($destinationPath.'/'.$set_file_name)
+                'image' => env('OSS_URL').'/'.$destinationPath.'/'.$set_file_name
             ];
 
             return response()->json([
