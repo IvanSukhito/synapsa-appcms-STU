@@ -612,7 +612,7 @@ class LabController extends Controller
                 'checkout_details' => $listTransactionDetails,
                 'payment_info' => $paymentInfo
             ],
-            'message' => ['Success'],
+            'message' => ['Berhasil'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
 

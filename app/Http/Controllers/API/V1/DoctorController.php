@@ -166,7 +166,7 @@ class DoctorController extends Controller
         if (!$data) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Doctor Not Found'],
+                'message' => ['Doktor Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
@@ -227,6 +227,7 @@ class DoctorController extends Controller
     public function checkSchedule($id)
     {
         $getDoctorSchedule = DoctorSchedule::where('id', '=', $id)->first();
+
 
         if (!$getDoctorSchedule) {
 

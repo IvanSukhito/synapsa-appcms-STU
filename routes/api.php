@@ -86,7 +86,7 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
         $router->get('schedule-address', ['uses' => 'App\Http\Controllers\API\V1\LabController@scheduleAddress'])->name('api.lab.scheduleAddress');
         $router->get('schedule-summary/{id}', ['uses' => 'App\Http\Controllers\API\V1\LabController@scheduleSummary'])->name('api.lab.scheduleSummary');
         $router->get('lab-payment/{id}', ['uses' => 'App\Http\Controllers\API\V1\LabController@getPayment'])->name('api.lab.getPayment');
-        $router->post('lab-checkout', ['uses' => 'App\Http\Controllers\API\V1\LabController@checkout'])->name('api.lab.checkout');
+        $router->post('lab-checkout/{id}', ['uses' => 'App\Http\Controllers\API\V1\LabController@checkout'])->name('api.lab.checkout');
 
     });
 
