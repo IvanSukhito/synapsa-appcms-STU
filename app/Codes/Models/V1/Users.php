@@ -48,7 +48,10 @@ class Users extends Model implements JWTSubject
 
     public function getUploadKtpFullAttribute()
     {
-        return strlen($this->upload_ktp) > 0 ? asset('uploads/users/'.$this->upload_ktp) : asset('assets/cms/images/no-img.png');
+        if (strlen($this->upload_ktp) > 0) {
+            return env('OSS_URL').'/'.$this->upload_ktp;
+        }
+        return asset('assets/cms/images/no-img.png');
     }
 
     public function getStatusNiceAttribute()
@@ -65,7 +68,10 @@ class Users extends Model implements JWTSubject
 
     public function getImageFullAttribute()
     {
-        return strlen($this->image) > 0 ? asset('uploads/users/'.$this->image) : asset('assets/cms/images/user-default.png');
+        if (strlen($this->image) > 0) {
+            return env('OSS_URL').'/'.$this->image;
+        }
+        return asset('assets/cms/images/no-img.png');
     }
 
     public function getPriceNiceAttribute()

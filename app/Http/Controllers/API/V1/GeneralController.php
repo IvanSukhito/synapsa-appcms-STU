@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Intervention\Image\Facades\Image;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -72,22 +73,24 @@ class GeneralController extends Controller
             try {
                 $image = base64_to_jpeg($this->request->get('upload_ktp'));
                 $destinationPath = 'uploads/users';
-                $set_file_name = md5('upload_ktp'.strtotime('now').rand(0, 100)).'.jpg';
-                file_put_contents($destinationPath.'/'.$set_file_name, $image);
-
-                $getUploadKtp = $set_file_name;
-
-                $img = Image::make('./'.$destinationPath.'/'.$set_file_name);
-                $img->resize(1200, null, function ($constraint) {
-                    $constraint->aspectRatio();
-                });
-                $img->rotate(-90);
-                $img->save();
+                $set_file_name = md5('image'.strtotime('now').rand(0, 100)).'.jpg';
+                $getFile = Storage::put($destinationPath.'/'.$set_file_name, $image);
+                if ($getFile) {
+                    $getImage = $destinationPath.'/'.$set_file_name;
+                    $getUploadKtp = $getImage;
+                }
+                else {
+                    return response()->json([
+                        'success' => 0,
+                        'token' => $this->request->attributes->get('_refresh_token'),
+                        'message' => ['Gagal Mengunggah KTP'],
+                    ], 422);
+                }
             }
             catch (\Exception $e) {
                 return response()->json([
                     'success' => 0,
-                    'message' => ['Failed upload KTP Image'],
+                    'message' => ['Gagal Mengunggah KTP'],
                     'error' => $e->getMessage()
                 ], 422);
             }
@@ -96,22 +99,28 @@ class GeneralController extends Controller
         $getUploadImage = '';
         if ($this->request->get('image')) {
             try {
-                $image = base64_to_jpeg($this->request->get('image'));
+                $image = base64_to_jpeg($this->request->get('upload_ktp'));
                 $destinationPath = 'uploads/users';
                 $set_file_name = md5('image'.strtotime('now').rand(0, 100)).'.jpg';
-                file_put_contents($destinationPath.'/'.$set_file_name, $image);
-
-                $getUploadImage = $set_file_name;
-
-                $img = Image::make('./'.$destinationPath.'/'.$set_file_name);
-                $img->resize(1200, null, function ($constraint) {
-                    $constraint->aspectRatio();
-                });
-//                $img->rotate(-90);
-                $img->save();
+                $getFile = Storage::put($destinationPath.'/'.$set_file_name, $image);
+                if ($getFile) {
+                    $getImage = $destinationPath.'/'.$set_file_name;
+                    $getUploadImage = $getImage;
+                }
+                else {
+                    return response()->json([
+                        'success' => 0,
+                        'token' => $this->request->attributes->get('_refresh_token'),
+                        'message' => ['Gagal Mengunggah Foto'],
+                    ], 422);
+                }
             }
             catch (\Exception $e) {
-
+                return response()->json([
+                    'success' => 0,
+                    'token' => $this->request->attributes->get('_refresh_token'),
+                    'message' => ['Gagal Mengunggah Foto'],
+                ], 422);
             }
         }
 
