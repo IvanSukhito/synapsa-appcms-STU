@@ -38,6 +38,7 @@ class ArticleController extends _CrudController
                     'edit' => 'required'
                 ],
                 'type' => 'texteditor',
+                'list' => 0,
             ],
             'thumbnail_img' => [
                 'validate' => [
@@ -48,7 +49,7 @@ class ArticleController extends _CrudController
                 'path' => 'synapapps/article',
                 'lang' => 'thumbnail_image'
             ],
-            
+
             'image' => [
                 'validate' => [
                     'create' => 'required',
@@ -56,7 +57,8 @@ class ArticleController extends _CrudController
                 ],
                 'type' => 'image',
                 'path' => 'synapapps/article',
-                'lang' => 'image'
+                'lang' => 'image',
+                'list' => 0,
             ],
             'content' => [
                 'validate' => [
@@ -64,6 +66,8 @@ class ArticleController extends _CrudController
                     'edit' => 'required'
                 ],
                 'type' => 'texteditor',
+                'list' => 0,
+
             ],
             'publish_status' => [
                 'validate' => [
@@ -162,7 +166,7 @@ class ArticleController extends _CrudController
         }
 
         $title = $data['title'];
-    
+
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
         $data['image'] = $dokumentImage;
@@ -182,5 +186,5 @@ class ArticleController extends _CrudController
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
     }
-  
+
 }
