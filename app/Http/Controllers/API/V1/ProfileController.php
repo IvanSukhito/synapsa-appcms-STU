@@ -55,10 +55,8 @@ class ProfileController extends Controller
             'gender' => 'required',
             'nik' => 'required',
             'upload_ktp' => 'required',
-            'phone' => 'required|regex:/^(08\d+)/|numeric|unique:users,phone',
+            'phone' => 'required|regex:/^(8\d+)/|numeric|unique:users,phone',
             'email' => 'required|email|unique:users,email',
-        ], [
-            'before' => ':attribute'
         ]);
         $validator->setAttributeNames([
             'dob' => 'Anda harus berusia 18 tahun untuk melanjutkan',
@@ -344,7 +342,7 @@ class ProfileController extends Controller
 
         $user = $this->request->attributes->get('_user');
         $validator = Validator::make($this->request->all(), [
-            'phone' => 'required|regex:/^(08\d+)/|numeric'
+            'phone' => 'required|regex:/^(8\d+)/|numeric'
 
         ]);
         if ($validator->fails()) {

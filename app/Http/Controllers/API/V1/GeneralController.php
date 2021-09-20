@@ -52,7 +52,7 @@ class GeneralController extends Controller
             'nik' => 'required',
             'upload_ktp' => 'required',
             'image' => 'required',
-            'phone' => 'required|regex:/^(08\d+)/|numeric|unique:users,phone',
+            'phone' => 'required|regex:/^(8\d+)/|numeric|unique:users,phone',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|confirmed|min:6',
             'password_confirmation' => 'required|min:6'
