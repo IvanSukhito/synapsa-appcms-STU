@@ -41,6 +41,18 @@ class GeneralController extends Controller
         return 'Return to Apps';
     }
 
+    public function getTransactionResult()
+    {
+        Log::info("GET");
+        Log::info(json_encode($this->request->all()));
+    }
+
+    public function postTransactionResult()
+    {
+        Log::info("POST");
+        Log::info(json_encode($this->request->all()));
+    }
+
     public function signUp()
     {
         $validator = Validator::make($this->request->all(), [
