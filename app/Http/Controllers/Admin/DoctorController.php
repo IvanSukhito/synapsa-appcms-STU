@@ -74,15 +74,15 @@ class DoctorController extends _CrudController
                 ],
                 'type' => 'number'
             ],
-           // 'service_id' => [
-           //     'validate' => [
-           //         'create' => 'required',
-           //         'edit' => 'required'
-           //     ],
-           //     'lang' => 'general.service',
-           //     'type' => 'select2',
-           //
-           // ]
+            // 'service_id' => [
+            //     'validate' => [
+            //         'create' => 'required',
+            //         'edit' => 'required'
+            //     ],
+            //     'lang' => 'general.service',
+            //     'type' => 'select2',
+            //
+            // ]
         ]);
 
         parent::__construct(
@@ -91,7 +91,6 @@ class DoctorController extends _CrudController
         );
 
         $getUsers = Users::where('status', 80)->where('doctor',1)->pluck('fullname', 'id')->toArray();
-        $listUsers = [0 => 'Kosong'];
         if($getUsers) {
             foreach($getUsers as $key => $value) {
                 $listUsers[$key] = $value;
@@ -99,19 +98,17 @@ class DoctorController extends _CrudController
         }
 
         $getDoctorCategory = DoctorCategory::pluck('name', 'id')->toArray();
-        $listDoctorCategory = [0 => 'Kosong'];
         if($getDoctorCategory) {
             foreach($getDoctorCategory as $key => $value) {
                 $listDoctorCategory[$key] = $value;
             }
         }
 
-        $service_id = [0 => 'Empty'];
         foreach(Service::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
             $service_id[$key] = $val;
         };
 
-
+        $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.doctor.forms';
         $this->data['listSet']['user_id'] = $listUsers;
         $this->data['listSet']['service_id'] = $service_id;
         $this->data['listSet']['doctor_category_id'] = $listDoctorCategory;
@@ -145,6 +142,9 @@ class DoctorController extends _CrudController
         $viewType = 'create';
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
+
+        unset($getListCollectData['service_id']);
+
         $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
         {
@@ -159,41 +159,30 @@ class DoctorController extends _CrudController
 
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
+        //dd($data['service_id']);
         $getData = $this->crud->store($data);
 
-        //Data Service
-        $getListCollectData2 = collectPassingData($this->passingData2, $viewType);
-        $validate = $this->setValidateData($getListCollectData2, $viewType);
-        if (count($validate) > 0)
-        {
-            $data2 = $this->validate($this->request, $validate);
-        }
-        else {
-            $data2 = [];
-            foreach ($getListCollectData2 as $key => $val) {
-                $data2[$key] = $this->request->get($key);
-            }
-        }
 
-        $data2 = $this->getCollectedData($getListCollectData2, $viewType, $data2);
-
-        if ($data2) {
-                DoctorService::create([
-                    'doctor_id' => $getData->id,
-                    'service_id' => $data2['service_id'],
-                    'type' => $data2['type'],
-                    'price' => $data2['price']
-                ]);
-        }
+//          if ($data) {
+//              foreach($data['service_id']){
+//                  DoctorService::create([
+//                      'doctor_id' => $getData->id,
+//                      'service_id' => $data2['service_id'],
+//                      'type' => $data2['type'],
+//                      'price' => $data2['price']
+//                  ]);
+//              }
+//
+//          }
 
 
         $id = $getData->id;
 
         if($this->request->ajax()){
-            return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
+            return response()->json(['result' => 1, 'message' => __('general.success_add', ['field' => $this->data['thisLabel']])]);
         }
         else {
-            session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
+            session()->flash('message', __('general.success_add', ['field' => $this->data['thisLabel']]));
             session()->flash('message_alert', 2);
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
