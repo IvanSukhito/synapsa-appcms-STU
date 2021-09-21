@@ -185,7 +185,7 @@ return [
     'icon' => 'Icon',
     'orders' => 'Orders',
     'sound' => 'Sound',
-    'question' => 'Question',
+    'transaction' => 'Transaction',
     'city' => 'City',
     'browser' => 'Browser',
     'ip_address' => 'IP Address',

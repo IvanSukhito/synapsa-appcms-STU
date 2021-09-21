@@ -384,7 +384,7 @@ if ( ! function_exists('listAllMenu')) {
                         'route' => 'admin.users-patient.index',
                         'key' => 'users-patient',
                         'type' => 1,
-                    ],     
+                    ],
                 ],
             ],
             [
@@ -396,7 +396,15 @@ if ( ! function_exists('listAllMenu')) {
                 'key' => 'lab',
                 'type' => 1,
             ],
-
+            [
+                'name' => __('general.transaction'),
+                'icon' => '<i class="nav-icon fa fa-handshake-o"></i>',
+                'title' => __('general.transaction'),
+                'active' => ['admin.transaction.'],
+                'route' => 'admin.transaction.index',
+                'key' => 'transaction',
+                'type' => 1,
+            ],
             [
                 'name' => __('general.setting'),
                 'icon' => '<i class="nav-icon fa fa-gear"></i>',
@@ -405,8 +413,8 @@ if ( ! function_exists('listAllMenu')) {
                     'admin.settings.',
                     'admin.admin.',
                     'admin.role.',
-                    'admin.faqs',
-                    'admin.klinik',
+                    'admin.faqs.',
+                    'admin.klinik.',
                 ],
                 'type' => 2,
                 'data' => [
@@ -467,7 +475,7 @@ if ( ! function_exists('listAvailablePermission'))
             'page',
             'v1-users',
             'faqs',
-           
+
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [
@@ -492,6 +500,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'article',
                      'product',
                      'lab',
+                     'transaction',
                      'users',
                      'doctor',
                      'doctor-schedule',
@@ -501,7 +510,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'article-category',
                      'service',
                      'klinik',
-                     
+
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [

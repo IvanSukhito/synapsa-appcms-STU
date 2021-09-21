@@ -110,7 +110,7 @@ class HistoryController extends Controller
             if(!$getDataDoctor){
                 return response()->json([
                     'success' => 0,
-                    'message' => ['Sejarah Transaksi Tidak Ditemukan'],
+                    'message' => ['Riwayat Transaksi Tidak Ditemukan'],
                     'token' => $this->request->attributes->get('_refresh_token'),
                 ], 404);
             }
@@ -141,7 +141,7 @@ class HistoryController extends Controller
             if(!$getDataLab){
                 return response()->json([
                     'success' => 0,
-                    'message' => ['Sejarah Transaksi Tidak Ditemukan'],
+                    'message' => ['Riwayat Transaksi Tidak Ditemukan'],
                     'token' => $this->request->attributes->get('_refresh_token'),
                 ], 404);
             }
@@ -167,7 +167,7 @@ class HistoryController extends Controller
             if(!$getDataProduct){
                 return response()->json([
                     'success' => 0,
-                    'message' => ['Sejarah Transaksi Tidak Ditemukan'],
+                    'message' => ['Riwayat Transaksi Tidak Ditemukan'],
                     'token' => $this->request->attributes->get('_refresh_token'),
                 ], 404);
             }
@@ -245,7 +245,7 @@ class HistoryController extends Controller
       if (!$getDataProduct) {
           return response()->json([
               'success' => 0,
-              'message' => ['Sejarah Tidak Ditemukan'],
+              'message' => ['Riwayat Tidak Ditemukan'],
               'token' => $this->request->attributes->get('_refresh_token'),
           ], 404);
       }else{

@@ -179,10 +179,10 @@ class DoctorController extends _CrudController
         $id = $getData->id;
 
         if($this->request->ajax()){
-            return response()->json(['result' => 1, 'message' => __('general.success_add', ['field' => $this->data['thisLabel']])]);
+            return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
         }
         else {
-            session()->flash('message', __('general.success_add', ['field' => $this->data['thisLabel']]));
+            session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
             session()->flash('message_alert', 2);
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }

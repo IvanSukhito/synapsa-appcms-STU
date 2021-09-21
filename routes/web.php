@@ -29,6 +29,7 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                 'App\Http\Controllers\Admin\FaqsController' => 'faqs',
                 'App\Http\Controllers\Admin\KlinikController' => 'klinik',
                 'App\Http\Controllers\Admin\ProductController' => 'product',
+                'App\Http\Controllers\Admin\TransactionController' => 'transaction',
                 'App\Http\Controllers\Admin\ProductCategoryController' => 'product-category',
                 'App\Http\Controllers\Admin\LabController' => 'lab',
                 'App\Http\Controllers\Admin\UsersController' => 'users',
