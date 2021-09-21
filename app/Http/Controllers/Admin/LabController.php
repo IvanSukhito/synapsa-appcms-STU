@@ -17,6 +17,15 @@ class LabController extends _CrudController
                 'edit' => 0,
                 'show' => 0
             ],
+            'parent_id' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'type' => 'select2',
+                'lang' => 'general.parent',
+
+            ],
             'name' => [
                 'validate' => [
                     'create' => 'required',
@@ -75,6 +84,15 @@ class LabController extends _CrudController
             $request, 'general.lab', 'lab', 'V1\Lab', 'lab',
             $passingData
         );
+        $getParent = Lab::get();
+        $listParent = [0 => 'Tidak memiliki Parent'];
+        if($getParent) {
+            foreach($getParent as $list) {
+                $listParent[$list->id] = $list->name;
+            }
+        }
+
+        $this->data['listSet']['parent_id'] = $listParent;
 
         $this->data['listSet']['recommended_for'] = get_list_recommended_for();
     }
@@ -122,14 +140,14 @@ class LabController extends _CrudController
             $publish = 1;
         }
 
-       
+
         $recommend = $data['recommended_for'];
 
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
         $data['image'] = $dokumentImage;
         $data['recommended_for'] = json_encode($recommend);
-    
+
         $getData = $this->crud->store($data);
 
         $id = $getData->id;
@@ -141,6 +159,6 @@ class LabController extends _CrudController
             session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
             session()->flash('message_alert', 2);
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
-        }   
+        }
     }
 }

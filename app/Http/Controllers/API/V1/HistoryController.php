@@ -158,8 +158,14 @@ class HistoryController extends Controller
         }else{
 
             $getDataProduct = Transaction::selectRaw('transaction.id, transaction_details.product_name as product_name, transaction.total as price, transaction.status as status, type, product.image as image')
-            ->join('transaction_details', 'transaction_details.transaction_id', '=', 'transaction.id')
-            ->join('product', 'product.id','=','transaction_details.product_id')
+            ->join('transaction_details', function($join){
+                $join->on('transaction_details.transaction_id','=','transaction.id')
+                     ->on('transaction_details.id', '=', DB::raw("(select min(id) from transaction_details WHERE transaction_details.transaction_id = transaction.id)"));
+            })
+            ->join('product', function($join){
+                $join->on('product.id','=','transaction_details.product_id')
+                     ->on('product.id', '=', DB::raw("(select min(id) from product WHERE product.id = transaction_details.product_id)"));
+            })
             ->where('transaction.user_id', $user->id)
             ->where('type', 1)
             ->get();

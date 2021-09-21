@@ -39,7 +39,7 @@ class Article extends Model
 
     public function getImageFullAttribute()
     {
-       
+
         if (strlen($this->image) > 0) {
             return env('OSS_URL').'/'.$this->image;
         }
@@ -48,7 +48,7 @@ class Article extends Model
     }
     public function getThumbnailImgFullAttribute()
     {
-       
+
         if (strlen($this->thumbnail_img) > 0) {
             return env('OSS_URL').'/'.$this->thumbnail_img;
         }

@@ -8,6 +8,7 @@ use App\Codes\Models\V1\DoctorSchedule;
 use App\Codes\Models\V1\DoctorService;
 use App\Codes\Models\V1\DoctorCategory;
 use App\Codes\Models\V1\Users;
+use Yajra\DataTables\DataTables;
 use App\Codes\Models\V1\Service;
 use Illuminate\Http\Request;
 
@@ -26,7 +27,7 @@ class DoctorController extends _CrudController
                     'create' => 'required',
                     'edit' => 'required'
                 ],
-                'lang' => 'general.user',
+                'lang' => 'general.name',
                 'type' => 'select2',
             ],
             'doctor_category_id' => [
@@ -43,6 +44,7 @@ class DoctorController extends _CrudController
                     'edit' => 'required'
                 ],
                 'type' => 'textarea',
+                'list' => 0,
             ],
             'nonformal_edu' => [
                 'validate' => [
@@ -50,6 +52,7 @@ class DoctorController extends _CrudController
                     'edit' => 'required'
                 ],
                 'type' => 'textarea',
+                'list' => 0,
             ],
             'service_id' => [
                 'validate' => [
@@ -57,6 +60,8 @@ class DoctorController extends _CrudController
                     'edit' => 'required'
                 ],
                 'type' => 'multiselect2',
+                'show' => 0,
+                'list' => 0,
             ],
             'action' => [
                 'create' => 0,
@@ -74,15 +79,6 @@ class DoctorController extends _CrudController
                 ],
                 'type' => 'number'
             ],
-            // 'service_id' => [
-            //     'validate' => [
-            //         'create' => 'required',
-            //         'edit' => 'required'
-            //     ],
-            //     'lang' => 'general.service',
-            //     'type' => 'select2',
-            //
-            // ]
         ]);
 
         parent::__construct(
@@ -109,9 +105,12 @@ class DoctorController extends _CrudController
         };
 
         $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.doctor.forms';
+
         $this->data['listSet']['user_id'] = $listUsers;
         $this->data['listSet']['service_id'] = $service_id;
         $this->data['listSet']['doctor_category_id'] = $listDoctorCategory;
+        $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.doctor.list_button';
+
     }
 
     public function create(){
@@ -162,18 +161,19 @@ class DoctorController extends _CrudController
         //dd($data['service_id']);
         $getData = $this->crud->store($data);
 
+        $serviceId = $this->request->get('service_id');
+        $price = $this->request->get('price');
 
-//          if ($data) {
-//              foreach($data['service_id']){
-//                  DoctorService::create([
-//                      'doctor_id' => $getData->id,
-//                      'service_id' => $data2['service_id'],
-//                      'type' => $data2['type'],
-//                      'price' => $data2['price']
-//                  ]);
-//              }
-//
-//          }
+        foreach($serviceId as $key => $list){
+
+                DoctorService::create([
+                    'doctor_id' => $getData->id,
+                    'service_id' => $list,
+                    'price' => $price[$key]
+                ]);
+
+
+        }
 
 
         $id = $getData->id;
@@ -186,6 +186,67 @@ class DoctorController extends _CrudController
             session()->flash('message_alert', 2);
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
+    }
+
+    public function dataTable()
+    {
+        $this->callPermission();
+
+        //$userId = session()->get('admin_id');
+
+        $dataTables = new DataTables();
+
+        $builder = $this->model::query()->selectRaw('doctor.id as id, users.fullname as user_id, doctor_category.name as doctor_category_id')
+            ->join('users','users.id', '=', 'doctor.user_id')
+            ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
+            ->where('users.doctor',1);
+
+
+        $dataTables = $dataTables->eloquent($builder)
+            ->addColumn('action', function ($query) {
+                return view($this->listView['dataTable'], [
+                    'query' => $query,
+                    'thisRoute' => $this->route,
+                    'permission' => $this->permission,
+                    'masterId' => $this->masterId
+                ]);
+            });
+
+        $listRaw = [];
+        $listRaw[] = 'action';
+        foreach (collectPassingData($this->passingData) as $fieldName => $list) {
+            if (in_array($list['type'], ['select', 'select2'])) {
+                $dataTables = $dataTables->editColumn($fieldName, function ($query) use ($fieldName) {
+                    $getList = isset($this->data['listSet'][$fieldName]) ? $this->data['listSet'][$fieldName] : [];
+                    return isset($getList[$query->$fieldName]) ? $getList[$query->$fieldName] : $query->$fieldName;
+                });
+            } else if (in_array($list['type'], ['money'])) {
+                $dataTables = $dataTables->editColumn($fieldName, function ($query) use ($fieldName, $list, $listRaw) {
+                    return number_format($query->$fieldName, 0);
+                });
+            } else if (in_array($list['type'], ['image'])) {
+                $listRaw[] = $fieldName;
+                $dataTables = $dataTables->editColumn($fieldName, function ($query) use ($fieldName, $list, $listRaw) {
+                    return '<img src="' . asset($list['path'] . $query->$fieldName) . '" class="img-responsive max-image-preview"/>';
+                });
+            } else if (in_array($list['type'], ['image_preview'])) {
+                $listRaw[] = $fieldName;
+                $dataTables = $dataTables->editColumn($fieldName, function ($query) use ($fieldName, $list, $listRaw) {
+                    return '<img src="' . $query->$fieldName . '" class="img-responsive max-image-preview"/>';
+                });
+            } else if (in_array($list['type'], ['code'])) {
+                $listRaw[] = $fieldName;
+                $dataTables = $dataTables->editColumn($fieldName, function ($query) use ($fieldName, $list, $listRaw) {
+                    return '<pre>' . json_encode(json_decode($query->$fieldName, true), JSON_PRETTY_PRINT) . '"</pre>';
+                });
+            } else if (in_array($list['type'], ['texteditor'])) {
+                $listRaw[] = $fieldName;
+            }
+        }
+
+        return $dataTables
+            ->rawColumns($listRaw)
+            ->make(true);
     }
 
 
