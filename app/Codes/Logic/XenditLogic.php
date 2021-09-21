@@ -92,7 +92,7 @@ class XenditLogic
         return $result;
     }
 
-    public function createEWallet($transactionId, $codeChannel, $amount, $phone)
+    public function createEWalletOVO($transactionId, $codeChannel, $amount, $phone)
     {
         $params = [
             'external_id' => 'ew-'.$transactionId,
@@ -109,6 +109,64 @@ class XenditLogic
                 'branch_code' => 'tree_branch'
             ]
         ];
+
+        $this->createEWallet($params);
+    }
+
+    public function createEWalletDANA($transactionId, $codeChannel, $amount)
+    {
+        $params = [
+            'external_id' => 'ew-'.$transactionId,
+            'currency' => 'IDR',
+            'amount' => $amount,
+            'checkout_method' => 'ONE_TIME_PAYMENT',
+            'channel_code' => $codeChannel,
+            'ewallet_type' => $codeChannel,
+            'callback_url' => route('api.redirectApps'),
+            'redirect_url' => route('api.redirectApps'),
+            'channel_properties' => [
+                'success_redirect_url' => route('api.redirectApps'),
+            ],
+            'metadata' => [
+                'branch_code' => 'tree_branch'
+            ]
+        ];
+
+        $this->createEWallet($params);
+    }
+
+    public function createEWalletLINKAJA($transactionId, $codeChannel, $amount, $phone, $items)
+    {
+        $params = [
+            'external_id' => 'ew-'.$transactionId,
+            'currency' => 'IDR',
+            'amount' => $amount,
+            'phone' => $phone,
+            'checkout_method' => 'ONE_TIME_PAYMENT',
+            'channel_code' => $codeChannel,
+            'ewallet_type' => $codeChannel,
+            'items' => [
+                [
+                    'name' => 'Item 1',
+                    'quantity' => 1,
+                    'price' => $amount
+                ]
+            ],
+            'callback_url' => route('api.redirectApps'),
+            'redirect_url' => route('api.redirectApps'),
+            'channel_properties' => [
+                'success_redirect_url' => route('api.redirectApps'),
+            ],
+            'metadata' => [
+                'branch_code' => 'tree_branch'
+            ]
+        ];
+
+        $this->createEWallet($params);
+    }
+
+    public function createEWallet($params)
+    {
         Xendit::setApiKey($this->XENDIT_SECRET_KEY);
         $result = EWallets::create($params);
 
@@ -117,7 +175,18 @@ class XenditLogic
 
     public function infoEWallet($id)
     {
+        $ch = curl_init();
+        curl_setopt( $ch,CURLOPT_URL, $this->XENDIT_URL.'/ewallets/charges/'.$id );
+        curl_setopt($ch, CURLOPT_USERPWD, $this->XENDIT_SECRET_KEY . ":");
+        curl_setopt( $ch,CURLOPT_RETURNTRANSFER, true );
+        $result = curl_exec($ch );
+        curl_close( $ch );
 
+        if (is_string($result)) {
+            $result = json_decode($result);
+        }
+
+        return $result;
     }
 
     public function createQRis()
