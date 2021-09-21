@@ -37,6 +37,10 @@ class GeneralController extends Controller
         $this->limit = 10;
     }
 
+    public function redirectApps() {
+        return 'Return to Apps';
+    }
+
     public function signUp()
     {
         $validator = Validator::make($this->request->all(), [
