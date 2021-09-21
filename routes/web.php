@@ -58,8 +58,8 @@ Route::post('change-password', ['uses' => 'App\Http\Controllers\Website\V1\Gener
 Route::get('confirm-email', ['uses' => 'App\Http\Controllers\Website\V1\GeneralController@confirmEmail'])->name('web.confirmEmail');
 Route::get('confirm-phone', ['uses' => 'App\Http\Controllers\Website\V1\GeneralController@confirmPhone'])->name('web.confirmPhone');
 
-Route::get('/', ['uses' => 'App\Http\Controllers\Website\V1\GeneralController@xendit'])->name('web.xendit');
+//Route::get('/', ['uses' => 'App\Http\Controllers\Website\V1\GeneralController@xendit'])->name('web.xendit');
 
-//Route::get('/', function () {
-//    return view('welcome');
-//});
+Route::get('/', function () {
+    return view('welcome');
+});
