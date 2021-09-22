@@ -327,7 +327,7 @@ class DoctorController extends _CrudController
         }
         $getListDate = $temp;
 
-        if ($notFound == 1) {
+        if ($notFound == 1 && strlen($findFirstDate) > 0) {
             $getTargetDate = $findFirstDate;
         }
 
