@@ -38,6 +38,9 @@ class Transaction extends Model
         'status'
     ];
 
+    protected $dates = [
+        'created_at',
+    ];
     protected $appends = [
         'type_transaction',
         'status_transaction',
@@ -45,7 +48,6 @@ class Transaction extends Model
         'subtotal_nice',
         'shipping_price_nice'
     ];
-
 
     public function getShippingPriceNiceAttribute()
     {
@@ -79,4 +81,9 @@ class Transaction extends Model
         return $this->hasMany(TransactionDetails::class, 'transaction_id', 'id');
     }
 
+    public function getCreatedAtAttribute()
+    {
+        return \Carbon\Carbon::parse($this->attributes['created_at'])
+            ->format('H:i:s Y-m-d ');
+    }
 }
