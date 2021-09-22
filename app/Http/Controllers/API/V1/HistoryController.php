@@ -132,7 +132,14 @@ class HistoryController extends Controller
             }
 
             $getDataLab = Transaction::selectRaw('transaction.id, transaction_details.lab_name as lab_name, transaction_details.lab_price as lab_price, status, type, lab.image as image')
-            ->join('transaction_details', 'transaction_details.transaction_id', '=', 'transaction.id')
+            ->join('transaction_details', function($join){
+                $join->on('transaction_details.transaction_id','=','transaction.id')
+                     ->on('transaction_details.id', '=', DB::raw("(select min(id) from transaction_details WHERE transaction_details.transaction_id = transaction.id)"));
+            })
+            ->join('lab', function($join){
+                $join->on('lab.id','=','transaction_details.lab_id')
+                     ->on('lab.id', '=', DB::raw("(select min(id) from lab WHERE lab.id = transaction_details.lab_id)"));
+            })
             ->join('lab', 'lab.id','=','transaction_details.lab_id')
             ->where('transaction.user_id', $user->id)
             ->where('type', $getType)

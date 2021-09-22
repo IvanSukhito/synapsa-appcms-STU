@@ -572,13 +572,8 @@ if ( ! function_exists('listAvailablePermission'))
             ];
         }
 
-        $listPermission['v1-questions']['list'][] = 'admin.v1-question-details.index';
-        $listPermission['v1-questions']['list'][] = 'admin.v1-question-details.dataTable';
-        $listPermission['v1-questions']['create'][] = 'admin.v1-question-details.create';
-        $listPermission['v1-questions']['create'][] = 'admin.v1-question-details.store';
-        $listPermission['v1-questions']['edit'][] = 'admin.v1-question-details.edit';
-        $listPermission['v1-questions']['edit'][] = 'admin.v1-question-details.update';
-        $listPermission['v1-questions']['show'][] = 'admin.v1-question-details.show';
+
+        $listPermission['doctor']['edit'][] = 'admin.doctor.schedule';
 
         return $listPermission;
     }

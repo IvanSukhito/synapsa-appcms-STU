@@ -66,6 +66,7 @@ return [
     'name' => 'Name',
     'email' => 'Email',
     'phone' => 'Phone',
+    'schedule' => 'Schedule',
     'pria' => 'Pria',
     'wanita' => 'Wanita',
     'lansia' => 'Lansia',

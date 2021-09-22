@@ -105,6 +105,7 @@ class DoctorController extends _CrudController
         };
 
         $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.doctor.forms';
+        $this->listView['edit'] = env('ADMIN_TEMPLATE').'.page.doctor.forms';
 
         $this->data['listSet']['user_id'] = $listUsers;
         $this->data['listSet']['service_id'] = $service_id;
@@ -158,11 +159,10 @@ class DoctorController extends _CrudController
 
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
-        //dd($data['service_id']);
         $getData = $this->crud->store($data);
 
         $serviceId = $this->request->get('service_id');
-        $price = $this->request->get('price');
+        $price = clear_money_format($this->request->get('price'));
 
         foreach($serviceId as $key => $list){
 
@@ -188,6 +188,80 @@ class DoctorController extends _CrudController
         }
     }
 
+    public function edit($id){
+        $this->callPermission();
+
+
+        $getData = $this->crud->show($id);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $data = $this->data;
+
+        $data['thisLabel'] = __('general.doctor');
+        $data['viewType'] = 'edit';
+        $data['formsTitle'] = __('general.title_create', ['field' => __('general.doctor') . ' ' . $getData->name]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['passing2'] = collectPassingData($this->passingData2, $data['viewType']);
+        $data['data'] = $getData;
+
+        return view($this->listView[$data['viewType']], $data);
+    }
+
+    public function update($id){
+        $this->callPermission();
+
+        $viewType = 'edit';
+
+        $getData = $this->crud->show($id);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $getListCollectData = collectPassingData($this->passingData, $viewType);
+        unset($getListCollectData['service_id']);
+
+        $validate = $this->setValidateData($getListCollectData, $viewType, $id);
+        if (count($validate) > 0)
+        {
+            $data = $this->validate($this->request, $validate);
+        }
+        else {
+            $data = [];
+            foreach ($getListCollectData as $key => $val) {
+                $data[$key] = $this->request->get($key);
+            }
+        }
+
+        $data = $this->getCollectedData($getListCollectData, $viewType, $data, $getData);
+
+        $getData = $this->crud->update($data, $id);
+
+        $serviceId = $this->request->get('service_id');
+        $price = clear_money_format($this->request->get('price'));
+
+        foreach($serviceId as $key => $list){
+
+                DoctorService::where('doctor_id', $id)->update([
+                    'doctor_id' => $getData->id,
+                    'service_id' => $list,
+                    'price' => $price[$key]
+                ]);
+        }
+
+
+        $id = $getData->id;
+
+        if($this->request->ajax()){
+            return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
+        }
+        else {
+            session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
+            session()->flash('message_alert', 2);
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+    }
     public function dataTable()
     {
         $this->callPermission();
