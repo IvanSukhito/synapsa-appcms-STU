@@ -42,16 +42,17 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
             ];
 
             foreach ($listRouter as $controller => $linkName) {
+                
                 switch ($linkName) {
                     case 'doctor':
-                        $router->get($linkName . '/{id}/schedule', $controller . '@getSchedule')->name('admin.' . $linkName . '.schedule');
+                        $router->get($linkName . '/schedule/{id}',   'App\Http\Controllers\Admin\DoctorScheduleController' . '@index')->name('admin.' . $linkName . '.schedule');
                         break;
-                    }
+
+                }   
                 $router->get($linkName . '/data', $controller . '@dataTable')->name('admin.' . $linkName . '.dataTable');
                 $router->resource($linkName, $controller, ['as' => 'admin']);
             }
-
-
+          
         });
 
         $router->get('/', ['uses' => 'App\Http\Controllers\Admin\DashboardController@dashboard'])->name('admin');

@@ -72,7 +72,7 @@ class DoctorScheduleController extends _CrudController
         ];
 
         parent::__construct(
-            $request, 'general.doctor_schedule', 'doctor-schedule', 'V1\DoctorSchedule', 'doctor-schedule',
+            $request, 'general.doctor_schedule', 'doctor-schedule', 'V1\DoctorSchedule', 'doctor',
             $passingData
         );
         $getUsers = Users::where('status', 80)->where('doctor',1)->pluck('fullname', 'id')->toArray();
@@ -95,4 +95,6 @@ class DoctorScheduleController extends _CrudController
         $this->data['listSet']['day'] = get_list_day();
         $this->data['listSet']['book'] = get_list_availabe();
     }
+   
+    
 }

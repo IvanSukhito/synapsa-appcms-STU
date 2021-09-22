@@ -16,6 +16,7 @@
         <i class="fa fa-plus"></i>
         <span class="d-none d-md-inline"> @lang('general.schedule')</span>
     </a>
+    
 @endif
 @if ($permission['destroy'])
     <a href="#" class="mb-1 btn btn-danger btn-sm" title="@lang('general.delete')"
