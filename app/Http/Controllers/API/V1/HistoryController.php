@@ -7,7 +7,6 @@ use App\Codes\Models\V1\City;
 use App\Codes\Models\V1\District;
 use App\Codes\Models\V1\Payment;
 use App\Codes\Models\V1\Product;
-use App\Codes\Models\V1\Lab;
 use App\Codes\Models\V1\ProductCategory;
 use App\Codes\Models\V1\Shipping;
 use App\Codes\Models\V1\Service;
@@ -229,19 +228,10 @@ class HistoryController extends Controller
        ->where('transaction.id', $id)
        ->first();
 
-       $listLab = Lab::selectRaw('transaction_details.id, lab.id as lab_id, lab.name, lab.image, lab.price')
-       ->join('transaction_details', 'transaction_details.lab_id', '=', 'lab.id')
-       ->where('transaction_details.transaction_id', $getDataLab->id)->get();
-
-       $historyLab = [
-        'Transaction Lab' => $getDataLab,
-        'list Lab' => $listLab
-        ];
-
         if ($getDataLab) {
             return response()->json([
                 'success' => 0,
-                'data' => $historyLab,
+                'data' => $getDataLab,
                 'token' => $this->request->attributes->get('_refresh_token'),
             ]);
         }
