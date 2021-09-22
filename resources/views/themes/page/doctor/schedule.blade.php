@@ -71,7 +71,7 @@
                                         </div>
                                         <div class="col-3">
                                             <div class="form-group">
-                                                <label for="date_{!! $list->id !!}">@lang('general.date')</label>
+                                                <label for="date_{!! $list->id !!}">@lang('general.date') <span class="text-red">*</span></label>
                                                 <div class="input-group">
                                                     <div class="input-group-prepend datepicker-trigger">
                                                         <div class="input-group-text">
@@ -84,7 +84,7 @@
                                         </div>
                                         <div class="col-2">
                                             <div class="form-group">
-                                                <label for="time_start_{!! $list->id !!}">@lang('general.time_start')</label>
+                                                <label for="time_start_{!! $list->id !!}">@lang('general.time_start') <span class="text-red">*</span></label>
                                                 <div class="input-group">
                                                     <div class="input-group-prepend datepicker-trigger">
                                                         <div class="input-group-text">
@@ -97,7 +97,7 @@
                                         </div>
                                         <div class="col-2">
                                             <div class="form-group">
-                                                <label for="time_end_{!! $list->id !!}">@lang('general.time_end')</label>
+                                                <label for="time_end_{!! $list->id !!}">@lang('general.time_end') <span class="text-red">*</span></label>
                                                 <div class="input-group">
                                                     <div class="input-group-prepend datepicker-trigger">
                                                         <div class="input-group-text">
@@ -144,7 +144,7 @@
     <div class="modal" tabindex="-1" role="dialog" id="scheduleTask">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <form id="scheduleForm" action="{!! route('admin.'.$thisRoute.'.storeSchedule', $getDoctor->id) !!}" enctype="multipart/form-data" method="POST">
+                <form id="scheduleForm" action="{!! route('admin.'.$thisRoute.'.storeSchedule', $getDoctor->id) !!}" enctype="multipart/form-data" method="POST" onsubmit="return submitScheduleForm(this)">
                     @csrf
                     <div class="modal-header">
                         <h5 class="modal-title" id="schedule-title">@lang('general.title_create', ['field' => $thisLabel])</h5>
@@ -160,42 +160,44 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="date">@lang('general.date')</label>
+                            <label for="date">@lang('general.date') <span class="text-red">*</span></label>
                             <div class="input-group">
                                 <div class="input-group-prepend datepicker-trigger">
                                     <div class="input-group-text">
                                         <i class="fa fa-calendar"></i>
                                     </div>
                                 </div>
-                                <input type="text" class="form-control" id="date" name="date" autocomplete="off">
+                                <input type="text" class="form-control" id="date" name="date" autocomplete="off" required>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="time_start">@lang('general.time_start')</label>
+                            <label for="time_start">@lang('general.time_start') <span class="text-red">*</span></label>
                             <div class="input-group">
                                 <div class="input-group-prepend datepicker-trigger">
                                     <div class="input-group-text">
                                         <i class="fa fa-calendar"></i>
                                     </div>
                                 </div>
-                                <input type="text" class="form-control" id="time_start" name="time_start" autocomplete="off">
+                                <input type="text" class="form-control" id="time_start" name="time_start" autocomplete="off" required>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="time_end">@lang('general.time_end')</label>
+                            <label for="time_end">@lang('general.time_end') <span class="text-red">*</span></label>
                             <div class="input-group">
                                 <div class="input-group-prepend datepicker-trigger">
                                     <div class="input-group-text">
                                         <i class="fa fa-calendar"></i>
                                     </div>
                                 </div>
-                                <input type="text" class="form-control" id="time_end" name="time_end" autocomplete="off">
+                                <input type="text" class="form-control" id="time_end" name="time_end" autocomplete="off" required>
                             </div>
+                        </div>
+                        <div class="form-group text-red" id="errorForm">
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary pull-left" data-dismiss="modal">@lang('general.close')</button>
-                        <button type="submit" class="btn btn-primary" onclick="return submitScheduleForm()">@lang('general.submit')</button>
+                        <button type="submit" class="btn btn-primary">@lang('general.submit')</button>
                     </div>
                 </form>
             </div>
@@ -230,6 +232,7 @@
         }
 
         function createForm() {
+            $('#errorForm').empty();
             $('#service').val('');
             $('#date').val('');
             $('#time_start').val('');
@@ -237,7 +240,75 @@
             $('#scheduleTask').modal('show');
         }
 
-        function submitScheduleForm() {
+        function submitScheduleForm(curr) {
+            $('#errorForm').empty();
+
+            let getLink = $(curr).attr('action');
+            let linkSplit = getLink.split('/');
+            let url = '';
+            for(let i=3; i<linkSplit.length; i++) {
+                url += '/'+linkSplit[i];
+            }
+
+            let data = {
+                service: $('#service').val(),
+                date: $('#date').val(),
+                time_start: $('#time_start').val(),
+                time_end: $('#time_end').val()
+            };
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: data,
+                dataType: 'json',
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(result) {
+                    if (parseInt(result.result) === 1) {
+                        $.notify({
+                            // options
+                            message: result.message
+                        },{
+                            // settings
+                            type: 'success',
+                            placement: {
+                                from: "bottom",
+                                align: "right"
+                            },
+                        });
+
+                        location.reload();
+
+                    }
+                    else {
+                        $.notify({
+                            // options
+                            message: result.message
+                        },{
+                            // settings
+                            type: 'danger',
+                            placement: {
+                                from: "bottom",
+                                align: "right"
+                            },
+                        });
+                    }
+                },
+                error: function(result){
+                    $('#errorForm').empty();
+                    if (typeof result.responseJSON.errors === 'object') {
+                        $.each(result.responseJSON.errors, function(index, item) {
+                            $('#errorForm').append('<div>' + item[0] + '</div>')
+                        });
+                    }
+                },
+                complete: function(result){
+                }
+            });
+
+            return false;
 
         }
 
