@@ -228,10 +228,19 @@ class HistoryController extends Controller
        ->where('transaction.id', $id)
        ->first();
 
+       $listLab = Lab::selectRaw('transaction_details.id, lab.id as lab_id, lab.name, lab.image, lab.price')
+       ->join('transaction_details', 'transaction_details.lab_id', '=', 'lab.id')
+       ->where('transaction_details.transaction_id', $getDataLab->id)->get();
+
+       $historyLab = [
+        'Transaction Lab' => $getDataLab,
+        'list Lab' => $listLab
+        ];
+
         if ($getDataLab) {
             return response()->json([
                 'success' => 0,
-                'data' => $getDataLab,
+                'data' => $historyLab,
                 'token' => $this->request->attributes->get('_refresh_token'),
             ]);
         }
@@ -248,12 +257,12 @@ class HistoryController extends Controller
        ->join('transaction_details', 'transaction_details.product_id', '=', 'product.id')
        ->where('transaction_details.transaction_id', $getDataProduct->id)->get();
 
-       //dd($listProduct);
+ 
       $historyProduct = [
           'Transaction Product' => $getDataProduct,
           'list Product' => $listProduct
       ];
-        //dd($data);
+      
       if (!$getDataProduct) {
           return response()->json([
               'success' => 0,
