@@ -140,7 +140,6 @@ class HistoryController extends Controller
                 $join->on('lab.id','=','transaction_details.lab_id')
                      ->on('lab.id', '=', DB::raw("(select min(id) from lab WHERE lab.id = transaction_details.lab_id)"));
             })
-            ->join('lab', 'lab.id','=','transaction_details.lab_id')
             ->where('transaction.user_id', $user->id)
             ->where('type', $getType)
             ->get();
