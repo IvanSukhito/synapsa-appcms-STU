@@ -7,6 +7,7 @@ use App\Codes\Models\V1\City;
 use App\Codes\Models\V1\District;
 use App\Codes\Models\V1\Payment;
 use App\Codes\Models\V1\Product;
+use App\Codes\Models\V1\Lab;
 use App\Codes\Models\V1\ProductCategory;
 use App\Codes\Models\V1\Shipping;
 use App\Codes\Models\V1\Service;
