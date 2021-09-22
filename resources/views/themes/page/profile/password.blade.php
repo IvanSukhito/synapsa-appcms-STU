@@ -63,7 +63,7 @@ else {
                     <button type="submit" class="mb-2 mr-2 btn btn-primary" title="@lang('general.update')">
                         <i class="fa fa-save"></i><span class=""> @lang('general.update')</span>
                     </button>
-                    <a href="<?php echo route('admin.profile') ?>" class="mb-2 mr-2 btn btn-warning"
+                    <a href="<?php echo route('admin.profile.index') ?>" class="mb-2 mr-2 btn btn-warning"
                        title="{{ __('general.back') }}">
                         <i class="fa fa-arrow-circle-o-left"></i><span class=""> {{ __('general.back') }}</span>
                     </a>

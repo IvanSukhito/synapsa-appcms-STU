@@ -2,17 +2,15 @@
 <html lang="en">
 <head>
     @section('head')
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
     @show
 
     <title>{{ env('WEBSITE_NAME') }} | @yield('title')</title>
 
     @section('css')
-    <link rel="stylesheet" href="{{ asset('assets/cms/css/app.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/cms/css/custom.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/cms/js/dropify/dist/css/dropify.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('assets/cms/css/app.css') }}">
     @show
     @section('script-top')
     @show
@@ -27,10 +25,10 @@
         </ul>
         <ul class="navbar-nav ml-auto">
             <li class="nav-item d-none d-sm-inline-block">
-              <a href="{{ route('admin.profile') }}" class="nav-link">{{ session('admin_name')  }}</a>
+                <a href="{{ route('admin.profile.index') }}" class="nav-link">{{ session('admin_name')  }}</a>
             </li>
             <li class="nav-item d-none d-sm-inline-block">
-              <a href="{{ route('admin.logout') }}" class="nav-link">@lang('general.sign_out')</a>
+                <a href="{{ route('admin.logout') }}" class="nav-link">@lang('general.sign_out')</a>
             </li>
         </ul>
     </nav>
@@ -69,7 +67,7 @@
         @yield('content')
     </div>
 
-    <footer class="main-footer">
+    <footer class="main-footer no-print">
         <div class="float-right d-none d-sm-inline">
             v1.0.0
         </div>
@@ -78,40 +76,32 @@
 
 </div>
 @section('script-bottom')
-<script src="https://cdn.ckeditor.com/ckeditor5/29.2.0/classic/ckeditor.js"></script>
-<script src="{{ asset('/assets/cms/js/ckeditor/ckeditor.js') }}"></script>
-<script src="{{ asset('/assets/cms/js/app.js') }}"></script>
-<script src="{{ asset('/assets/cms/js/moment.min.js') }}"></script>
-<script src="{{ asset('/assets/cms/js/money.js') }}"></script>
-<script src="{{ asset('/assets/cms/js/dropify/src/js/dropify.js') }}"></script>
-@if(session()->has('message'))
-    <?php
-    switch (session()->get('message_alert')) {
-        case 2 : $type = 'success'; break;
-        case 3 : $type = 'info'; break;
-        default : $type = 'danger'; break;
-    }
-    ?>
-<script type="text/javascript">
-    'use strict';
-    $.notify({
-        // options
-        message: '{!! session()->get('message') !!}'
-    },{
-        // settings
-        type: '{!! $type !!}',
-        placement: {
-            from: "bottom",
-            align: "right"
-        },
-    });
-    ClassicEditor
-        .create( document.querySelector( '#text-editor' ) )
-        .catch( error => {
-            console.error( error );
-        });
-</script>
-@endif
+    <script src="{{ asset('/assets/cms/js/app.js') }}"></script>
+    <script src="{{ asset('/assets/cms/js/moment.min.js') }}"></script>
+    <script src="{{ asset('/assets/cms/js/money.js') }}"></script>
+    @if(session()->has('message'))
+        <?php
+        switch (session()->get('message_alert')) {
+            case 2 : $type = 'success'; break;
+            case 3 : $type = 'info'; break;
+            default : $type = 'danger'; break;
+        }
+        ?>
+        <script type="text/javascript">
+            'use strict';
+            $.notify({
+                // options
+                message: '{!! session()->get('message') !!}'
+            },{
+                // settings
+                type: '{!! $type !!}',
+                placement: {
+                    from: "bottom",
+                    align: "right"
+                },
+            });
+        </script>
+    @endif
 @show
 </body>
 </html>

@@ -15,7 +15,7 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
             $router->post('edit', ['uses'=>'App\Http\Controllers\Admin\ProfileController@postProfile'])->name('admin.post_profile');
             $router->get('password', ['uses'=>'App\Http\Controllers\Admin\ProfileController@getPassword'])->name('admin.get_password');
             $router->post('password', ['uses'=>'App\Http\Controllers\Admin\ProfileController@postPassword'])->name('admin.post_password');
-            $router->get('/', ['uses'=>'App\Http\Controllers\Admin\ProfileController@profile'])->name('admin.profile');
+            $router->get('/', ['uses'=>'App\Http\Controllers\Admin\ProfileController@profile'])->name('admin.profile.index');
         });
 
         $router->group(['middleware' => ['adminAccessPermission']], function () use ($router) {
@@ -42,17 +42,20 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
             ];
 
             foreach ($listRouter as $controller => $linkName) {
-                
+
                 switch ($linkName) {
                     case 'doctor':
-                        $router->get($linkName . '/schedule/{id}',   'App\Http\Controllers\Admin\DoctorScheduleController' . '@index')->name('admin.' . $linkName . '.schedule');
+                        $router->get($linkName . '/{id}/schedule',   $controller.'@schedule')->name('admin.' . $linkName . '.schedule');
+                        $router->post($linkName . '/{id}/schedule',   $controller.'@storeSchedule')->name('admin.' . $linkName . '.storeSchedule');
+                        $router->post($linkName . '/{id}/schedule/{scheduleId}',   $controller.'@updateSchedule')->name('admin.' . $linkName . '.updateSchedule');
+                        $router->delete($linkName . '/{id}/schedule/{scheduleId}',   $controller.'@destroySchedule')->name('admin.' . $linkName . '.destroySchedule');
                         break;
 
-                }   
+                }
                 $router->get($linkName . '/data', $controller . '@dataTable')->name('admin.' . $linkName . '.dataTable');
                 $router->resource($linkName, $controller, ['as' => 'admin']);
             }
-          
+
         });
 
         $router->get('/', ['uses' => 'App\Http\Controllers\Admin\DashboardController@dashboard'])->name('admin');

@@ -68,7 +68,7 @@ else {
                        class="mb-2 mr-2 btn btn-primary" title="{{ __('general.password') }}">
                         <i class="fa fa-lock"></i><span class=""> {{ __('general.password') }}</span>
                     </a>
-                    <a href="<?php echo route('admin.profile') ?>" class="mb-2 mr-2 btn btn-warning"
+                    <a href="<?php echo route('admin.profile.index') ?>" class="mb-2 mr-2 btn btn-warning"
                        title="{{ __('general.back') }}">
                         <i class="fa fa-arrow-circle-o-left"></i><span class=""> {{ __('general.back') }}</span>
                     </a>

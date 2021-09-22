@@ -132,11 +132,11 @@ else {
                         let getValue = item;
                         html += '<div class="form-group">' +
                             '<label for="service">{{ __('general.service') }} ' + (i + 1) + ' <span class="text-red">*</span></label>' +
-                            '<input type="text" id="service_' + i +'" name="service[' + i + ']" class="form-control" placeholder="service" disabled value="' + getValue + '"> ' +
+                            '<input type="text" id="service_' + i +'" name="service[' + i + ']" class="form-control" placeholder="@lang('general.service')" disabled value="' + getValue + '"> ' +
                             '</div>'+
                             '<div class="form-group">' +
                             '<label for="price">{{ __('general.price') }} ' + (i + 1) + ' <span class="text-red">*</span></label>' +
-                            '<input type="text" id="price_' + i +'" name="price[' + i + ']" class="form-control setMoney" placeholder="price"> ' +
+                            '<input type="text" id="price_' + i +'" name="price[' + i + ']" class="form-control setMoney" placeholder="@lang('general.price')"> ' +
                             '</div>';
                         i++;
                     }

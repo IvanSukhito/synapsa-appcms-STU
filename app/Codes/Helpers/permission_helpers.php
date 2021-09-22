@@ -472,8 +472,6 @@ if ( ! function_exists('listAvailablePermission'))
 
         foreach ([
             'settings',
-            'page',
-            'v1-users',
             'faqs',
 
                  ] as $keyPermission) {
@@ -503,9 +501,6 @@ if ( ! function_exists('listAvailablePermission'))
                      'transaction',
                      'users',
                      'doctor',
-                     'doctor-schedule',
-                     'doctor-service',
-                     'service-lab',
                      'product-category',
                      'article-category',
                      'service',
@@ -534,46 +529,11 @@ if ( ! function_exists('listAvailablePermission'))
             ];
         }
 
-        foreach ([
-                     'v1-mantra',
-                 ] as $keyPermission) {
-            $listPermission[$keyPermission] = [
-                'list' => [
-                    'admin.'.$keyPermission.'.index',
-                    'admin.'.$keyPermission.'.dataTable'
-                ],
-                'create' => [
-                    'admin.'.$keyPermission.'.create',
-                    'admin.'.$keyPermission.'.store'
-                ],
-                'edit' => [
-                    'admin.'.$keyPermission.'.edit',
-                    'admin.'.$keyPermission.'.update'
-                ],
-                'show' => [
-                    'admin.'.$keyPermission.'.show'
-                ]
-            ];
-        }
 
-        foreach ([
-                     'v1-log-login',
-                     'v1-games',
-                 ] as $keyPermission) {
-            $listPermission[$keyPermission] = [
-                'list' => [
-                    'admin.'.$keyPermission.'.index',
-                    'admin.'.$keyPermission.'.dataTable'
-                ],
-                'create' => [
-                    'admin.'.$keyPermission.'.create',
-                    'admin.'.$keyPermission.'.store'
-                ]
-            ];
-        }
-
-
-        $listPermission['doctor']['edit'][] = 'admin.doctor.schedule';
+        $listPermission['doctor']['create'][] = 'admin.doctor.schedule';
+        $listPermission['doctor']['create'][] = 'admin.doctor.storeSchedule';
+        $listPermission['doctor']['edit'][] = 'admin.doctor.updateSchedule';
+        $listPermission['doctor']['destroy'][] = 'admin.doctor.destroySchedule';
 
         return $listPermission;
     }
