@@ -471,8 +471,8 @@ if ( ! function_exists('listAvailablePermission'))
         $listPermission = [];
 
         foreach ([
-            'settings',
-            'faqs',
+                     'settings',
+                     'faqs',
 
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
@@ -489,6 +489,20 @@ if ( ! function_exists('listAvailablePermission'))
                 ]
             ];
         }
+        foreach ([
+                     'transaction',
+
+                 ] as $keyPermission) {
+            $listPermission[$keyPermission] = [
+                'list' => [
+                    'admin.'.$keyPermission.'.index',
+                    'admin.'.$keyPermission.'.dataTable'
+                ],
+                'show' => [
+                    'admin.'.$keyPermission.'.show'
+                ]
+            ];
+        }
 
         foreach ([
                      'admin',
@@ -498,7 +512,6 @@ if ( ! function_exists('listAvailablePermission'))
                      'article',
                      'product',
                      'lab',
-                     'transaction',
                      'users',
                      'doctor',
                      'product-category',
