@@ -96,8 +96,7 @@ else {
                       <div id="list_other1">
                             <div class="d-flex align-items-center">
                                 <div class="p-2">
-                                    <input type="file" name="image" class="dropify"
-                                           data-allowed-file-extensions="jpg jpeg png" accept="image/png, image/gif, image/jpeg" data-max-file-size="10M" required>
+                                    <input type="file" name="image" class="dropify" data-allowed-file-extensions="jpg jpeg png" accept="image/png, image/gif, image/jpeg" data-max-file-size="10M" required>
                                 </div>
                             </div>
                       </div>
@@ -152,19 +151,15 @@ else {
     @include(env('ADMIN_TEMPLATE').'._component.generate_forms_script')
     <script src="{{ asset('/assets/cms/js/ckeditor/ckeditor.js') }}"></script>
     <script src="{{ asset('/assets/cms/js/ckeditor/adapters/jquery.js') }}"></script>
+
     <script>
 
     let setIndex1 = 1;
 
-
-
         $(document).ready(function() {
             $('.dropify').dropify();
-            $( 'textarea.editor' ).ckeditor();
+            $('.editor').ckeditor();
         });
-
-
-
 
         function add_desc1() {
         let html = '<div class="form-group">' +
