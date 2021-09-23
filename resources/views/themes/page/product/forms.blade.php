@@ -150,8 +150,6 @@ else {
     @parent
     @include(env('ADMIN_TEMPLATE').'._component.generate_forms_script')
     <script src="{{ asset('/assets/cms/js/ckeditor/ckeditor.js') }}"></script>
-    <script src="{{ asset('/assets/cms/js/ckeditor/adapters/jquery.js') }}"></script>
-
     <script>
 
     let setIndex1 = 1;
