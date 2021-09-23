@@ -52,7 +52,7 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                         $router->delete($linkName . '/{id}/schedule/{scheduleId}',   $controller.'@destroySchedule')->name('admin.' . $linkName . '.destroySchedule');
                         break;
                     case 'lab-schedule':
-                        $router->post($linkName . '/{id}/schedule',   $controller.'@update')->name('admin.' . $linkName . '.updateSchedule');
+                        $router->post($linkName . '/{id}/updateSchedule',   $controller.'@update')->name('admin.' . $linkName . '.updateLab');
                          break;
 
                 }

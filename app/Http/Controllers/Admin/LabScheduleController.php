@@ -188,6 +188,8 @@ class LabScheduleController extends _CrudController
     }
 
     public function update($id){
+
+        
         $this->callPermission();
 
         $viewType = 'edit';
@@ -217,8 +219,6 @@ class LabScheduleController extends _CrudController
         $getTimeEnd = strtotime($data['time_end']) > 0 ? date('H:i:00', strtotime($data['time_end'])) : date('H:i:00');
 
         $data = $this->getCollectedData($getListCollectData, $viewType, $data, $getData);
-
-        dd($data);
         
         $data['lab_id'] = 0;
         $data['date_available'] = $getDate;
@@ -234,11 +234,10 @@ class LabScheduleController extends _CrudController
             return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
         }
         else {
-            session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
+            session()->flash('message', __('general.success_edit_', ['field' => $this->data['thisLabel']]));
             session()->flash('message_alert', 2);
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
     }
-
-
+  
 }
