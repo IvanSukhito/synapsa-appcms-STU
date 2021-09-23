@@ -14,6 +14,8 @@ use Illuminate\Http\Request;
 
 class DoctorController extends _CrudController
 {
+    protected $limit;
+
     public function __construct(Request $request)
     {
         $passingData = [
@@ -71,6 +73,7 @@ class DoctorController extends _CrudController
             ]
         ];
 
+
         parent::__construct(
             $request, 'general.doctor', 'doctor', 'V1\Doctor', 'doctor',
             $passingData
@@ -99,6 +102,7 @@ class DoctorController extends _CrudController
 
         $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.doctor.forms';
         $this->listView['edit'] = env('ADMIN_TEMPLATE').'.page.doctor.forms';
+        $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.doctor.forms';
 
         $this->listView['schedule'] = env('ADMIN_TEMPLATE').'.page.doctor.schedule';
 
@@ -294,6 +298,39 @@ class DoctorController extends _CrudController
             session()->flash('message_alert', 2);
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
+    }
+    public function show($id)
+    {
+        $this->callPermission();
+
+        $getData = $this->crud->show($id);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $getLimit = $this->request->get('limit');
+        if ($getLimit <= 0) {
+            $getLimit = $this->limit;
+        }
+
+        $getScheduleData  = DoctorSchedule::selectRaw('doctor_schedule.id, doctor_schedule.date_available,
+         doctor_schedule.time_start,doctor_schedule.time_end, doctor_schedule.book,
+         B.fullname AS doctor_id, C.name AS service_id')
+            ->where('doctor_schedule.doctor_id', '=', $id)
+            ->leftJoin('users AS B', 'B.id', '=', 'doctor_schedule.doctor_id')
+            ->leftJoin('service AS C', 'C.id', '=', 'doctor_schedule.service_id')->get();
+
+
+
+        $data = $this->data;
+
+        $data['viewType'] = 'show';
+        $data['formsTitle'] = __('general.title_show', ['field' => $data['thisLabel']]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['data'] = $getData;
+        $data['getScheduleData'] = $getScheduleData;
+
+        return view($this->listView[$data['viewType']], $data);
     }
 
     public function schedule($id)
