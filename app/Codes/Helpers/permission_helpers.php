@@ -358,6 +358,36 @@ if ( ! function_exists('listAllMenu')) {
                     ],
                 ],
             ],
+            //Lab
+            [
+                'name' => __('general.lab'),
+                'icon' => '<i class="nav-icon fa fa-flask"></i>',
+                'title' => __('general.lab'),
+                'active' => [
+                    'admin.lab.',
+                    'admin.lab-schedule.',
+                ],
+                'type' => 2,
+                'data' => [
+                    [
+                        'name' => __('general.lab'),
+                        'title' => __('general.lab'),
+                        'active' => ['admin.lab.'],
+                        'route' => 'admin.lab.index',
+                        'key' => 'lab',
+                        'type' => 1,
+                    ],
+                    [
+                        'name' => __('general.lab_schedule'),
+                        'title' => __('general.lab_schedule'),
+                        'active' => ['admin.lab-schedule.'],
+                        'route' => 'admin.lab-schedule.index',
+                        'key' => 'lab-schedule',
+                        'type' => 1,
+                    ],
+                ],
+            ],
+            //
             [
                 'name' => __('general.users'),
                 'icon' => '<i class="nav-icon fa fa-user"></i>',
@@ -386,15 +416,6 @@ if ( ! function_exists('listAllMenu')) {
                         'type' => 1,
                     ],
                 ],
-            ],
-            [
-                'name' => __('general.lab'),
-                'icon' => '<i class="nav-icon fa fa-flask"></i>',
-                'title' => __('general.lab'),
-                'active' => ['admin.lab.'],
-                'route' => 'admin.lab.index',
-                'key' => 'lab',
-                'type' => 1,
             ],
             [
                 'name' => __('general.transaction'),
@@ -518,6 +539,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'article-category',
                      'service',
                      'klinik',
+                     'lab-schedule'
 
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
@@ -548,6 +570,7 @@ if ( ! function_exists('listAvailablePermission'))
         $listPermission['doctor']['edit'][] = 'admin.doctor.updateSchedule';
         $listPermission['doctor']['destroy'][] = 'admin.doctor.destroySchedule';
 
+        $listPermission['lab-schedule']['edit'][] = 'admin.lab-schedule.updateLab';
         return $listPermission;
     }
 }

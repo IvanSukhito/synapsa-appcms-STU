@@ -159,7 +159,6 @@ class DemoSeeder extends Seeder
             DB::table('doctor_service')->insertGetId([
                 'doctor_id' => $i,
                 'service_id' => $serviceId,
-                'type' => $serviceId == 2 ? 2 : 1,
                 'price' => rand(10,20) * 1000
             ]);
 

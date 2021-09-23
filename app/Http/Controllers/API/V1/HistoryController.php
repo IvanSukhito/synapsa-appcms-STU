@@ -88,15 +88,15 @@ class HistoryController extends Controller
             if ($firstService > 0) {
                 $service[0]['active'] = 1;
             }
-            $getService = $firstService;
             $getServiceData = $getServiceDataTemp1;
         }
 
         if($doctor == 1){
             switch ($getService) {
-                case 2 : $getType = 3; break;
-                case 3 : $getType = 4; break;
-                default : $getType = 2; break;
+                case 1 : $getType = [2]; break;
+                case 2 : $getType = [3]; break;
+                case 3 : $getType = [4]; break;
+                default : $getType = [2,3,4]; break;
             }
 
             $getDataDoctor = Transaction::selectRaw('transaction.id, transaction_details.doctor_name as doctor_name, transaction_details.doctor_price as doctor_price, transaction.status as status, type, users.image as image')
@@ -104,7 +104,7 @@ class HistoryController extends Controller
             ->join('doctor', 'doctor.id','=','transaction_details.doctor_id')
             ->join('users','users.id','=','doctor.user_id')
             ->where('transaction.user_id', $user->id)
-            ->where('type', $getType)
+            ->whereIn('type', $getType)
             ->get();
 
             if(!$getDataDoctor){
@@ -126,9 +126,10 @@ class HistoryController extends Controller
         }
         elseif($lab == 1){
             switch ($getService) {
-                case 2 : $getType = 6; break;
-                case 3 : $getType = 7; break;
-                default : $getType = 5; break;
+                case 1 : $getType = [5]; break;
+                case 2 : $getType = [6]; break;
+                case 3 : $getType = [7]; break;
+                default : $getType = [5,6,7]; break;
             }
 
             $getDataLab = Transaction::selectRaw('transaction.id, transaction_details.lab_name as lab_name, transaction_details.lab_price as lab_price, status, type, lab.image as image')
@@ -141,7 +142,7 @@ class HistoryController extends Controller
                      ->on('lab.id', '=', DB::raw("(select min(id) from lab WHERE lab.id = transaction_details.lab_id)"));
             })
             ->where('transaction.user_id', $user->id)
-            ->where('type', $getType)
+            ->whereIn('type', $getType)
             ->get();
 
             if(!$getDataLab){
@@ -240,12 +241,12 @@ class HistoryController extends Controller
        ->join('transaction_details', 'transaction_details.product_id', '=', 'product.id')
        ->where('transaction_details.transaction_id', $getDataProduct->id)->get();
 
- 
+
       $historyProduct = [
           'Transaction Product' => $getDataProduct,
           'list Product' => $listProduct
       ];
-      
+
       if ($getDataDoctor) {
         return response()->json([
             'success' => 0,
@@ -263,7 +264,7 @@ class HistoryController extends Controller
             'success' => 0,
             'data' => $historyProduct,
             'token' => $this->request->attributes->get('_refresh_token'),
-        ]); 
+        ]);
       }else{
         return response()->json([
             'success' => 0,
