@@ -11,6 +11,7 @@
 
     @section('css')
         <link rel="stylesheet" href="{{ asset('assets/cms/css/app.css') }}">
+        <link rel="stylesheet" href="{{ asset('assets/cms/js/dropify/dist/css/dropify.min.css') }}">
     @show
     @section('script-top')
     @show
@@ -76,6 +77,7 @@
 
 </div>
 @section('script-bottom')
+  
     <script src="{{ asset('/assets/cms/js/app.js') }}"></script>
     <script src="{{ asset('/assets/cms/js/moment.min.js') }}"></script>
     <script src="{{ asset('/assets/cms/js/money.js') }}"></script>
@@ -100,6 +102,8 @@
                     align: "right"
                 },
             });
+           
+
         </script>
     @endif
 @show

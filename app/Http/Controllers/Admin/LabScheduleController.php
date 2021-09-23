@@ -22,7 +22,7 @@ class LabScheduleController extends _CrudController
                 'show' => 0
             ],
             'lab_id' => [
-             
+
                 'type' => 'select2',
                 'create' => 0,
                 'edit' => 0,
@@ -62,7 +62,7 @@ class LabScheduleController extends _CrudController
                     'edit' => 0
                 ],
                 'type' => 'select2',
-                
+
             ],
             'action' => [
                 'create' => 0,
@@ -76,7 +76,7 @@ class LabScheduleController extends _CrudController
             $request, 'general.lab_schedule', 'lab-schedule', 'V1\LabSchedule', 'lab',
             $passingData
         );
-   
+
 
         $getService = Service::where('status', 80)->pluck('name', 'id')->toArray();
         if($getService) {
@@ -86,14 +86,14 @@ class LabScheduleController extends _CrudController
         }
 
 
-    
+
         $this->data['listSet']['service_id'] = $listService;
         $this->data['listSet']['day'] = get_list_day();
         $this->data['listSet']['book'] = get_list_availabe();
         $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.lab.schedule';
 
     }
-   
+
     public function index()
     {
         $this->callPermission();
@@ -107,7 +107,7 @@ class LabScheduleController extends _CrudController
             ->orderBy('date_available', 'ASC')
             ->get();
 
-      
+
 
         $notFound = 1;
         $findFirstDate = '';
@@ -141,14 +141,14 @@ class LabScheduleController extends _CrudController
     }
 
     public function store(){
-        
+
         $this->callPermission();
 
         $viewType = 'create';
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
 
-       
+
         $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
         {
@@ -189,7 +189,7 @@ class LabScheduleController extends _CrudController
 
     public function update($id){
 
-        
+
         $this->callPermission();
 
         $viewType = 'edit';
@@ -200,7 +200,7 @@ class LabScheduleController extends _CrudController
         }
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
-      
+
         $validate = $this->setValidateData($getListCollectData, $viewType, $id);
         if (count($validate) > 0)
         {
@@ -219,7 +219,7 @@ class LabScheduleController extends _CrudController
         $getTimeEnd = strtotime($data['time_end']) > 0 ? date('H:i:00', strtotime($data['time_end'])) : date('H:i:00');
 
         $data = $this->getCollectedData($getListCollectData, $viewType, $data, $getData);
-        
+
         $data['lab_id'] = 0;
         $data['date_available'] = $getDate;
         $data['time_start'] = $getTimeStart;
@@ -231,7 +231,7 @@ class LabScheduleController extends _CrudController
         $id = $getData->id;
 
         if($this->request->ajax()){
-            return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
+            return response()->json(['result' => 1, 'message' => __('general.success_edit_', ['field' => $this->data['thisLabel']])]);
         }
         else {
             session()->flash('message', __('general.success_edit_', ['field' => $this->data['thisLabel']]));
@@ -239,5 +239,5 @@ class LabScheduleController extends _CrudController
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
     }
-  
+
 }
