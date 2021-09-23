@@ -557,7 +557,7 @@ if ( ! function_exists('listAvailablePermission'))
         $listPermission['doctor']['edit'][] = 'admin.doctor.updateSchedule';
         $listPermission['doctor']['destroy'][] = 'admin.doctor.destroySchedule';
 
-        $listPermission['lab-schedule']['edit'][] = 'admin.lab-schedule.updateSchedule';
+        $listPermission['lab-schedule']['edit'][] = 'admin.lab-schedule.updateLab';
         return $listPermission;
     }
 }

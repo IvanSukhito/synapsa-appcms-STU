@@ -111,7 +111,7 @@
                                             <div class="form-group">
                                                 @if ($permission['edit'])
                                                 <a href="#" class="mb-1 btn btn-primary btn-sm" title="@lang('general.update')"
-                                                   data-href="{{ route('admin.' . $thisRoute . '.updateSchedule',$list->{$masterId}) }}"
+                                                   data-href="{{ route('admin.' . $thisRoute . '.updateLab',$list->{$masterId}) }}"
                                                    data-id="{!! $list->{$masterId} !!}"
                                                    onclick="return updateData(this)">
                                                     <i class="fa fa-pencil"></i>
@@ -314,7 +314,7 @@
         function updateData(curr) {
             let getId = $(curr).data('id');
             let getLink = $(curr).data('href');
-            //console.log(getLink);
+            console.log(getLink);
             let linkSplit = getLink.split('/');
             let url = '';
             for(let i=3; i<linkSplit.length; i++) {
@@ -328,7 +328,7 @@
                 time_end: $('#time_end_' + getId).val()
             };
 
-            //console.log(data);
+            console.log(url);
             $.ajax({
                 url: url,
                 type: 'POST',
@@ -368,6 +368,8 @@
                 error: function(result){
                     if (typeof result.responseJSON.errors === 'object') {
                         $.each(result.responseJSON.errors, function(index, item) {
+
+                            console.log(item);
                             $.notify({
                                 // options
                                 message: item[0]
@@ -390,9 +392,6 @@
 
         }
 
-        function updateData2(curr){
-            alert('aa');
-        }
         function actionData(link, method, curr) {
 
             if(confirm('{{ __('general.ask_delete') }}')) {
