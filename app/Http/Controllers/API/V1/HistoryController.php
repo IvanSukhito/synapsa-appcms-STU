@@ -198,8 +198,8 @@ class HistoryController extends Controller
     Public function detail($id){
         $user = $this->request->attributes->get('_user');
 
-        $getDataDetail = Transaction::where('id',$id)->first();
-        if (!$getDataDetail) {
+        $getData = Transaction::where('id',$id)->first();
+        if (!$getData) {
             return response()->json([
                 'success' => 0,
                 'message' => ['Riwayat Transakti Tidak Ditemukan'],
@@ -216,7 +216,7 @@ class HistoryController extends Controller
         ->join('users','users.id','=','doctor.user_id')
         ->join('payment','payment.id', '=','transaction.payment_id')
         ->where('transaction.user_id', $user->id)
-        ->where('transaction.id', $id)
+        ->where('transaction.id', $getData->id)
         ->first();
 
         $getDataLab = Transaction::selectRaw('transaction.id, code, time_start, time_end, date_available, transaction.total as total_price,
@@ -225,13 +225,13 @@ class HistoryController extends Controller
        ->join('lab_schedule','lab_schedule.id','=','transaction_details.schedule_id')
        ->join('payment','payment.id', '=','transaction.payment_id')
        ->where('transaction.user_id', $user->id)
-       ->where('transaction.id', $id)
+       ->where('transaction.id', $getData->id)
        ->first();
 
        $getDataProduct = Transaction::selectRaw('transaction.id, shipping_address_name, shipping_name, shipping_price,  transaction.total as total, transaction.status as status, transaction.type')
        ->join('transaction_details', 'transaction_details.transaction_id', '=', 'transaction.id')
        ->where('transaction.user_id', $user->id)
-       ->where('transaction.id', $id)
+       ->where('transaction.id', $getData->id)
        ->where('type', 1)
        ->first();
 
