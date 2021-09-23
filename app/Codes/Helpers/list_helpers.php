@@ -109,17 +109,13 @@ if ( ! function_exists('get_list_gender')) {
     }
 }
 
-if ( ! function_exists('get_list_order_status')) {
-    function get_list_order_status()
+if ( ! function_exists('get_list_transaction')) {
+    function get_list_transaction()
     {
         return [
-            1 => __('general.not_complete'),
-            2 => __('general.waiting'),
-            3 => __('general.driver_assign'),
-            4 => __('general.driver_pickup'),
-            5 => __('general.lab_receive'),
+            1 => __('general.pending_payment'),
+            2 => __('general.pending'),
             80 => __('general.complete'),
-            81 => __('general.billing'),
             99 => __('general.void')
         ];
     }
