@@ -32,7 +32,7 @@ class ProductController extends Controller
     public function __construct(Request $request)
     {
         $this->request = $request;
-        $this->setting = Cache::remember('setting', env('SESSION_LIFETIME'), function () {
+        $this->setting = Cache::remember('settings', env('SESSION_LIFETIME'), function () {
             return Settings::pluck('value', 'key')->toArray();
         });
         $this->limit = 10;
@@ -69,8 +69,8 @@ class ProductController extends Controller
     public function getProductRujukan(){
 
         $user = $this->request->attributes->get('_user');
-        
-     
+
+
 
         $s = strip_tags($this->request->get('s'));
         $getLimit = $this->request->get('limit');
@@ -85,7 +85,7 @@ class ProductController extends Controller
         $data = $data->where('status', 80)->where('klinik_id', $user->klinik_id)->orderBy('id','DESC')->paginate($getLimit);
         $category = ProductCategory::where('status', 80)->get();
 
-      
+
         if(!$data){
             return response()->json([
                 'success' => 0,
@@ -103,7 +103,7 @@ class ProductController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token'),
             ]);
         }
-     
+
 
     }
 

@@ -444,7 +444,7 @@ class GeneralController extends Controller
 
     public function version()
     {
-        $setting = Cache::remember('setting', env('SESSION_LIFETIME'), function () {
+        $setting = Cache::remember('settings', env('SESSION_LIFETIME'), function () {
             return Settings::pluck('value', 'key')->toArray();
         });
 
@@ -464,7 +464,7 @@ class GeneralController extends Controller
 
     public function compareVersion()
     {
-        $setting = Cache::remember('setting', env('SESSION_LIFETIME'), function () {
+        $setting = Cache::remember('settings', env('SESSION_LIFETIME'), function () {
             return Settings::pluck('value', 'key')->toArray();
         });
 

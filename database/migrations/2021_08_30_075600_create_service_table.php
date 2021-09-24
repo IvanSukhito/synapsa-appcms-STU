@@ -18,6 +18,7 @@ class CreateServiceTable extends Migration
             $table->string('name');
             $table->integer('orders')->default(1);
             $table->tinyInteger('status')->default(1);
+            $table->tinyInteger('type')->default(1);
             $table->timestamps();
         });
     }

@@ -70,18 +70,18 @@ class InstallingSeeder extends Seeder
         ]);
 
         DB::table('setting')->insertGetId([
-            'name' => 'service_doctor',
-            'key' =>  'service_doctor',
-            'value' =>  '[1,2]',
-            'type' => 'textarea',
+            'name' => 'Service Doctor',
+            'key' =>  'service-doctor',
+            'value' =>  '[1,2,3]',
+            'type' => 'multiselect2',
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
         DB::table('setting')->insertGetId([
-            'name' => 'service_lab',
-            'key' =>  'service_lab',
+            'name' => 'Service Lab',
+            'key' =>  'service-lab',
             'value' => '[1,2]',
-            'type' => 'textarea',
+            'type' => 'multiselect2',
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);

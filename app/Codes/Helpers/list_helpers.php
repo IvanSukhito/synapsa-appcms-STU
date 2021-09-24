@@ -130,6 +130,16 @@ if ( ! function_exists('get_list_availabe')) {
     }
 }
 
+if ( ! function_exists('get_list_type_service')) {
+    function get_list_type_service()
+    {
+        return [
+            1 => __('general.no_address'),
+            2 => __('general.need_address')
+        ];
+    }
+}
+
 if ( ! function_exists('get_list_day')) {
     function get_list_day()
     {

@@ -17,7 +17,7 @@ class FaqsController extends Controller
     public function __construct(Request $request)
     {
         $this->request = $request;
-        $this->setting = Cache::remember('setting', env('SESSION_LIFETIME'), function () {
+        $this->setting = Cache::remember('settings', env('SESSION_LIFETIME'), function () {
             return Settings::pluck('value', 'key')->toArray();
         });
     }

@@ -26,7 +26,7 @@ class DoctorController extends Controller
     public function __construct(Request $request)
     {
         $this->request = $request;
-        $this->setting = Cache::remember('setting', env('SESSION_LIFETIME'), function () {
+        $this->setting = Cache::remember('settings', env('SESSION_LIFETIME'), function () {
             return Settings::pluck('value', 'key')->toArray();
         });
         $this->limit = 5;
@@ -44,73 +44,18 @@ class DoctorController extends Controller
             $getLimit = $this->limit;
         }
 
-        $service = Service::orderBy('orders', 'ASC')->get();
-        $category = DoctorCategory::orderBy('orders', 'ASC')->get();
-
-
         $getInterestService = $serviceId > 0 ? $serviceId : $user->interest_service_id;
         $getInterestCategory = $categoryId > 0 ? $categoryId : $user->interest_category_id;
-        $tempService = [];
-        $firstService = 0;
-        $getService = 0;
-        $getServiceDataTemp1 = false;
-        $getServiceData = false;
-        foreach ($service as $index => $list) {
-            $temp = [
-                'id' => $list->id,
-                'name' => $list->name,
-                'active' => 0
-            ];
 
-            if ($index == 0) {
-                $firstService = $list->id;
-                $getServiceDataTemp1 = $list;
-            }
-
-            if ($list->id == $getInterestService) {
-                $temp['active'] = 1;
-                $getService = $list->id;
-                $getServiceData = $list;
-            }
-
-            $tempService[] = $temp;
-        }
-
-        $service = $tempService;
-        if ($getService == 0) {
-            if ($firstService > 0) {
-                $service[0]['active'] = 1;
-            }
-            $getService = $firstService;
-            $getServiceData = $getServiceDataTemp1;
-        }
-
-        $firstCategory = 0;
-        $getCategory = 0;
-        $getCategoryDataTemp1 = false;
-        $getCategoryData = false;
-        foreach ($category as $index => $list) {
-            if ($index == 0) {
-                $firstCategory = $list->id;
-                $getCategoryDataTemp1 = $list;
-            }
-            if ($list->id == $getInterestCategory) {
-                $getCategory = $list->id;
-                $getCategoryData = $list;
-            }
-        }
-
-        if ($getCategory == 0) {
-            $getCategory = $firstCategory;
-            $getCategoryData = $getCategoryDataTemp1;
-        }
+        $getServiceData = $this->getService($getInterestService);
+        $getCategoryData = $this->getCategory($getInterestCategory);
 
         $data = Users::selectRaw('doctor.id, users.fullname as doctor_name, image, doctor_service.price, doctor_category.name as category')
             ->join('doctor', 'doctor.user_id', '=', 'users.id')
             ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
             ->join('doctor_service', 'doctor_service.doctor_id','=','doctor.id')
-            ->where('doctor.doctor_category_id','=', $getCategory)
-            ->where('doctor_service.service_id','=', $getService)
+            ->where('doctor.doctor_category_id','=', $getCategoryData['getCategoryId'])
+            ->where('doctor_service.service_id','=', $getServiceData['getServiceId'])
             ->where('users.doctor','=', 1);
 
         if (strlen($s) > 0) {
@@ -123,12 +68,12 @@ class DoctorController extends Controller
             'success' => 1,
             'data' => [
                 'doctor' => $data,
-                'service' => $service,
+                'service' => $getServiceData['data'],
                 'active' => [
-                    'service' => $getService,
-                    'service_name' => $getServiceData ? $getServiceData->name : '-',
-                    'category' => $getCategory,
-                    'category_name' => $getCategoryData ? $getCategoryData->name : '-'
+                    'service' => $getServiceData['getServiceId'],
+                    'service_name' => $getServiceData['getServiceName'],
+                    'category' => $getCategoryData['getCategoryId'],
+                    'category_name' => $getCategoryData['getCategoryName']
                 ]
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
@@ -138,12 +83,14 @@ class DoctorController extends Controller
 
     public function doctorCategory()
     {
-        $category = DoctorCategory::orderBy('orders', 'ASC')->get();
+        $getDoctorCategory = Cache::remember('doctor_category', env('SESSION_LIFETIME'), function () {
+            return DoctorCategory::orderBy('orders', 'ASC')->get();
+        });
 
         return response()->json([
             'success' => 1,
             'data' => [
-                'category' => $category,
+                'category' => $getDoctorCategory,
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
@@ -151,17 +98,17 @@ class DoctorController extends Controller
 
     public function getDoctorDetail($id)
     {
-        $user = $this->request->attributes->get('_user');
         $serviceId = $this->request->get('service_id');
+        $getService = Service::where('id', $serviceId)->first();
+        if (!$getService) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Service Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
 
-        $data = Users::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
-            phone, gender, doctor_service.price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
-            ->join('doctor', 'doctor.user_id', '=', 'users.id')
-            ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
-            ->join('doctor_service', 'doctor_service.doctor_id','=','doctor.id')
-            ->where('doctor_service.service_id', '=', $serviceId)
-            ->where('doctor.id', '=', $id)
-            ->where('users.doctor','=', 1)->first();
+        $data = $this->getDoctorInfo($id, $serviceId);
 
         if (!$data) {
             return response()->json([
@@ -187,14 +134,16 @@ class DoctorController extends Controller
             date('Y-m-d', strtotime($this->request->get('date'))) :
             date('Y-m-d', strtotime("+1 day"));
 
-        $data = Users::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
-            phone, gender, doctor_service.price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
-            ->join('doctor', 'doctor.user_id', '=', 'users.id')
-            ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
-            ->join('doctor_service', 'doctor_service.doctor_id','=','doctor.id')
-            ->where('doctor_service.service_id', '=', $serviceId)
-            ->where('doctor.id', '=', $id)
-            ->where('users.doctor','=', 1)->first();
+        $getService = Service::where('id', $serviceId)->first();
+        if (!$getService) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Service Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+
+        $data = $this->getDoctorInfo($id, $serviceId);
 
         if (!$data) {
             return response()->json([
@@ -228,15 +177,12 @@ class DoctorController extends Controller
     {
         $getDoctorSchedule = DoctorSchedule::where('id', '=', $id)->first();
 
-
         if (!$getDoctorSchedule) {
-
             return response()->json([
                 'success' => 0,
                 'message' => ['Jadwal Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
-
         }
         else if ($getDoctorSchedule->book != 80) {
             return response()->json([
@@ -253,10 +199,13 @@ class DoctorController extends Controller
             ], 422);
         }
 
+        $getInterestService = $getDoctorSchedule->service_id;
+        $getServiceData = $this->getService($getInterestService);
         return response()->json([
             'success' => 1,
             'data' => [
                 'schedule' => $getDoctorSchedule,
+                'service' => $getServiceData
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
@@ -318,14 +267,11 @@ class DoctorController extends Controller
 
         $getService = Service::where('id', $getDoctorSchedule->service_id)->first();
 
-        $data = Users::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
-            phone, gender, doctor_service.price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
-            ->join('doctor', 'doctor.user_id', '=', 'users.id')
-            ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
-            ->join('doctor_service', 'doctor_service.doctor_id','=','doctor.id')
-            ->where('doctor.id', '=', $getDoctorSchedule->doctor_id)
-            ->where('doctor_service.service_id', '=', $getDoctorSchedule->service_id)
-            ->where('users.doctor','=', 1)->first();
+        $doctorId = $getDoctorSchedule->doctor_id;
+        $serviceId = $getDoctorSchedule->service_id;
+
+        $data = $this->getDoctorInfo($doctorId, $serviceId);
+      
 
         return response()->json([
             'success' => 1,
@@ -366,14 +312,12 @@ class DoctorController extends Controller
             ], 422);
         }
 
-        $data = Users::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
-            phone, gender, doctor_service.price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
-            ->join('doctor', 'doctor.user_id', '=', 'users.id')
-            ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
-            ->join('doctor_service', 'doctor_service.doctor_id','=','doctor.id')
-            ->where('doctor.id', '=', $getDoctorSchedule->doctor_id)
-            ->where('doctor_service.service_id', '=', $getDoctorSchedule->service_id)
-            ->where('users.doctor','=', 1)->first();
+        
+        $doctorId = $getDoctorSchedule->doctor_id;
+        $serviceId = $getDoctorSchedule->service_id;
+
+        $data = $this->getDoctorInfo($doctorId, $serviceId);
+
 
         $getPayment = Payment::where('status', 80)->get();
 
@@ -453,14 +397,10 @@ class DoctorController extends Controller
             'phone' => $user->phone ?? ''
         ];
 
-        $data = Users::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
-            phone, gender, doctor_service.price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
-            ->join('doctor', 'doctor.user_id', '=', 'users.id')
-            ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
-            ->join('doctor_service', 'doctor_service.doctor_id','=','doctor.id')
-            ->where('doctor.id', '=', $getDoctorSchedule->doctor_id)
-            ->where('doctor_service.service_id', '=', $getDoctorSchedule->service_id)
-            ->where('users.doctor','=', 1)->first();
+        $doctorId = $getDoctorSchedule->doctor_id;
+        $serviceId = $getDoctorSchedule->service_id;
+
+        $data = $this->getDoctorInfo($doctorId, $serviceId);
 
         if (!$data) {
             return response()->json([
@@ -520,6 +460,124 @@ class DoctorController extends Controller
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
 
+    }
+
+    private function getService($getInterestService) {
+
+        $getServiceDoctor = isset($this->setting['service-doctor']) ? json_decode($this->setting['service-doctor'], true) : [];
+        if (count($getServiceDoctor) > 0) {
+            $service = Service::whereIn('id', $getServiceDoctor)->orderBy('orders', 'ASC')->get();
+        }
+        else {
+            $service = Service::orderBy('orders', 'ASC')->get();
+        }
+
+        $getList = get_list_type_service();
+
+        $tempService = [];
+        $firstService = 0;
+        $getServiceId = 0;
+        $getServiceDataTemp = false;
+        $getServiceData = false;
+        foreach ($service as $index => $list) {
+            $temp = [
+                'id' => $list->id,
+                'name' => $list->name,
+                'type' => $list->type,
+                'type_nice' => $getList[$list->type] ?? '-',
+                'active' => 0
+            ];
+
+            if ($index == 0) {
+                $firstService = $list->id;
+                $getServiceDataTemp = $list;
+            }
+
+            if ($list->id == $getInterestService) {
+                $temp['active'] = 1;
+                $getServiceId = $list->id;
+                $getServiceData = $list;
+            }
+
+            $tempService[] = $temp;
+        }
+
+        $service = $tempService;
+        if ($getServiceId == 0) {
+            if ($firstService > 0) {
+                $service[0]['active'] = 1;
+            }
+            $getServiceId = $firstService;
+            $getServiceData = $getServiceDataTemp;
+        }
+
+        return [
+            'data' => $service,
+            'getServiceId' => $getServiceId,
+            'getServiceName' => $getServiceData ? $getServiceData->name : ''
+        ];
+
+    }
+
+    private function getCategory($getInterestCategory)
+    {
+        $category = Cache::remember('doctor_category', env('SESSION_LIFETIME'), function () {
+            return DoctorCategory::orderBy('orders', 'ASC')->get();
+        });
+
+        $tempCategory = [];
+        $firstCategory = 0;
+        $getCategoryId = 0;
+        $getCategoryDataTemp = false;
+        $getCategoryData = false;
+        foreach ($category as $index => $list) {
+            $temp = [
+                'id' => $list->id,
+                'name' => $list->name,
+                'active' => 0
+            ];
+
+            if ($index == 0) {
+                $firstCategory = $list->id;
+                $getCategoryDataTemp = $list;
+            }
+
+            if ($list->id == $getInterestCategory) {
+                $temp['active'] = 1;
+                $getCategoryId = $list->id;
+                $getCategoryData = $list;
+            }
+
+            $tempCategory[] = $temp;
+        }
+
+        $category = $tempCategory;
+        if ($getCategoryId == 0) {
+            if ($firstCategory > 0) {
+                $category[0]['active'] = 1;
+            }
+            $getCategoryId = $firstCategory;
+            $getCategoryData = $getCategoryDataTemp;
+        }
+
+        return [
+            'data' => $category,
+            'getCategoryId' => $getCategoryId,
+            'getCategoryName' => $getCategoryData ? $getCategoryData->name : ''
+        ];
+
+    }
+
+    private function getDoctorInfo($doctorId, $serviceId)
+    {
+        return Users::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
+            phone, gender, doctor_service.price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
+            ->join('doctor', 'doctor.user_id', '=', 'users.id')
+            ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
+            ->join('doctor_service', 'doctor_service.doctor_id','=','doctor.id')
+            ->where('doctor_service.service_id', '=', $serviceId)
+            ->where('doctor.id', '=', $doctorId)
+            ->where('users.doctor','=', 1)->first();
     }
 
 }
