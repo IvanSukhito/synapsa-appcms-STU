@@ -134,7 +134,7 @@ if ( ! function_exists('get_list_service_payment')) {
     function get_list_service_payment()
     {
         return [
-            'xendit' => __('Xendit'),
+            'xendit' => __('Xendit')
         ];
     }
 }
