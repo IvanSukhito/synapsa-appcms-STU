@@ -68,6 +68,22 @@ class InstallingSeeder extends Seeder
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
+        DB::table('setting')->insertGetId([
+            'name' => 'service_doctor',
+            'key' =>  [1,2,3],
+            'value' =>  '',
+            'type' => 'textarea',
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
+        DB::table('setting')->insertGetId([
+            'name' => 'service_lab',
+            'key' =>  [2,3],
+            'value' => '',
+            'type' => 'textarea',
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
 
     }
 }
