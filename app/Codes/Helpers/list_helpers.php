@@ -100,16 +100,6 @@ if ( ! function_exists('get_list_recommended_for')) {
     }
 }
 
-if ( ! function_exists('get_list_gender')) {
-    function get_list_gender()
-    {
-        return [
-            1 => __('Pria'),
-            2 => __('Wanita')
-        ];
-    }
-}
-
 if ( ! function_exists('get_list_read')) {
     function get_list_read()
     {
@@ -140,6 +130,27 @@ if ( ! function_exists('get_list_type_service')) {
     }
 }
 
+if ( ! function_exists('get_list_service_payment')) {
+    function get_list_service_payment()
+    {
+        return [
+            'xendit' => __('Xendit'),
+        ];
+    }
+}
+
+if ( ! function_exists('get_list_type_payment')) {
+    function get_list_type_payment()
+    {
+        return [
+            'va' => __('Virtual Account'),
+            'ew_ovo' => __('E-Wallet OVO'),
+            'ew_dana' => __('E-Wallet DANA'),
+            'ew_linkaja' => __('E-Wallet LINKAJA'),
+        ];
+    }
+}
+
 if ( ! function_exists('get_list_day')) {
     function get_list_day()
     {
@@ -151,25 +162,6 @@ if ( ! function_exists('get_list_day')) {
             5 => __('Friday'),
             6 => __('Saturday'),
             7 => __('Sunday'),
-        ];
-    }
-}
-
-if ( ! function_exists('get_list_notification')) {
-    function get_list_notification()
-    {
-        return [
-            1 => __('general.asking_pending'),
-            2 => __('general.house_monthly_fees'),
-            3 => __('general.house_inbox'),
-            4 => __('general.house_report'),
-            5 => __('general.security_reply_report'),
-            6 => __('general.security_report'),
-            7 => __('general.house_emergency_report'),
-            8 => __('general.security_emergency_report'),
-            9 => __('general.organization_emergency_report'),
-            10 => __('general.organization_billing'),
-            11 => __('general.organization_confirm_monthly_fees')
         ];
     }
 }

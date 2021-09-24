@@ -92,7 +92,7 @@ class XenditLogic
         return $result;
     }
 
-    public function createEWalletOVO($transactionId, $codeChannel, $amount, $phone)
+    public function createEWalletOVO($transactionId, $amount, $phone)
     {
         $params = [
             'external_id' => 'ew-'.$transactionId,
@@ -100,10 +100,10 @@ class XenditLogic
             'amount' => $amount,
             'phone' => $phone,
             'checkout_method' => 'ONE_TIME_PAYMENT',
-            'channel_code' => $codeChannel,
-            'ewallet_type' => $codeChannel,
+            'channel_code' => 'OVO',
+            'ewallet_type' => 'OVO',
             'channel_properties' => [
-                'success_redirect_url' => route('api.redirectApps'),
+                'success_redirect_url' => route('api.postTransactionResult'),
             ],
             'metadata' => [
                 'branch_code' => 'tree_branch'
@@ -122,7 +122,6 @@ class XenditLogic
         if (is_string($result)) {
             $result = json_decode($result);
         }
-        dd($result);
 
         return $this->createEWallet($params);
     }
@@ -134,12 +133,12 @@ class XenditLogic
             'currency' => 'IDR',
             'amount' => $amount,
             'checkout_method' => 'ONE_TIME_PAYMENT',
-            'channel_code' => $codeChannel,
-            'ewallet_type' => $codeChannel,
-            'callback_url' => route('api.redirectApps'),
-            'redirect_url' => route('api.redirectApps'),
+            'channel_code' => 'DANA',
+            'ewallet_type' => 'DANA',
+            'callback_url' => route('api.postTransactionResult'),
+            'redirect_url' => route('api.postTransactionResult'),
             'channel_properties' => [
-                'success_redirect_url' => route('api.redirectApps'),
+                'success_redirect_url' => route('api.postTransactionResult'),
             ],
             'metadata' => [
                 'branch_code' => 'tree_branch'
@@ -149,27 +148,31 @@ class XenditLogic
         $this->createEWallet($params);
     }
 
-    public function createEWalletLINKAJA($transactionId, $codeChannel, $amount, $phone, $items)
+    public function createEWalletLINKAJA($transactionId, $amount, $phone, $items = [])
     {
+        if (count($items) < 0) {
+            $items = [
+                [
+                    'name' => 'Item 1',
+                    'quantity' => 1,
+                    'price' => $amount
+                ]
+            ];
+        }
+
         $params = [
             'external_id' => 'ew-'.$transactionId,
             'currency' => 'IDR',
             'amount' => $amount,
             'phone' => $phone,
             'checkout_method' => 'ONE_TIME_PAYMENT',
-            'channel_code' => $codeChannel,
-            'ewallet_type' => $codeChannel,
-            'items' => [
-                [
-                    'name' => 'Item 1',
-                    'quantity' => 1,
-                    'price' => $amount
-                ]
-            ],
-            'callback_url' => route('api.redirectApps'),
-            'redirect_url' => route('api.redirectApps'),
+            'channel_code' => 'LINKAJA',
+            'ewallet_type' => 'LINKAJA',
+            'items' => $items,
+            'callback_url' => route('api.postTransactionResult'),
+            'redirect_url' => route('api.postTransactionResult'),
             'channel_properties' => [
-                'success_redirect_url' => route('api.redirectApps'),
+                'success_redirect_url' => route('api.postTransactionResult'),
             ],
             'metadata' => [
                 'branch_code' => 'tree_branch'

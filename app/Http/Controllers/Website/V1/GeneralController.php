@@ -22,7 +22,7 @@ class GeneralController extends Controller
     {
         $xenditLogic = new XenditLogic();
 //        $getData = $xenditLogic->infoEWallet('123456789005');
-        $getData = $xenditLogic->createEWalletOVO('123456789005', 'OVO', 160000, '08211495299');
+        $getData = $xenditLogic->createEWalletOVO('123456789005', 160000, '08211495299');
         dd($getData);
 //
 //        $getData = $xenditLogic->simulatePaymentVA('va-123456789002', 150000);
