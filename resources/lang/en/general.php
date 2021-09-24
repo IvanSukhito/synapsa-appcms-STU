@@ -211,6 +211,8 @@ return [
     'how_to_play' => 'How To Play',
     'question' => 'Question',
     'answer' => 'Answer',
+    'success' => 'Success',
+    'pending_payment' => 'Payment Pending',
     'asking_pending' => 'Asking Pending',
     'data_empty' => 'Data Empty',
     'driver_assign' => 'Driver Assign',
