@@ -104,9 +104,9 @@ else {
                        <div id="list_desc">
                            <div class="form-group">
                                <label for="desc">{{ __('general.desc') }}</label>
-                               {{ Form::text('title', old('title'), ['id' => 'desc', 'name'=>'title[]', 'class' => 'form-control', 'placeholder' => __('general.title')]) }}
+                               {{ Form::text('title', old('title'), ['id' => 'title', 'name'=>'title[]', 'class' => 'form-control', 'placeholder' => __('general.title')]) }}
                                <br>
-                               {{ Form::textarea('desc', old('desc'), ['id' => 'desc', 'name'=>'desc[]', 'class' => 'editor', 'placeholder' => __('general.information')]) }}
+                               {{ Form::textarea('desc', old('desc'), ['id' => 'desc', 'name'=>'desc[]', 'class' => 'editor', 'placeholder' => __('general.desc')]) }}
                                <br>
                                <a href="#" onclick="return add_desc1()" class="btn btn-warning">Tambah</a>
                            </div>
@@ -156,7 +156,14 @@ else {
 
         $(document).ready(function() {
             $('.dropify').dropify();
-            $('.editor').ckeditor();
+            $('.editor').each(function(i, item) {
+            CKEDITOR.replace(item.id, {
+                autoParagraph: true,
+                allowedContent: true,
+                extraAllowedContent: '*(*);*{*};*[*]{*};div(class);span(class);h5[*]',
+                extraPlugins: 'justify,format,colorbutton,font,smiley'
+            });
+            });
         });
 
         function add_desc1() {
@@ -171,7 +178,14 @@ else {
         '</div>';
 
             $('#list_desc').append(html);
-            $('#desc_' + setIndex1).ckeditor();
+            $('#desc_' + setIndex1).each(function(i, item) {
+            CKEDITOR.replace(item.id, {
+                autoParagraph: true,
+                allowedContent: true,
+                extraAllowedContent: '*(*);*{*};*[*]{*};div(class);span(class);h5[*]',
+                extraPlugins: 'justify,format,colorbutton,font,smiley'
+            });
+            });
 
             setIndex1++;
 
