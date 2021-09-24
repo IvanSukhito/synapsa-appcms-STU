@@ -246,6 +246,7 @@ class TransactionController extends _CrudController
             $passingData
         );
         $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.transaction.list';
+        $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.transaction.list_button';
 
         $getUsers = Users::where('status', 80)->where('patient',1)->pluck('fullname', 'id')->toArray();
         if($getUsers) {
@@ -335,7 +336,7 @@ class TransactionController extends _CrudController
 
         $dataTables = new DataTables();
 
-        $builder = $this->model::query()->select('*');
+        $builder = $this->model::query()->select('*')->whereIn('status',[1,80,99]);
 
         if ($this->request->get('filter_klinik_id') && $this->request->get('filter_klinik_id') != 0) {
             $builder = $builder->where('klinik_id', $this->request->get('filter_klinik_id'));
@@ -444,6 +445,36 @@ class TransactionController extends _CrudController
             session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
             session()->flash('message_alert', 2);
             return redirect()->route($this->rootRoute.'.' . $this->route . '.show', $id);
+        }
+    }
+
+    public function destroy($id){
+        $this->callPermission();
+
+        $getData = $this->crud->show($id);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        foreach ($this->passingData as $fieldName => $fieldValue) {
+            if (in_array($fieldValue['type'], ['image', 'video', 'file'])) {
+                $destinationPath = $fieldValue['path'];
+                if (strlen($getData->$fieldName) > 0 && is_file($destinationPath.$getData->$fieldName)) {
+                    unlink($destinationPath.$getData->$fieldName);
+                }
+            }
+        }
+
+        $getData->status = 90;
+        $getData->save();
+
+        if($this->request->ajax()){
+            return response()->json(['result' => 1, 'message' => __('general.success_delete_', ['field' => $this->data['thisLabel']])]);
+        }
+        else {
+            session()->flash('message', __('general.success_delete_', ['field' => $this->data['thisLabel']]));
+            session()->flash('message_alert', 2);
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
     }
 }

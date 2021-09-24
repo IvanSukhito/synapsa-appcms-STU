@@ -70,8 +70,9 @@ if ( ! function_exists('get_list_transaction')) {
     function get_list_transaction()
     {
         return [
-            1 => __('general.pending'),
-            80 => __('general.success'),
+            1 => __('general.pending_payment'),
+            80 => __('general.complete'),
+            90 => __('general.void'),
             99 => __('general.cancel'),
         ];
     }
@@ -105,18 +106,6 @@ if ( ! function_exists('get_list_gender')) {
         return [
             1 => __('Pria'),
             2 => __('Wanita')
-        ];
-    }
-}
-
-if ( ! function_exists('get_list_transaction')) {
-    function get_list_transaction()
-    {
-        return [
-            1 => __('general.pending_payment'),
-            2 => __('general.pending'),
-            80 => __('general.complete'),
-            99 => __('general.void')
         ];
     }
 }
