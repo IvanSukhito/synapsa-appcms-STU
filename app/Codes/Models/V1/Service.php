@@ -15,6 +15,15 @@ class Service extends Model
       'status'
     ];
 
+    protected $appends = [
+        'type_nice'
+    ];
+
+    public function getTypeNiceAttribute()
+    {
+        $getList = get_list_type_service();
+        return $getList[$this->type] ?? '-';
+    }
 
     public function getDoctor()
     {

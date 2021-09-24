@@ -158,11 +158,15 @@ class DoctorController extends Controller
                 ->where('date_available', '=', $getDate)
                 ->get();
 
+            $getList = get_list_type_service();
+
             return response()->json([
                 'success' => 1,
                 'data' => [
                     'schedule_start' => date('Y-m-d', strtotime("+1 day")),
                     'schedule_end' => date('Y-m-d', strtotime("+366 day")),
+                    'address' => $getService->type == 2 ? 1 : 0,
+                    'address_nice' => $getList[$getService->type] ?? '-',
                     'date' => $getDate,
                     'schedule' => $getDoctorSchedule,
                     'doctor' => $data,
@@ -199,13 +203,15 @@ class DoctorController extends Controller
             ], 422);
         }
 
-        $getInterestService = $getDoctorSchedule->service_id;
-        $getServiceData = $this->getService($getInterestService);
+        $getService = Service::where('id', $getDoctorSchedule->service_id)->first();
+        $getList = get_list_type_service();
+
         return response()->json([
             'success' => 1,
             'data' => [
                 'schedule' => $getDoctorSchedule,
-                'service' => $getServiceData
+                'address' => $getService->type == 2 ? 1 : 0,
+                'address_nice' => $getList[$getService->type] ?? '-',
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
@@ -214,32 +220,16 @@ class DoctorController extends Controller
     public function scheduleAddress(){
         $user = $this->request->attributes->get('_user');
 
-        $getUsersAddress = UsersAddress::where('user_id', $user->id)->first();
-
-        $getAddressName = $getUsersAddress->address_name ?? '';
-        $getAddress = $getUsersAddress->address ?? '';
-        $getCity = $getUsersAddress->city_id ?? '';
-        $getDistrict = $getUsersAddress->district_id ?? '';
-        $getSubDistrict = $getUsersAddress->sub_district_id ?? '';
-        $getZipCode = $getUsersAddress->zip_code ?? '';
-        $getPhone = $user->phone ?? '';
-
         return response()->json([
             'success' => 1,
-            'data' => [
-                'address_name' => $getAddressName,
-                'address' => $getAddress,
-                'city_id' => $getCity,
-                'district_id' => $getDistrict,
-                'sub_district_id' => $getSubDistrict,
-                'zip_code' => $getZipCode,
-                'phone' => $getPhone
-            ]
+            'data' => $this->getUserAddress($user->id)
         ]);
     }
 
     public function scheduleSummary($id)
     {
+        $user = $this->request->attributes->get('_user');
+
         $getDoctorSchedule = DoctorSchedule::where('id', '=', $id)->first();
         if (!$getDoctorSchedule) {
 
@@ -271,15 +261,20 @@ class DoctorController extends Controller
         $serviceId = $getDoctorSchedule->service_id;
 
         $data = $this->getDoctorInfo($doctorId, $serviceId);
-      
+
+        $result = [
+            'schedule' => $getDoctorSchedule,
+            'doctor' => $data,
+            'service' => $getService
+        ];
+
+        if ($getService->type == 2) {
+            $result['address'] = $this->getUserAddress($user->id);
+        }
 
         return response()->json([
             'success' => 1,
-            'data' => [
-                'schedule' => $getDoctorSchedule,
-                'doctor' => $data,
-                'service' => $getService
-            ],
+            'data' => $result,
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
 
@@ -312,12 +307,10 @@ class DoctorController extends Controller
             ], 422);
         }
 
-        
         $doctorId = $getDoctorSchedule->doctor_id;
         $serviceId = $getDoctorSchedule->service_id;
 
         $data = $this->getDoctorInfo($doctorId, $serviceId);
-
 
         $getPayment = Payment::where('status', 80)->get();
 
@@ -578,6 +571,30 @@ class DoctorController extends Controller
             ->where('doctor_service.service_id', '=', $serviceId)
             ->where('doctor.id', '=', $doctorId)
             ->where('users.doctor','=', 1)->first();
+    }
+
+    private function getUserAddress($userId)
+    {
+        $getUsersAddress = UsersAddress::where('user_id', $userId)->first();
+
+        $getAddressName = $getUsersAddress->address_name ?? '';
+        $getAddress = $getUsersAddress->address ?? '';
+        $getCity = $getUsersAddress->city_id ?? '';
+        $getDistrict = $getUsersAddress->district_id ?? '';
+        $getSubDistrict = $getUsersAddress->sub_district_id ?? '';
+        $getZipCode = $getUsersAddress->zip_code ?? '';
+        $getPhone = $user->phone ?? '';
+
+        return [
+            'address_name' => $getAddressName,
+            'address' => $getAddress,
+            'city_id' => $getCity,
+            'district_id' => $getDistrict,
+            'sub_district_id' => $getSubDistrict,
+            'zip_code' => $getZipCode,
+            'phone' => $getPhone
+        ];
+
     }
 
 }
