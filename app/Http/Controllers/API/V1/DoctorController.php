@@ -199,10 +199,13 @@ class DoctorController extends Controller
             ], 422);
         }
 
+        $getInterestService = $getDoctorSchedule->service_id;
+        $getServiceData = $this->getService($getInterestService);
         return response()->json([
             'success' => 1,
             'data' => [
                 'schedule' => $getDoctorSchedule,
+                'service' => $getServiceData
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
@@ -264,14 +267,11 @@ class DoctorController extends Controller
 
         $getService = Service::where('id', $getDoctorSchedule->service_id)->first();
 
-        $data = Users::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
-            phone, gender, doctor_service.price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
-            ->join('doctor', 'doctor.user_id', '=', 'users.id')
-            ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
-            ->join('doctor_service', 'doctor_service.doctor_id','=','doctor.id')
-            ->where('doctor.id', '=', $getDoctorSchedule->doctor_id)
-            ->where('doctor_service.service_id', '=', $getDoctorSchedule->service_id)
-            ->where('users.doctor','=', 1)->first();
+        $doctorId = $getDoctorSchedule->doctor_id;
+        $serviceId = $getDoctorSchedule->service_id;
+
+        $data = $this->getDoctorInfo($doctorId, $serviceId);
+      
 
         return response()->json([
             'success' => 1,
@@ -312,14 +312,12 @@ class DoctorController extends Controller
             ], 422);
         }
 
-        $data = Users::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
-            phone, gender, doctor_service.price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
-            ->join('doctor', 'doctor.user_id', '=', 'users.id')
-            ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
-            ->join('doctor_service', 'doctor_service.doctor_id','=','doctor.id')
-            ->where('doctor.id', '=', $getDoctorSchedule->doctor_id)
-            ->where('doctor_service.service_id', '=', $getDoctorSchedule->service_id)
-            ->where('users.doctor','=', 1)->first();
+        
+        $doctorId = $getDoctorSchedule->doctor_id;
+        $serviceId = $getDoctorSchedule->service_id;
+
+        $data = $this->getDoctorInfo($doctorId, $serviceId);
+
 
         $getPayment = Payment::where('status', 80)->get();
 
@@ -399,14 +397,10 @@ class DoctorController extends Controller
             'phone' => $user->phone ?? ''
         ];
 
-        $data = Users::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
-            phone, gender, doctor_service.price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
-            ->join('doctor', 'doctor.user_id', '=', 'users.id')
-            ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
-            ->join('doctor_service', 'doctor_service.doctor_id','=','doctor.id')
-            ->where('doctor.id', '=', $getDoctorSchedule->doctor_id)
-            ->where('doctor_service.service_id', '=', $getDoctorSchedule->service_id)
-            ->where('users.doctor','=', 1)->first();
+        $doctorId = $getDoctorSchedule->doctor_id;
+        $serviceId = $getDoctorSchedule->service_id;
+
+        $data = $this->getDoctorInfo($doctorId, $serviceId);
 
         if (!$data) {
             return response()->json([

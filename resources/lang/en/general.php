@@ -57,6 +57,8 @@ return [
     'recommended_for' => 'Recommended For',
     'thumbnail' => 'Thumbnail',
     'address' => 'Address',
+    'no_address' => 'No Address',
+    'need_address' => 'Need Address',
     'article' => 'Article',
     'formal_edu' => 'Formal Edu',
     'nonformal_edu' => 'Non-Formal Edu',
