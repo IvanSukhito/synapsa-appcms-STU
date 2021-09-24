@@ -83,20 +83,41 @@ class HistoryController extends Controller
             $tempService[] = $temp;
         }
 
+//        $service = $tempService;
+//        if ($getService == 0) {
+//            if ($firstService > 0) {
+//                if($doctor == 1) {
+//                    $service[0]['active'] = 1;
+//                    $service[2]['active'] = 1;
+//                    $service[4]['active'] = 1;
+//                }
+//                else if($lab == 1) {
+//                    $service[1]['active'] = 1;
+//                    $service[3]['active'] = 1;
+//                    $service[5]['active'] = 1;
+//                }
+//                else {
+//                    $service[0]['active'] = 1;
+//                }
+//            }
+//            $getServiceData = $getServiceDataTemp1;
+//        }
+
         $service = $tempService;
         if ($getService == 0) {
             if ($firstService > 0) {
                 $service[0]['active'] = 1;
             }
+            $getService = $firstService;
             $getServiceData = $getServiceDataTemp1;
         }
 
         if($doctor == 1){
             switch ($getService) {
-                case 1 : $getType = [2]; break;
+//                case 0 : $getType = [2,3,4]; break;
                 case 2 : $getType = [3]; break;
                 case 3 : $getType = [4]; break;
-                default : $getType = [2,3,4]; break;
+                default : $getType = [2]; break;
             }
 
             $getDataDoctor = Transaction::selectRaw('transaction.id, transaction_details.doctor_name as doctor_name, transaction_details.doctor_price as doctor_price, transaction.status as status, type, users.image as image')
@@ -126,10 +147,10 @@ class HistoryController extends Controller
         }
         elseif($lab == 1){
             switch ($getService) {
-                case 1 : $getType = [5]; break;
+//                case 0 : $getType = [5,6,7]; break;
                 case 2 : $getType = [6]; break;
                 case 3 : $getType = [7]; break;
-                default : $getType = [5,6,7]; break;
+                default : $getType = [5]; break;
             }
 
             $getDataLab = Transaction::selectRaw('transaction.id, transaction_details.lab_name as lab_name, transaction_details.lab_price as lab_price, status, type, lab.image as image')
