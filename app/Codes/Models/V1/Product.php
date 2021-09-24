@@ -10,6 +10,7 @@ class Product extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'product_category_id',
+        'klinik_id',
         'sku',
         'name',
         'image',

@@ -36,6 +36,7 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
     Route::get('article', ['uses' => 'App\Http\Controllers\API\V1\ArticleController@getArticle'])->name('api.getArticle');
     Route::get('article/{id}', ['uses' => 'App\Http\Controllers\API\V1\ArticleController@getArticleDetail'])->name('api.getArticleDetail');
 
+    Route::get('product-rujukan', )
     Route::get('product', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getProduct'])->name('api.getProduct');
     Route::get('product/{id}', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getProductDetail'])->name('api.getProductDetail');
 
@@ -94,7 +95,7 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
 
        $router->get('/', ['uses' => 'App\Http\Controllers\API\V1\HistoryController@index'])->name('api.transaction.index');
        $router->get('detail/{id}', ['uses' => 'App\Http\Controllers\API\V1\HistoryController@detail'])->name('api.transaction.detail');
-
+    
    });
 });
 
