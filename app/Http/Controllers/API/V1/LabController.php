@@ -45,43 +45,13 @@ class LabController extends Controller
             $getLimit = $this->limit;
         }
 
-        $service = Service::orderBy('orders', 'ASC')->get();
-
         $getInterestService = $serviceId > 0 ? $serviceId : $user->interest_service_id;
-        $getServiceId = 0;
-        $firstService = 0;
-        $tempService = [];
-        foreach ($service as $index => $list) {
-            $temp = [
-                'id' => $list->id,
-                'name' => $list->name,
-                'active' => 0
-            ];
 
-            if ($index == 0) {
-                $firstService = $list->id;
-            }
-            if ($getInterestService == $list->id) {
-                $temp['active'] = 1;
-                $getServiceId = $list->id;
-            }
-
-            $tempService[] = $temp;
-
-        }
-
-        $service = $tempService;
-
-        if ($getServiceId == 0) {
-            if ($firstService > 0) {
-                $service[0]['active'] = 1;
-            }
-            $getServiceId = $firstService;
-        }
+        $getServiceData = $this->getService($getInterestService);
 
         $data = Lab::selectRaw('lab.id ,lab.name, lab_service.price, lab.image')
         ->join('lab_service', 'lab_service.lab_id','=','lab.id')
-        ->where('lab_service.service_id','=', $getServiceId)
+        ->where('lab_service.service_id','=', $getServiceData['getServiceId'])
         ->where('lab.parent_id', '=', 0);
 
         if (strlen($s) > 0) {
@@ -102,7 +72,11 @@ class LabController extends Controller
             'success' => 1,
             'data' => [
                 'lab' => $data,
-                'service' => $service
+                'service' => $getServiceData['data'],
+                'active' => [
+                    'service' => $getServiceData['getServiceId'],
+                    'service_name' => $getServiceData['getServiceName'],
+                ]
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
@@ -118,25 +92,13 @@ class LabController extends Controller
         $service = Service::orderBy('orders', 'ASC')->get();
 
         $getInterestService = $serviceId > 0 ? $serviceId : $user->interest_service_id;
-        $getServiceId = 0;
-        $firstService = 0;
-        foreach ($service as $index => $list) {
-            if ($index == 0) {
-                $firstService = $list->id;
-            }
-            if ($getInterestService == $list->id) {
-                $getServiceId = $list->id;
-            }
-        }
-
-        if ($getServiceId == 0) {
-            $getServiceId = $firstService;
-        }
+       
+        $getServiceData = $this->getService($getInterestService);
 
         $data = Lab::selectRaw('lab.parent_id, lab.name, lab.image, lab.desc_lab,lab.desc_benefit,
             lab.desc_preparation, lab.recommended_for, lab_service.price')
             ->join('lab_service', 'lab_service.lab_id','=','lab.id')
-            ->where('lab_service.service_id','=', $getServiceId)
+            ->where('lab_service.service_id','=', $getServiceData['getServiceId'])
             ->where('id', $id)->first();
 
         if (!$data) {
@@ -150,7 +112,7 @@ class LabController extends Controller
         if ($data->parent_id == 0) {
             $dataLabTerkait = Lab::selectRaw('lab.id ,lab.name, lab_service.price, lab.image')
                 ->join('lab_service', 'lab_service.lab_id','=','lab.id', 'LEFT')
-                ->where('lab_service.service_id','=', $getServiceId)
+                ->where('lab_service.service_id','=', $getServiceData['getServiceId'])
                 ->where('lab.parent_id', '=', $id)->get();
 
             $getData = [
@@ -177,17 +139,20 @@ class LabController extends Controller
         $user = $this->request->attributes->get('_user');
 
         $getLabCart = LabCart::where('user_id', $user->id)->first();
-        $getService = [];
+
+        $userId = $user->id;
+
+        $getServiceData = [];
         $getData = [];
         $total = 0;
         if ($getLabCart) {
-            $getService = Service::where('id', $getLabCart->service_id)->first();
-            $getData = Lab::selectRaw('lab_cart.id, lab.id AS lab_id, lab.parent_id ,lab.name, lab_service.price,
-                lab.image, lab_cart.choose')
-                ->join('lab_service', 'lab_service.lab_id','=','lab.id')
-                ->join('lab_cart', 'lab_cart.lab_id','=','lab.id')
-                ->where('lab_service.service_id', $getLabCart->service_id)
-                ->where('user_id', $user->id)->get();
+          
+            $getInterestService = $getLabCart->service_id;
+
+            $getServiceData = $this->getService($getInterestService);
+
+            $getData = $this->getLabInfo($userId, $getInterestService);
+
             foreach ($getData as $list) {
                 $total += $list->price;
             }
@@ -197,7 +162,7 @@ class LabController extends Controller
             'success' => 1,
             'data' => [
                 'cart' => $getData,
-                'service' => $getService,
+                'service' => $getServiceData,
                 'total' => $total,
                 'total_nice' => number_format($total, 0, '.', '.')
             ],
@@ -224,6 +189,7 @@ class LabController extends Controller
 
         $getLabId = $this->request->get('lab_id');
         $getServiceId = $this->request->get('service_id');
+        $userId = $user->id;
 
         $getLabCart = LabCart::where('user_id', $user->id)->first();
         if ($getLabCart && $getLabCart->service_id != $getServiceId) {
@@ -242,12 +208,9 @@ class LabController extends Controller
 
         $total = 0;
         $getService = Service::where('id', $getServiceId)->first();
-        $getData = Lab::selectRaw('lab_cart.id, lab.id AS lab_id, lab.parent_id ,lab.name, lab_service.price,
-                lab.image, lab_cart.choose')
-            ->join('lab_service', 'lab_service.lab_id','=','lab.id')
-            ->join('lab_cart', 'lab_cart.lab_id','=','lab.id')
-            ->where('lab_service.service_id', $getServiceId)
-            ->where('user_id', $user->id)->get();
+
+        $getData = $this->getLabInfo($userId, $getServiceId);
+
         foreach ($getData as $list) {
             $total += $list->price;
         }
@@ -352,8 +315,15 @@ class LabController extends Controller
             ], 404);
         }
 
+        
+        $getInterestService = $getData->service_id;
+
+        $getServiceData = $this->getService($getInterestService);
+
+
         $getLabSchedule = LabSchedule::where('service_id', $getData->service_id)->where('date_available', '=', $getDate)
             ->get();
+
 
         return response()->json([
             'success' => 1,
@@ -361,7 +331,8 @@ class LabController extends Controller
                 'schedule_start' => date('Y-m-d', strtotime("+1 day")),
                 'schedule_end' => date('Y-m-d', strtotime("+366 day")),
                 'date' => $getDate,
-                'schedule' => $getLabSchedule
+                'schedule' => $getLabSchedule,
+                'service' => $getServiceData
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
@@ -400,6 +371,7 @@ class LabController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
+        $userId = $user->id;
         $getCart = LabCart::where('user_id', '=', $user->id)->where('choose', '=', 1)->first();
         if (!$getCart) {
             return response()->json([
@@ -420,12 +392,14 @@ class LabController extends Controller
         }
 
         $total = 0;
-        $getData = Lab::selectRaw('lab_cart.id, lab.id AS lab_id, lab.parent_id ,lab.name, lab_service.price,
-                lab.image, lab_cart.choose')
-            ->join('lab_service', 'lab_service.lab_id','=','lab.id')
-            ->join('lab_cart', 'lab_cart.lab_id','=','lab.id')
-            ->where('lab_service.service_id', $getCart->service_id)
-            ->where('user_id', $user->id)->where('choose', 1)->get();
+
+        $serviceId = $getCart->service_id;
+
+        $getData = $this->getLabInfo($userId, $serviceId);
+
+        $getData = $getData->where('choose',1);
+    
+       
         foreach ($getData as $list) {
             $total += $list->price;
         }
@@ -446,6 +420,8 @@ class LabController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
+        $userId = $user->id;
+
         $getCart = LabCart::where('user_id', '=', $user->id)->where('choose', '=', 1)->first();
         if (!$getCart) {
             return response()->json([
@@ -466,12 +442,13 @@ class LabController extends Controller
         }
 
         $total = 0;
-        $getData = Lab::selectRaw('lab_cart.id, lab.id AS lab_id, lab.parent_id ,lab.name, lab_service.price,
-                lab.image, lab_cart.choose')
-            ->join('lab_service', 'lab_service.lab_id','=','lab.id')
-            ->join('lab_cart', 'lab_cart.lab_id','=','lab.id')
-            ->where('lab_service.service_id', $getCart->service_id)
-            ->where('user_id', $user->id)->where('choose', 1)->get();
+     
+        $serviceId = $getCart->service_id;
+
+        $getData = $this->getLabInfo($userId, $serviceId);
+
+        $getData = $getData->where('choose',1);
+
         foreach ($getData as $list) {
             $total += $list->price;
         }
@@ -495,6 +472,8 @@ class LabController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
+        $userId = $user->id;
+
         $validator = Validator::make($this->request->all(), [
             'payment_id' => 'required|numeric',
             'schedule_id' => 'required|numeric'
@@ -511,7 +490,7 @@ class LabController extends Controller
         $scheduleId = $this->request->get('schedule_id');
 
         $getPayment = Payment::where('id', $paymentId)->where('status', 80)->first();
-        $paymentInfo = [];
+        
         if (!$getPayment) {
             return response()->json([
                 'success' => 0,
@@ -540,12 +519,13 @@ class LabController extends Controller
         }
 
         $total = 0;
-        $getData = Lab::selectRaw('lab_cart.id, lab.id AS lab_id, lab.parent_id ,lab.name, lab_service.price,
-                lab.image, lab_cart.choose')
-            ->join('lab_service', 'lab_service.lab_id','=','lab.id')
-            ->join('lab_cart', 'lab_cart.lab_id','=','lab.id')
-            ->where('lab_service.service_id', $getCart->service_id)
-            ->where('user_id', $user->id)->where('choose', 1)->get();
+      
+        $serviceId = $getCart->service_id;
+
+        $getData = $this->getLabInfo($userId, $serviceId);
+
+        $getData = $getData->where('choose',1);
+
         foreach ($getData as $list) {
             $total += $list->price;
         }
@@ -610,7 +590,7 @@ class LabController extends Controller
             'data' => [
                 'checkout_info' => $getTransaction,
                 'checkout_details' => $listTransactionDetails,
-                'payment_info' => $paymentInfo
+                'payment_info' => $getPayment
             ],
             'message' => ['Berhasil'],
             'token' => $this->request->attributes->get('_refresh_token'),
@@ -618,4 +598,71 @@ class LabController extends Controller
 
     }
 
+    private function getService($getInterestService) {
+
+        $getServiceLab = isset($this->setting['service-lab']) ? json_decode($this->setting['service-lab'], true) : [];
+        if (count($getServiceLab) > 0) {
+            $service = Service::whereIn('id', $getServiceLab)->orderBy('orders', 'ASC')->get();
+        }
+        else {
+            $service = Service::orderBy('orders', 'ASC')->get();
+        }
+
+        $getList = get_list_type_service();
+
+        $tempService = [];
+        $firstService = 0;
+        $getServiceId = 0;
+        $getServiceDataTemp = false;
+        $getServiceData = false;
+        foreach ($service as $index => $list) {
+            $temp = [
+                'id' => $list->id,
+                'name' => $list->name,
+                'type' => $list->type,
+                'type_nice' => $getList[$list->type] ?? '-',
+                'active' => 0
+            ];
+
+            if ($index == 0) {
+                $firstService = $list->id;
+                $getServiceDataTemp = $list;
+            }
+
+            if ($list->id == $getInterestService) {
+                $temp['active'] = 1;
+                $getServiceId = $list->id;
+                $getServiceData = $list;
+            }
+
+            $tempService[] = $temp;
+        }
+
+        $service = $tempService;
+        if ($getServiceId == 0) {
+            if ($firstService > 0) {
+                $service[0]['active'] = 1;
+            }
+            $getServiceId = $firstService;
+            $getServiceData = $getServiceDataTemp;
+        }
+
+        return [
+            'data' => $service,
+            'getServiceId' => $getServiceId,
+            'getServiceName' => $getServiceData ? $getServiceData->name : ''
+        ];
+
+    }
+
+    public function getLabInfo($userId, $serviceId){
+
+        return Lab::selectRaw('lab_cart.id, lab.id AS lab_id, lab.parent_id ,lab.name, lab_service.price,
+                lab.image, lab_cart.choose')
+        ->join('lab_service', 'lab_service.lab_id','=','lab.id')
+        ->join('lab_cart', 'lab_cart.lab_id','=','lab.id')
+        ->where('lab_service.service_id', $serviceId)
+        ->where('user_id', $userId)->get();
+
+    }
 }
