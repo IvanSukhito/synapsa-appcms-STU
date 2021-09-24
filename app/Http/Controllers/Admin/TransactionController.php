@@ -336,7 +336,7 @@ class TransactionController extends _CrudController
 
         $dataTables = new DataTables();
 
-        $builder = $this->model::query()->select('*')->whereIn('status',[1,80,99]);
+        $builder = $this->model::query()->select('*');
 
         if ($this->request->get('filter_klinik_id') && $this->request->get('filter_klinik_id') != 0) {
             $builder = $builder->where('klinik_id', $this->request->get('filter_klinik_id'));
