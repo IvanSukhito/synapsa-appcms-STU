@@ -66,6 +66,47 @@ class ProductController extends Controller
 
     }
 
+    public function getProductRujukan(){
+
+        $user = $this->request->attributes->get('_user');
+        
+     
+
+        $s = strip_tags($this->request->get('s'));
+        $getLimit = $this->request->get('limit');
+        if ($getLimit <= 0) {
+            $getLimit = $this->limit;
+        }
+
+        $data = Product::selectRaw('id, name, image, unit, price, stock, stock_flag');
+        if (strlen($s) > 0) {
+            $data = $data->where('name', 'LIKE', strip_tags($s))->orWhere('desc', 'LIKE', strip_tags($s));
+        }
+        $data = $data->where('status', 80)->where('klinik_id', $user->klinik_id)->orderBy('id','DESC')->paginate($getLimit);
+        $category = ProductCategory::where('status', 80)->get();
+
+      
+        if(!$data){
+            return response()->json([
+                'success' => 0,
+                'message' => ['Produk Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+        else{
+            return response()->json([
+                'success' => 1,
+                'data' => [
+                    'product' => $data,
+                    'category' => $category
+                ],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ]);
+        }
+     
+
+    }
+
     public function getProductDetail($id){
         $user = $this->request->attributes->get('_user');
 
