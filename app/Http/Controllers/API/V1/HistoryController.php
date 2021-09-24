@@ -230,6 +230,7 @@ class HistoryController extends Controller
             ],404);
           }
 
+        //dd($getData->id);
         $getDataDoctor = Transaction::selectRaw('transaction.id, code, transaction_details.doctor_name as doctor_name, doctor_category.name as category, klinik.name as clinic_name, transaction.total as total_price,
          transaction.status as status, users.image as image, payment_name, payment.icon_img as icon')
         ->join('klinik','klinik.id', '=', 'transaction.klinik_id')
@@ -239,7 +240,7 @@ class HistoryController extends Controller
         ->join('users','users.id','=','doctor.user_id')
         ->join('payment','payment.id', '=','transaction.payment_id')
         ->where('transaction.user_id', $user->id)
-        ->where('transaction.id', $getData->id)
+        ->where('transaction.id', $id)
         ->first();
 
         $getDataLab = Transaction::selectRaw('transaction.id, code, time_start, time_end, date_available, transaction.total as total_price,
@@ -248,16 +249,28 @@ class HistoryController extends Controller
        ->join('lab_schedule','lab_schedule.id','=','transaction_details.schedule_id')
        ->join('payment','payment.id', '=','transaction.payment_id')
        ->where('transaction.user_id', $user->id)
-       ->where('transaction.id', $getData->id)
+       ->where('transaction.id', $id)
        ->first();
-
+       if ($getDataDoctor) {
+        return response()->json([
+            'success' => 0,
+            'data' => $getDataDoctor,
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
+      }
        $getDataProduct = Transaction::selectRaw('transaction.id, shipping_address_name, shipping_name, shipping_price,  transaction.total as total, transaction.status as status, transaction.type')
        ->join('transaction_details', 'transaction_details.transaction_id', '=', 'transaction.id')
        ->where('transaction.user_id', $user->id)
-       ->where('transaction.id', $getData->id)
+       ->where('transaction.id', $id)
        ->where('type', 1)
        ->first();
-
+       if($getDataLab) {
+        return response()->json([
+            'success' => 0,
+            'data' => $getDataLab,
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
+    }
 
        $listProduct = Product::selectRaw('transaction_details.id, product.id as product_id, product.name, product.image, product.price')
        ->join('transaction_details', 'transaction_details.product_id', '=', 'product.id')
@@ -269,19 +282,7 @@ class HistoryController extends Controller
           'list Product' => $listProduct
       ];
 
-      if ($getDataDoctor) {
-        return response()->json([
-            'success' => 0,
-            'data' => $getDataDoctor,
-            'token' => $this->request->attributes->get('_refresh_token'),
-        ]);
-      }elseif($getDataLab) {
-          return response()->json([
-              'success' => 0,
-              'data' => $getDataLab,
-              'token' => $this->request->attributes->get('_refresh_token'),
-          ]);
-      }elseif($getDataProduct){
+     if($getDataProduct){
         return response()->json([
             'success' => 0,
             'data' => $historyProduct,
