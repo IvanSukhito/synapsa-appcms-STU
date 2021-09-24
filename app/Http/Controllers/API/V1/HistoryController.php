@@ -120,9 +120,10 @@ class HistoryController extends Controller
                 default : $getType = [2]; break;
             }
 
-            $getDataDoctor = Transaction::selectRaw('transaction.id, transaction_details.doctor_name as doctor_name, transaction_details.doctor_price as doctor_price, transaction.status as status, type, users.image as image')
+            $getDataDoctor = Transaction::selectRaw('transaction.id, transaction.code, transaction.created_at, transaction_details.doctor_name as doctor_name, transaction_details.doctor_price as doctor_price, transaction.status as status, type, users.image as image, doctor_category.name as category_name')
             ->join('transaction_details', 'transaction_details.transaction_id', '=', 'transaction.id')
             ->join('doctor', 'doctor.id','=','transaction_details.doctor_id')
+            ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
             ->join('users','users.id','=','doctor.user_id')
             ->where('transaction.user_id', $user->id)
             ->whereIn('type', $getType)
@@ -153,7 +154,7 @@ class HistoryController extends Controller
                 default : $getType = [5]; break;
             }
 
-            $getDataLab = Transaction::selectRaw('transaction.id, transaction_details.lab_name as lab_name, transaction_details.lab_price as lab_price, status, type, lab.image as image')
+            $getDataLab = Transaction::selectRaw('transaction.id, transaction.code, transaction.created_at, transaction_details.lab_name as lab_name, transaction_details.lab_price as lab_price, status, type, lab.image as image')
             ->join('transaction_details', function($join){
                 $join->on('transaction_details.transaction_id','=','transaction.id')
                      ->on('transaction_details.id', '=', DB::raw("(select min(id) from transaction_details WHERE transaction_details.transaction_id = transaction.id)"));
@@ -185,7 +186,7 @@ class HistoryController extends Controller
 
         }else{
 
-            $getDataProduct = Transaction::selectRaw('transaction.id, transaction_details.product_name as product_name, transaction.total as price, transaction.status as status, type, product.image as image')
+            $getDataProduct = Transaction::selectRaw('transaction.id, transaction.code,transaction.created_at, transaction_details.product_name as product_name, transaction.total as price, transaction.status as status, type, product.image as image')
             ->join('transaction_details', function($join){
                 $join->on('transaction_details.transaction_id','=','transaction.id')
                      ->on('transaction_details.id', '=', DB::raw("(select min(id) from transaction_details WHERE transaction_details.transaction_id = transaction.id)"));

@@ -73,6 +73,36 @@ else {
                     </div>
                     <div id="listService"></div>
                 </div>
+                @if(in_array($viewType, ['show']))
+                <div class="card-body">
+                    <table class="table table-bordered table-striped" id="data1">
+                        <thead>
+                        <tr>
+                            <th>@lang('general.id')</th>
+                            <th>@lang('general.doctor_id')</th>
+                            <th>@lang('general.service_id')</th>
+                            <th>@lang('general.date_available')</th>
+                            <th>@lang('general.time_start')</th>
+                            <th>@lang('general.time_end')</th>
+                            <th>@lang('general.book')</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach($getScheduleData as $list)
+                            <tr>
+                                <td>{{ $list->id }}</td>
+                                <td>{{ $list->doctor_id }}</td>
+                                <td>{{ $list->service_id }}</td>
+                                <td>{{ $list->date_available }}</td>
+                                <td>{{ $list->time_start }}</td>
+                                <td>{{ $list->time_end }}</td>
+                                <td>{{ $getListAvailabe[$list->book] ?? $list->book }}</td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                @endif
                 <!-- /.card-body -->
 
                 <div class="card-footer">
@@ -110,6 +140,9 @@ else {
     @parent
     @include(env('ADMIN_TEMPLATE').'._component.generate_forms_script')
     <script>
+
+        let table;
+        table = jQuery('#data1').DataTable();
 
         let listDataService = JSON.parse('{!! json_encode($listSet['service_id']) !!}');
 
