@@ -12,6 +12,8 @@ class Payment extends Model
         'name',
         'icon_img',
         'orders',
+        'service',
+        'type_payment',
         'settings',
         'type',
         'status'

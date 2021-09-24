@@ -143,7 +143,8 @@ if ( ! function_exists('get_list_type_payment')) {
     function get_list_type_payment()
     {
         return [
-            'va' => __('Virtual Account'),
+            'va_bca' => __('Virtual Account BCA'),
+            'va_bni' => __('Virtual Account BNI'),
             'ew_ovo' => __('E-Wallet OVO'),
             'ew_dana' => __('E-Wallet DANA'),
             'ew_linkaja' => __('E-Wallet LINKAJA'),

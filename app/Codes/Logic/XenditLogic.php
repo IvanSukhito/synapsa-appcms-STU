@@ -126,7 +126,7 @@ class XenditLogic
         return $this->createEWallet($params);
     }
 
-    public function createEWalletDANA($transactionId, $codeChannel, $amount)
+    public function createEWalletDANA($transactionId, $amount)
     {
         $params = [
             'external_id' => 'ew-'.$transactionId,
@@ -145,7 +145,7 @@ class XenditLogic
             ]
         ];
 
-        $this->createEWallet($params);
+        return $this->createEWallet($params);
     }
 
     public function createEWalletLINKAJA($transactionId, $amount, $phone, $items = [])
@@ -179,7 +179,7 @@ class XenditLogic
             ]
         ];
 
-        $this->createEWallet($params);
+        return $this->createEWallet($params);
     }
 
     public function createEWallet($params)
