@@ -217,7 +217,8 @@ class DoctorController extends Controller
         ]);
     }
 
-    public function scheduleAddress(){
+    public function scheduleAddress()
+    {
         $user = $this->request->attributes->get('_user');
 
         return response()->json([
@@ -455,7 +456,8 @@ class DoctorController extends Controller
 
     }
 
-    private function getService($getInterestService) {
+    private function getService($getInterestService)
+    {
 
         $getServiceDoctor = isset($this->setting['service-doctor']) ? json_decode($this->setting['service-doctor'], true) : [];
         if (count($getServiceDoctor) > 0) {
@@ -580,8 +582,11 @@ class DoctorController extends Controller
         $getAddressName = $getUsersAddress->address_name ?? '';
         $getAddress = $getUsersAddress->address ?? '';
         $getCity = $getUsersAddress->city_id ?? '';
+        $getCityName = $getUsersAddress->city_name ?? '';
         $getDistrict = $getUsersAddress->district_id ?? '';
+        $getDistrictName = $getUsersAddress->district_name ?? '';
         $getSubDistrict = $getUsersAddress->sub_district_id ?? '';
+        $getSubDistrictName = $getUsersAddress->sub_district_name ?? '';
         $getZipCode = $getUsersAddress->zip_code ?? '';
         $getPhone = $user->phone ?? '';
 
@@ -589,8 +594,11 @@ class DoctorController extends Controller
             'address_name' => $getAddressName,
             'address' => $getAddress,
             'city_id' => $getCity,
+            'city_name' => $getCityName,
             'district_id' => $getDistrict,
+            'district_name' => $getDistrictName,
             'sub_district_id' => $getSubDistrict,
+            'sub_district_name' => $getSubDistrictName,
             'zip_code' => $getZipCode,
             'phone' => $getPhone
         ];

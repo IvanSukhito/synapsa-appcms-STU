@@ -22,6 +22,7 @@ class Payment extends Model
     protected $appends = [
         'icon_full',
         'price_nice',
+        'setting_data',
     ];
 
     public function getIconFullAttribute()
@@ -35,8 +36,16 @@ class Payment extends Model
 
     public function getPriceNiceAttribute()
     {
-        return '15.000';
-        return intval($this->price) > 0 ? number_format($this->price, 0, '.', '.') : 0;
+        return isset($this->price) && intval($this->price) > 0 ? number_format($this->price, 0, '.', '.') : 0;
+    }
+
+    public function getSettingDataAttribute()
+    {
+        $getData = json_decode($this->settings, true);
+        if ($getData) {
+            return $getData;
+        }
+        return [];
     }
 
 }

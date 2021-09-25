@@ -21,7 +21,24 @@ class GeneralController extends Controller
     public function xendit()
     {
 
-        dd(strtoupper(substr('va_mandiri', 3)));
+        var_dump(json_encode([
+            'va_number' => '72102735985',
+            'va_name' => 'PT Synapsa Indonesia',
+            'va_info' => [
+                [
+                    'title' => 'ATM BCA',
+                    'description' => '<ul><li>Masukan Pin ATM Anda</li><li>Masukan Pin ATM Anda</li><li>Masukan Pin ATM Anda</li></ul>',
+                ],
+                [
+                    'title' => 'Internet Banking BCA',
+                    'description' => '<ul><li>Masukan Pin ATM Anda</li><li>Masukan Pin ATM Anda</li><li>Masukan Pin ATM Anda</li></ul>',
+                ],
+                [
+                    'title' => 'Mobile Banking BCA',
+                    'description' => '<ul><li>Masukan Pin ATM Anda</li><li>Masukan Pin ATM Anda</li><li>Masukan Pin ATM Anda</li></ul>',
+                ],
+            ],
+        ]));
         die();
         $xenditLogic = new XenditLogic();
 //        $getData = $xenditLogic->infoEWallet('123456789005');
