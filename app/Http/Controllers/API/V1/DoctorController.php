@@ -404,7 +404,7 @@ class DoctorController extends Controller
             ], 404);
         }
         $getPayment = Payment::where('id', $paymentId)->first();
-        $paymentInfo = [];
+        $paymentInfo = $getPayment->setting_data;
 
         $subTotal = $data->price;
         $total = $subTotal;
@@ -448,6 +448,7 @@ class DoctorController extends Controller
             'data' => [
                 'checkout_info' => $getTransaction,
                 'checkout_details' => $getTransactionDetails,
+                'payment_data' => $getPayment,
                 'payment_info' => $paymentInfo
             ],
             'message' => ['Berhasil'],
