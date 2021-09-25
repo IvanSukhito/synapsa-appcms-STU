@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API\V1;
 
+use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\DoctorSchedule;
 use App\Codes\Models\V1\DoctorCategory;
@@ -419,6 +420,8 @@ class DoctorController extends Controller
         $getTransaction = Transaction::create([
             'klinik_id' => $user->klinik_id,
             'user_id' => $user->id,
+            'service' => $getPayment->service,
+            'type_payment' => $getPayment->type_payment,
             'code' => $newCode,
             'payment_id' => $paymentId,
             'payment_name' => $getPayment->name,
@@ -442,6 +445,11 @@ class DoctorController extends Controller
         ]);
 
         DB::commit();
+
+        $setLogic = new SynapsaLogic();
+        $setLogic->createPayment($getPayment, $getTransaction, [
+            'name' => $user->name
+        ]);
 
         return response()->json([
             'success' => 1,

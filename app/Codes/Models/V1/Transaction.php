@@ -13,6 +13,8 @@ class Transaction extends Model
         'user_id',
         'code',
         'shipping_id',
+        'service',
+        'type_payment',
         'shipping_name',
         'payment_id',
         'payment_name',
