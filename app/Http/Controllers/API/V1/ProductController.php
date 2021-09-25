@@ -40,7 +40,6 @@ class ProductController extends Controller
 
     public function getProduct()
     {
-
         $user = $this->request->attributes->get('_user');
 
         $s = strip_tags($this->request->get('s'));
@@ -49,7 +48,7 @@ class ProductController extends Controller
             $getLimit = $this->limit;
         }
 
-        $data = Product::selectRaw('id, name, image, unit, price, stock, stock_flag');
+        $data = Product::selectRaw('id, name, image, unit, price, stock, stock_flag')->where('klinik_id', '=', 0);
         if (strlen($s) > 0) {
             $data = $data->where('name', 'LIKE', strip_tags($s))->orWhere('desc', 'LIKE', strip_tags($s));
         }
@@ -69,10 +68,7 @@ class ProductController extends Controller
 
     public function getProductRujukan()
     {
-
         $user = $this->request->attributes->get('_user');
-
-
 
         $s = strip_tags($this->request->get('s'));
         $getLimit = $this->request->get('limit');
@@ -80,7 +76,7 @@ class ProductController extends Controller
             $getLimit = $this->limit;
         }
 
-        $data = Product::selectRaw('id, name, image, unit, price, stock, stock_flag');
+        $data = Product::selectRaw('id, name, image, unit, price, stock, stock_flag')->where('klinik_id', '=', $user->klinik_id);
         if (strlen($s) > 0) {
             $data = $data->where('name', 'LIKE', strip_tags($s))->orWhere('desc', 'LIKE', strip_tags($s));
         }
