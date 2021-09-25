@@ -38,7 +38,8 @@ class ProductController extends Controller
         $this->limit = 10;
     }
 
-    public function getProduct(){
+    public function getProduct()
+    {
 
         $user = $this->request->attributes->get('_user');
 
@@ -66,7 +67,8 @@ class ProductController extends Controller
 
     }
 
-    public function getProductRujukan(){
+    public function getProductRujukan()
+    {
 
         $user = $this->request->attributes->get('_user');
 
@@ -107,7 +109,8 @@ class ProductController extends Controller
 
     }
 
-    public function getProductDetail($id){
+    public function getProductDetail($id)
+    {
         $user = $this->request->attributes->get('_user');
 
         $data = Product::where('status', 80)->where('id', $id)->first();
@@ -128,7 +131,8 @@ class ProductController extends Controller
 
     }
 
-    public function getCart(){
+    public function getCart()
+    {
         $user = $this->request->attributes->get('_user');
 
         $getUsersCart = UsersCart::firstOrCreate([
@@ -158,7 +162,8 @@ class ProductController extends Controller
 
     }
 
-    public function storeCart(){
+    public function storeCart()
+    {
         $user = $this->request->attributes->get('_user');
 
         $validator = Validator::make($this->request->all(), [
@@ -216,7 +221,8 @@ class ProductController extends Controller
         }
     }
 
-    Public function updateCart($id){
+    Public function updateCart($id)
+    {
 
         $user = $this->request->attributes->get('_user');
 
@@ -261,7 +267,8 @@ class ProductController extends Controller
 
     }
 
-    public function deleteCart($id){
+    public function deleteCart($id)
+    {
 
         $user = $this->request->attributes->get('_user');
 
@@ -331,7 +338,8 @@ class ProductController extends Controller
 
     }
 
-    public function getReceiver(){
+    public function getReceiver()
+    {
         $user = $this->request->attributes->get('_user');
 
         $getData = UsersCart::firstOrCreate([
@@ -362,7 +370,8 @@ class ProductController extends Controller
         ]);
     }
 
-    public function updateReceiver(){
+    public function updateReceiver()
+    {
         $user = $this->request->attributes->get('_user');
         $validator = Validator::make($this->request->all(), [
             'receiver' => 'required',
@@ -403,7 +412,8 @@ class ProductController extends Controller
         ]);
     }
 
-    public function getAddress(){
+    public function getAddress()
+    {
         $user = $this->request->attributes->get('_user');
 
         $getData = UsersCart::firstOrCreate([
@@ -475,7 +485,8 @@ class ProductController extends Controller
 
     }
 
-    public function updateShipping(){
+    public function updateShipping()
+    {
 
         $user = $this->request->attributes->get('_user');
 
