@@ -38,7 +38,7 @@ class SynapsaLogic
                 $getTypePayment = strtoupper(substr($payment->type_payment, 3));
                 LogServiceTransaction::create([
                     'transaction_id' => $transaction->id,
-                    'transaction_refer_id' => $transaction->id,
+                    'transaction_refer_id' => isset($result->external_id) ? $result->external_id : '',
                     'service' => 'xendit',
                     'type_payment' => $getTypePayment,
                     'type_transaction' => 'create',
