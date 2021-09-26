@@ -80,18 +80,18 @@ if ( ! function_exists('moneyFormatWithK')) {
     function moneyFormatWithK($number) {
         $number = $number/1000;
         if(preg_match('/^[0-9]+\.[0-9]{2}$/', $number))
-            return number_format($number, 2, '.', '.').'K';
+            return number_format($number, 2, ',', '.').'K';
         elseif(preg_match('/^[0-9]+\.[0-9]{1}$/', $number))
-            return number_format($number, 1, '.', '.').'K';
+            return number_format($number, 1, ',', '.').'K';
         else
-            return number_format($number, 0, '.', '.').'K';
+            return number_format($number, 0, ',', '.').'K';
     }
 }
 
 if ( ! function_exists('distanceFormatWithK')) {
     function distanceFormatWithK($number) {
         if ($number < 1000) {
-            return number_format($number, 0, '.', '.').' M';
+            return number_format($number, 0, ',', '.').' M';
         }
         $number = $number/1000;
         $number = number_format($number, 2, '.', '');

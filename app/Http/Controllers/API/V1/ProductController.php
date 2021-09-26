@@ -151,7 +151,9 @@ class ProductController extends Controller
             'data' => [
                 'cart' => $listProduct,
                 'total_qty' => $totalQty,
+                'total_qty_nice' => number_format($totalQty, 0, ',', '.'),
                 'total_price' => $totalPrice,
+                'total_price_nice' => number_format($totalPrice, 0, ',', '.'),
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
@@ -205,6 +207,7 @@ class ProductController extends Controller
                 'data' => [
                     'product_id' => $productId,
                     'qty' => $cart->qty,
+                    'qty_nice' => number_format($cart->qty, 0, ',', '.'),
                 ]
             ]);
 
@@ -256,6 +259,7 @@ class ProductController extends Controller
                 'id' => $id,
                 'product_id' => $getUsersCartDetail->product_id,
                 'qty' => $getUsersCartDetail->qty,
+                'qty_nice' => number_format($cart->qty, 0, ',', '.'),
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
             'message' => ['Berhasil Memperbarui Keranjang'],
@@ -297,7 +301,6 @@ class ProductController extends Controller
         $validator = Validator::make($this->request->all(), [
             'product_ids' => 'required|array',
         ]);
-
         if ($validator->fails()) {
             return response()->json([
                 'success' => 0,
@@ -314,23 +317,40 @@ class ProductController extends Controller
 
         DB::beginTransaction();
 
-        UsersCartDetail::join('users_cart', 'users_cart.id', '=', 'users_cart_detail.users_cart_id')
-            ->where('users_id', $user->id)
-            ->whereIn('users_cart_detail.product_id', $getListproductIds)->update([
-                'choose' => 0
-            ]);
+        $getUsersCartDetails = UsersCartDetail::selectRaw('users_cart_detail.id, product_id, choose, users_id')
+            ->join('users_cart', 'users_cart.id', '=', 'users_cart_detail.users_cart_id')
+            ->where('users_id', $user->id)->get();
 
-        UsersCartDetail::whereIn('users_cart_detail.product_id', $getListproductIds)->update([
-            'choose' => 1
-        ]);
+        $haveProduct = 0;
+        if ($getUsersCartDetails) {
+            foreach ($getUsersCartDetails as $getUsersCartDetail) {
+                if (in_array($getUsersCartDetail->id, $getListproductIds)) {
+                    $haveProduct = 1;
+                    $getUsersCartDetail->choose = 1;
+                }
+                else {
+                    $getUsersCartDetail->choose = 0;
+                }
+                $getUsersCartDetail->save();
+            }
+        }
 
         DB::commit();
 
-        return response()->json([
-            'success' => 1,
-            'token' => $this->request->attributes->get('_refresh_token'),
-            'message' => ['Berhasil Memilih Produk'],
-        ]);
+        if ($haveProduct == 1) {
+            return response()->json([
+                'success' => 1,
+                'token' => $this->request->attributes->get('_refresh_token'),
+                'message' => ['Berhasil Memilih Produk'],
+            ]);
+        }
+        else {
+            return response()->json([
+                'success' => 0,
+                'token' => $this->request->attributes->get('_refresh_token'),
+                'message' => ['Tidak ada Produk yang di pilih'],
+            ]);
+        }
 
     }
 

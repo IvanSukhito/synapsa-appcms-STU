@@ -76,7 +76,7 @@ class Users extends Model implements JWTSubject
 
     public function getPriceNiceAttribute()
     {
-        return isset($this->price) && intval($this->price) > 0 ? number_format($this->price, 0, '.', '.') : 0;
+        return isset($this->price) && intval($this->price) > 0 ? number_format($this->price, 0, ',', '.') : 0;
     }
 
     public function getDeviceToken()

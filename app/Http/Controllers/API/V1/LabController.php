@@ -92,7 +92,7 @@ class LabController extends Controller
         $service = Service::orderBy('orders', 'ASC')->get();
 
         $getInterestService = $serviceId > 0 ? $serviceId : $user->interest_service_id;
-       
+
         $getServiceData = $this->getService($getInterestService);
 
         $data = Lab::selectRaw('lab.parent_id, lab.name, lab.image, lab.desc_lab,lab.desc_benefit,
@@ -146,7 +146,7 @@ class LabController extends Controller
         $getData = [];
         $total = 0;
         if ($getLabCart) {
-          
+
             $getInterestService = $getLabCart->service_id;
 
             $getServiceData = $this->getService($getInterestService);
@@ -164,7 +164,7 @@ class LabController extends Controller
                 'cart' => $getData,
                 'service' => $getServiceData,
                 'total' => $total,
-                'total_nice' => number_format($total, 0, '.', '.')
+                'total_nice' => number_format($total, 0, ',', '.')
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
@@ -221,7 +221,7 @@ class LabController extends Controller
                 'cart' => $getData,
                 'service' => $getService,
                 'total' => $total,
-                'total_nice' => number_format($total, 0, '.', '.')
+                'total_nice' => number_format($total, 0, ',', '.')
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
@@ -245,6 +245,7 @@ class LabController extends Controller
 
         return response()->json([
             'success' => 1,
+            'message' => ['Test Lab berhasil dihapus'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
 
@@ -292,7 +293,7 @@ class LabController extends Controller
         else {
             return response()->json([
                 'success' => 0,
-                'message' => ['Keranjang Test Lab Tidak Ditemukan'],
+                'message' => ['Tidak ada Test Lab yang di pilih'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ]);
         }
@@ -315,21 +316,21 @@ class LabController extends Controller
             ], 404);
         }
 
-        
         $getInterestService = $getData->service_id;
-
         $getServiceData = $this->getService($getInterestService);
-
-
-        $getLabSchedule = LabSchedule::where('service_id', $getData->service_id)->where('date_available', '=', $getDate)
+        $getLabSchedule = LabSchedule::where('service_id', $getData->service_id)
+            ->where('date_available', '=', $getDate)
             ->get();
 
+        $getList = get_list_type_service();
 
         return response()->json([
             'success' => 1,
             'data' => [
                 'schedule_start' => date('Y-m-d', strtotime("+1 day")),
                 'schedule_end' => date('Y-m-d', strtotime("+366 day")),
+                'address' => $getService->type == 2 ? 1 : 0,
+                'address_nice' => $getList[$getService->type] ?? '-',
                 'date' => $getDate,
                 'schedule' => $getLabSchedule,
                 'service' => $getServiceData
@@ -398,8 +399,8 @@ class LabController extends Controller
         $getData = $this->getLabInfo($userId, $serviceId);
 
         $getData = $getData->where('choose',1);
-    
-       
+
+
         foreach ($getData as $list) {
             $total += $list->price;
         }
@@ -410,7 +411,7 @@ class LabController extends Controller
                 'cart' => $getData,
                 'schedule' => $getLabSchedule,
                 'total' => $total,
-                'total_nice' => number_format($total, 0, '.', '.')
+                'total_nice' => number_format($total, 0, ',', '.')
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
@@ -442,7 +443,7 @@ class LabController extends Controller
         }
 
         $total = 0;
-     
+
         $serviceId = $getCart->service_id;
 
         $getData = $this->getLabInfo($userId, $serviceId);
@@ -461,7 +462,7 @@ class LabController extends Controller
                 'cart' => $getData,
                 'schedule' => $getLabSchedule,
                 'total' => $total,
-                'total_nice' => number_format($total, 0, '.', '.'),
+                'total_nice' => number_format($total, 0, ',', '.'),
                 'payment' => $getPayment
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
@@ -490,7 +491,7 @@ class LabController extends Controller
         $scheduleId = $this->request->get('schedule_id');
 
         $getPayment = Payment::where('id', $paymentId)->where('status', 80)->first();
-        
+
         if (!$getPayment) {
             return response()->json([
                 'success' => 0,
@@ -519,7 +520,7 @@ class LabController extends Controller
         }
 
         $total = 0;
-      
+
         $serviceId = $getCart->service_id;
 
         $getData = $this->getLabInfo($userId, $serviceId);

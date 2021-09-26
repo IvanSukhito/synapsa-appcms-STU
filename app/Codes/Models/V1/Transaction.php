@@ -54,17 +54,17 @@ class Transaction extends Model
 
     public function getShippingPriceNiceAttribute()
     {
-        return intval($this->shipping_price) > 0 ? number_format($this->shipping_price, 0, '.', '.') : 0;
+        return intval($this->shipping_price) > 0 ? number_format($this->shipping_price, 0, ',', '.') : 0;
     }
 
     public function getTotalNiceAttribute()
     {
-        return intval($this->total) > 0 ? number_format($this->total, 0, '.', '.') : 0;
+        return intval($this->total) > 0 ? number_format($this->total, 0, ',', '.') : 0;
     }
 
     public function getSubtotalNiceAttribute()
     {
-        return intval($this->subtotal) > 0 ? number_format($this->subtotal, 0, '.', '.') : 0;
+        return intval($this->subtotal) > 0 ? number_format($this->subtotal, 0, ',', '.') : 0;
     }
 
     public function getTypeTransactionAttribute()

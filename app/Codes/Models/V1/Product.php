@@ -29,7 +29,7 @@ class Product extends Model
     ];
     public function getPriceNiceAttribute()
     {
-        return intval($this->price) > 0 ? number_format($this->price, 0, '.', '.') : 0;
+        return intval($this->price) > 0 ? number_format($this->price, 0, ',', '.') : 0;
     }
 
     public function getDescDetailsAttribute()
@@ -39,7 +39,7 @@ class Product extends Model
 
     public function getImageFullAttribute()
     {
-       
+
         if (strlen($this->image) > 0) {
             return env('OSS_URL').'/'.$this->image;
         }
