@@ -7,11 +7,13 @@ use App\Codes\Models\Settings;
 use App\Codes\Models\V1\DoctorSchedule;
 use App\Codes\Models\V1\DoctorCategory;
 use App\Codes\Models\V1\Service;
+use App\Codes\Models\V1\SetJob;
 use App\Codes\Models\V1\TransactionDetails;
 use App\Codes\Models\V1\Transaction;
 use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\Payment;
 use App\Codes\Models\V1\UsersAddress;
+use App\Jobs\ProcessTransaction;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
@@ -346,10 +348,6 @@ class DoctorController extends Controller
             ], 422);
         }
 
-        $paymentId = $this->request->get('payment_id');
-
-        $getUsersAddress = UsersAddress::where('user_id', $user->id)->first();
-
         $getDoctorSchedule = DoctorSchedule::where('id', '=', $id)->first();
         if (!$getDoctorSchedule) {
 
@@ -375,6 +373,35 @@ class DoctorController extends Controller
             ], 422);
         }
 
+        $paymentId = $this->request->get('payment_id');
+        $doctorId = $getDoctorSchedule->doctor_id;
+        $serviceId = $getDoctorSchedule->service_id;
+
+        $data = $this->getDoctorInfo($doctorId, $serviceId);
+        if (!$data) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Doktor Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+
+        $job = SetJob::create([
+            'status' => 1,
+            'params' => [
+                'payment_id' => $paymentId,
+                'user_id' => $user->id,
+                'type_service' => 'doctor',
+                'doctor_id' => $getDoctorSchedule->doctor_id,
+                'service_id' => $getDoctorSchedule->service_id,
+                'schedule_id' => $getDoctorSchedule->id,
+                'doctor_info' => $data->toArray()
+            ]
+        ]);
+
+        ProcessTransaction::dispatch($job->id);
+
+        $getUsersAddress = UsersAddress::where('user_id', $user->id)->first();
         $getType = check_list_type_transaction('doctor', $getDoctorSchedule->service_id);
 
         $extraInfo = [
@@ -388,18 +415,6 @@ class DoctorController extends Controller
             'phone' => $user->phone ?? ''
         ];
 
-        $doctorId = $getDoctorSchedule->doctor_id;
-        $serviceId = $getDoctorSchedule->service_id;
-
-        $data = $this->getDoctorInfo($doctorId, $serviceId);
-
-        if (!$data) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Doktor Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
         $getPayment = Payment::where('id', $paymentId)->first();
         $paymentInfo = $getPayment->setting_data;
 
