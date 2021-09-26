@@ -37,6 +37,7 @@ class Transaction extends Model
         'shipping_price',
         'total',
         'extra_info',
+        'payment_info',
         'status'
     ];
 

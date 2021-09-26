@@ -91,12 +91,19 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
 
     });
 
+   $router->group(['prefix' => 'transaction/job'], function () use ($router) {
+
+       $router->get('{id}', ['uses' => 'App\Http\Controllers\API\V1\JobController@jobDetail'])->name('api.transaction.jobDetail');
+
+   });
+
    $router->group(['prefix' => 'transaction/history'], function () use ($router) {
 
        $router->get('/', ['uses' => 'App\Http\Controllers\API\V1\HistoryController@index'])->name('api.transaction.index');
        $router->get('detail/{id}', ['uses' => 'App\Http\Controllers\API\V1\HistoryController@detail'])->name('api.transaction.detail');
-    
+
    });
+
 });
 
 // Non Login

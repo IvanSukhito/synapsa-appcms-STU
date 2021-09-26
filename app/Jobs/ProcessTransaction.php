@@ -30,7 +30,7 @@ class ProcessTransaction implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($jobId, $paymentId, $userId, $type, $additionalData)
+    public function __construct($jobId)
     {
         $this->jobId = $jobId;
         $this->getJob = SetJob::where('id', $this->jobId)->first();
@@ -90,7 +90,7 @@ class ProcessTransaction implements ShouldQueue
 
         $extraInfo = [
             'service_id' => $getDoctorSchedule->service_id,
-            'phone' => $user->phone ?? ''
+            'phone' => $getUser->phone ?? ''
         ];
 
         foreach (['address_name', 'address', 'city_id', 'city_name', 'district_id', 'district_name',
@@ -101,8 +101,8 @@ class ProcessTransaction implements ShouldQueue
         DB::beginTransaction();
 
         $getTransaction = Transaction::create([
-            'klinik_id' => $user->klinik_id,
-            'user_id' => $user->id,
+            'klinik_id' => $getUser->klinik_id,
+            'user_id' => $getUser->id,
             'service' => $getPayment->service,
             'type_payment' => $getPayment->type_payment,
             'code' => $newCode,
@@ -115,7 +115,7 @@ class ProcessTransaction implements ShouldQueue
             'status' => 1
         ]);
 
-        $getTransactionDetails = TransactionDetails::create([
+        TransactionDetails::create([
             'transaction_id' => $getTransaction->id,
             'schedule_id' => $getScheduleId,
             'doctor_id' => $getDoctorInfo->id,
@@ -130,11 +130,18 @@ class ProcessTransaction implements ShouldQueue
         DB::commit();
 
         $setLogic = new SynapsaLogic();
-        $setLogic->createPayment($getPayment, $getTransaction, [
-            'name' => $user->name
+        $getPaymentInfo = $setLogic->createPayment($getPayment, $getTransaction, [
+            'name' => $getUser->name
         ]);
 
-        $this->getJob->status = 99;
+        $getTransaction->payment_info = json_encode($getPaymentInfo);
+        $getTransaction->status = 2;
+        $getTransaction->save();
+
+        $this->getJob->status = 2;
+        $this->getJob->response = json_encode([
+            'message' => 'ok'
+        ]);
         $this->getJob->save();
 
     }

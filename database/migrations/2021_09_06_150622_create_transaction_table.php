@@ -43,6 +43,7 @@ class CreateTransactionTable extends Migration
             $table->text('receiver_address')->nullable();
             $table->tinyInteger('type')->default(0);
             $table->text('extra_info')->nullable();
+            $table->longText('payment_info')->nullable();
             $table->tinyInteger('status')->default(0);
             $table->timestamps();
         });

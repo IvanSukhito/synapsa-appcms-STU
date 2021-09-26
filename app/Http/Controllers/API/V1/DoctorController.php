@@ -388,7 +388,7 @@ class DoctorController extends Controller
 
         $job = SetJob::create([
             'status' => 1,
-            'params' => [
+            'params' => json_encode([
                 'payment_id' => $paymentId,
                 'user_id' => $user->id,
                 'type_service' => 'doctor',
@@ -396,83 +396,92 @@ class DoctorController extends Controller
                 'service_id' => $getDoctorSchedule->service_id,
                 'schedule_id' => $getDoctorSchedule->id,
                 'doctor_info' => $data->toArray()
-            ]
+            ])
         ]);
 
         ProcessTransaction::dispatch($job->id);
 
-        $getUsersAddress = UsersAddress::where('user_id', $user->id)->first();
-        $getType = check_list_type_transaction('doctor', $getDoctorSchedule->service_id);
-
-        $extraInfo = [
-            'service_id' => $getDoctorSchedule->service_id,
-            'address_name' => $getUsersAddress->address_name ?? '',
-            'address' => $getUsersAddress->address ?? '',
-            'city_id' => $getUsersAddress->city_id ?? '',
-            'district_id' => $getUsersAddress->district_id ?? '',
-            'sub_district_id' => $getUsersAddress->sub_district_id ?? '',
-            'zip_code' => $getUsersAddress->zip_code ?? '',
-            'phone' => $user->phone ?? ''
-        ];
-
-        $getPayment = Payment::where('id', $paymentId)->first();
-        $paymentInfo = $getPayment->setting_data;
-
-        $subTotal = $data->price;
-        $total = $subTotal;
-
-        $getTotal = Transaction::where('klinik_id', $user->klinik_id)->whereYear('created_at', '=', date('Y'))
-            ->whereMonth('created_at', '=', date('m'))->count();
-
-        $newCode = date('Ym').str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT);
-
-        DB::beginTransaction();
-
-        $getTransaction = Transaction::create([
-            'klinik_id' => $user->klinik_id,
-            'user_id' => $user->id,
-            'service' => $getPayment->service,
-            'type_payment' => $getPayment->type_payment,
-            'code' => $newCode,
-            'payment_id' => $paymentId,
-            'payment_name' => $getPayment->name,
-            'type' => $getType,
-            'subtotal' => $subTotal,
-            'total' => $total,
-            'extra_info' => json_encode($extraInfo),
-            'status' => 1
-        ]);
-
-        $getTransactionDetails = TransactionDetails::create([
-            'transaction_id' => $getTransaction->id,
-            'schedule_id' => $id,
-            'doctor_id' => $data->id,
-            'doctor_name' => $data->doctor_name,
-            'doctor_price' => $subTotal
-        ]);
-
-        DoctorSchedule::where('id', $id)->update([
-            'book' => 99
-        ]);
-
-        DB::commit();
-
-        $setLogic = new SynapsaLogic();
-        $setLogic->createPayment($getPayment, $getTransaction, [
-            'name' => $user->name
-        ]);
-
         return response()->json([
             'success' => 1,
             'data' => [
-                'checkout_info' => $getTransaction,
-                'checkout_details' => $getTransactionDetails,
-                'payment_data' => $getPayment,
-                'payment_info' => $paymentInfo
+                'job_id' => $job->id
             ],
             'message' => ['Berhasil'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
+
+//        $getUsersAddress = UsersAddress::where('user_id', $user->id)->first();
+//        $getType = check_list_type_transaction('doctor', $getDoctorSchedule->service_id);
+//
+//        $extraInfo = [
+//            'service_id' => $getDoctorSchedule->service_id,
+//            'address_name' => $getUsersAddress->address_name ?? '',
+//            'address' => $getUsersAddress->address ?? '',
+//            'city_id' => $getUsersAddress->city_id ?? '',
+//            'district_id' => $getUsersAddress->district_id ?? '',
+//            'sub_district_id' => $getUsersAddress->sub_district_id ?? '',
+//            'zip_code' => $getUsersAddress->zip_code ?? '',
+//            'phone' => $user->phone ?? ''
+//        ];
+//
+//        $getPayment = Payment::where('id', $paymentId)->first();
+//        $paymentInfo = $getPayment->setting_data;
+//
+//        $subTotal = $data->price;
+//        $total = $subTotal;
+//
+//        $getTotal = Transaction::where('klinik_id', $user->klinik_id)->whereYear('created_at', '=', date('Y'))
+//            ->whereMonth('created_at', '=', date('m'))->count();
+//
+//        $newCode = date('Ym').str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT);
+//
+//        DB::beginTransaction();
+//
+//        $getTransaction = Transaction::create([
+//            'klinik_id' => $user->klinik_id,
+//            'user_id' => $user->id,
+//            'service' => $getPayment->service,
+//            'type_payment' => $getPayment->type_payment,
+//            'code' => $newCode,
+//            'payment_id' => $paymentId,
+//            'payment_name' => $getPayment->name,
+//            'type' => $getType,
+//            'subtotal' => $subTotal,
+//            'total' => $total,
+//            'extra_info' => json_encode($extraInfo),
+//            'status' => 1
+//        ]);
+//
+//        $getTransactionDetails = TransactionDetails::create([
+//            'transaction_id' => $getTransaction->id,
+//            'schedule_id' => $id,
+//            'doctor_id' => $data->id,
+//            'doctor_name' => $data->doctor_name,
+//            'doctor_price' => $subTotal
+//        ]);
+//
+//        DoctorSchedule::where('id', $id)->update([
+//            'book' => 99
+//        ]);
+//
+//        DB::commit();
+//
+//        $setLogic = new SynapsaLogic();
+//        $setLogic->createPayment($getPayment, $getTransaction, [
+//            'name' => $user->name
+//        ]);
+//
+//        return response()->json([
+//            'success' => 1,
+//            'data' => [
+//                'checkout_info' => $getTransaction,
+//                'checkout_details' => $getTransactionDetails,
+//                'payment_data' => $getPayment,
+//                'payment_info' => $paymentInfo
+//            ],
+//            'message' => ['Berhasil'],
+//            'token' => $this->request->attributes->get('_refresh_token'),
+//        ]);
 
     }
 
