@@ -66,11 +66,43 @@ if ( ! function_exists('get_list_type_transaction')) {
     }
 }
 
+if ( ! function_exists('check_list_type_transaction')) {
+    function check_list_type_transaction($typeService = 'product', $service = 0)
+    {
+        if (strtolower($typeService) == 'product') {
+            return 1;
+        }
+        else if (strtolower($typeService) == 'doctor') {
+            switch ($service) {
+                case 1 : return 2; break;
+                case 2 : return 3; break;
+                case 3 : return 4; break;
+            }
+        }
+        else if (strtolower($typeService) == 'lab') {
+            switch ($service) {
+                case 1 : return 5; break;
+                case 2 : return 6; break;
+                case 3 : return 7; break;
+            }
+        }
+        else if (strtolower($typeService) == 'nurse') {
+            switch ($service) {
+                case 1 : return 8; break;
+                case 2 : return 9; break;
+                case 3 : return 10; break;
+            }
+        }
+        return 0;
+    }
+}
+
 if ( ! function_exists('get_list_transaction')) {
     function get_list_transaction()
     {
         return [
-            1 => __('general.pending_payment'),
+            1 => __('general.pending'),
+            2 => __('general.pending_payment'),
             80 => __('general.complete'),
             90 => __('general.void'),
             99 => __('general.cancel'),

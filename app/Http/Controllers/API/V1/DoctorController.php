@@ -375,11 +375,7 @@ class DoctorController extends Controller
             ], 422);
         }
 
-        switch ($getDoctorSchedule->service_id) {
-            case 2 : $getType = 3; break;
-            case 3 : $getType = 4; break;
-            default : $getType = 2; break;
-        }
+        $getType = check_list_type_transaction('doctor', $getDoctorSchedule->service_id);
 
         $extraInfo = [
             'service_id' => $getDoctorSchedule->service_id,
