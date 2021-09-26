@@ -278,8 +278,8 @@ class HistoryController extends Controller
 
 
       $historyProduct = [
-          'Transaction Product' => $getDataProduct,
-          'list Product' => $listProduct
+          'transaction_product' => $getDataProduct,
+          'list_product' => $listProduct
       ];
 
      if($getDataProduct){
