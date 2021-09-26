@@ -11,13 +11,11 @@ use App\Codes\Models\V1\TransactionDetails;
 use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\UsersAddress;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class ProcessTransaction implements ShouldQueue
 {
@@ -130,7 +128,7 @@ class ProcessTransaction implements ShouldQueue
 
         $setLogic = new SynapsaLogic();
         $getPaymentInfo = $setLogic->createPayment($getPayment, $getTransaction, [
-            'name' => $getUser->name
+            'name' => $getUser->fullname
         ]);
 
         $getTransaction->payment_info = json_encode($getPaymentInfo);

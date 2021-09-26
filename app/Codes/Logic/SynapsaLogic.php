@@ -3,7 +3,6 @@
 namespace App\Codes\Logic;
 
 use App\Codes\Models\V1\LogServiceTransaction;
-use Illuminate\Support\Facades\Log;
 
 class SynapsaLogic
 {
@@ -43,7 +42,7 @@ class SynapsaLogic
                     'service' => 'xendit',
                     'type_payment' => $getTypePayment,
                     'type_transaction' => 'create',
-                    'results' => $result
+                    'results' => json_encode($result)
                 ]);
 
                 return $result;
