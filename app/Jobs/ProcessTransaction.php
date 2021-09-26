@@ -17,6 +17,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ProcessTransaction implements ShouldQueue
 {
@@ -47,7 +48,7 @@ class ProcessTransaction implements ShouldQueue
         if ($getJob && $getJob->status == 1) {
 
             $getParams = json_decode($getJob->params, TRUE);
-            $getTypeService = isset($getParams['type_service']) ? intval($getParams['type_service']) : 0;
+            $getTypeService = isset($getParams['type_service']) ? $getParams['type_service'] : '';
             $getServiceId = isset($getParams['service_id']) ? intval($getParams['service_id']) : 0;
             $getUserId = isset($getParams['user_id']) ? intval($getParams['user_id']) : 0;
             $getPaymentId = isset($getParams['payment_id']) ? intval($getParams['payment_id']) : 0;
@@ -56,11 +57,9 @@ class ProcessTransaction implements ShouldQueue
                 $this->transactionProduct();
             }
             else if (in_array($getType, [2,3,4])) {
-                $getDoctorId = isset($getParams['doctor_id']) ? intval($getParams['doctor_id']) : 0;
                 $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
-                $getDoctorInfo = isset($getParams['doctor_info']) ? intval($getParams['doctor_info']) : 0;
-                $this->transactionDoctor($getType, $getUserId, $getPaymentId, $getDoctorId, $getScheduleId, $getServiceId, $getDoctorInfo);
-
+                $getDoctorInfo = isset($getParams['doctor_info']) ? $getParams['doctor_info'] : [];
+                $this->transactionDoctor($getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getDoctorInfo);
             }
             else if (in_array($getType, [5,6,7])) {
                 $this->transactionLab();
@@ -73,14 +72,14 @@ class ProcessTransaction implements ShouldQueue
 
     }
 
-    private function transactionDoctor($getType, $getUserId, $getPaymentId, $getDoctorId, $getScheduleId, $getServiceId, $getDoctorInfo)
+    private function transactionDoctor($getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getDoctorInfo)
     {
         $getUsersAddress = UsersAddress::where('user_id', $getUserId)->first();
         $getDoctorSchedule = DoctorSchedule::where('id', $getScheduleId)->first();
         $getPayment = Payment::where('id', $getPaymentId)->first();
         $getUser = Users::where('id', $getUserId)->first();
 
-        $subTotal = $getDoctorInfo->price;
+        $subTotal = $getDoctorInfo['price'];
         $total = $subTotal;
 
         $getTotal = Transaction::where('klinik_id', $getUser->klinik_id)->whereYear('created_at', '=', date('Y'))
@@ -118,8 +117,8 @@ class ProcessTransaction implements ShouldQueue
         TransactionDetails::create([
             'transaction_id' => $getTransaction->id,
             'schedule_id' => $getScheduleId,
-            'doctor_id' => $getDoctorInfo->id,
-            'doctor_name' => $getDoctorInfo->doctor_name,
+            'doctor_id' => $getDoctorInfo['id'],
+            'doctor_name' => $getDoctorInfo['doctor_name'],
             'doctor_price' => $subTotal
         ]);
 
@@ -140,6 +139,9 @@ class ProcessTransaction implements ShouldQueue
 
         $this->getJob->status = 2;
         $this->getJob->response = json_encode([
+            'service' => $getTypeService,
+            'service_id' => $getServiceId,
+            'transaction_id' => $getTransaction->id,
             'message' => 'ok'
         ]);
         $this->getJob->save();

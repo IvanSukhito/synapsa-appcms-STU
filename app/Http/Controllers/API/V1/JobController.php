@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API\V1;
 
+use App\Codes\Models\V1\SetJob;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -17,7 +18,10 @@ class JobController extends Controller
     public function jobDetail($jobId)
     {
 
+        $getJobData = SetJob::where('id', $jobId)->first();
+        if ($getJobData && $getJobData->status == 2) {
 
+        }
 
     }
 

@@ -3,6 +3,7 @@
 namespace App\Codes\Logic;
 
 use App\Codes\Models\V1\LogServiceTransaction;
+use Illuminate\Support\Facades\Log;
 
 class SynapsaLogic
 {
@@ -44,8 +45,14 @@ class SynapsaLogic
                     'type_transaction' => 'create',
                     'results' => $result
                 ]);
+
+                return $result;
+
             }
 
         }
+
+        return false;
+
     }
 }
