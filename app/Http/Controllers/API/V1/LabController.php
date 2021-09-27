@@ -564,78 +564,7 @@ class LabController extends Controller
             'message' => ['Berhasil'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
-        // Dari sini
-
-//        foreach ($getData as $list) {
-//            $total += $list->price;
-//        }
-//
-//        $getUsersAddress = UsersAddress::where('user_id', $user->id)->first();
-//
-//        switch ($getLabSchedule->service_id) {
-//            case 2 : $getType = 6; break;
-//            case 3 : $getType = 7; break;
-//            default : $getType = 5; break;
-//        }
-//
-//        $extraInfo = [
-//            'service_id' => $getLabSchedule->service_id,
-//            'address_name' => $getUsersAddress->address_name ?? '',
-//            'address' => $getUsersAddress->address ?? '',
-//            'city_id' => $getUsersAddress->city_id ?? '',
-//            'district_id' => $getUsersAddress->district_id ?? '',
-//            'sub_district_id' => $getUsersAddress->sub_district_id ?? '',
-//            'zip_code' => $getUsersAddress->zip_code ?? '',
-//            'phone' => $user->phone ?? ''
-//        ];
-//
-//        $getTotal = Transaction::where('klinik_id', $user->klinik_id)->whereYear('created_at', '=', date('Y'))
-//            ->whereMonth('created_at', '=', date('m'))->count();
-//
-//        $newCode = date('Ym').str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT);
-//
-//        DB::beginTransaction();
-//
-//        $getTransaction = Transaction::create([
-//            'klinik_id' => $user->klinik_id,
-//            'user_id' => $user->id,
-//            'code' => $newCode,
-//            'payment_id' => $paymentId,
-//            'payment_name' => $getPayment->name,
-//            'type' => $getType,
-//            'subtotal' => $total,
-//            'total' => $total,
-//            'extra_info' => json_encode($extraInfo),
-//            'status' => 1
-//        ]);
-//
-//        $listTransactionDetails = [];
-//        foreach ($getData as $list) {
-//            $getTransactionDetails = TransactionDetails::create([
-//                'transaction_id' => $getTransaction->id,
-//                'schedule_id' => $scheduleId,
-//                'lab_id' => $list->lab_id,
-//                'lab_name' => $list->name,
-//                'lab_price' => $list->price
-//            ]);
-//            $listTransactionDetails[] = $getTransactionDetails;
-//        }
-//
-//        LabCart::where('user_id', $user->id)->where('choose', '=', 1)->delete();
-//
-//        DB::commit();
-//
-//        return response()->json([
-//            'success' => 1,
-//            'data' => [
-//                'checkout_info' => $getTransaction,
-//                'checkout_details' => $listTransactionDetails,
-//                'payment_info' => $getPayment
-//            ],
-//            'message' => ['Berhasil'],
-//            'token' => $this->request->attributes->get('_refresh_token'),
-//        ]);
-
+    
     }
 
     private function getService($getInterestService) {
