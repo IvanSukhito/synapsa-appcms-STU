@@ -48,10 +48,9 @@ class ProcessTransaction implements ShouldQueue
      */
     public function handle()
     {
-        $getJob = SetJob::where('id', $this->jobId)->first();
-        if ($getJob && $getJob->status == 1) {
+        if ($this->getJob && $this->getJob->status == 1) {
 
-            $getParams = json_decode($getJob->params, TRUE);
+            $getParams = json_decode($this->getJob->params, TRUE);
             $getTypeService = isset($getParams['type_service']) ? $getParams['type_service'] : '';
             $getServiceId = isset($getParams['service_id']) ? intval($getParams['service_id']) : 0;
             $getUserId = isset($getParams['user_id']) ? intval($getParams['user_id']) : 0;
@@ -67,7 +66,7 @@ class ProcessTransaction implements ShouldQueue
             }
             else if (in_array($getType, [5,6,7])) {
                 $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
-                $getLabInfo = isset($getParams['lab_info']) ? $getParams['lab_info'] : [];  
+                $getLabInfo = isset($getParams['lab_info']) ? $getParams['lab_info'] : [];
                 $this->transactionLab($getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getLabInfo);
             }
             else if (in_array($getType, [8,9,10])) {
@@ -400,12 +399,12 @@ class ProcessTransaction implements ShouldQueue
         }
 
         LabCart::where('user_id', $getUser->id)->where('choose', '=', 1)->delete();
-        
+
         LabSchedule::where('id', $getScheduleId)->update([
             'book' => 99
         ]);
 
-        DB::commit();    
+        DB::commit();
 
         $setLogic = new SynapsaLogic();
         $getPaymentInfo = $setLogic->createPayment($getPayment, $getTransaction, [
