@@ -62,6 +62,9 @@ class ProcessTransaction implements ShouldQueue
             else if (in_array($getType, [5,6,7])) {
                 $this->transactionLab();
             }
+            else if (in_array($getType, [8,9,10])) {
+                $this->transactionNurse();
+            }
         }
     }
 
@@ -147,6 +150,11 @@ class ProcessTransaction implements ShouldQueue
     }
 
     private function transactionLab()
+    {
+
+    }
+
+    private function transactionNurse()
     {
 
     }
