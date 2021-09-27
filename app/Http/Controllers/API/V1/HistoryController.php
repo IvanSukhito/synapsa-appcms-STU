@@ -54,7 +54,6 @@ class HistoryController extends Controller
         }
 
         $service = Service::orderBy('orders', 'ASC')->get();
-        //$category = DoctorCategory::orderBy('orders', 'ASC')->get();
 
         $getInterestService = $serviceId > 0 ? $serviceId : $user->interest_service_id;
         $tempService = [];
