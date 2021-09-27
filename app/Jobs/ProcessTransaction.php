@@ -304,7 +304,7 @@ class ProcessTransaction implements ShouldQueue
 
     private function transactionLab($getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getLabInfo)
     {
-        $getLabSchedule = DoctorSchedule::where('id', $getScheduleId)->first();
+        $getLabSchedule = LabSchedule::where('id', $getScheduleId)->first();
         if (!$getLabSchedule) {
             $this->getJob->status = 99;
             $this->getJob->response = json_encode([
@@ -338,10 +338,8 @@ class ProcessTransaction implements ShouldQueue
         }
 
         $getData = $getLabInfo;
-        //$getData = $getData->where('choose',1);
         $total = 0;
         foreach ($getData as $list) {
-            //dd($list['price']);
             $total += $list['price'];
         }
 

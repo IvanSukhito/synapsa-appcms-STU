@@ -524,10 +524,7 @@ class LabController extends Controller
             ], 404);
         }
 
-        $total = 0;
-
         $serviceId = $getCart->service_id;
-
         $getData = $this->getLabInfo($userId, $serviceId);
 
         $getData = $getData->where('choose',1);
@@ -552,7 +549,8 @@ class LabController extends Controller
             ])
         ]);
 
-        ProcessTransaction::dispatch($job->id);
+        dispatch((new ProcessTransaction($job->id))->onQueue('high'));
+//        ProcessTransaction::dispatch($job->id);
 
         return response()->json([
             'success' => 1,
