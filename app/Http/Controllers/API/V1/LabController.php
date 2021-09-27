@@ -8,6 +8,8 @@ use App\Codes\Models\V1\LabCart;
 use App\Codes\Models\V1\LabSchedule;
 use App\Codes\Models\V1\Payment;
 use App\Codes\Models\V1\Service;
+use App\Codes\Models\V1\SetJob;
+use App\Jobs\ProcessTransaction;
 use App\Codes\Models\V1\Transaction;
 use App\Codes\Models\V1\TransactionDetails;
 use App\Codes\Models\V1\UsersAddress;
@@ -317,12 +319,17 @@ class LabController extends Controller
         }
 
         $getInterestService = $getData->service_id;
+        $getService = Service::where('id', $getInterestService)->first();
         $getServiceData = $this->getService($getInterestService);
         $getLabSchedule = LabSchedule::where('service_id', $getData->service_id)
             ->where('date_available', '=', $getDate)
             ->get();
 
+        //dd($getServiceData);
+
         $getList = get_list_type_service();
+
+        //dd($getList);
 
         return response()->json([
             'success' => 1,
@@ -526,76 +533,108 @@ class LabController extends Controller
         $getData = $this->getLabInfo($userId, $serviceId);
 
         $getData = $getData->where('choose',1);
-
-        foreach ($getData as $list) {
-            $total += $list->price;
+        if (!$getData) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Lab Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
         }
 
-        $getUsersAddress = UsersAddress::where('user_id', $user->id)->first();
-
-        switch ($getLabSchedule->service_id) {
-            case 2 : $getType = 6; break;
-            case 3 : $getType = 7; break;
-            default : $getType = 5; break;
-        }
-
-        $extraInfo = [
-            'service_id' => $getLabSchedule->service_id,
-            'address_name' => $getUsersAddress->address_name ?? '',
-            'address' => $getUsersAddress->address ?? '',
-            'city_id' => $getUsersAddress->city_id ?? '',
-            'district_id' => $getUsersAddress->district_id ?? '',
-            'sub_district_id' => $getUsersAddress->sub_district_id ?? '',
-            'zip_code' => $getUsersAddress->zip_code ?? '',
-            'phone' => $user->phone ?? ''
-        ];
-
-        $getTotal = Transaction::where('klinik_id', $user->klinik_id)->whereYear('created_at', '=', date('Y'))
-            ->whereMonth('created_at', '=', date('m'))->count();
-
-        $newCode = date('Ym').str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT);
-
-        DB::beginTransaction();
-
-        $getTransaction = Transaction::create([
-            'klinik_id' => $user->klinik_id,
-            'user_id' => $user->id,
-            'code' => $newCode,
-            'payment_id' => $paymentId,
-            'payment_name' => $getPayment->name,
-            'type' => $getType,
-            'subtotal' => $total,
-            'total' => $total,
-            'extra_info' => json_encode($extraInfo),
-            'status' => 1
+        $job = SetJob::create([
+            'status' => 1,
+            'params' => json_encode([
+                'payment_id' => $paymentId,
+                'user_id' => $user->id,
+                'type_service' => 'lab',
+                'lab_id' => $getLabSchedule->lab_id,
+                'service_id' => $getLabSchedule->service_id,
+                'schedule_id' => $getLabSchedule->id,
+                'lab_info' => $getData->toArray()
+            ])
         ]);
 
-        $listTransactionDetails = [];
-        foreach ($getData as $list) {
-            $getTransactionDetails = TransactionDetails::create([
-                'transaction_id' => $getTransaction->id,
-                'schedule_id' => $scheduleId,
-                'lab_id' => $list->lab_id,
-                'lab_name' => $list->name,
-                'lab_price' => $list->price
-            ]);
-            $listTransactionDetails[] = $getTransactionDetails;
-        }
-
-        LabCart::where('user_id', $user->id)->where('choose', '=', 1)->delete();
-
-        DB::commit();
+        ProcessTransaction::dispatch($job->id);
 
         return response()->json([
             'success' => 1,
             'data' => [
-                'checkout_info' => $getTransaction,
-                'checkout_details' => $listTransactionDetails,
-                'payment_info' => $getPayment
+                'job_id' => $job->id
             ],
             'message' => ['Berhasil'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
+        // Dari sini
+
+//        foreach ($getData as $list) {
+//            $total += $list->price;
+//        }
+//
+//        $getUsersAddress = UsersAddress::where('user_id', $user->id)->first();
+//
+//        switch ($getLabSchedule->service_id) {
+//            case 2 : $getType = 6; break;
+//            case 3 : $getType = 7; break;
+//            default : $getType = 5; break;
+//        }
+//
+//        $extraInfo = [
+//            'service_id' => $getLabSchedule->service_id,
+//            'address_name' => $getUsersAddress->address_name ?? '',
+//            'address' => $getUsersAddress->address ?? '',
+//            'city_id' => $getUsersAddress->city_id ?? '',
+//            'district_id' => $getUsersAddress->district_id ?? '',
+//            'sub_district_id' => $getUsersAddress->sub_district_id ?? '',
+//            'zip_code' => $getUsersAddress->zip_code ?? '',
+//            'phone' => $user->phone ?? ''
+//        ];
+//
+//        $getTotal = Transaction::where('klinik_id', $user->klinik_id)->whereYear('created_at', '=', date('Y'))
+//            ->whereMonth('created_at', '=', date('m'))->count();
+//
+//        $newCode = date('Ym').str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT);
+//
+//        DB::beginTransaction();
+//
+//        $getTransaction = Transaction::create([
+//            'klinik_id' => $user->klinik_id,
+//            'user_id' => $user->id,
+//            'code' => $newCode,
+//            'payment_id' => $paymentId,
+//            'payment_name' => $getPayment->name,
+//            'type' => $getType,
+//            'subtotal' => $total,
+//            'total' => $total,
+//            'extra_info' => json_encode($extraInfo),
+//            'status' => 1
+//        ]);
+//
+//        $listTransactionDetails = [];
+//        foreach ($getData as $list) {
+//            $getTransactionDetails = TransactionDetails::create([
+//                'transaction_id' => $getTransaction->id,
+//                'schedule_id' => $scheduleId,
+//                'lab_id' => $list->lab_id,
+//                'lab_name' => $list->name,
+//                'lab_price' => $list->price
+//            ]);
+//            $listTransactionDetails[] = $getTransactionDetails;
+//        }
+//
+//        LabCart::where('user_id', $user->id)->where('choose', '=', 1)->delete();
+//
+//        DB::commit();
+//
+//        return response()->json([
+//            'success' => 1,
+//            'data' => [
+//                'checkout_info' => $getTransaction,
+//                'checkout_details' => $listTransactionDetails,
+//                'payment_info' => $getPayment
+//            ],
+//            'message' => ['Berhasil'],
+//            'token' => $this->request->attributes->get('_refresh_token'),
+//        ]);
 
     }
 

@@ -13,6 +13,7 @@ use App\Codes\Models\V1\TransactionDetails;
 use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\UsersAddress;
 use App\Codes\Models\V1\UsersCart;
+use App\Codes\Models\V1\labCart;
 use App\Codes\Models\V1\UsersCartDetail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -64,7 +65,9 @@ class ProcessTransaction implements ShouldQueue
                 $this->transactionDoctor($getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getDoctorInfo);
             }
             else if (in_array($getType, [5,6,7])) {
-                $this->transactionLab();
+                $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
+                $getLabInfo = isset($getParams['lab_info']) ? $getParams['lab_info'] : [];  
+                $this->transactionLab($getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getLabInfo);
             }
             else if (in_array($getType, [8,9,10])) {
                 $this->transactionNurse();
@@ -299,9 +302,123 @@ class ProcessTransaction implements ShouldQueue
 
     }
 
-    private function transactionLab()
+    private function transactionLab($getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getLabInfo)
     {
+        $getLabSchedule = DoctorSchedule::where('id', $getScheduleId)->first();
+        if (!$getLabSchedule) {
+            $this->getJob->status = 99;
+            $this->getJob->response = json_encode([
+                'service' => $getTypeService,
+                'service_id' => $getServiceId,
+                'message' => 'Jadwal Tidak Ditemukan'
+            ]);
+            $this->getJob->save();
+            return;
 
+        }
+        else if ($getLabSchedule->book != 80) {
+            $this->getJob->status = 99;
+            $this->getJob->response = json_encode([
+                'service' => $getTypeService,
+                'service_id' => $getServiceId,
+                'message' => 'Jadwal Sudah Dipesan'
+            ]);
+            $this->getJob->save();
+            return;
+        }
+        else if (date('Y-m-d', strtotime($getLabSchedule->date_available)) < date('Y-m-d')) {
+            $this->getJob->status = 99;
+            $this->getJob->response = json_encode([
+                'service' => $getTypeService,
+                'service_id' => $getServiceId,
+                'message' => 'Jadwal Sudah Lewat Waktunya'
+            ]);
+            $this->getJob->save();
+            return;
+        }
+
+        $getData = $getLabInfo;
+        //$getData = $getData->where('choose',1);
+        $total = 0;
+        foreach ($getData as $list) {
+            //dd($list['price']);
+            $total += $list['price'];
+        }
+
+        $getUsersAddress = UsersAddress::where('user_id', $getUserId)->first();
+        $getPayment = Payment::where('id', $getPaymentId)->first();
+        $getUser = Users::where('id', $getUserId)->first();
+
+        $getTotal = Transaction::where('klinik_id', $getUser->klinik_id)->whereYear('created_at', '=', date('Y'))
+        ->whereMonth('created_at', '=', date('m'))->count();
+
+        $newCode = date('Ym').str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT);
+
+        $extraInfo = [
+            'service_id' => $getLabSchedule->service_id,
+            'address_name' => $getUsersAddress->address_name ?? '',
+            'address' => $getUsersAddress->address ?? '',
+            'city_id' => $getUsersAddress->city_id ?? '',
+            'district_id' => $getUsersAddress->district_id ?? '',
+            'sub_district_id' => $getUsersAddress->sub_district_id ?? '',
+            'zip_code' => $getUsersAddress->zip_code ?? '',
+            'phone' => $getUser->phone ?? ''
+        ];
+
+        foreach (['address_name', 'address', 'city_id', 'city_name', 'district_id', 'district_name',
+        'sub_district_id', 'sub_district_name', 'zip_code'] as $key) {
+        $extraInfo[$key] = $getUsersAddress->$key;}
+
+        DB::beginTransaction();
+
+        $getTransaction = Transaction::create([
+            'klinik_id' => $getUser->klinik_id,
+            'user_id' => $getUser->id,
+            'code' => $newCode,
+            'service' => $getPayment->service,
+            'type_payment' => $getPayment->type_payment,
+            'payment_id' => $getPaymentId,
+            'payment_name' => $getPayment->name,
+            'type' => $getType,
+            'subtotal' => $total,
+            'total' => $total,
+            'extra_info' => json_encode($extraInfo),
+            'status' => 1
+        ]);
+
+        $listTransactionDetails = [];
+        foreach ($getData as $list) {
+            $getTransactionDetails = TransactionDetails::create([
+                'transaction_id' => $getTransaction->id,
+                'schedule_id' => $getScheduleId,
+                'lab_id' => $list['lab_id'],
+                'lab_name' => $list['name'],
+                'lab_price' => $list['price']
+            ]);
+            $listTransactionDetails[] = $getTransactionDetails;
+        }
+
+        LabCart::where('user_id', $getUser->id)->where('choose', '=', 1)->delete();
+
+        DB::commit();    
+
+        $setLogic = new SynapsaLogic();
+        $getPaymentInfo = $setLogic->createPayment($getPayment, $getTransaction, [
+            'name' => $getUser->fullname
+        ]);
+
+        $getTransaction->payment_info = json_encode($getPaymentInfo);
+        $getTransaction->status = 2;
+        $getTransaction->save();
+
+        $this->getJob->status = 80;
+        $this->getJob->response = json_encode([
+            'service' => $getTypeService,
+            'service_id' => $getServiceId,
+            'transaction_id' => $getTransaction->id,
+            'message' => 'ok'
+        ]);
+        $this->getJob->save();
     }
 
     private function transactionNurse()
