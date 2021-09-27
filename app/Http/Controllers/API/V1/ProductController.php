@@ -8,6 +8,7 @@ use App\Codes\Models\V1\District;
 use App\Codes\Models\V1\Payment;
 use App\Codes\Models\V1\Product;
 use App\Codes\Models\V1\ProductCategory;
+use App\Codes\Models\V1\SetJob;
 use App\Codes\Models\V1\Shipping;
 use App\Codes\Models\V1\SubDistrict;
 use App\Codes\Models\V1\TransactionDetails;
@@ -16,6 +17,7 @@ use App\Codes\Models\V1\UsersCartDetail;
 use App\Codes\Models\V1\UsersCart;
 use App\Codes\Models\V1\Transaction;
 use App\Http\Controllers\Controller;
+use App\Jobs\ProcessTransaction;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -670,16 +672,9 @@ class ProductController extends Controller
             ], 422);
         }
 
-        $paymentId = $this->request->get('payment_id');
-        $getPayment = Payment::where('id', $paymentId)->first();
-        $paymentInfo = [];
-
         $getUsersCart = UsersCart::firstOrCreate([
             'users_id' => $user->id,
         ]);
-
-        $getUsersAddress = UsersAddress::where('user_id', $user->id)->first();
-
         $getDetailsInformation = json_decode($getUsersCart->detail_information, true);
         $getDetailsShipping = json_decode($getUsersCart->detail_shipping, true);
         $shippingId = $getDetailsShipping['shipping_id'];
@@ -692,6 +687,25 @@ class ProductController extends Controller
             ], 422);
         }
 
+        $paymentId = intval($this->request->get('payment_id'));
+
+        $job = SetJob::create([
+            'status' => 1,
+            'params' => json_encode([
+                'payment_id' => $paymentId,
+                'user_id' => $user->id,
+                'type_service' => 'product',
+                'service_id' => 0
+            ])
+        ]);
+
+        ProcessTransaction::dispatch($job->id);
+
+        $getUsersAddress = UsersAddress::where('user_id', $user->id)->first();
+        $paymentId = $this->request->get('payment_id');
+        $getPayment = Payment::where('id', $paymentId)->first();
+        $paymentInfo = [];
+
         $getCity = City::where('id', $getUsersAddress->city_id)->first();
         $getDistrict = District::where('id', $getUsersAddress->district_id)->first();
         $getSubDistrict = SubDistrict::where('id', $getUsersAddress->sub_district_id)->first();
@@ -702,7 +716,6 @@ class ProductController extends Controller
             ->where('users_cart_detail.users_cart_id', '=', $getUsersCart->id)
             ->where('choose', 1)->get();
 
-            //dd($getUsersCart);
         $totalQty = 0;
         $subTotal = 0;
         $shippingPrice = 15000;
