@@ -31,7 +31,7 @@ class JobController extends Controller
                 if ($getTransaction) {
 
                     $getLogServiceTransaction = LogServiceTransaction::where('transaction_id', $getTransactionId)->orderBy('id', 'DESC')->first();
-                    
+
                     if ($getLogServiceTransaction) {
                         if ($getLogServiceTransaction->type_transaction == 'complete') {
 
@@ -80,7 +80,7 @@ class JobController extends Controller
                 $getResponse = json_decode($getJobData->response, true);
                 return response()->json([
                     'success' => 0,
-                    'message' => [$getResponse['message']] ?? '-',
+                    'message' => [$getResponse['message'] ?? '-'],
                     'token' => $this->request->attributes->get('_refresh_token'),
                 ], 404);
             }

@@ -91,8 +91,6 @@ class LabController extends Controller
 
         $serviceId = intval($this->request->get('service_id'));
 
-        $service = Service::orderBy('orders', 'ASC')->get();
-
         $getInterestService = $serviceId > 0 ? $serviceId : $user->interest_service_id;
 
         $getServiceData = $this->getService($getInterestService);
