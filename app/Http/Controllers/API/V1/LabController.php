@@ -29,7 +29,7 @@ class LabController extends Controller
     public function __construct(Request $request)
     {
         $this->request = $request;
-        $this->limit = 5;
+        $this->limit = 10;
         $this->setting = Cache::remember('settings', env('SESSION_LIFETIME'), function () {
             return Settings::pluck('value', 'key')->toArray();
         });
@@ -564,7 +564,7 @@ class LabController extends Controller
             'message' => ['Berhasil'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
-    
+
     }
 
     private function getService($getInterestService) {
