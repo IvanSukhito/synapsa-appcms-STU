@@ -137,7 +137,8 @@ class ProductController extends Controller
             'users_id' => $user->id,
         ]);
 
-        $listProduct = Product::selectRaw('users_cart_detail.id, product.id as product_id, product.name, product.image, product.price, product.unit, users_cart_detail.qty')
+        $listProduct = Product::selectRaw('users_cart_detail.id, product.id as product_id, product.name, product.image,
+            product.price, product.unit, users_cart_detail.qty, users_cart_detail.choose')
             ->join('users_cart_detail', 'users_cart_detail.product_id', '=', 'product.id')
             ->where('users_cart_detail.users_cart_id', '=', $getUsersCart->id)->get();
 
@@ -224,7 +225,6 @@ class ProductController extends Controller
 
     Public function updateCart($id)
     {
-
         $user = $this->request->attributes->get('_user');
 
         $validator = Validator::make($this->request->all(), [
@@ -261,7 +261,7 @@ class ProductController extends Controller
                 'id' => $id,
                 'product_id' => $getUsersCartDetail->product_id,
                 'qty' => $getUsersCartDetail->qty,
-                'qty_nice' => number_format($cart->qty, 0, ',', '.'),
+                'qty_nice' => number_format($getUsersCartDetail->qty, 0, ',', '.'),
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
             'message' => ['Berhasil Memperbarui Keranjang'],
@@ -310,7 +310,6 @@ class ProductController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
-        //
 
         $getListproductIds = $this->request->get('product_ids');
         if (!is_array($getListproductIds)) {
@@ -326,7 +325,7 @@ class ProductController extends Controller
         $haveProduct = 0;
         if ($getUsersCartDetails) {
             foreach ($getUsersCartDetails as $getUsersCartDetail) {
-                if (in_array($getUsersCartDetail->id, $getListproductIds)) {
+                if (in_array($getUsersCartDetail->product_id, $getListproductIds)) {
                     $haveProduct = 1;
                     $getUsersCartDetail->choose = 1;
                 }
@@ -675,7 +674,6 @@ class ProductController extends Controller
         $getUsersCart = UsersCart::firstOrCreate([
             'users_id' => $user->id,
         ]);
-        $getDetailsInformation = json_decode($getUsersCart->detail_information, true);
         $getDetailsShipping = json_decode($getUsersCart->detail_shipping, true);
         $shippingId = $getDetailsShipping['shipping_id'];
         $getShipping = Shipping::where('id', $shippingId)->first();
@@ -683,6 +681,16 @@ class ProductController extends Controller
             return response()->json([
                 'success' => 0,
                 'message' => ['Pengiriman Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
+        $getUsersCartDetail = UsersCartDetail::where('users_cart_id', '=', $getUsersCart->id)
+            ->where('choose', 1)->count();
+        if ($getUsersCartDetail <= 0) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Tidak ada Produk yang di pilih'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
@@ -701,97 +709,107 @@ class ProductController extends Controller
 
         ProcessTransaction::dispatch($job->id);
 
-        $getUsersAddress = UsersAddress::where('user_id', $user->id)->first();
-        $paymentId = $this->request->get('payment_id');
-        $getPayment = Payment::where('id', $paymentId)->first();
-        $paymentInfo = [];
-
-        $getCity = City::where('id', $getUsersAddress->city_id)->first();
-        $getDistrict = District::where('id', $getUsersAddress->district_id)->first();
-        $getSubDistrict = SubDistrict::where('id', $getUsersAddress->sub_district_id)->first();
-
-        $getUsersCartDetails = Product::selectRaw('users_cart_detail.id, product.id AS product_id, product.name AS product_name,
-            product.name, product.image, product.unit, product.price, users_cart_detail.qty')
-            ->join('users_cart_detail', 'users_cart_detail.product_id', '=', 'product.id')
-            ->where('users_cart_detail.users_cart_id', '=', $getUsersCart->id)
-            ->where('choose', 1)->get();
-
-        $totalQty = 0;
-        $subTotal = 0;
-        $shippingPrice = 15000;
-        $transactionDetails = [];
-        foreach ($getUsersCartDetails as $list) {
-            $totalQty += $list->qty;
-            $subTotal += ($list->qty * $list->price);
-            $transactionDetails[] = new TransactionDetails([
-                'product_id' => $list->product_id,
-                'product_name' => $list->product_name,
-                'product_qty' => $list->qty,
-                'product_price' => $list->price
-            ]);
-        }
-        $total = $subTotal + $shippingPrice;
-
-        $getTotal = Transaction::where('klinik_id', $user->klinik_id)->whereYear('created_at', '=', date('Y'))
-            ->whereMonth('created_at', '=', date('m'))->count();
-
-        $newCode = date('Ym').str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT);
-
-        DB::beginTransaction();
-
-        $getTransaction = Transaction::create([
-            'klinik_id' => $user->klinik_id,
-            'user_id' => $user->id,
-            'code' => $newCode,
-            'shipping_id' => $shippingId,
-            'shipping_name' => $getShipping->name,
-            'payment_id' => $paymentId,
-            'payment_name' => $getPayment->name,
-            'receiver_name' => $getDetailsInformation['receiver'] ?? '',
-            'receiver_address' => $getDetailsInformation['address'] ?? '',
-            'receiver_phone' => $getDetailsInformation['phone'] ?? '',
-            'shipping_address_name' => $getUsersAddress->address_name ?? '',
-            'shipping_address' => $getUsersAddress->address ?? '',
-            'shipping_city_id' => $getUsersAddress->city_id ?? '',
-            'shipping_city_name' => $getCity ? $getCity->name : '',
-            'shipping_district_id' => $getUsersAddress->district_id ?? '',
-            'shipping_district_name' => $getDistrict ? $getDistrict->name : '',
-            'shipping_subdistrict_id' => $getUsersAddress->sub_district_id ?? '',
-            'shipping_subdistrict_name' => $getSubDistrict ? $getSubDistrict->name : '',
-            'shipping_zipcode' => $getUsersAddress->zip_code ?? '',
-            'type' => 1,
-            'total_qty' => $totalQty,
-            'subtotal' => $subTotal,
-            'shipping_price' => $shippingPrice,
-            'total' => $total,
-            'status' => 1
-        ]);
-
-        $getTransaction->getTransactionDetails()->saveMany($transactionDetails);
-
-        UsersCartDetail::where('users_cart_id', '=', $getUsersCart->id)
-            ->where('choose', 1)->delete();
-
-        DB::commit();
-
         return response()->json([
             'success' => 1,
             'data' => [
-                'cart_info' => [
-                    'name' => $getDetailsInformation['receiver'] ?? '',
-                    'address' => $getDetailsInformation['address'] ?? '',
-                    'phone' => $getDetailsInformation['phone'] ?? '',
-                    'shipping_name' => $getShipping->name,
-                    'shipping_price' => $shippingPrice,
-                    'subtotal' => $subTotal,
-                    'total' => $subTotal + $shippingPrice
-                ],
-                'cart_details' => $getUsersCartDetails,
-                'payment_info' => $paymentInfo
+                'job_id' => $job->id
             ],
-            'message' => ['Success'],
+            'message' => ['Berhasil'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
+
+//
+//        $getUsersAddress = UsersAddress::where('user_id', $user->id)->first();
+//        $paymentId = $this->request->get('payment_id');
+//        $getPayment = Payment::where('id', $paymentId)->first();
+//        $paymentInfo = [];
+//
+//        $getCity = City::where('id', $getUsersAddress->city_id)->first();
+//        $getDistrict = District::where('id', $getUsersAddress->district_id)->first();
+//        $getSubDistrict = SubDistrict::where('id', $getUsersAddress->sub_district_id)->first();
+//
+//        $getUsersCartDetails = Product::selectRaw('users_cart_detail.id, product.id AS product_id, product.name AS product_name,
+//            product.name, product.image, product.unit, product.price, users_cart_detail.qty')
+//            ->join('users_cart_detail', 'users_cart_detail.product_id', '=', 'product.id')
+//            ->where('users_cart_detail.users_cart_id', '=', $getUsersCart->id)
+//            ->where('choose', 1)->get();
+//
+//        $totalQty = 0;
+//        $subTotal = 0;
+//        $shippingPrice = 15000;
+//        $transactionDetails = [];
+//        foreach ($getUsersCartDetails as $list) {
+//            $totalQty += $list->qty;
+//            $subTotal += ($list->qty * $list->price);
+//            $transactionDetails[] = new TransactionDetails([
+//                'product_id' => $list->product_id,
+//                'product_name' => $list->product_name,
+//                'product_qty' => $list->qty,
+//                'product_price' => $list->price
+//            ]);
+//        }
+//        $total = $subTotal + $shippingPrice;
+//
+//        $getTotal = Transaction::where('klinik_id', $user->klinik_id)->whereYear('created_at', '=', date('Y'))
+//            ->whereMonth('created_at', '=', date('m'))->count();
+//
+//        $newCode = date('Ym').str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT);
+//
+//        DB::beginTransaction();
+//
+//        $getTransaction = Transaction::create([
+//            'klinik_id' => $user->klinik_id,
+//            'user_id' => $user->id,
+//            'code' => $newCode,
+//            'shipping_id' => $shippingId,
+//            'shipping_name' => $getShipping->name,
+//            'payment_id' => $paymentId,
+//            'payment_name' => $getPayment->name,
+//            'receiver_name' => $getDetailsInformation['receiver'] ?? '',
+//            'receiver_address' => $getDetailsInformation['address'] ?? '',
+//            'receiver_phone' => $getDetailsInformation['phone'] ?? '',
+//            'shipping_address_name' => $getUsersAddress->address_name ?? '',
+//            'shipping_address' => $getUsersAddress->address ?? '',
+//            'shipping_city_id' => $getUsersAddress->city_id ?? '',
+//            'shipping_city_name' => $getCity ? $getCity->name : '',
+//            'shipping_district_id' => $getUsersAddress->district_id ?? '',
+//            'shipping_district_name' => $getDistrict ? $getDistrict->name : '',
+//            'shipping_subdistrict_id' => $getUsersAddress->sub_district_id ?? '',
+//            'shipping_subdistrict_name' => $getSubDistrict ? $getSubDistrict->name : '',
+//            'shipping_zipcode' => $getUsersAddress->zip_code ?? '',
+//            'type' => 1,
+//            'total_qty' => $totalQty,
+//            'subtotal' => $subTotal,
+//            'shipping_price' => $shippingPrice,
+//            'total' => $total,
+//            'status' => 1
+//        ]);
+//
+//        $getTransaction->getTransactionDetails()->saveMany($transactionDetails);
+//
+//        UsersCartDetail::where('users_cart_id', '=', $getUsersCart->id)
+//            ->where('choose', 1)->delete();
+//
+//        DB::commit();
+//
+//        return response()->json([
+//            'success' => 1,
+//            'data' => [
+//                'cart_info' => [
+//                    'name' => $getDetailsInformation['receiver'] ?? '',
+//                    'address' => $getDetailsInformation['address'] ?? '',
+//                    'phone' => $getDetailsInformation['phone'] ?? '',
+//                    'shipping_name' => $getShipping->name,
+//                    'shipping_price' => $shippingPrice,
+//                    'subtotal' => $subTotal,
+//                    'total' => $subTotal + $shippingPrice
+//                ],
+//                'cart_details' => $getUsersCartDetails,
+//                'payment_info' => $paymentInfo
+//            ],
+//            'message' => ['Success'],
+//            'token' => $this->request->attributes->get('_refresh_token'),
+//        ]);
 
     }
 

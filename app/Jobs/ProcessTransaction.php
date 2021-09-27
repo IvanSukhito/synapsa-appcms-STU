@@ -94,6 +94,18 @@ class ProcessTransaction implements ShouldQueue
             $this->getJob->save();
             return;
         }
+        $getUsersCartDetail = UsersCartDetail::where('users_cart_id', '=', $getUsersCart->id)
+            ->where('choose', 1)->count();
+        if ($getUsersCartDetail <= 0) {
+            $this->getJob->status = 99;
+            $this->getJob->response = json_encode([
+                'service' => $getTypeService,
+                'service_id' => $getServiceId,
+                'message' => 'Tidak ada Produk yang di pilih'
+            ]);
+            $this->getJob->save();
+            return;
+        }
 
         $getUsersCartDetails = Product::selectRaw('users_cart_detail.id, product.id AS product_id, product.name AS product_name,
             product.name, product.image, product.unit, product.price, users_cart_detail.qty')
