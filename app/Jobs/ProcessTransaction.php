@@ -14,6 +14,7 @@ use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\UsersAddress;
 use App\Codes\Models\V1\UsersCart;
 use App\Codes\Models\V1\labCart;
+use App\Codes\Models\V1\labSchedule;
 use App\Codes\Models\V1\UsersCartDetail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -399,6 +400,10 @@ class ProcessTransaction implements ShouldQueue
         }
 
         LabCart::where('user_id', $getUser->id)->where('choose', '=', 1)->delete();
+        
+        LabSchedule::where('id', $getScheduleId)->update([
+            'book' => 99
+        ]);
 
         DB::commit();    
 
