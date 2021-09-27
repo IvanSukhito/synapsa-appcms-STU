@@ -76,6 +76,13 @@ class JobController extends Controller
 
                 }
             }
+            else if ($getJobData->status == 1) {
+                return response()->json([
+                    'success' => 2,
+                    'message' => ['Job masih di kerjakan'],
+                    'token' => $this->request->attributes->get('_refresh_token'),
+                ], 404);
+            }
             else {
                 $getResponse = json_decode($getJobData->response, true);
                 return response()->json([
