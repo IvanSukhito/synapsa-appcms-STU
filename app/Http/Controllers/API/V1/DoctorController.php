@@ -2,19 +2,15 @@
 
 namespace App\Http\Controllers\API\V1;
 
-use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\DoctorSchedule;
 use App\Codes\Models\V1\DoctorCategory;
 use App\Codes\Models\V1\Service;
 use App\Codes\Models\V1\SetJob;
-use App\Codes\Models\V1\TransactionDetails;
-use App\Codes\Models\V1\Transaction;
 use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\Payment;
 use App\Codes\Models\V1\UsersAddress;
 use App\Jobs\ProcessTransaction;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -102,7 +98,7 @@ class DoctorController extends Controller
     public function getDoctorDetail($id)
     {
         $serviceId = $this->request->get('service_id');
-        $getService = Service::where('id', $serviceId)->first();
+        $getService = Service::where('id', $serviceId)->where('status', '=', 1)->first();
         if (!$getService) {
             return response()->json([
                 'success' => 0,
@@ -137,7 +133,7 @@ class DoctorController extends Controller
             date('Y-m-d', strtotime($this->request->get('date'))) :
             date('Y-m-d', strtotime("+1 day"));
 
-        $getService = Service::where('id', $serviceId)->first();
+        $getService = Service::where('id', $serviceId)->where('status', '=', 1)->first();
         if (!$getService) {
             return response()->json([
                 'success' => 0,
@@ -206,7 +202,7 @@ class DoctorController extends Controller
             ], 422);
         }
 
-        $getService = Service::where('id', $getDoctorSchedule->service_id)->first();
+        $getService = Service::where('id', $getDoctorSchedule->service_id)->where('status', '=', 1)->first();
         $getList = get_list_type_service();
 
         return response()->json([
@@ -259,7 +255,7 @@ class DoctorController extends Controller
             ], 422);
         }
 
-        $getService = Service::where('id', $getDoctorSchedule->service_id)->first();
+        $getService = Service::where('id', $getDoctorSchedule->service_id)->where('status', '=', 1)->first();
 
         $doctorId = $getDoctorSchedule->doctor_id;
         $serviceId = $getDoctorSchedule->service_id;
@@ -418,10 +414,10 @@ class DoctorController extends Controller
 
         $getServiceDoctor = isset($this->setting['service-doctor']) ? json_decode($this->setting['service-doctor'], true) : [];
         if (count($getServiceDoctor) > 0) {
-            $service = Service::whereIn('id', $getServiceDoctor)->orderBy('orders', 'ASC')->get();
+            $service = Service::whereIn('id', $getServiceDoctor)->where('status', '=', 1)->orderBy('orders', 'ASC')->get();
         }
         else {
-            $service = Service::orderBy('orders', 'ASC')->get();
+            $service = Service::where('status', '=', 1)->orderBy('orders', 'ASC')->get();
         }
 
         $getList = get_list_type_service();

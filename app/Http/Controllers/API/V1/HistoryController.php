@@ -39,19 +39,40 @@ class HistoryController extends Controller
         $this->limit = 10;
     }
 
-    public function index(){
+    public function index()
+    {
         $user = $this->request->attributes->get('_user');
 
-        $serviceId = intval($this->request->get('service_id'));
-        $doctor = intval($this->request->get('doctor'));
-        $lab = intval($this->request->get('lab'));
-        $product = intval($this->request->get('product'));
-
+        $getServiceId = intval($this->request->get('service_id'));
+        $getDoctor = intval($this->request->get('doctor'));
+        $getLab = intval($this->request->get('lab'));
+        $getProduct = intval($this->request->get('product'));
         $s = strip_tags($this->request->get('s'));
-        $getLimit = $this->request->get('limit');
+        $getLimit = intval($this->request->get('limit'));
+
+        if ($getDoctor == 1) {
+            $getData = $this->getListDoctor($user->id, $getServiceId, $getLimit, $s);
+            $getServiceDoctor = isset($this->setting['service-lab']) ? json_decode($this->setting['service-doctor'], true) : [];
+            $getProduct = 0;
+            $getLab = 0;
+        }
+        else if ($getLab == 1) {
+            $getData = $this->getListDoctor($user->id, $getServiceId, $getLimit, $s);
+        }
+        elseif ($getProduct == 1) {
+            $getData = $this->getListProduct($user->id, $getLimit, $s);
+        }
+        else {
+            $getData = $this->getListProduct($user->id, $getLimit, $s);
+        }
+
         if ($getLimit <= 0) {
             $getLimit = $this->limit;
         }
+
+
+
+
 
         $service = Service::orderBy('orders', 'ASC')->get();
 
@@ -217,7 +238,9 @@ class HistoryController extends Controller
 
 
     }
-    Public function detail($id){
+
+
+    public function detail($id){
         $user = $this->request->attributes->get('_user');
 
         $getData = Transaction::where('id',$id)->first();
@@ -296,4 +319,65 @@ class HistoryController extends Controller
       }
 
     }
+
+    protected function getListDoctor($userId, $getServiceId, $getLimit, $s)
+    {
+        $getServiceLab = isset($this->setting['service-doctor']) ? json_decode($this->setting['service-doctor'], true) : [];
+        $getService = Service::whereIn('id', $getServiceLab)->where('status', '=', 1)->orderBy('orders', 'ASC')->get();
+
+        $notFound = 1;
+        $firstService = 0;
+        foreach ($getService as $list) {
+            if ($firstService <= 0) {
+                $firstService = $list->id;
+            }
+            if ($list->id == $getServiceId) {
+                $notFound = 0;
+            }
+        }
+
+        if ($notFound == 1) {
+            $getServiceId = $firstService;
+        }
+
+        $getType = check_list_type_transaction('doctor', $getServiceId);
+
+        $result = Transaction::selectRaw('transaction.*, product.image as image')
+            ->join('transaction_details', function($join){
+                $join->on('transaction_details.transaction_id','=','transaction.id')
+                    ->on('transaction_details.id', '=', DB::raw("(select min(id) from transaction_details WHERE transaction_details.transaction_id = transaction.id)"));
+            })
+            ->join('product', function($join){
+                $join->on('product.id','=','transaction_details.product_id')
+                    ->on('product.id', '=', DB::raw("(select min(id) from product WHERE product.id = transaction_details.product_id)"));
+            })
+            ->where('transaction.user_id', $userId)
+            ->where('type', $getType);
+
+        if (strlen($s) > 0) {
+            $result = $result->where('code', 'LIKE', "%$s%")->orWhere('product.name', 'LIKE', "%$s%");
+        }
+
+        return $result->paginate($getLimit);
+
+    }
+
+    protected function getListProduct($userId, $getLimit, $s)
+    {
+        $getType = check_list_type_transaction('product');
+
+        $result = Transaction::selectRaw('transaction.*, product.image as image')
+            ->leftJoin('transaction_details', 'transaction_details.transaction_id','=','transaction.id')
+            ->leftJoin('product', 'product.id','=','transaction_details.product_id')
+            ->where('transaction.user_id', $userId)
+            ->where('type', $getType);
+
+        if (strlen($s) > 0) {
+            $result = $result->where('code', 'LIKE', "%$s%")->orWhere('product.name', 'LIKE', "%$s%");
+        }
+
+        return $result->groupBy('transaction.id')->paginate($getLimit);
+
+    }
+
 }
