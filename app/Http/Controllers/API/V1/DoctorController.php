@@ -399,7 +399,8 @@ class DoctorController extends Controller
             ])
         ]);
 
-        ProcessTransaction::dispatch($job->id);
+        dispatch((new ProcessTransaction($job->id))->onQueue('high'));
+//        ProcessTransaction::dispatch($job->id);
 
         return response()->json([
             'success' => 1,
