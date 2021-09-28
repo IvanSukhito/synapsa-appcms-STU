@@ -529,6 +529,7 @@ class DoctorController extends Controller
     private function getUserAddress($userId)
     {
         $getUsersAddress = UsersAddress::where('user_id', $userId)->first();
+        $user = $this->request->attributes->get('_user');
 
         $getAddressName = $getUsersAddress->address_name ?? '';
         $getAddress = $getUsersAddress->address ?? '';

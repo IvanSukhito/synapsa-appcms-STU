@@ -130,10 +130,11 @@ class HistoryController extends Controller
        ->join('transaction_details', 'transaction_details.product_id', '=', 'product.id')
        ->where('transaction_details.transaction_id', $getDataProduct->id)->get();
 
-
+        
       $historyProduct = [
           'transaction_product' => $getDataProduct,
-          'list_product' => $listProduct
+          'list_product' => $listProduct,
+          'address' =>  $this->getUserAddress($user->id)
       ];
 
      if($getDataProduct){
@@ -156,7 +157,7 @@ class HistoryController extends Controller
     {
         $getType = check_list_type_transaction('product');
 
-        $result = Transaction::selectRaw('transaction.id, transaction.status, type, MIN(product_name) AS product_name, MIN(product.image) as image')
+        $result = Transaction::selectRaw('transaction.id, transaction.status, transaction.total, transaction.subtotal, type, MIN(product_name) AS product_name, MIN(product.image) as image')
             ->leftJoin('transaction_details', 'transaction_details.transaction_id','=','transaction.id')
             ->leftJoin('product', 'product.id','=','transaction_details.product_id')
             ->where('transaction.user_id', $userId)
@@ -166,7 +167,7 @@ class HistoryController extends Controller
             $result = $result->where('code', 'LIKE', "%$s%")->orWhere('product_name', 'LIKE', "%$s%");
         }
 
-        $getData = $result->groupByRaw('transaction.id, transaction.status, type, product_name, image')->paginate($getLimit);
+        $getData = $result->groupByRaw('transaction.id, transaction.status, transaction.total, transaction.subtotal, type, product_name, image')->paginate($getLimit);
         $getResult = [];
         foreach ($getData as $list) {
             $getTemp = $list->toArray();
@@ -229,9 +230,10 @@ class HistoryController extends Controller
 
         $getType = check_list_type_transaction('doctor', $getServiceId);
 
-        $result = Transaction::selectRaw('transaction.id, transaction.type, transaction.status, MIN(doctor_name) AS doctor_name, MIN(users.image) AS image')
+        $result = Transaction::selectRaw('transaction.id, transaction.created_at, transaction.type, doctor_category.name as category_doctor, transaction.status, MIN(doctor_name) AS doctor_name, MIN(users.image) AS image')
             ->leftJoin('transaction_details', 'transaction_details.transaction_id','=','transaction.id')
             ->leftJoin('doctor', 'doctor.id','=','transaction_details.doctor_id')
+            ->leftJoin('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
             ->leftJoin('users', 'users.id','=','doctor.user_id')
             ->where('transaction.user_id', $userId);
 
@@ -247,7 +249,7 @@ class HistoryController extends Controller
             $result = $result->where('code', 'LIKE', "%$s%")->orWhere('doctor_name', 'LIKE', "%$s%");
         }
 
-        $getData = $result->groupByRaw('transaction.id, transaction.type, transaction.status, doctor_name, image')->paginate($getLimit);
+        $getData = $result->groupByRaw('transaction.id, transaction.type, transaction.created_at, transaction.status, category_doctor, doctor_name, image')->paginate($getLimit);
         $getResult = [];
         foreach ($getData as $list) {
             $getTemp = $list->toArray();
@@ -380,6 +382,37 @@ class HistoryController extends Controller
         ->where('transaction.user_id', $userId)
         ->where('transaction.id', $getDataId)
         ->first();
+    }
+
+    private function getUserAddress($userId)
+    {
+        $getUsersAddress = UsersAddress::where('user_id', $userId)->first();
+        $user = $this->request->attributes->get('_user');
+
+        $getAddressName = $getUsersAddress->address_name ?? '';
+        $getAddress = $getUsersAddress->address ?? '';
+        $getCity = $getUsersAddress->city_id ?? '';
+        $getCityName = $getUsersAddress->city_name ?? '';
+        $getDistrict = $getUsersAddress->district_id ?? '';
+        $getDistrictName = $getUsersAddress->district_name ?? '';
+        $getSubDistrict = $getUsersAddress->sub_district_id ?? '';
+        $getSubDistrictName = $getUsersAddress->sub_district_name ?? '';
+        $getZipCode = $getUsersAddress->zip_code ?? '';
+        $getPhone = $user->phone ?? '';
+
+        return [
+            'address_name' => $getAddressName,
+            'address' => $getAddress,
+            'city_id' => $getCity,
+            'city_name' => $getCityName,
+            'district_id' => $getDistrict,
+            'district_name' => $getDistrictName,
+            'sub_district_id' => $getSubDistrict,
+            'sub_district_name' => $getSubDistrictName,
+            'zip_code' => $getZipCode,
+            'phone' => $getPhone
+        ];
+
     }
 
 }
