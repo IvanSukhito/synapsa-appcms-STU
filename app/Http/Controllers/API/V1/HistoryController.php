@@ -344,7 +344,7 @@ class HistoryController extends Controller
     {
         $getType = check_list_type_transaction('product');
 
-        $result = Transaction::selectRaw('transaction.*, product_name, product.image as image')
+        $result = Transaction::selectRaw('transaction.*, MIN(product_name) AS product_name, product.image as image')
             ->leftJoin('transaction_details', 'transaction_details.transaction_id','=','transaction.id')
             ->leftJoin('product', 'product.id','=','transaction_details.product_id')
             ->where('transaction.user_id', $userId)
@@ -355,7 +355,7 @@ class HistoryController extends Controller
         }
 
         return [
-            'data' => $result->groupBy('transaction.id')->paginate($getLimit)
+            'data' => $result->groupByRaw('transaction.id, transaction_details.product_name')->paginate($getLimit)
         ];
 
     }
