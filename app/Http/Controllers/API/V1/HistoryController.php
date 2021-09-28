@@ -189,7 +189,7 @@ class HistoryController extends Controller
     protected function getListDoctor($userId, $getServiceId, $getLimit, $s)
     {
         $getServiceDoctor = isset($this->setting['service-doctor']) ? json_decode($this->setting['service-doctor'], true) : [];
-        $getService = Service::whereIn('id', $getServiceDoctor)->where('status', '=', 1)->orderBy('orders', 'ASC')->get();
+        $getService = Service::whereIn('id', $getServiceDoctor)->where('status', '=', 80)->orderBy('orders', 'ASC')->get();
 
         $notFound = 1;
         $firstService = 0;
@@ -271,7 +271,7 @@ class HistoryController extends Controller
     protected function getListLab($userId, $getServiceId, $getLimit, $s)
     {
         $getServiceLab = isset($this->setting['service-lab']) ? json_decode($this->setting['service-lab'], true) : [];
-        $getService = Service::whereIn('id', $getServiceLab)->where('status', '=', 1)->orderBy('orders', 'ASC')->get();
+        $getService = Service::whereIn('id', $getServiceLab)->where('status', '=', 80)->orderBy('orders', 'ASC')->get();
 
         $notFound = 1;
         $firstService = 0;

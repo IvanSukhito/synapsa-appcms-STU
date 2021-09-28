@@ -207,7 +207,7 @@ class LabController extends Controller
         ]);
 
         $total = 0;
-        $getService = Service::where('id', $getServiceId)->where('status', '=', 1)->first();
+        $getService = Service::where('id', $getServiceId)->where('status', '=', 80)->first();
 
         $getData = $this->getLabInfo($userId, $getServiceId);
 
@@ -317,7 +317,7 @@ class LabController extends Controller
         }
 
         $getInterestService = $getData->service_id;
-        $getService = Service::where('id', $getInterestService)->where('status', '=', 1)->first();
+        $getService = Service::where('id', $getInterestService)->where('status', '=', 80)->first();
         $getServiceData = $this->getService($getInterestService);
         $getLabSchedule = LabSchedule::where('service_id', $getData->service_id)
             ->where('date_available', '=', $getDate)
@@ -567,10 +567,10 @@ class LabController extends Controller
 
         $getServiceLab = isset($this->setting['service-lab']) ? json_decode($this->setting['service-lab'], true) : [];
         if (count($getServiceLab) > 0) {
-            $service = Service::whereIn('id', $getServiceLab)->where('status', '=', 1)->orderBy('orders', 'ASC')->get();
+            $service = Service::whereIn('id', $getServiceLab)->where('status', '=', 80)->orderBy('orders', 'ASC')->get();
         }
         else {
-            $service = Service::where('status', '=', 1)->orderBy('orders', 'ASC')->get();
+            $service = Service::where('status', '=', 80)->orderBy('orders', 'ASC')->get();
         }
 
         $tempService = [];
