@@ -48,8 +48,16 @@ class XenditLogic
             'expected_amount' => $amount
         ];
 
-        Xendit::setApiKey($this->XENDIT_SECRET_KEY);
-        $result = VirtualAccounts::create($params);
+        try {
+            Xendit::setApiKey($this->XENDIT_SECRET_KEY);
+            $result = VirtualAccounts::create($params);
+        }
+        catch (\Exception $e) {
+            $result = [
+                'status' => "GAGAL",
+                'message' => $e->getMessage()
+            ];
+        }
 
         return $result;
     }
