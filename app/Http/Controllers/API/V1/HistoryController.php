@@ -125,6 +125,7 @@ class HistoryController extends Controller
         }
 
        $getDataProduct = $this->getDetailProduct($getDataId, $userId);
+       
    
        $listProduct = Product::selectRaw('transaction_details.id, product.id as product_id, product_qty, product.name, product.image, product.price')
        ->join('transaction_details', 'transaction_details.product_id', '=', 'product.id')
@@ -341,7 +342,7 @@ class HistoryController extends Controller
             $result = $result->where('code', 'LIKE', "%$s%")->orWhere('lab_name', 'LIKE', "%$s%");
         }
 
-        $getData = $result->groupByRaw('transaction.id, transaction.created_at, transaction.status, type, lab_name, image')->paginate($getLimit);
+        $getData = $result->groupByRaw('transaction.id, transaction.created_at, transaction.status, type, lab_name, image')->paginate($getLimit)->get();
         $getResult = [];
         foreach ($getData as $list) {
             $getTemp = $list->toArray();
@@ -401,8 +402,8 @@ class HistoryController extends Controller
         $getUsersAddress = UsersAddress::where('user_id', $userId)->first();
         $user = $this->request->attributes->get('_user');
 
-        $getAddressName = $getUsersAddress->address_name ?? '';
-        $getAddress = $getUsersAddress->address ?? '';
+        $getAddressName = $getUsersAddress->address_name ??$user->address ?? '';
+        $getAddress = $getUsersAddress->address ?? $user->address_detail ?? '';
         $getCity = $getUsersAddress->city_id ?? '';
         $getCityName = $getUsersAddress->city_name ?? '';
         $getDistrict = $getUsersAddress->district_id ?? '';

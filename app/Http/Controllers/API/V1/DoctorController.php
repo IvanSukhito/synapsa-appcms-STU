@@ -531,8 +531,8 @@ class DoctorController extends Controller
         $getUsersAddress = UsersAddress::where('user_id', $userId)->first();
         $user = $this->request->attributes->get('_user');
 
-        $getAddressName = $getUsersAddress->address_name ?? $user->address;
-        $getAddress = $getUsersAddress->address ?? $user->address_detail;
+        $getAddressName = $getUsersAddress->address_name ?? $user->address ?? '';
+        $getAddress = $getUsersAddress->address ?? $user->address_detail ?? '';
         $getCity = $getUsersAddress->city_id ?? '';
         $getCityName = $getUsersAddress->city_name ?? '';
         $getDistrict = $getUsersAddress->district_id ?? '';
