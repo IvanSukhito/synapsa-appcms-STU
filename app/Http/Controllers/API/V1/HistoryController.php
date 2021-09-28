@@ -157,11 +157,17 @@ class HistoryController extends Controller
     {
         $getType = check_list_type_transaction('product');
 
-        $result = Transaction::selectRaw('transaction.id, transaction.status, transaction.total, transaction.subtotal, type, MIN(product_name) AS product_name, MIN(product.image) as image')
-            ->leftJoin('transaction_details', 'transaction_details.transaction_id','=','transaction.id')
-            ->leftJoin('product', 'product.id','=','transaction_details.product_id')
+        $result = Transaction::selectRaw('transaction.id, transaction.status, MIN(total) as total, MIN(subtotal) as subtotal, type, MIN(product_name) AS product_name, MIN(product.image) as image')
+            ->join('transaction_details', function($join){
+                $join->on('transaction_details.transaction_id','=','transaction.id')
+                     ->on('transaction_details.id', '=', DB::raw("(select min(id) from transaction_details WHERE transaction_details.transaction_id = transaction.id)"));
+            })
+            ->join('product', function($join){
+                $join->on('product.id','=','transaction_details.product_id')
+                     ->on('product.id', '=', DB::raw("(select min(id) from product WHERE product.id = transaction_details.product_id)"));
+            })
             ->where('transaction.user_id', $userId)
-            ->where('type', $getType);
+            ->where('type', $getType)->orderBy('transaction.id','DESC');
 
         if (strlen($s) > 0) {
             $result = $result->where('code', 'LIKE', "%$s%")->orWhere('product_name', 'LIKE', "%$s%");
@@ -235,7 +241,7 @@ class HistoryController extends Controller
             ->leftJoin('doctor', 'doctor.id','=','transaction_details.doctor_id')
             ->leftJoin('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
             ->leftJoin('users', 'users.id','=','doctor.user_id')
-            ->where('transaction.user_id', $userId);
+            ->where('transaction.user_id', $userId)->orderBy('transaction.id','DESC');
 
         
         if ($getServiceId <= 0) {
@@ -314,9 +320,15 @@ class HistoryController extends Controller
         $getType = check_list_type_transaction('lab', $getServiceId);
 
         $result = Transaction::selectRaw('transaction.id, transaction.status, type, MIN(lab_name) AS lab_name, MIN(lab.image) as image')
-            ->leftJoin('transaction_details', 'transaction_details.transaction_id','=','transaction.id')
-            ->leftJoin('lab', 'lab.id','=','transaction_details.lab_id')
-            ->where('transaction.user_id', $userId);
+            ->join('transaction_details', function($join){
+                $join->on('transaction_details.transaction_id','=','transaction.id')
+                     ->on('transaction_details.id', '=', DB::raw("(select min(id) from transaction_details WHERE transaction_details.transaction_id = transaction.id)"));
+            })
+            ->join('lab', function($join){
+                $join->on('lab.id','=','transaction_details.lab_id')
+                     ->on('lab.id', '=', DB::raw("(select min(id) from lab WHERE lab.id = transaction_details.lab_id)"));
+            })
+            ->where('transaction.user_id', $userId)->orderBy('transaction.id','DESC');
 
         if ($getServiceId <= 0) {
             $result = $result->whereIn('type', [5,6,7]);
