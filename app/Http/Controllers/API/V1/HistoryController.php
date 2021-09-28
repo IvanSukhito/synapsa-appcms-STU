@@ -157,7 +157,7 @@ class HistoryController extends Controller
     {
         $getType = check_list_type_transaction('product');
 
-        $result = Transaction::selectRaw('transaction.id, transaction.status, MIN(total) as total, MIN(subtotal) as subtotal, type, MIN(product_name) AS product_name, MIN(product.image) as image')
+        $result = Transaction::selectRaw('transaction.id, transaction.status, total, subtotal, type, MIN(product_name) AS product_name, MIN(product.image) as image')
             ->join('transaction_details', function($join){
                 $join->on('transaction_details.transaction_id','=','transaction.id')
                      ->on('transaction_details.id', '=', DB::raw("(select min(id) from transaction_details WHERE transaction_details.transaction_id = transaction.id)"));
@@ -173,7 +173,7 @@ class HistoryController extends Controller
             $result = $result->where('code', 'LIKE', "%$s%")->orWhere('product_name', 'LIKE', "%$s%");
         }
 
-        $getData = $result->groupByRaw('transaction.id, transaction.status, transaction.total, transaction.subtotal, type, product_name, image')->paginate($getLimit);
+        $getData = $result->groupByRaw('transaction.id, transaction.status, total, subtotal, type, product_name, image')->paginate($getLimit);
         $getResult = [];
         foreach ($getData as $list) {
             $getTemp = $list->toArray();
@@ -319,7 +319,7 @@ class HistoryController extends Controller
 
         $getType = check_list_type_transaction('lab', $getServiceId);
 
-        $result = Transaction::selectRaw('transaction.id, transaction.status, type, MIN(lab_name) AS lab_name, MIN(lab.image) as image')
+        $result = Transaction::selectRaw('transaction.id, transaction.created_at, transaction.status, type, MIN(lab_name) AS lab_name, MIN(lab.image) as image')
             ->join('transaction_details', function($join){
                 $join->on('transaction_details.transaction_id','=','transaction.id')
                      ->on('transaction_details.id', '=', DB::raw("(select min(id) from transaction_details WHERE transaction_details.transaction_id = transaction.id)"));
@@ -341,7 +341,7 @@ class HistoryController extends Controller
             $result = $result->where('code', 'LIKE', "%$s%")->orWhere('lab_name', 'LIKE', "%$s%");
         }
 
-        $getData = $result->groupByRaw('transaction.id, transaction.status, type, lab_name, image')->paginate($getLimit);
+        $getData = $result->groupByRaw('transaction.id, transaction.created_at, transaction.status, type, lab_name, image')->paginate($getLimit);
         $getResult = [];
         foreach ($getData as $list) {
             $getTemp = $list->toArray();
