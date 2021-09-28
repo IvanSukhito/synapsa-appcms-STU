@@ -573,8 +573,6 @@ class LabController extends Controller
             $service = Service::where('status', '=', 1)->orderBy('orders', 'ASC')->get();
         }
 
-        $getList = get_list_type_service();
-
         $tempService = [];
         $firstService = 0;
         $getServiceId = 0;
@@ -585,7 +583,7 @@ class LabController extends Controller
                 'id' => $list->id,
                 'name' => $list->name,
                 'type' => $list->type,
-                'type_nice' => $getList[$list->type] ?? '-',
+                'type_nice' => $list->type_nice,
                 'active' => 0
             ];
 
