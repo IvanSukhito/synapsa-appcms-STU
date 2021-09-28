@@ -287,18 +287,35 @@ class ProcessTransaction implements ShouldQueue
             'name' => $getUser->fullname
         ]);
 
+        if ($getPaymentInfo && isset($getPaymentInfo->status) && $getPaymentInfo->status == "GAGAL") {
+            $getTransaction->status = 90;
+        }
+        else {
+            $getTransaction->status = 2;
+        }
+
         $getTransaction->payment_info = json_encode($getPaymentInfo);
-        $getTransaction->status = 2;
         $getTransaction->save();
 
-        $this->getJob->status = 80;
-        $this->getJob->response = json_encode([
-            'service' => $getTypeService,
-            'service_id' => $getServiceId,
-            'transaction_id' => $getTransaction->id,
-            'message' => 'ok'
-        ]);
-        $this->getJob->save();
+        if ($getPaymentInfo && isset($getPaymentInfo->status) && $getPaymentInfo->status == "GAGAL") {
+            $this->getJob->status = 99;
+            $this->getJob->response = json_encode([
+                'service' => $getTypeService,
+                'service_id' => $getServiceId,
+                'message' => $getPaymentInfo->message
+            ]);
+            $this->getJob->save();
+        }
+        else {
+            $this->getJob->status = 80;
+            $this->getJob->response = json_encode([
+                'service' => $getTypeService,
+                'service_id' => $getServiceId,
+                'transaction_id' => $getTransaction->id,
+                'message' => 'ok'
+            ]);
+            $this->getJob->save();
+        }
 
     }
 

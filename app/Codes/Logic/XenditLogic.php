@@ -53,7 +53,7 @@ class XenditLogic
             $result = VirtualAccounts::create($params);
         }
         catch (\Exception $e) {
-            $result = [
+            $result = (object)[
                 'status' => "GAGAL",
                 'message' => $e->getMessage()
             ];
