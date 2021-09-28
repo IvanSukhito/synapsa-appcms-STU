@@ -153,7 +153,7 @@ class HistoryController extends Controller
 
     }
 
-    protected function getListProduct($userId, $getLimit, $s)
+    private function getListProduct($userId, $getLimit, $s)
     {
         $getType = check_list_type_transaction('product');
 
@@ -193,7 +193,7 @@ class HistoryController extends Controller
 
     }
 
-    protected function getListDoctor($userId, $getServiceId, $getLimit, $s)
+    private function getListDoctor($userId, $getServiceId, $getLimit, $s)
     {
         $getServiceDoctor = isset($this->setting['service-doctor']) ? json_decode($this->setting['service-doctor'], true) : [];
         $getService = Service::whereIn('id', $getServiceDoctor)->where('status', '=', 80)->orderBy('orders', 'ASC')->get();
@@ -276,7 +276,7 @@ class HistoryController extends Controller
 
     }
 
-    protected function getListLab($userId, $getServiceId, $getLimit, $s)
+    private function getListLab($userId, $getServiceId, $getLimit, $s)
     {
         $getServiceLab = isset($this->setting['service-lab']) ? json_decode($this->setting['service-lab'], true) : [];
         $getService = Service::whereIn('id', $getServiceLab)->where('status', '=', 80)->orderBy('orders', 'ASC')->get();
@@ -362,7 +362,7 @@ class HistoryController extends Controller
 
     }
 
-    public function getDetailProduct($getDataId, $userId){
+    private function getDetailProduct($getDataId, $userId){
         return 
         Transaction::selectRaw('transaction.id, transaction.code, transaction.receiver_address, transaction.receiver_phone, transaction.created_at, shipping_address_name, shipping_name, shipping_price,  transaction.total as total, transaction.status as status, transaction.type')
         ->join('transaction_details', 'transaction_details.transaction_id', '=', 'transaction.id')
@@ -370,7 +370,7 @@ class HistoryController extends Controller
         ->where('transaction.id', $getDataId)
         ->where('type', 1)->first();
     }
-    public function getDetailLab($getDataId, $userId){
+    private function getDetailLab($getDataId, $userId){
         return 
         Transaction::selectRaw('transaction.id, code, time_start, time_end, date_available, transaction.total as total_price,
         transaction.status as status, payment_name, payment.icon_img as icon')
@@ -381,7 +381,7 @@ class HistoryController extends Controller
        ->where('transaction.id', $getDataId)
        ->first();
     }
-    public function getDetailDoctor($getDataId, $userId){
+    private function getDetailDoctor($getDataId, $userId){
        return 
          Transaction::selectRaw('transaction.id, code, transaction_details.doctor_name as doctor_name, transaction.created_at, transaction.type, doctor_category.name as category, klinik.name as clinic_name, transaction.total as total_price,
          transaction.status as status, users.image as image, payment_name, payment.icon_img as icon')

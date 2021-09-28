@@ -618,7 +618,7 @@ class LabController extends Controller
 
     }
 
-    public function getLabInfo($userId, $serviceId){
+    private function getLabInfo($userId, $serviceId){
 
         return Lab::selectRaw('lab_cart.id, lab.id AS lab_id, lab.parent_id ,lab.name, lab_service.price,
                 lab.image, lab_cart.choose')
