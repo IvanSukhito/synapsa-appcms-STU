@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\V1\DoctorSchedule;
+use App\Codes\Models\V1\LabSchedule;
 use App\Codes\Models\V1\Payment;
 use App\Codes\Models\V1\Product;
 use App\Codes\Models\V1\SetJob;
@@ -13,8 +14,7 @@ use App\Codes\Models\V1\TransactionDetails;
 use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\UsersAddress;
 use App\Codes\Models\V1\UsersCart;
-use App\Codes\Models\V1\labCart;
-use App\Codes\Models\V1\labSchedule;
+use App\Codes\Models\V1\LabCart;
 use App\Codes\Models\V1\UsersCartDetail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
