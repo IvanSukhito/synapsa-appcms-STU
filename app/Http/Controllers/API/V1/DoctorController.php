@@ -98,7 +98,7 @@ class DoctorController extends Controller
     public function getDoctorDetail($id)
     {
         $serviceId = $this->request->get('service_id');
-        $getService = Service::where('id', $serviceId)->where('status', '=', 1)->first();
+        $getService = Service::where('id', $serviceId)->where('status', '=', 80)->first();
         if (!$getService) {
             return response()->json([
                 'success' => 0,
@@ -133,7 +133,7 @@ class DoctorController extends Controller
             date('Y-m-d', strtotime($this->request->get('date'))) :
             date('Y-m-d', strtotime("+1 day"));
 
-        $getService = Service::where('id', $serviceId)->where('status', '=', 1)->first();
+        $getService = Service::where('id', $serviceId)->where('status', '=', 80)->first();
         if (!$getService) {
             return response()->json([
                 'success' => 0,
@@ -202,7 +202,7 @@ class DoctorController extends Controller
             ], 422);
         }
 
-        $getService = Service::where('id', $getDoctorSchedule->service_id)->where('status', '=', 1)->first();
+        $getService = Service::where('id', $getDoctorSchedule->service_id)->where('status', '=', 80)->first();
         $getList = get_list_type_service();
 
         return response()->json([
@@ -255,7 +255,7 @@ class DoctorController extends Controller
             ], 422);
         }
 
-        $getService = Service::where('id', $getDoctorSchedule->service_id)->where('status', '=', 1)->first();
+        $getService = Service::where('id', $getDoctorSchedule->service_id)->where('status', '=', 80)->first();
 
         $doctorId = $getDoctorSchedule->doctor_id;
         $serviceId = $getDoctorSchedule->service_id;
@@ -414,10 +414,10 @@ class DoctorController extends Controller
 
         $getServiceDoctor = isset($this->setting['service-doctor']) ? json_decode($this->setting['service-doctor'], true) : [];
         if (count($getServiceDoctor) > 0) {
-            $service = Service::whereIn('id', $getServiceDoctor)->where('status', '=', 1)->orderBy('orders', 'ASC')->get();
+            $service = Service::whereIn('id', $getServiceDoctor)->where('status', '=', 80)->orderBy('orders', 'ASC')->get();
         }
         else {
-            $service = Service::where('status', '=', 1)->orderBy('orders', 'ASC')->get();
+            $service = Service::where('status', '=', 80)->orderBy('orders', 'ASC')->get();
         }
 
         $tempService = [];
@@ -529,9 +529,10 @@ class DoctorController extends Controller
     private function getUserAddress($userId)
     {
         $getUsersAddress = UsersAddress::where('user_id', $userId)->first();
+        $user = $this->request->attributes->get('_user');
 
-        $getAddressName = $getUsersAddress->address_name ?? '';
-        $getAddress = $getUsersAddress->address ?? '';
+        $getAddressName = $getUsersAddress->address_name ?? $user->address ?? '';
+        $getAddress = $getUsersAddress->address ?? $user->address_detail ?? '';
         $getCity = $getUsersAddress->city_id ?? '';
         $getCityName = $getUsersAddress->city_name ?? '';
         $getDistrict = $getUsersAddress->district_id ?? '';
