@@ -354,8 +354,22 @@ class HistoryController extends Controller
             $result = $result->where('code', 'LIKE', "%$s%")->orWhere('product_name', 'LIKE', "%$s%");
         }
 
+        $getData = $result->groupByRaw('transaction.id')->paginate($getLimit);
+        $getResult = [];
+        foreach ($getData as $list) {
+            $getTemp = $list->toArray();
+            if (strlen($getTemp['image']) > 0) {
+                $getTemp['image_full'] = env('OSS_URL').'/'.$getTemp['image'];
+            }
+            else {
+                $getTemp['image_full'] = asset('assets/cms/images/no-img.png');
+            }
+
+            $getResult[] = $getTemp;
+        }
+
         return [
-            'data' => $result->groupByRaw('transaction.id, transaction_details.product_name')->paginate($getLimit)
+            'data' => $getResult
         ];
 
     }
@@ -403,7 +417,7 @@ class HistoryController extends Controller
 
         $getType = check_list_type_transaction('doctor', $getServiceId);
 
-        $result = Transaction::selectRaw('transaction.*, doctor_id, doctor_name, users.image AS image')
+        $result = Transaction::selectRaw('transaction.*, doctor_id, MIN(doctor_name) AS doctor_name, MIN(users.image) AS image')
             ->leftJoin('transaction_details', 'transaction_details.transaction_id','=','transaction.id')
             ->leftJoin('doctor', 'doctor.id','=','transaction_details.doctor_id')
             ->leftJoin('users', 'users.id','=','doctor.user_id')
@@ -420,8 +434,22 @@ class HistoryController extends Controller
             $result = $result->where('code', 'LIKE', "%$s%")->orWhere('doctor_name', 'LIKE', "%$s%");
         }
 
+        $getData = $result->groupByRaw('transaction.id')->paginate($getLimit);
+        $getResult = [];
+        foreach ($getData as $list) {
+            $getTemp = $list->toArray();
+            if (strlen($getTemp['image']) > 0) {
+                $getTemp['image_full'] = env('OSS_URL').'/'.$getTemp['image'];
+            }
+            else {
+                $getTemp['image_full'] = asset('assets/cms/images/no-img.png');
+            }
+
+            $getResult[] = $getTemp;
+        }
+
         return [
-            'data' => $result->groupBy('transaction.id')->paginate($getLimit),
+            'data' => $getResult,
             'service' => $getService
         ];
 
@@ -470,7 +498,7 @@ class HistoryController extends Controller
 
         $getType = check_list_type_transaction('lab', $getServiceId);
 
-        $result = Transaction::selectRaw('transaction.*, lab_name, lab.image as image')
+        $result = Transaction::selectRaw('transaction.*, MIN(lab_name) AS lab_name, MIN(lab.image) as image')
             ->leftJoin('transaction_details', 'transaction_details.transaction_id','=','transaction.id')
             ->leftJoin('lab', 'lab.id','=','transaction_details.lab_id')
             ->where('transaction.user_id', $userId);
@@ -486,8 +514,22 @@ class HistoryController extends Controller
             $result = $result->where('code', 'LIKE', "%$s%")->orWhere('lab_name', 'LIKE', "%$s%");
         }
 
+        $getData = $result->groupByRaw('transaction.id')->paginate($getLimit);
+        $getResult = [];
+        foreach ($getData as $list) {
+            $getTemp = $list->toArray();
+            if (strlen($getTemp['image']) > 0) {
+                $getTemp['image_full'] = env('OSS_URL').'/'.$getTemp['image'];
+            }
+            else {
+                $getTemp['image_full'] = asset('assets/cms/images/no-img.png');
+            }
+
+            $getResult[] = $getTemp;
+        }
+
         return [
-            'data' => $result->groupBy('transaction.id')->paginate($getLimit),
+            'data' => $getResult,
             'service' => $getService
         ];
 
