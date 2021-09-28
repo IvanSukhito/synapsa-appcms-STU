@@ -367,12 +367,16 @@ class HistoryController extends Controller
 
         $notFound = 1;
         $firstService = 0;
-        $tempService = [];
+        $tempService = [
+            [
+                'id' => 0,
+                'name' => 'Semua',
+                'type' => 0,
+                'type_nice' => '',
+                'active' => 0
+            ]
+        ];
         foreach ($getService as $list) {
-            if ($firstService <= 0) {
-                $firstService = $list->id;
-            }
-
             $temp = [
                 'id' => $list->id,
                 'name' => $list->name,
@@ -403,8 +407,14 @@ class HistoryController extends Controller
             ->leftJoin('transaction_details', 'transaction_details.transaction_id','=','transaction.id')
             ->leftJoin('doctor', 'doctor.id','=','transaction_details.doctor_id')
             ->leftJoin('users', 'users.id','=','doctor.user_id')
-            ->where('transaction.user_id', $userId)
-            ->where('type', $getType);
+            ->where('transaction.user_id', $userId);
+
+        if ($getServiceId <= 0) {
+            $result = $result->whereIn('type', [2,3,4]);
+        }
+        else {
+            $result = $result->where('type', $getType);
+        }
 
         if (strlen($s) > 0) {
             $result = $result->where('code', 'LIKE', "%$s%")->orWhere('doctor_name', 'LIKE', "%$s%");
@@ -424,12 +434,16 @@ class HistoryController extends Controller
 
         $notFound = 1;
         $firstService = 0;
-        $tempService = [];
+        $tempService = [
+            [
+                'id' => 0,
+                'name' => 'Semua',
+                'type' => 0,
+                'type_nice' => '',
+                'active' => 0
+            ]
+        ];
         foreach ($getService as $list) {
-            if ($firstService <= 0) {
-                $firstService = $list->id;
-            }
-
             $temp = [
                 'id' => $list->id,
                 'name' => $list->name,
@@ -459,8 +473,14 @@ class HistoryController extends Controller
         $result = Transaction::selectRaw('transaction.*, lab_name, lab.image as image')
             ->leftJoin('transaction_details', 'transaction_details.transaction_id','=','transaction.id')
             ->leftJoin('lab', 'lab.id','=','transaction_details.lab_id')
-            ->where('transaction.user_id', $userId)
-            ->where('type', $getType);
+            ->where('transaction.user_id', $userId);
+
+        if ($getServiceId <= 0) {
+            $result = $result->whereIn('type', [5,6,7]);
+        }
+        else {
+            $result = $result->where('type', $getType);
+        }
 
         if (strlen($s) > 0) {
             $result = $result->where('code', 'LIKE', "%$s%")->orWhere('lab_name', 'LIKE', "%$s%");
