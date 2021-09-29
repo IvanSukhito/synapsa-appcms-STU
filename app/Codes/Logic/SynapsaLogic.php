@@ -54,4 +54,5 @@ class SynapsaLogic
         return false;
 
     }
+    
 }

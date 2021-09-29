@@ -77,7 +77,7 @@ else {
                     @foreach($title as $title)
                     <?php $no++; ?>
                     <b>Title - {!! $no !!}</b>
-                    {{ Form::text('title', $title, array_merge(['id' => 'desc','name'=>'title[]', 'class' => 'form-control', 'placeholder' => __('general.title')], $addAttribute)) }}
+                    {{ Form::text('title', $title, array_merge(['id' => 'title','name'=>'title[]', 'class' => 'form-control', 'placeholder' => __('general.title')], $addAttribute)) }}
                     <br>
                     @endforeach
                     <br>
@@ -86,7 +86,7 @@ else {
                     <?php $no++; ?>
                     <b>Desc - {!! $no !!}</b>
                     <br>
-                    {{ Form::textarea('desc', $desc, array_merge(['id' => 'desc', 'name'=>'desc[]', 'class' => 'editor', 'placeholder' => __('general.information')], $addAttribute)) }}
+                    {{ Form::textarea('desc', $desc, array_merge(['id' => 'desc', 'name'=>'desc[]', 'class' => 'editor', 'placeholder' => __('general.desc')], $addAttribute)) }}
                     <br>
                     @endforeach
                     @endif
@@ -149,13 +149,14 @@ else {
 @section('script-bottom')
     @parent
     @include(env('ADMIN_TEMPLATE').'._component.generate_forms_script')
-    <script src="{{ asset('/assets/cms/js/ckeditor/ckeditor.js') }}"></script>
+    <!--<script src="{{ asset('/assets/cms/js/ckeditor/ckeditor.js') }}"></script>-->
     <script>
 
     let setIndex1 = 1;
 
         $(document).ready(function() {
             $('.dropify').dropify();
+            
             $('.editor').each(function(i, item) {
             CKEDITOR.replace(item.id, {
                 autoParagraph: true,
@@ -164,6 +165,7 @@ else {
                 extraPlugins: 'justify,format,colorbutton,font,smiley'
             });
             });
+         
         });
 
         function add_desc1() {
