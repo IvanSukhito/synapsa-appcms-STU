@@ -177,7 +177,7 @@ class ProcessTransaction implements ShouldQueue
         $setLogic = new SynapsaLogic();
         $getPaymentInfo = $setLogic->createPayment($getPayment, $getTransaction, [
             'name' => $getUser->fullname
-        ]);
+        ], $this->getJob->id);
 
         $getTransaction->payment_info = json_encode($getPaymentInfo);
         $getTransaction->status = 2;
@@ -246,9 +246,13 @@ class ProcessTransaction implements ShouldQueue
             'phone' => $getUser->phone ?? ''
         ];
 
-        foreach (['address_name', 'address', 'city_id', 'city_name', 'district_id', 'district_name',
-                     'sub_district_id', 'sub_district_name', 'zip_code'] as $key) {
-            $extraInfo[$key] = $getUsersAddress->$key;
+
+
+        if ($getUsersAddress) {
+            foreach (['address_name', 'address', 'city_id', 'city_name', 'district_id', 'district_name',
+                         'sub_district_id', 'sub_district_name', 'zip_code'] as $key) {
+                $extraInfo[$key] = isset($getUsersAddress->$key) ? $getUsersAddress->$key : '';
+            }
         }
 
         DB::beginTransaction();
@@ -285,7 +289,7 @@ class ProcessTransaction implements ShouldQueue
         $setLogic = new SynapsaLogic();
         $getPaymentInfo = $setLogic->createPayment($getPayment, $getTransaction, [
             'name' => $getUser->fullname
-        ]);
+        ], $this->getJob->id);
 
         if ($getPaymentInfo && isset($getPaymentInfo->status) && $getPaymentInfo->status == "GAGAL") {
             $getTransaction->status = 90;
@@ -371,18 +375,15 @@ class ProcessTransaction implements ShouldQueue
 
         $extraInfo = [
             'service_id' => $getLabSchedule->service_id,
-            'address_name' => $getUsersAddress->address_name ?? '',
-            'address' => $getUsersAddress->address ?? '',
-            'city_id' => $getUsersAddress->city_id ?? '',
-            'district_id' => $getUsersAddress->district_id ?? '',
-            'sub_district_id' => $getUsersAddress->sub_district_id ?? '',
-            'zip_code' => $getUsersAddress->zip_code ?? '',
             'phone' => $getUser->phone ?? ''
         ];
 
-        foreach (['address_name', 'address', 'city_id', 'city_name', 'district_id', 'district_name',
-        'sub_district_id', 'sub_district_name', 'zip_code'] as $key) {
-        $extraInfo[$key] = $getUsersAddress->$key;}
+        if ($getUsersAddress) {
+            foreach (['address_name', 'address', 'city_id', 'city_name', 'district_id', 'district_name',
+                         'sub_district_id', 'sub_district_name', 'zip_code'] as $key) {
+                $extraInfo[$key] = isset($getUsersAddress->$key) ? $getUsersAddress->$key : '';
+            }
+        }
 
         DB::beginTransaction();
 
@@ -424,7 +425,7 @@ class ProcessTransaction implements ShouldQueue
         $setLogic = new SynapsaLogic();
         $getPaymentInfo = $setLogic->createPayment($getPayment, $getTransaction, [
             'name' => $getUser->fullname
-        ]);
+        ], $this->getJob->id);
 
         $getTransaction->payment_info = json_encode($getPaymentInfo);
         $getTransaction->status = 2;

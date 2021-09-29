@@ -10,7 +10,7 @@ class SynapsaLogic
     {
     }
 
-    public function createPayment($payment, $transaction, $additional)
+    public function createPayment($payment, $transaction, $additional, $jobId = 0)
     {
         if ($payment->service == 'xendit') {
             $xendit = new XenditLogic();
@@ -37,6 +37,7 @@ class SynapsaLogic
             if ($result) {
                 $getTypePayment = strtoupper(substr($payment->type_payment, 3));
                 LogServiceTransaction::create([
+                    'job_id' => $transaction->id,
                     'transaction_id' => $transaction->id,
                     'transaction_refer_id' => isset($result->external_id) ? $result->external_id : '',
                     'service' => 'xendit',
