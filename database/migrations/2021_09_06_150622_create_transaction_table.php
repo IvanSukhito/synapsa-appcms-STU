@@ -19,6 +19,7 @@ class CreateTransactionTable extends Migration
             $table->unsignedBigInteger('user_id')->default(0);
             $table->unsignedBigInteger('payment_id')->default(0);
             $table->unsignedBigInteger('shipping_id')->default(0);
+            $table->string('payment_refer_id')->nullable();
             $table->string('service')->nullable();
             $table->string('type_payment')->nullable();
             $table->string('code')->nullable();

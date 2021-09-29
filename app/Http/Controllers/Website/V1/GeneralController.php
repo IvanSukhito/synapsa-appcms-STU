@@ -7,7 +7,6 @@ use App\Codes\Models\V1\ForgetPassword;
 use App\Codes\Models\V1\Users;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Xendit\EWallets;
 
 class GeneralController extends Controller
 {
@@ -21,26 +20,9 @@ class GeneralController extends Controller
     public function xendit()
     {
 
-        var_dump(json_encode([
-            'va_number' => '72102735985',
-            'va_name' => 'PT Synapsa Indonesia',
-            'va_info' => [
-                [
-                    'title' => 'ATM BCA',
-                    'description' => '<ul><li>Masukan Pin ATM Anda</li><li>Masukan Pin ATM Anda</li><li>Masukan Pin ATM Anda</li></ul>',
-                ],
-                [
-                    'title' => 'Internet Banking BCA',
-                    'description' => '<ul><li>Masukan Pin ATM Anda</li><li>Masukan Pin ATM Anda</li><li>Masukan Pin ATM Anda</li></ul>',
-                ],
-                [
-                    'title' => 'Mobile Banking BCA',
-                    'description' => '<ul><li>Masukan Pin ATM Anda</li><li>Masukan Pin ATM Anda</li><li>Masukan Pin ATM Anda</li></ul>',
-                ],
-            ],
-        ]));
-        die();
         $xenditLogic = new XenditLogic();
+        $getData = $xenditLogic->simulatePaymentVA('va-202109000060', 114000);
+        dd($getData);
 //        $getData = $xenditLogic->infoEWallet('123456789005');
         $getData = $xenditLogic->createEWalletOVO('123456789005', 160000, '08211495299');
         dd($getData);

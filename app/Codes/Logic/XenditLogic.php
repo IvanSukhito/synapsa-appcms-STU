@@ -42,10 +42,12 @@ class XenditLogic
     public function createVA($transactionId, $codeBank, $amount, $name)
     {
         $params = [
-            'external_id' => "va-".$transactionId,
+            'external_id' => "va-fix-".$transactionId,
             'bank_code' => $codeBank,
             'name' => $name,
-            'expected_amount' => $amount
+            'expected_amount' => $amount,
+            'is_closed' => true,
+            'is_single_use' => true
         ];
 
         try {

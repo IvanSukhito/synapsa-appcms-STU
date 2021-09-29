@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\V1\DoctorSchedule;
 use App\Codes\Models\V1\LabSchedule;
 use App\Codes\Models\V1\Payment;
@@ -49,25 +48,26 @@ class ProcessTransaction implements ShouldQueue
     public function handle()
     {
         if ($this->getJob && $this->getJob->status == 1) {
-
             $getParams = json_decode($this->getJob->params, TRUE);
             $getTypeService = isset($getParams['type_service']) ? $getParams['type_service'] : '';
             $getServiceId = isset($getParams['service_id']) ? intval($getParams['service_id']) : 0;
             $getUserId = isset($getParams['user_id']) ? intval($getParams['user_id']) : 0;
             $getPaymentId = isset($getParams['payment_id']) ? intval($getParams['payment_id']) : 0;
-            $getType = check_list_type_transaction($getTypeService, $getServiceId);
+            $getType = isset($getParams['type']) ? intval($getParams['type']) : 0;
+            $getPaymentReferId = $getParams['payment_refer_id'] ?? '';
+            $getNewCode = $getParams['code'] ?? '';
             if ($getType == 1) {
-                $this->transactionProduct($getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId);
+                $this->transactionProduct($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId);
             }
             else if (in_array($getType, [2,3,4])) {
                 $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
                 $getDoctorInfo = isset($getParams['doctor_info']) ? $getParams['doctor_info'] : [];
-                $this->transactionDoctor($getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getDoctorInfo);
+                $this->transactionDoctor($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getDoctorInfo);
             }
             else if (in_array($getType, [5,6,7])) {
                 $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
                 $getLabInfo = isset($getParams['lab_info']) ? $getParams['lab_info'] : [];
-                $this->transactionLab($getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getLabInfo);
+                $this->transactionLab($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getLabInfo);
             }
             else if (in_array($getType, [8,9,10])) {
                 $this->transactionNurse();
@@ -75,7 +75,7 @@ class ProcessTransaction implements ShouldQueue
         }
     }
 
-    private function transactionProduct($getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId)
+    private function transactionProduct($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId)
     {
         $getUser = Users::where('id', $getUserId)->first();
         $getUsersAddress = UsersAddress::where('user_id', $getUserId)->first();
@@ -116,10 +116,7 @@ class ProcessTransaction implements ShouldQueue
             ->where('users_cart_detail.users_cart_id', '=', $getUsersCart->id)
             ->where('choose', 1)->get();
 
-        $getTotal = Transaction::where('klinik_id', $getUser->klinik_id)->whereYear('created_at', '=', date('Y'))
-            ->whereMonth('created_at', '=', date('m'))->count();
-
-        $newCode = date('Ym').str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT);
+        $newCode = date('Ym').$getNewCode;
 
         DB::beginTransaction();
 
@@ -143,6 +140,7 @@ class ProcessTransaction implements ShouldQueue
             'klinik_id' => $getUser->klinik_id,
             'user_id' => $getUser->id,
             'code' => $newCode,
+            'payment_refer_id' => $getPaymentReferId,
             'shipping_id' => $getShippingId,
             'shipping_name' => $getShipping->name,
             'payment_id' => $getPaymentId,
@@ -159,12 +157,12 @@ class ProcessTransaction implements ShouldQueue
             'shipping_subdistrict_id' => $getUsersAddress->sub_district_id ?? '',
             'shipping_subdistrict_name' => $getUsersAddress->sub_district_name ?? '',
             'shipping_zipcode' => $getUsersAddress->zip_code ?? '',
-            'type' => 1,
+            'type' => $getType,
             'total_qty' => $totalQty,
             'subtotal' => $subTotal,
             'shipping_price' => $shippingPrice,
             'total' => $total,
-            'status' => 1
+            'status' => 2
         ]);
 
         $getTransaction->getTransactionDetails()->saveMany($transactionDetails);
@@ -173,15 +171,6 @@ class ProcessTransaction implements ShouldQueue
             ->where('choose', 1)->delete();
 
         DB::commit();
-
-        $setLogic = new SynapsaLogic();
-        $getPaymentInfo = $setLogic->createPayment($getPayment, $getTransaction, [
-            'name' => $getUser->fullname
-        ], $this->getJob->id);
-
-        $getTransaction->payment_info = json_encode($getPaymentInfo);
-        $getTransaction->status = 2;
-        $getTransaction->save();
 
         $this->getJob->status = 80;
         $this->getJob->response = json_encode([
@@ -194,7 +183,7 @@ class ProcessTransaction implements ShouldQueue
 
     }
 
-    private function transactionDoctor($getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getDoctorInfo)
+    private function transactionDoctor($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getDoctorInfo)
     {
         $getDoctorSchedule = DoctorSchedule::where('id', $getScheduleId)->first();
         if (!$getDoctorSchedule) {
@@ -203,27 +192,6 @@ class ProcessTransaction implements ShouldQueue
                 'service' => $getTypeService,
                 'service_id' => $getServiceId,
                 'message' => 'Jadwal Tidak Ditemukan'
-            ]);
-            $this->getJob->save();
-            return;
-
-        }
-        else if ($getDoctorSchedule->book != 80) {
-            $this->getJob->status = 99;
-            $this->getJob->response = json_encode([
-                'service' => $getTypeService,
-                'service_id' => $getServiceId,
-                'message' => 'Jadwal Sudah Dipesan'
-            ]);
-            $this->getJob->save();
-            return;
-        }
-        else if (date('Y-m-d', strtotime($getDoctorSchedule->date_available)) < date('Y-m-d')) {
-            $this->getJob->status = 99;
-            $this->getJob->response = json_encode([
-                'service' => $getTypeService,
-                'service_id' => $getServiceId,
-                'message' => 'Jadwal Sudah Lewat Waktunya'
             ]);
             $this->getJob->save();
             return;
@@ -236,17 +204,12 @@ class ProcessTransaction implements ShouldQueue
         $subTotal = $getDoctorInfo['price'];
         $total = $subTotal;
 
-        $getTotal = Transaction::where('klinik_id', $getUser->klinik_id)->whereYear('created_at', '=', date('Y'))
-            ->whereMonth('created_at', '=', date('m'))->count();
-
-        $newCode = date('Ym').str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT);
+        $newCode = date('Ym').$getNewCode;
 
         $extraInfo = [
             'service_id' => $getDoctorSchedule->service_id,
             'phone' => $getUser->phone ?? ''
         ];
-
-
 
         if ($getUsersAddress) {
             foreach (['address_name', 'address', 'city_id', 'city_name', 'district_id', 'district_name',
@@ -263,13 +226,14 @@ class ProcessTransaction implements ShouldQueue
             'service' => $getPayment->service,
             'type_payment' => $getPayment->type_payment,
             'code' => $newCode,
+            'payment_refer_id' => $getPaymentReferId,
             'payment_id' => $getPaymentId,
             'payment_name' => $getPayment->name,
             'type' => $getType,
             'subtotal' => $subTotal,
             'total' => $total,
             'extra_info' => json_encode($extraInfo),
-            'status' => 1
+            'status' => 2
         ]);
 
         TransactionDetails::create([
@@ -286,44 +250,18 @@ class ProcessTransaction implements ShouldQueue
 
         DB::commit();
 
-        $setLogic = new SynapsaLogic();
-        $getPaymentInfo = $setLogic->createPayment($getPayment, $getTransaction, [
-            'name' => $getUser->fullname
-        ], $this->getJob->id);
-
-        if ($getPaymentInfo && isset($getPaymentInfo->status) && $getPaymentInfo->status == "GAGAL") {
-            $getTransaction->status = 90;
-        }
-        else {
-            $getTransaction->status = 2;
-        }
-
-        $getTransaction->payment_info = json_encode($getPaymentInfo);
-        $getTransaction->save();
-
-        if ($getPaymentInfo && isset($getPaymentInfo->status) && $getPaymentInfo->status == "GAGAL") {
-            $this->getJob->status = 99;
-            $this->getJob->response = json_encode([
-                'service' => $getTypeService,
-                'service_id' => $getServiceId,
-                'message' => $getPaymentInfo->message
-            ]);
-            $this->getJob->save();
-        }
-        else {
-            $this->getJob->status = 80;
-            $this->getJob->response = json_encode([
-                'service' => $getTypeService,
-                'service_id' => $getServiceId,
-                'transaction_id' => $getTransaction->id,
-                'message' => 'ok'
-            ]);
-            $this->getJob->save();
-        }
+        $this->getJob->status = 80;
+        $this->getJob->response = json_encode([
+            'service' => $getTypeService,
+            'service_id' => $getServiceId,
+            'transaction_id' => $getTransaction->id,
+            'message' => 'ok'
+        ]);
+        $this->getJob->save();
 
     }
 
-    private function transactionLab($getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getLabInfo)
+    private function transactionLab($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getLabInfo)
     {
         $getLabSchedule = LabSchedule::where('id', $getScheduleId)->first();
         if (!$getLabSchedule) {
@@ -332,27 +270,6 @@ class ProcessTransaction implements ShouldQueue
                 'service' => $getTypeService,
                 'service_id' => $getServiceId,
                 'message' => 'Jadwal Tidak Ditemukan'
-            ]);
-            $this->getJob->save();
-            return;
-
-        }
-        else if ($getLabSchedule->book != 80) {
-            $this->getJob->status = 99;
-            $this->getJob->response = json_encode([
-                'service' => $getTypeService,
-                'service_id' => $getServiceId,
-                'message' => 'Jadwal Sudah Dipesan'
-            ]);
-            $this->getJob->save();
-            return;
-        }
-        else if (date('Y-m-d', strtotime($getLabSchedule->date_available)) < date('Y-m-d')) {
-            $this->getJob->status = 99;
-            $this->getJob->response = json_encode([
-                'service' => $getTypeService,
-                'service_id' => $getServiceId,
-                'message' => 'Jadwal Sudah Lewat Waktunya'
             ]);
             $this->getJob->save();
             return;
@@ -368,10 +285,7 @@ class ProcessTransaction implements ShouldQueue
         $getPayment = Payment::where('id', $getPaymentId)->first();
         $getUser = Users::where('id', $getUserId)->first();
 
-        $getTotal = Transaction::where('klinik_id', $getUser->klinik_id)->whereYear('created_at', '=', date('Y'))
-        ->whereMonth('created_at', '=', date('m'))->count();
-
-        $newCode = date('Ym').str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT);
+        $newCode = date('Ym').$getNewCode;
 
         $extraInfo = [
             'service_id' => $getLabSchedule->service_id,
@@ -391,6 +305,7 @@ class ProcessTransaction implements ShouldQueue
             'klinik_id' => $getUser->klinik_id,
             'user_id' => $getUser->id,
             'code' => $newCode,
+            'payment_refer_id' => $getPaymentReferId,
             'service' => $getPayment->service,
             'type_payment' => $getPayment->type_payment,
             'payment_id' => $getPaymentId,
@@ -399,7 +314,7 @@ class ProcessTransaction implements ShouldQueue
             'subtotal' => $total,
             'total' => $total,
             'extra_info' => json_encode($extraInfo),
-            'status' => 1
+            'status' => 2
         ]);
 
         $listTransactionDetails = [];
@@ -416,20 +331,7 @@ class ProcessTransaction implements ShouldQueue
 
         LabCart::where('user_id', $getUser->id)->where('choose', '=', 1)->delete();
 
-        LabSchedule::where('id', $getScheduleId)->update([
-            'book' => 99
-        ]);
-
         DB::commit();
-
-        $setLogic = new SynapsaLogic();
-        $getPaymentInfo = $setLogic->createPayment($getPayment, $getTransaction, [
-            'name' => $getUser->fullname
-        ], $this->getJob->id);
-
-        $getTransaction->payment_info = json_encode($getPaymentInfo);
-        $getTransaction->status = 2;
-        $getTransaction->save();
 
         $this->getJob->status = 80;
         $this->getJob->response = json_encode([

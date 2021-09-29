@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API\V1;
 
+use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\Lab;
 use App\Codes\Models\V1\LabCart;
@@ -405,7 +406,6 @@ class LabController extends Controller
 
         $getData = $getData->where('choose',1);
 
-
         foreach ($getData as $list) {
             $total += $list->price;
         }
@@ -480,6 +480,7 @@ class LabController extends Controller
 
         $userId = $user->id;
 
+        $needPhone = 0;
         $validator = Validator::make($this->request->all(), [
             'payment_id' => 'required|numeric',
             'schedule_id' => 'required|numeric'
@@ -492,17 +493,29 @@ class LabController extends Controller
             ], 422);
         }
 
-        $paymentId = $this->request->get('payment_id');
-        $scheduleId = $this->request->get('schedule_id');
-
-        $getPayment = Payment::where('id', $paymentId)->where('status', 80)->first();
-
+        $paymentId = intval($this->request->get('payment_id'));
+        $scheduleId = intval($this->request->get('schedule_id'));
+        $getPayment = Payment::where('id', $paymentId)->first();
         if (!$getPayment) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Pembayaran Tidak Ditemukan'],
+                'message' => ['Payment Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
+            ], 422);
+        }
+
+        if ($getPayment->type == 2 && $getPayment->service == 'xendit' && in_array($getPayment->type_payment, ['ew_ovo', 'ew_linkaja'])) {
+            $needPhone = 1;
+            $validator = Validator::make($this->request->all(), [
+                'phone' => 'required|regex:/^(8\d+)/|numeric'
+            ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => 0,
+                    'message' => $validator->messages()->all(),
+                    'token' => $this->request->attributes->get('_refresh_token'),
+                ], 422);
+            }
         }
 
         $getCart = LabCart::where('user_id', '=', $user->id)->where('choose', '=', 1)->first();
@@ -523,11 +536,26 @@ class LabController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
+        else if ($getLabSchedule->book != 80) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Jadwal Sudah Dipesan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+        else if (date('Y-m-d', strtotime($getLabSchedule->date_available)) < date('Y-m-d')) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Jadwal Sudah Lewat Waktunya'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
 
         $serviceId = $getCart->service_id;
         $getData = $this->getLabInfo($userId, $serviceId);
 
         $getData = $getData->where('choose',1);
+
         if (!$getData) {
             return response()->json([
                 'success' => 0,
@@ -536,9 +564,18 @@ class LabController extends Controller
             ], 404);
         }
 
-        $job = SetJob::create([
-            'status' => 1,
-            'params' => json_encode([
+        $total = 0;
+        foreach ($getData as $list) {
+            $total += $list->price;
+        }
+
+        $getTotal = Transaction::where('klinik_id', $user->klinik_id)->whereYear('created_at', '=', date('Y'))
+            ->whereMonth('created_at', '=', date('m'))->count();
+
+        $newCode = str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT).rand(100,199);
+
+        $sendData = [
+            'job' => [
                 'payment_id' => $paymentId,
                 'user_id' => $user->id,
                 'type_service' => 'lab',
@@ -546,20 +583,62 @@ class LabController extends Controller
                 'service_id' => $getLabSchedule->service_id,
                 'schedule_id' => $getLabSchedule->id,
                 'lab_info' => $getData->toArray()
-            ])
-        ]);
-
-        dispatch((new ProcessTransaction($job->id))->onQueue('high'));
-//        ProcessTransaction::dispatch($job->id);
-
-        return response()->json([
-            'success' => 1,
-            'data' => [
-                'job_id' => $job->id
             ],
-            'message' => ['Berhasil'],
-            'token' => $this->request->attributes->get('_refresh_token'),
-        ]);
+            'code' => $newCode,
+            'total' => $total,
+            'name' => $user->fullname
+        ];
+
+        if ($needPhone == 1) {
+            $sendData['phone'] = $this->request->get('phone');
+        }
+
+        $setLogic = new SynapsaLogic();
+        $getPaymentInfo = $setLogic->createPayment($getPayment, $sendData);
+        if ($getPaymentInfo['success'] == 1) {
+
+            return response()->json([
+                'success' => 1,
+                'data' => [
+                    'payment' => 0,
+                    'info' => $getPaymentInfo['info']
+                ],
+                'message' => ['Berhasil'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ]);
+        }
+        else {
+            return response()->json([
+                'success' => 0,
+                'message' => [$getPaymentInfo['message'] ?? '-'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ]);
+        }
+
+//        $job = SetJob::create([
+//            'status' => 1,
+//            'params' => json_encode([
+//                'payment_id' => $paymentId,
+//                'user_id' => $user->id,
+//                'type_service' => 'lab',
+//                'lab_id' => $getLabSchedule->lab_id,
+//                'service_id' => $getLabSchedule->service_id,
+//                'schedule_id' => $getLabSchedule->id,
+//                'lab_info' => $getData->toArray()
+//            ])
+//        ]);
+//
+//        dispatch((new ProcessTransaction($job->id))->onQueue('high'));
+////        ProcessTransaction::dispatch($job->id);
+//
+//        return response()->json([
+//            'success' => 1,
+//            'data' => [
+//                'job_id' => $job->id
+//            ],
+//            'message' => ['Berhasil'],
+//            'token' => $this->request->attributes->get('_refresh_token'),
+//        ]);
 
     }
 

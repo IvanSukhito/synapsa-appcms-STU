@@ -3,6 +3,8 @@
 namespace App\Codes\Logic;
 
 use App\Codes\Models\V1\LogServiceTransaction;
+use App\Codes\Models\V1\SetJob;
+use App\Jobs\ProcessTransaction;
 
 class SynapsaLogic
 {
@@ -10,9 +12,82 @@ class SynapsaLogic
     {
     }
 
-    public function createPayment($payment, $transaction, $additional, $jobId = 0)
+    public function createPayment($payment, $additional)
     {
+        $transactionId = 0;
+        $success = 0;
+        $message = 'OK';
+        $getInfo = [];
+        if ($payment->service == 'xendit' && substr($payment->type_payment, 0, 3) == 'va_') {
+            $getData = (object)$this->sendPayment($payment, $additional);
+            if ($getData->result->status == 'PENDING') {
+                $success = 1;
+                $getInfo = json_decode($payment->settings, true);
+                $getInfo['price'] = $additional['total'];
+                $getInfo['price_nice'] = number_format($additional['total'], 0, ',', '.');
+                $getInfo['va_user'] = $getData->result->account_number;
+
+                $getTypeService = $additional['job']['type_service'];
+                $getServiceId = $additional['job']['service_id'];
+                $getType = check_list_type_transaction($getTypeService, $getServiceId);
+
+                $getJobData = $additional['job'];
+                $getJobData['payment_refer_id'] = $getData->result->external_id;
+                $getJobData['type'] = $getType;
+
+                $job = SetJob::create([
+                    'status' => 1,
+                    'params' => json_encode($getJobData)
+                ]);
+
+                dispatch((new ProcessTransaction($job->id))->onQueue('high'));
+
+            }
+            else {
+                $message = $getData->result->message;
+            }
+        }
+        else {
+            $message = 'Payment Error';
+        }
+
+        return [
+            'success' => $success,
+            'info' => $getInfo,
+            'transaction_id' => $transactionId,
+            'message' => $message
+        ];
+    }
+
+    public function sendPayment($payment, $additional)
+    {
+        $message = 'Error';
         if ($payment->service == 'xendit') {
+
+            if (!isset($additional['code']) || !isset($additional['total'])) {
+                return [
+                    'success' => 0,
+                    'message' => 'Need Code and Total'
+                ];
+            }
+            else if (substr($payment->type_payment, 0, 3) == 'va_' && !isset($additional['name'])) {
+                return [
+                    'success' => 0,
+                    'message' => 'Need Name'
+                ];
+            }
+            else if (in_array($payment->type_payment, ['ew_ovo', 'ew_linkaja']) && !isset($additional['phone'])) {
+                return [
+                    'success' => 0,
+                    'message' => 'Need Phone'
+                ];
+            }
+
+            $getCode = $additional['code'] ?? '';
+            $getTotal = $additional['total'] ?? '';
+            $getName = $additional['name'] ?? '';
+            $getPhone = $additional['phone'] ?? '';
+
             $xendit = new XenditLogic();
             $result = false;
             switch ($payment->type_payment) {
@@ -24,21 +99,19 @@ class SynapsaLogic
                 case 'va_mandiri':
                 case 'va_permata':
                     $getTypePayment = strtoupper(substr($payment->type_payment, 3));
-                    $result = $xendit->createVA($transaction->code, $getTypePayment, $transaction->total, $additional['name'] ?? '');
+                    $result = $xendit->createVA($getCode, $getTypePayment, $getTotal, $getName);
                     break;
-                case 'ew_ovo': $result = $xendit->createEWalletOVO($transaction->code, $transaction->total, $transaction->receiver_phone);
+                case 'ew_ovo': $result = $xendit->createEWalletOVO($getCode, $getTotal, $getPhone);
                     break;
-                case 'ew_dana': $result = $xendit->createEWalletDANA($transaction->code, $transaction->total);
+                case 'ew_dana': $result = $xendit->createEWalletDANA($getCode, $getTotal);
                     break;
-                case 'ew_linkaja': $result = $xendit->createEWalletLINKAJA($transaction->code, $transaction->total, $transaction->receiver_phone);
+                case 'ew_linkaja': $result = $xendit->createEWalletLINKAJA($getCode, $getTotal, $getPhone);
                     break;
             }
 
             if ($result) {
                 $getTypePayment = strtoupper(substr($payment->type_payment, 3));
-                LogServiceTransaction::create([
-                    'job_id' => $transaction->id,
-                    'transaction_id' => $transaction->id,
+                $getLogId = LogServiceTransaction::create([
                     'transaction_refer_id' => isset($result->external_id) ? $result->external_id : '',
                     'service' => 'xendit',
                     'type_payment' => $getTypePayment,
@@ -46,14 +119,21 @@ class SynapsaLogic
                     'results' => json_encode($result)
                 ]);
 
-                return $result;
-
+                return [
+                    'success' => 1,
+                    'result' => (object)$result,
+                    'message' => 'Success',
+                    'log_id' => $getLogId->id
+                ];
             }
 
         }
 
-        return false;
+        return [
+            'success' => 0,
+            'message' => $message
+        ];
 
     }
-    
+
 }

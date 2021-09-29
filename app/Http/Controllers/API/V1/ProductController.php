@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API\V1;
 
+use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\City;
 use App\Codes\Models\V1\District;
@@ -660,8 +661,9 @@ class ProductController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
+        $needPhone = 0;
         $validator = Validator::make($this->request->all(), [
-            'payment_id' => 'required|numeric',
+            'payment_id' => 'required|numeric'
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -669,6 +671,30 @@ class ProductController extends Controller
                 'message' => $validator->messages()->all(),
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
+        }
+
+        $paymentId = intval($this->request->get('payment_id'));
+        $getPayment = Payment::where('id', $paymentId)->first();
+        if (!$getPayment) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Payment Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
+        if ($getPayment->type == 2 && $getPayment->service == 'xendit' && in_array($getPayment->type_payment, ['ew_ovo', 'ew_linkaja'])) {
+            $needPhone = 1;
+            $validator = Validator::make($this->request->all(), [
+                'phone' => 'required|regex:/^(8\d+)/|numeric'
+            ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => 0,
+                    'message' => $validator->messages()->all(),
+                    'token' => $this->request->attributes->get('_refresh_token'),
+                ], 422);
+            }
         }
 
         $getUsersCart = UsersCart::firstOrCreate([
@@ -685,9 +711,20 @@ class ProductController extends Controller
             ], 422);
         }
 
-        $getUsersCartDetail = UsersCartDetail::where('users_cart_id', '=', $getUsersCart->id)
-            ->where('choose', 1)->count();
-        if ($getUsersCartDetail <= 0) {
+        $getShippingPrice = 15000;
+
+        $getUsersCartDetails = Product::selectRaw('product.price, users_cart_detail.qty')
+            ->join('users_cart_detail', 'users_cart_detail.product_id', '=', 'product.id')
+            ->where('users_cart_detail.users_cart_id', '=', $getUsersCart->id)
+            ->where('choose', 1)->get();
+        $total = 0;
+        if ($getUsersCartDetails) {
+            foreach ($getUsersCartDetails as $getUsersCartDetail) {
+                $total += $getUsersCartDetail->price * $getUsersCartDetail->qty;
+            }
+        }
+
+        if ($total <= 0) {
             return response()->json([
                 'success' => 0,
                 'message' => ['Tidak ada Produk yang di pilih'],
@@ -695,29 +732,51 @@ class ProductController extends Controller
             ], 422);
         }
 
-        $paymentId = intval($this->request->get('payment_id'));
+        $total += $getShippingPrice;
 
-        $job = SetJob::create([
-            'status' => 1,
-            'params' => json_encode([
+        $getTotal = Transaction::where('klinik_id', $user->klinik_id)->whereYear('created_at', '=', date('Y'))
+            ->whereMonth('created_at', '=', date('m'))->count();
+
+        $newCode = str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT).rand(100,199);
+
+        $sendData = [
+            'job' => [
+                'code' => $newCode,
                 'payment_id' => $paymentId,
                 'user_id' => $user->id,
                 'type_service' => 'product',
                 'service_id' => 0
-            ])
-        ]);
-
-        dispatch((new ProcessTransaction($job->id))->onQueue('high'));
-//        ProcessTransaction::dispatch($job->id);
-
-        return response()->json([
-            'success' => 1,
-            'data' => [
-                'job_id' => $job->id
             ],
-            'message' => ['Berhasil'],
-            'token' => $this->request->attributes->get('_refresh_token'),
-        ]);
+            'code' => $newCode,
+            'total' => $total,
+            'name' => $user->fullname
+        ];
+
+        if ($needPhone == 1) {
+            $sendData['phone'] = $this->request->get('phone');
+        }
+
+        $setLogic = new SynapsaLogic();
+        $getPaymentInfo = $setLogic->createPayment($getPayment, $sendData);
+        if ($getPaymentInfo['success'] == 1) {
+
+            return response()->json([
+                'success' => 1,
+                'data' => [
+                    'payment' => 0,
+                    'info' => $getPaymentInfo['info']
+                ],
+                'message' => ['Berhasil'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ]);
+        }
+        else {
+            return response()->json([
+                'success' => 0,
+                'message' => [$getPaymentInfo['message'] ?? '-'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ]);
+        }
 
     }
 

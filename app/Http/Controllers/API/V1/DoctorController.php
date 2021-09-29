@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\API\V1;
 
+use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\DoctorSchedule;
 use App\Codes\Models\V1\DoctorCategory;
 use App\Codes\Models\V1\Service;
 use App\Codes\Models\V1\SetJob;
+use App\Codes\Models\V1\Transaction;
 use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\Payment;
 use App\Codes\Models\V1\UsersAddress;
@@ -330,11 +332,9 @@ class DoctorController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
+        $needPhone = 0;
         $validator = Validator::make($this->request->all(), [
             'payment_id' => 'required|numeric'
-        ]);
-        $validator->setAttributeNames([
-            'payment_id' => 'Pembayaran Harus Diisi Dengan Angka',
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -342,6 +342,30 @@ class DoctorController extends Controller
                 'message' => $validator->messages()->all(),
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
+        }
+
+        $paymentId = intval($this->request->get('payment_id'));
+        $getPayment = Payment::where('id', $paymentId)->first();
+        if (!$getPayment) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Payment Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
+        if ($getPayment->type == 2 && $getPayment->service == 'xendit' && in_array($getPayment->type_payment, ['ew_ovo', 'ew_linkaja'])) {
+            $needPhone = 1;
+            $validator = Validator::make($this->request->all(), [
+                'phone' => 'required|regex:/^(8\d+)/|numeric'
+            ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => 0,
+                    'message' => $validator->messages()->all(),
+                    'token' => $this->request->attributes->get('_refresh_token'),
+                ], 422);
+            }
         }
 
         $getDoctorSchedule = DoctorSchedule::where('id', '=', $id)->first();
@@ -382,9 +406,16 @@ class DoctorController extends Controller
             ], 404);
         }
 
-        $job = SetJob::create([
-            'status' => 1,
-            'params' => json_encode([
+        $total = $data->price;
+
+        $getTotal = Transaction::where('klinik_id', $user->klinik_id)->whereYear('created_at', '=', date('Y'))
+            ->whereMonth('created_at', '=', date('m'))->count();
+
+        $newCode = str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT).rand(100,199);
+
+        $sendData = [
+            'job' => [
+                'code' => $newCode,
                 'payment_id' => $paymentId,
                 'user_id' => $user->id,
                 'type_service' => 'doctor',
@@ -392,20 +423,61 @@ class DoctorController extends Controller
                 'service_id' => $getDoctorSchedule->service_id,
                 'schedule_id' => $getDoctorSchedule->id,
                 'doctor_info' => $data->toArray()
-            ])
-        ]);
-
-        dispatch((new ProcessTransaction($job->id))->onQueue('high'));
-//        ProcessTransaction::dispatch($job->id);
-
-        return response()->json([
-            'success' => 1,
-            'data' => [
-                'job_id' => $job->id
             ],
-            'message' => ['Berhasil'],
-            'token' => $this->request->attributes->get('_refresh_token'),
-        ]);
+            'code' => $newCode,
+            'total' => $total,
+            'name' => $user->fullname
+        ];
+
+        if ($needPhone == 1) {
+            $sendData['phone'] = $this->request->get('phone');
+        }
+
+        $setLogic = new SynapsaLogic();
+        $getPaymentInfo = $setLogic->createPayment($getPayment, $sendData);
+        if ($getPaymentInfo['success'] == 1) {
+
+            return response()->json([
+                'success' => 1,
+                'data' => [
+                    'payment' => 0,
+                    'info' => $getPaymentInfo['info']
+                ],
+                'message' => ['Berhasil'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ]);
+        }
+        else {
+            return response()->json([
+                'success' => 0,
+                'message' => [$getPaymentInfo['message'] ?? '-'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ]);
+        }
+
+//        $job = SetJob::create([
+//            'status' => 1,
+//            'params' => json_encode([
+//                'payment_id' => $paymentId,
+//                'user_id' => $user->id,
+//                'type_service' => 'doctor',
+//                'doctor_id' => $getDoctorSchedule->doctor_id,
+//                'service_id' => $getDoctorSchedule->service_id,
+//                'schedule_id' => $getDoctorSchedule->id,
+//                'doctor_info' => $data->toArray()
+//            ])
+//        ]);
+//
+//        dispatch((new ProcessTransaction($job->id))->onQueue('high'));
+//
+//        return response()->json([
+//            'success' => 1,
+//            'data' => [
+//                'job_id' => $job->id
+//            ],
+//            'message' => ['Berhasil'],
+//            'token' => $this->request->attributes->get('_refresh_token'),
+//        ]);
 
     }
 

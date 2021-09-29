@@ -176,10 +176,17 @@ if ( ! function_exists('get_list_type_payment')) {
     {
         return [
             'va_bca' => __('Virtual Account BCA'),
-            'va_bni' => __('Virtual Account BNI'),
+            'va_bri' => __('Virtual Account BNI'),
+            'va_bni' => __('Virtual Account BRI'),
+            'va_bjb' => __('Virtual Account BJB'),
+            'va_cimb' => __('Virtual Account CIMB'),
+            'va_mandiri' => __('Virtual Account MANDIRI'),
+            'va_permata' => __('Virtual Account PERMATA'),
             'ew_ovo' => __('E-Wallet OVO'),
             'ew_dana' => __('E-Wallet DANA'),
             'ew_linkaja' => __('E-Wallet LINKAJA'),
+            'ew_shopeepay' => __('E-Wallet SHOPEEPAY'),
+            'ew_sakuku' => __('E-Wallet SAKUKU'),
         ];
     }
 }
