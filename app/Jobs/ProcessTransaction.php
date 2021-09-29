@@ -249,7 +249,7 @@ class ProcessTransaction implements ShouldQueue
         if ($getUsersAddress) {
             foreach (['address_name', 'address', 'city_id', 'city_name', 'district_id', 'district_name',
                          'sub_district_id', 'sub_district_name', 'zip_code'] as $key) {
-                $extraInfo[$key] = $getUsersAddress->$key;
+                $extraInfo[$key] = isset($getUsersAddress->$key) ? $getUsersAddress->$key : '';
             }
         }
 
@@ -379,7 +379,7 @@ class ProcessTransaction implements ShouldQueue
         if ($getUsersAddress) {
             foreach (['address_name', 'address', 'city_id', 'city_name', 'district_id', 'district_name',
                          'sub_district_id', 'sub_district_name', 'zip_code'] as $key) {
-                $extraInfo[$key] = $getUsersAddress->$key;
+                $extraInfo[$key] = isset($getUsersAddress->$key) ? $getUsersAddress->$key : '';
             }
         }
 
