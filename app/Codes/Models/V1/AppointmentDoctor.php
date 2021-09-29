@@ -10,12 +10,13 @@ class AppointmentDoctor extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'appointment_id',
-        'doctor_id',
-        'info_height',
-        'info_weight',
-        'info_tensi',
-        'info_temperature',
-        'document',
+        'video_link',
+        'form_patient',
+        'diagnosis',
+        'list_product',
+        'list_rescipe',
+        'extra_info',
+        'status',
 
     ];
     protected $appends = [

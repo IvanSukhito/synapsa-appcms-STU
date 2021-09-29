@@ -16,11 +16,13 @@ class CreateAppointmentDoctorTable extends Migration
         Schema::create('appointment_doctor', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('appointment_id')->default(0);
-            $table->string('info_height')->nullable();
-            $table->string('info_weight')->nullable();
-            $table->string('info_tensi')->nullable();
-            $table->string('info_temperature')->nullable();
-            $table->text('document')->nullable();
+            $table->string('video_link')->nullable();
+            $table->longText('form_patient')->nullable();
+            $table->longText('diagnosis')->nullable();
+            $table->longText('list_product')->nullable();
+            $table->longText('list_rescipe')->nullable();
+            $table->longText('extra_info')->nullable();
+            $table->tinyInteger('status')->default(1);
             $table->timestamps();
         });
     }
