@@ -177,7 +177,7 @@ class ProcessTransaction implements ShouldQueue
         $setLogic = new SynapsaLogic();
         $getPaymentInfo = $setLogic->createPayment($getPayment, $getTransaction, [
             'name' => $getUser->fullname
-        ]);
+        ], $this->getJob->id);
 
         $getTransaction->payment_info = json_encode($getPaymentInfo);
         $getTransaction->status = 2;
@@ -285,7 +285,7 @@ class ProcessTransaction implements ShouldQueue
         $setLogic = new SynapsaLogic();
         $getPaymentInfo = $setLogic->createPayment($getPayment, $getTransaction, [
             'name' => $getUser->fullname
-        ]);
+        ], $this->getJob->id);
 
         if ($getPaymentInfo && isset($getPaymentInfo->status) && $getPaymentInfo->status == "GAGAL") {
             $getTransaction->status = 90;
@@ -424,7 +424,7 @@ class ProcessTransaction implements ShouldQueue
         $setLogic = new SynapsaLogic();
         $getPaymentInfo = $setLogic->createPayment($getPayment, $getTransaction, [
             'name' => $getUser->fullname
-        ]);
+        ], $this->getJob->id);
 
         $getTransaction->payment_info = json_encode($getPaymentInfo);
         $getTransaction->status = 2;

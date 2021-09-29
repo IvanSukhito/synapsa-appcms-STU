@@ -15,6 +15,7 @@ class CreateLogServiceTransactionTable extends Migration
     {
         Schema::create('log_service_transaction', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('job_id')->default(0);
             $table->unsignedBigInteger('transaction_id')->default(0);
             $table->string('transaction_refer_id')->nullable();
             $table->string('service')->nullable();

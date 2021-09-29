@@ -9,6 +9,7 @@ class LogServiceTransaction extends Model
     protected $table = 'log_service_transaction';
     protected $primaryKey = 'id';
     protected $fillable = [
+        'log_id',
         'transaction_id',
         'transaction_refer_id',
         'service',
