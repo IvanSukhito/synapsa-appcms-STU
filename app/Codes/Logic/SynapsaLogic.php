@@ -136,4 +136,9 @@ class SynapsaLogic
 
     }
 
+    public function setupAppointment($scheduleId, $type = 'doctor')
+    {
+
+    }
+
 }

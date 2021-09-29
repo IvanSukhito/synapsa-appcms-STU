@@ -104,7 +104,7 @@ class HistoryController extends Controller
         }
 
         return response()->json([
-            'success' => 0,
+            'success' => 1,
             'data' => [
                 'data' => $getData,
                 'details' => $getData->getTransactionDetails()->get()
