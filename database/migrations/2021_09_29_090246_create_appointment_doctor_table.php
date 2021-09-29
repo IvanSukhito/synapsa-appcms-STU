@@ -22,7 +22,6 @@ class CreateAppointmentDoctorTable extends Migration
             $table->string('video_link')->nullable();
             $table->longText('form_patient')->nullable();
             $table->longText('diagnosis')->nullable();
-            $table->longText('list_product')->nullable();
             $table->longText('list_recipe')->nullable();
             $table->longText('extra_info')->nullable();
             $table->tinyInteger('status')->default(1);
