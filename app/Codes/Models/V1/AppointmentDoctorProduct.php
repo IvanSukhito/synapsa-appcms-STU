@@ -19,10 +19,8 @@ class AppointmentDoctorProduct extends Model
     ];
     protected $appends = [
         'product_price_nice',
-        'doctor_price_nice',
-        'lab_price_nice',
-
     ];
+
     public function getProductPriceNiceAttribute()
     {
         return intval($this->product_price) > 0 ? number_format($this->product_price, 0, ',', '.') : 0;

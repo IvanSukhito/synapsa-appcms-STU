@@ -88,23 +88,52 @@ class HistoryController extends Controller
 
     }
 
-
-    public function detail($id){
+    public function detail($id)
+    {
         $user = $this->request->attributes->get('_user');
 
-        $getData = Transaction::where('id',$id)->first();
+        $getData = Transaction::where('id', $id)
+//            ->where('user_id',$user->id)
+            ->first();
         if (!$getData) {
             return response()->json([
                 'success' => 0,
                 'message' => ['Riwayat Transakti Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
-            ],404);
-          }
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => 0,
+            'data' => [
+                'data' => $getData,
+                'details' => $getData->getTransactionDetails()->get()
+            ],
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
+
+        if ($getData->type == 1) {
+            return $this->getDetailProduct();
+        } else if (in_array($getData->type, [2, 3, 4])) {
+
+        } else if (in_array($getData->type, [5, 6, 7])) {
+
+        }
+//        else if (in_array($getData->type, [8,9,10])) {
+//
+//        }
+        else {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Tipe Riwayat Transakti Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
 
         $userId = $user->id;
         $getDataId = $getData->id;
 
-        $getDataDoctor =  $this->getDetailDoctor($getDataId, $userId);
+        $getDataDoctor = $this->getDetailDoctor($getDataId, $userId);
 
         if ($getDataDoctor) {
             return response()->json([
@@ -112,45 +141,44 @@ class HistoryController extends Controller
                 'data' => $getDataDoctor,
                 'token' => $this->request->attributes->get('_refresh_token'),
             ]);
-          }
-       
-        $getDataLab =  $this->getDetailLab($getDataId, $userId);
-      
-        if($getDataLab) {
-         return response()->json([
-             'success' => 0,
-             'data' => $getDataLab,
-             'token' => $this->request->attributes->get('_refresh_token'),
-         ]);
         }
 
-       $getDataProduct = $this->getDetailProduct($getDataId, $userId);
-       
-   
-       $listProduct = Product::selectRaw('transaction_details.id, product.id as product_id, product_qty, product.name, product.image, product.price')
-       ->join('transaction_details', 'transaction_details.product_id', '=', 'product.id')
-       ->where('transaction_details.transaction_id', $getDataProduct->id)->get();
+        $getDataLab = $this->getDetailLab($getDataId, $userId);
 
-        
-      $historyProduct = [
-          'transaction_product' => $getDataProduct,
-          'list_product' => $listProduct,
-          'address' =>  $this->getUserAddress($user->id)
-      ];
+        if ($getDataLab) {
+            return response()->json([
+                'success' => 0,
+                'data' => $getDataLab,
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ]);
+        }
 
-     if($getDataProduct){
-        return response()->json([
-            'success' => 0,
-            'data' => $historyProduct,
-            'token' => $this->request->attributes->get('_refresh_token'),
-        ]);
-      }else{
-        return response()->json([
-            'success' => 0,
-            'message' => ['Riwayat Tidak Ditemukan'],
-            'token' => $this->request->attributes->get('_refresh_token'),
-        ], 404);
-      }
+        $getDataProduct = $this->getDetailProduct($getDataId, $userId);
+
+        $listProduct = Product::selectRaw('transaction_details.id, product.id as product_id, product_qty, product.name, product.image, product.price')
+            ->join('transaction_details', 'transaction_details.product_id', '=', 'product.id')
+            ->where('transaction_details.transaction_id', $getDataProduct->id)->get();
+
+
+        $historyProduct = [
+            'transaction_product' => $getDataProduct,
+            'list_product' => $listProduct,
+            'address' => $this->getUserAddress($user->id)
+        ];
+
+        if ($getDataProduct) {
+            return response()->json([
+                'success' => 0,
+                'data' => $historyProduct,
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ]);
+        } else {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Riwayat Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
 
     }
 
@@ -244,7 +272,7 @@ class HistoryController extends Controller
             ->leftJoin('users', 'users.id','=','doctor.user_id')
             ->where('transaction.user_id', $userId)->orderBy('transaction.id','DESC');
 
-        
+
         if ($getServiceId <= 0) {
             $result = $result->whereIn('type', [2,3,4]);
         }
@@ -364,15 +392,16 @@ class HistoryController extends Controller
     }
 
     private function getDetailProduct($getDataId, $userId){
-        return 
+        return
         Transaction::selectRaw('transaction.id, transaction.code, transaction.receiver_address, transaction.receiver_phone, transaction.created_at, shipping_address_name, shipping_name, shipping_price,  transaction.total as total, transaction.status as status, transaction.type')
         ->join('transaction_details', 'transaction_details.transaction_id', '=', 'transaction.id')
         ->where('transaction.user_id', $userId)
         ->where('transaction.id', $getDataId)
         ->where('type', 1)->first();
     }
+
     private function getDetailLab($getDataId, $userId){
-        return 
+        return
         Transaction::selectRaw('transaction.id, code, time_start, time_end, date_available, transaction.total as total_price,
         transaction.status as status, payment_name, payment.icon_img as icon')
        ->join('transaction_details', 'transaction_details.transaction_id', '=', 'transaction.id')
@@ -383,7 +412,7 @@ class HistoryController extends Controller
        ->first();
     }
     private function getDetailDoctor($getDataId, $userId){
-       return 
+       return
          Transaction::selectRaw('transaction.id, code, transaction_details.doctor_name as doctor_name, transaction.created_at, transaction.type, doctor_category.name as category, klinik.name as clinic_name, transaction.total as total_price,
          transaction.status as status, users.image as image, payment_name, payment.icon_img as icon')
         ->join('klinik','klinik.id', '=', 'transaction.klinik_id')
