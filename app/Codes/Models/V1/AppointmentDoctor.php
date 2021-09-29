@@ -13,21 +13,20 @@ class AppointmentDoctor extends Model
         'video_link',
         'form_patient',
         'diagnosis',
-        'list_product',
         'list_rescipe',
         'extra_info',
         'status',
 
     ];
     protected $appends = [
-        'document_full',
+        'list_rescipe_full',
     ];
 
-    public function getDocumentFullAttribute()
+    public function getListRecipeFullAttribute()
     {
 
-        if (strlen($this->document) > 0) {
-            return env('OSS_URL').'/'.$this->document;
+        if (strlen($this->list_recipe) > 0) {
+            return env('OSS_URL').'/'.$this->list_recipe;
         }
         return asset('assets/cms/images/no-img.png');
         //return strlen($this->image) > 0 ? asset($this->image) : asset('assets/cms/images/no-img.png');
