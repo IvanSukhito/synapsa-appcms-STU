@@ -186,7 +186,9 @@ class HistoryController extends Controller
     {
         $getType = check_list_type_transaction('product');
 
-        $result = Transaction::selectRaw('transaction.id, transaction.status, total, subtotal, type, MIN(product_name) AS product_name, MIN(product.image) as image')
+        $result = Transaction::selectRaw('transaction.id, transaction.status, total, subtotal, type,
+            MIN(product_name) AS product_name, MIN(product.image) as image,
+            CONCAT("'.env('OSS_URL').'/'.'", MIN(product.image)) AS image_full')
             ->join('transaction_details', function($join){
                 $join->on('transaction_details.transaction_id','=','transaction.id')
                      ->on('transaction_details.id', '=', DB::raw("(select min(id) from transaction_details WHERE transaction_details.transaction_id = transaction.id)"));
@@ -203,21 +205,9 @@ class HistoryController extends Controller
         }
 
         $getData = $result->groupByRaw('transaction.id, transaction.status, total, subtotal, type, product_name, image')->paginate($getLimit);
-        $getResult = [];
-        foreach ($getData as $list) {
-            $getTemp = $list->toArray();
-            if (strlen($getTemp['image']) > 0) {
-                $getTemp['image_full'] = env('OSS_URL').'/'.$getTemp['image'];
-            }
-            else {
-                $getTemp['image_full'] = asset('assets/cms/images/no-img.png');
-            }
-
-            $getResult[] = $getTemp;
-        }
 
         return [
-            'data' => $getResult
+            'data' => $getData
         ];
 
     }
@@ -265,7 +255,9 @@ class HistoryController extends Controller
 
         $getType = check_list_type_transaction('doctor', $getServiceId);
 
-        $result = Transaction::selectRaw('transaction.id, transaction.created_at, transaction.type, doctor_category.name as category_doctor, transaction.status, MIN(doctor_name) AS doctor_name, MIN(users.image) AS image')
+        $result = Transaction::selectRaw('transaction.id, transaction.created_at, transaction.type,
+            doctor_category.name as category_doctor, transaction.status, MIN(doctor_name) AS doctor_name,
+            MIN(users.image) AS image, CONCAT("'.env('OSS_URL').'/'.'", MIN(users.image)) AS image_full')
             ->leftJoin('transaction_details', 'transaction_details.transaction_id','=','transaction.id')
             ->leftJoin('doctor', 'doctor.id','=','transaction_details.doctor_id')
             ->leftJoin('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
@@ -285,21 +277,9 @@ class HistoryController extends Controller
         }
 
         $getData = $result->groupByRaw('transaction.id, transaction.type, transaction.created_at, transaction.status, category_doctor, doctor_name, image')->paginate($getLimit);
-        $getResult = [];
-        foreach ($getData as $list) {
-            $getTemp = $list->toArray();
-            if (strlen($getTemp['image']) > 0) {
-                $getTemp['image_full'] = env('OSS_URL').'/'.$getTemp['image'];
-            }
-            else {
-                $getTemp['image_full'] = asset('assets/cms/images/no-img.png');
-            }
-
-            $getResult[] = $getTemp;
-        }
 
         return [
-            'data' => $getResult,
+            'data' => $getData,
             'service' => $getService
         ];
 
@@ -348,7 +328,8 @@ class HistoryController extends Controller
 
         $getType = check_list_type_transaction('lab', $getServiceId);
 
-        $result = Transaction::selectRaw('transaction.id, transaction.created_at, transaction.status, type, MIN(lab_name) AS lab_name, MIN(lab.image) as image')
+        $result = Transaction::selectRaw('transaction.id, transaction.created_at, transaction.status, type,
+            MIN(lab_name) AS lab_name, MIN(lab.image) as image, CONCAT("'.env('OSS_URL').'/'.'", MIN(lab.image)) AS image_full')
             ->join('transaction_details', function($join){
                 $join->on('transaction_details.transaction_id','=','transaction.id')
                      ->on('transaction_details.id', '=', DB::raw("(select min(id) from transaction_details WHERE transaction_details.transaction_id = transaction.id)"));
@@ -371,21 +352,9 @@ class HistoryController extends Controller
         }
 
         $getData = $result->groupByRaw('transaction.id, transaction.created_at, transaction.status, type, lab_name, image')->paginate($getLimit);
-        $getResult = [];
-        foreach ($getData as $list) {
-            $getTemp = $list->toArray();
-            if (strlen($getTemp['image']) > 0) {
-                $getTemp['image_full'] = env('OSS_URL').'/'.$getTemp['image'];
-            }
-            else {
-                $getTemp['image_full'] = asset('assets/cms/images/no-img.png');
-            }
-
-            $getResult[] = $getTemp;
-        }
 
         return [
-            'data' => $getResult,
+            'data' => $getData,
             'service' => $getService
         ];
 
