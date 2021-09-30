@@ -452,7 +452,7 @@ class DoctorController extends Controller
                 'success' => 0,
                 'message' => [$getPaymentInfo['message'] ?? '-'],
                 'token' => $this->request->attributes->get('_refresh_token'),
-            ]);
+            ], 422);
         }
 
 //        $job = SetJob::create([
