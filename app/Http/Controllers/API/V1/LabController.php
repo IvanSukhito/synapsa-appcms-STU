@@ -504,7 +504,7 @@ class LabController extends Controller
             ], 422);
         }
 
-        if ($getPayment->type == 2 && $getPayment->service == 'xendit' && in_array($getPayment->type_payment, ['ew_ovo', 'ew_linkaja'])) {
+        if ($getPayment->type == 2 && $getPayment->service == 'xendit' && in_array($getPayment->type_payment, ['ew_ovo', 'ew_dana', 'ew_linkaja'])) {
             $needPhone = 1;
             $validator = Validator::make($this->request->all(), [
                 'phone' => 'required|regex:/^(8\d+)/|numeric'

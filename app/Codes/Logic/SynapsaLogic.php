@@ -51,6 +51,7 @@ class SynapsaLogic
         }
         else if ($payment->service == 'xendit' && in_array($payment->type_payment, ['ew_ovo', 'ew_dana', 'ew_linkaja'])) {
             $getData = (object)$this->sendPayment($payment, $additional);
+            dd($getData);
             if (strlen($getData->result->external_id) > 1) {
                 $success = 1;
                 $getInfo = $getData->result;
@@ -91,7 +92,6 @@ class SynapsaLogic
     {
         $message = 'Error';
         if ($payment->service == 'xendit') {
-
             if (!isset($additional['code']) || !isset($additional['total'])) {
                 return [
                     'success' => 0,
