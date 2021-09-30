@@ -114,7 +114,7 @@ class SynapsaLogic
             $getCode = $additional['code'] ?? '';
             $getTotal = $additional['total'] ?? '';
             $getName = $additional['name'] ?? '';
-            $getPhone = '+62'.$additional['phone'] ?? '';
+            $getPhone = isset($additional['phone']) ? '+62'.$additional['phone'] : '';
 
             $xendit = new XenditLogic();
             $result = false;
