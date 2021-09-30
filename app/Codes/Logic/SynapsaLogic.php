@@ -2,8 +2,10 @@
 
 namespace App\Codes\Logic;
 
+use App\Codes\Models\V1\DoctorSchedule;
 use App\Codes\Models\V1\LogServiceTransaction;
 use App\Codes\Models\V1\SetJob;
+use App\Codes\Models\V1\Transaction;
 use App\Jobs\ProcessTransaction;
 
 class SynapsaLogic
@@ -26,6 +28,32 @@ class SynapsaLogic
                 $getInfo['price'] = $additional['total'];
                 $getInfo['price_nice'] = number_format($additional['total'], 0, ',', '.');
                 $getInfo['va_user'] = $getData->result->account_number;
+
+                $getTypeService = $additional['job']['type_service'];
+                $getServiceId = $additional['job']['service_id'];
+                $getType = check_list_type_transaction($getTypeService, $getServiceId);
+
+                $getJobData = $additional['job'];
+                $getJobData['payment_refer_id'] = $getData->result->external_id;
+                $getJobData['type'] = $getType;
+
+                $job = SetJob::create([
+                    'status' => 1,
+                    'params' => json_encode($getJobData)
+                ]);
+
+                dispatch((new ProcessTransaction($job->id))->onQueue('high'));
+
+            }
+            else {
+                $message = $getData->result->message;
+            }
+        }
+        else if ($payment->service == 'xendit' && in_array($payment->type_payment, ['ew_ovo', 'ew_dana', 'ew_linkaja'])) {
+            $getData = (object)$this->sendPayment($payment, $additional);
+            if ($getData->result->status == 'PENDING') {
+                $success = 1;
+                $getInfo = $getData->result;
 
                 $getTypeService = $additional['job']['type_service'];
                 $getServiceId = $additional['job']['service_id'];
@@ -86,7 +114,7 @@ class SynapsaLogic
             $getCode = $additional['code'] ?? '';
             $getTotal = $additional['total'] ?? '';
             $getName = $additional['name'] ?? '';
-            $getPhone = $additional['phone'] ?? '';
+            $getPhone = '+62'.$additional['phone'] ?? '';
 
             $xendit = new XenditLogic();
             $result = false;
@@ -136,9 +164,10 @@ class SynapsaLogic
 
     }
 
-    public function setupAppointment($scheduleId, $type = 'doctor')
+    public function setupAppointmentDoctor($scheduleId, $transactionId)
     {
-
+        $getTransaction = Transaction::where('id', $transactionId)->first();
+        $getSchedule = DoctorSchedule::where('id', $scheduleId)->first();
     }
 
 }
