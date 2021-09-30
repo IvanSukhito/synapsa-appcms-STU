@@ -78,13 +78,13 @@ class Transaction extends Model
     public function getTypeTransaction2Attribute()
     {
         $getList = get_list_type_transaction2();
-        return $getList[$this->type] ?? $this->type;
+        return $getList[$this->type] ?? 0;
     }
 
     public function getTypeTransaction3Attribute()
     {
         $getList = get_list_type_transaction3();
-        return $getList[$this->type] ?? $this->type;
+        return $getList[$this->type] ?? 0;
     }
 
     public function getStatusTransactionAttribute()

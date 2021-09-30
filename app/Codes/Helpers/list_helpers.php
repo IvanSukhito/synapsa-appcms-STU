@@ -66,6 +66,28 @@ if ( ! function_exists('get_list_type_transaction')) {
     }
 }
 
+if ( ! function_exists('get_list_type_transaction2')) {
+    function get_list_type_transaction2()
+    {
+        return [
+            2 => __('Telemed'),
+            3 => __('HomeCare'),
+            4 => __('Visit'),
+        ];
+    }
+}
+
+if ( ! function_exists('get_list_type_transaction3')) {
+    function get_list_type_transaction3()
+    {
+        return [
+            5 => __('Telemed'),
+            6 => __('HomeCare'),
+            7 => __('Visit'),
+        ];
+    }
+}
+
 if ( ! function_exists('check_list_type_transaction')) {
     function check_list_type_transaction($typeService = 'product', $service = 0)
     {
