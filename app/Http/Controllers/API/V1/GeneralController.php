@@ -52,7 +52,8 @@ class GeneralController extends Controller
         Log::info("POST");
         $getExternalId = $this->request->get('external_id');
         if ($getExternalId) {
-            if (substr($getExternalId, 0, 3) == 'va_') {
+            Log::info(substr($getExternalId, 0, 7));
+            if (substr($getExternalId, 0, 7) == 'va-fix-') {
 
 
 
