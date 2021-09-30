@@ -120,18 +120,18 @@ class XenditLogic
             ]
         ];
 
-        $ch = curl_init();
-        curl_setopt( $ch,CURLOPT_URL, $this->XENDIT_URL.'/ewallets/charges' );
-        curl_setopt( $ch,CURLOPT_POST, true );
-        curl_setopt($ch, CURLOPT_USERPWD, $this->XENDIT_SECRET_KEY . ":");
-        curl_setopt( $ch,CURLOPT_RETURNTRANSFER, true );
-        curl_setopt( $ch,CURLOPT_POSTFIELDS, http_build_query($params));
-        $result = curl_exec($ch );
-        curl_close( $ch );
-
-        if (is_string($result)) {
-            $result = json_decode($result);
-        }
+//        $ch = curl_init();
+//        curl_setopt( $ch,CURLOPT_URL, $this->XENDIT_URL.'/ewallets/charges' );
+//        curl_setopt( $ch,CURLOPT_POST, true );
+//        curl_setopt($ch, CURLOPT_USERPWD, $this->XENDIT_SECRET_KEY . ":");
+//        curl_setopt( $ch,CURLOPT_RETURNTRANSFER, true );
+//        curl_setopt( $ch,CURLOPT_POSTFIELDS, http_build_query($params));
+//        $result = curl_exec($ch );
+//        curl_close( $ch );
+//
+//        if (is_string($result)) {
+//            $result = json_decode($result);
+//        }
 
         return $this->createEWallet($params);
     }
