@@ -27,7 +27,6 @@ class Payment extends Model
 
     public function getIconFullAttribute()
     {
-        return asset('assets/cms/images/no-img.png');
         if (strlen($this->icon_img) > 0) {
             return env('OSS_URL').'/'.$this->icon_img;
         }

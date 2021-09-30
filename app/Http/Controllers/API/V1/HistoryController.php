@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Cache;
 
+
 class HistoryController extends Controller
 {
     protected $request;
@@ -361,29 +362,55 @@ class HistoryController extends Controller
     }
 
     private function getDetailProduct($getDataId, $userId){
-        return
-        Transaction::selectRaw('transaction.id, transaction.code, transaction.receiver_address, transaction.receiver_phone, transaction.created_at, shipping_address_name, shipping_name, shipping_price,  transaction.total as total, transaction.status as status, transaction.type')
-        ->join('transaction_details', 'transaction_details.transaction_id', '=', 'transaction.id')
-        ->where('transaction.user_id', $userId)
-        ->where('transaction.id', $getDataId)
-        ->where('type', 1)->first();
+
+        $getData = Transaction::selectRaw('transaction.id, transaction.code, transaction.receiver_address, transaction.receiver_phone, transaction.created_at, shipping_address_name, shipping_name, shipping_price,  transaction.total as total, transaction.status as status, transaction.type, payment.icon_img as payment_image')
+                    ->join('transaction_details', 'transaction_details.transaction_id', '=', 'transaction.id')
+                    ->join('payment','payment.id', '=','transaction.payment_id')
+                    ->where('transaction.user_id', $userId)
+                    ->where('transaction.id', $getDataId)
+                    ->where('transaction.type', 1)->first();
+
+
+        if (strlen($getData['payment_image']) > 0) {
+            $getData['payment_image_full'] = env('OSS_URL').'/'.$getData['payment_image'];
+        }
+        else {
+            $getData['payment_image_full'] = asset('assets/cms/images/no-img.png');
+        }
+
+        return $getData;
     }
 
     private function getDetailLab($getDataId, $userId){
-        return
-        Transaction::selectRaw('transaction.id, code, time_start, time_end, date_available, transaction.total as total_price,
-        transaction.status as status, payment_name, payment.icon_img as icon')
+
+        $getData = Transaction::selectRaw('transaction.id, code, transaction.type, time_start, time_end, date_available, transaction.total as total_price,
+        transaction.status as status, payment_name, payment.icon_img as payment_image')
        ->join('transaction_details', 'transaction_details.transaction_id', '=', 'transaction.id')
        ->join('lab_schedule','lab_schedule.id','=','transaction_details.schedule_id')
        ->join('payment','payment.id', '=','transaction.payment_id')
        ->where('transaction.user_id', $userId)
        ->where('transaction.id', $getDataId)
        ->first();
+
+        $getResult = [];
+
+        if (strlen($getData['payment_image']) > 0) {
+            $getData['payment_image_full'] = env('OSS_URL').'/'.$getData['payment_image'];
+        }
+        else {
+            $getData['payment_image_full'] = asset('assets/cms/images/no-img.png');
+        }
+
+        $getResult[] = $getData;
+
+        return [
+            'data' => $getResult,
+        ];
     }
     private function getDetailDoctor($getDataId, $userId){
-       return
-         Transaction::selectRaw('transaction.id, code, transaction_details.doctor_name as doctor_name, transaction.created_at, transaction.type, doctor_category.name as category, klinik.name as clinic_name, transaction.total as total_price,
-         transaction.status as status, users.image as image, payment_name, payment.icon_img as icon')
+
+         $getData = Transaction::selectRaw('transaction.id, code, transaction_details.doctor_name as doctor_name, transaction.created_at, transaction.type, doctor_category.name as category, klinik.name as clinic_name, transaction.total as total_price,
+         transaction.status as status, users.image as image, payment_name, payment.icon_img as payment_image')
         ->join('klinik','klinik.id', '=', 'transaction.klinik_id')
         ->join('transaction_details', 'transaction_details.transaction_id', '=', 'transaction.id')
         ->join('doctor', 'doctor.id','=','transaction_details.doctor_id')
@@ -393,6 +420,28 @@ class HistoryController extends Controller
         ->where('transaction.user_id', $userId)
         ->where('transaction.id', $getDataId)
         ->first();
+
+        $getResult = [];
+
+            if (strlen($getData['image']) > 0) {
+                $getData['image_full'] = env('OSS_URL').'/'.$getData['image'];
+            }
+            else {
+                $getData['image_full'] = asset('assets/cms/images/no-img.png');
+            }
+             if (strlen($getData['payment_image']) > 0) {
+                 $getData['payment_image_full'] = env('OSS_URL').'/'.$getData['payment_image'];
+             }
+             else {
+                 $getData['payment_image_full'] = asset('assets/cms/images/no-img.png');
+             }
+
+            $getResult[] = $getData;
+
+        return [
+            'data' => $getResult,
+        ];
+
     }
 
     private function getUserAddress($userId)
