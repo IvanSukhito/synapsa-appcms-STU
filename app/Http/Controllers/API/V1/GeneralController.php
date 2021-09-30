@@ -50,7 +50,16 @@ class GeneralController extends Controller
     public function postTransactionResult()
     {
         Log::info("POST");
-        Log::info(json_encode($this->request->all()));
+        $getExternalId = $this->request->get('external_id');
+        if ($getExternalId) {
+            if (substr($getExternalId, 0, 3) == 'va_') {
+
+
+
+            }
+        }
+
+
     }
 
     public function signUp()
