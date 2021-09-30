@@ -51,7 +51,7 @@ class SynapsaLogic
         }
         else if ($payment->service == 'xendit' && in_array($payment->type_payment, ['ew_ovo', 'ew_dana', 'ew_linkaja'])) {
             $getData = (object)$this->sendPayment($payment, $additional);
-            if ($getData->result->status == 'PENDING') {
+            if (strlen($getData->result->external_id) > 1) {
                 $success = 1;
                 $getInfo = $getData->result;
 
