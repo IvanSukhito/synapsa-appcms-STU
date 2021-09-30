@@ -51,6 +51,16 @@ class GeneralController extends Controller
     {
         Log::info("POST");
         Log::info(json_encode($this->request->all()));
+        $getExternalId = $this->request->get('external_id');
+        if ($getExternalId) {
+            if (substr($getExternalId, 0, 7) == 'va-fix-') {
+
+
+
+            }
+        }
+
+
     }
 
     public function signUp()
