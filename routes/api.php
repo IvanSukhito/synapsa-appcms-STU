@@ -104,6 +104,13 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
 
    });
 
+   $router->group(['prefix' => 'appointment'], function () use ($router) {
+
+       $router->get('/', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@index'])->name('api.appointment.index');
+       $router->get('detail/{id}', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@detail'])->name('api.appointment.detail');
+
+   });
+
 });
 
 // Non Login

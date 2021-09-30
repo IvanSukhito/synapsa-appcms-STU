@@ -36,6 +36,7 @@ class SynapsaLogic
                 $getJobData = $additional['job'];
                 $getJobData['payment_refer_id'] = $getData->result->external_id;
                 $getJobData['type'] = $getType;
+                $getJobData['payment_info'] = json_encode($getInfo);
 
                 $job = SetJob::create([
                     'status' => 1,
