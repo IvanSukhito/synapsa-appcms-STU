@@ -189,7 +189,6 @@ class DoctorController extends _CrudController
         $data['viewType'] = 'edit';
         $data['formsTitle'] = __('general.title_create', ['field' => __('general.doctor') . ' ' . $getData->name]);
         $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
-        $data['passing2'] = collectPassingData($this->passingData2, $data['viewType']);
         $data['data'] = $getData;
 
         return view($this->listView[$data['viewType']], $data);
