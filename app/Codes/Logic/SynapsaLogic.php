@@ -51,8 +51,7 @@ class SynapsaLogic
         }
         else if ($payment->service == 'xendit' && in_array($payment->type_payment, ['ew_ovo', 'ew_dana', 'ew_linkaja'])) {
             $getData = (object)$this->sendPayment($payment, $additional);
-            dd($getData);
-            if (strlen($getData->result->external_id) > 1) {
+            if (in_array($getData->result->ewallet_type, ['OVO', 'DANA']) || $getData->result->status == 'REQUEST_RECEIVED') {
                 $success = 1;
                 $getInfo = $getData->result;
 
@@ -114,7 +113,7 @@ class SynapsaLogic
             $getCode = $additional['code'] ?? '';
             $getTotal = $additional['total'] ?? '';
             $getName = $additional['name'] ?? '';
-            $getPhone = isset($additional['phone']) ? '+62'.$additional['phone'] : '';
+            $getPhone = isset($additional['phone']) ? '0'.$additional['phone'] : '';
 
             $xendit = new XenditLogic();
             $result = false;

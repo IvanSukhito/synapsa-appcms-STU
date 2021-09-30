@@ -109,11 +109,11 @@ class XenditLogic
             'currency' => 'IDR',
             'amount' => $amount,
             'phone' => $phone,
-            'phone_number' => $phone,
             'checkout_method' => 'ONE_TIME_PAYMENT',
             'channel_code' => 'OVO',
             'ewallet_type' => 'OVO',
             'channel_properties' => [
+                'mobile_number' => $phone,
                 'success_redirect_url' => route('api.postTransactionResult'),
             ],
             'metadata' => [
@@ -198,7 +198,6 @@ class XenditLogic
     {
         Xendit::setApiKey($this->XENDIT_SECRET_KEY);
         $result = EWallets::create($params);
-        dd($result);
 
         return $result;
     }
