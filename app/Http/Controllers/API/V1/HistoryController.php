@@ -370,7 +370,7 @@ class HistoryController extends Controller
             $result = $result->where('code', 'LIKE', "%$s%")->orWhere('lab_name', 'LIKE', "%$s%");
         }
 
-        $getData = $result->groupByRaw('transaction.id, transaction.created_at, transaction.status, type, lab_name, image')->paginate($getLimit)->get();
+        $getData = $result->groupByRaw('transaction.id, transaction.created_at, transaction.status, type, lab_name, image')->paginate($getLimit);
         $getResult = [];
         foreach ($getData as $list) {
             $getTemp = $list->toArray();
