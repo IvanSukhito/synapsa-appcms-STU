@@ -166,8 +166,9 @@ class SynapsaLogic
 
     public function setupAppointmentDoctor($scheduleId, $transactionId)
     {
-        $getTransaction = Transaction::where('id', $transactionId)->first();
-        $getSchedule = DoctorSchedule::where('id', $scheduleId)->first();
+       // $getTransaction = Transaction::where('id', $transactionId)->first();
+       // $getSchedule = DoctorSchedule::where('id', $scheduleId)->first();
+
     }
 
 }

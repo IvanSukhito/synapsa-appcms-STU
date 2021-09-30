@@ -55,19 +55,20 @@ class ProcessTransaction implements ShouldQueue
             $getPaymentId = isset($getParams['payment_id']) ? intval($getParams['payment_id']) : 0;
             $getType = isset($getParams['type']) ? intval($getParams['type']) : 0;
             $getPaymentReferId = $getParams['payment_refer_id'] ?? '';
+            $getPaymentInfo = $getParams['payment_info'] ?? '';
             $getNewCode = $getParams['code'] ?? '';
             if ($getType == 1) {
-                $this->transactionProduct($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId);
+                $this->transactionProduct($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getPaymentInfo);
             }
             else if (in_array($getType, [2,3,4])) {
                 $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
                 $getDoctorInfo = isset($getParams['doctor_info']) ? $getParams['doctor_info'] : [];
-                $this->transactionDoctor($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getDoctorInfo);
+                $this->transactionDoctor($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getDoctorInfo, $getPaymentInfo);
             }
             else if (in_array($getType, [5,6,7])) {
                 $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
                 $getLabInfo = isset($getParams['lab_info']) ? $getParams['lab_info'] : [];
-                $this->transactionLab($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getLabInfo);
+                $this->transactionLab($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getLabInfo, $getPaymentInfo);
             }
             else if (in_array($getType, [8,9,10])) {
                 $this->transactionNurse();
@@ -75,7 +76,7 @@ class ProcessTransaction implements ShouldQueue
         }
     }
 
-    private function transactionProduct($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId)
+    private function transactionProduct($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getPaymentInfo)
     {
         $getUser = Users::where('id', $getUserId)->first();
         $getUsersAddress = UsersAddress::where('user_id', $getUserId)->first();
@@ -157,6 +158,7 @@ class ProcessTransaction implements ShouldQueue
             'shipping_subdistrict_id' => $getUsersAddress->sub_district_id ?? '',
             'shipping_subdistrict_name' => $getUsersAddress->sub_district_name ?? '',
             'shipping_zipcode' => $getUsersAddress->zip_code ?? '',
+            'payment_info' => $getPaymentInfo,
             'type' => $getType,
             'total_qty' => $totalQty,
             'subtotal' => $subTotal,
@@ -183,7 +185,7 @@ class ProcessTransaction implements ShouldQueue
 
     }
 
-    private function transactionDoctor($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getDoctorInfo)
+    private function transactionDoctor($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getDoctorInfo, $getPaymentInfo)
     {
         $getDoctorSchedule = DoctorSchedule::where('id', $getScheduleId)->first();
         if (!$getDoctorSchedule) {
@@ -233,6 +235,7 @@ class ProcessTransaction implements ShouldQueue
             'subtotal' => $subTotal,
             'total' => $total,
             'extra_info' => json_encode($extraInfo),
+            'payment_info' => $getPaymentInfo,
             'status' => 2
         ]);
 
@@ -261,7 +264,7 @@ class ProcessTransaction implements ShouldQueue
 
     }
 
-    private function transactionLab($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getLabInfo)
+    private function transactionLab($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getLabInfo, $getPaymentInfo)
     {
         $getLabSchedule = LabSchedule::where('id', $getScheduleId)->first();
         if (!$getLabSchedule) {
@@ -310,6 +313,7 @@ class ProcessTransaction implements ShouldQueue
             'type_payment' => $getPayment->type_payment,
             'payment_id' => $getPaymentId,
             'payment_name' => $getPayment->name,
+            'payment_info' => $getPaymentInfo,
             'type' => $getType,
             'subtotal' => $total,
             'total' => $total,

@@ -434,7 +434,8 @@ class DoctorController extends Controller
         }
 
         $setLogic = new SynapsaLogic();
-        $getPaymentInfo = $setLogic->createPayment($getPayment, $sendData);
+        $getPaymentInfo = $setLogic->createPayment($getPayment, $sendData);   
+              
         if ($getPaymentInfo['success'] == 1) {
 
             return response()->json([
