@@ -136,12 +136,13 @@ class XenditLogic
         return $this->createEWallet($params);
     }
 
-    public function createEWalletDANA($transactionId, $amount)
+    public function createEWalletDANA($transactionId, $amount, $phone)
     {
         $params = [
             'external_id' => 'ew-'.$transactionId,
             'currency' => 'IDR',
             'amount' => $amount,
+            'phone' => $phone,
             'checkout_method' => 'ONE_TIME_PAYMENT',
             'channel_code' => 'DANA',
             'ewallet_type' => 'DANA',

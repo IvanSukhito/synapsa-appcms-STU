@@ -131,7 +131,7 @@ class SynapsaLogic
                     break;
                 case 'ew_ovo': $result = $xendit->createEWalletOVO($getCode, $getTotal, $getPhone);
                     break;
-                case 'ew_dana': $result = $xendit->createEWalletDANA($getCode, $getTotal);
+                case 'ew_dana': $result = $xendit->createEWalletDANA($getCode, $getTotal, $getPhone);
                     break;
                 case 'ew_linkaja': $result = $xendit->createEWalletLINKAJA($getCode, $getTotal, $getPhone);
                     break;
