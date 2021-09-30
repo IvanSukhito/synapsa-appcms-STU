@@ -50,9 +50,9 @@ class GeneralController extends Controller
     public function postTransactionResult()
     {
         Log::info("POST");
+        Log::info(json_encode($this->request->all()));
         $getExternalId = $this->request->get('external_id');
         if ($getExternalId) {
-            Log::info(substr($getExternalId, 0, 7));
             if (substr($getExternalId, 0, 7) == 'va-fix-') {
 
 
