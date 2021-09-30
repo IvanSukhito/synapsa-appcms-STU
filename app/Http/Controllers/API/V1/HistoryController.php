@@ -104,68 +104,21 @@ class HistoryController extends Controller
             ], 404);
         }
 
-        //return response()->json([
-        //    'success' => 1,
-        //    'data' => [
-        //        'data' => $getData,
-        //        'details' => $getData->getTransactionDetails()->get()
-        //    ],
-        //    'token' => $this->request->attributes->get('_refresh_token'),
-        //]);
-
-        $userId = $user->id;
-        $getDataId = $getData->id;
+        return response()->json([
+            'success' => 1,
+            'data' => [
+                'data' => $getData,
+                'details' => $getData->getTransactionDetails()->get()
+            ],
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
 
         if ($getData->type == 1) {
-          //  return $this->getDetailProduct();
-            $getDataProduct = $this->getDetailProduct($getDataId, $userId);
-
-            $listProduct = Product::selectRaw('transaction_details.id, product.id as product_id, product_qty, product.name, product.image, product.price')
-                ->join('transaction_details', 'transaction_details.product_id', '=', 'product.id')
-                ->where('transaction_details.transaction_id', $getDataProduct->id)->get();
-
-
-            $historyProduct = [
-                'transaction_product' => $getDataProduct,
-                'list_product' => $listProduct,
-                'address' => $this->getUserAddress($user->id)
-            ];
-
-            if ($getDataProduct) {
-                return response()->json([
-                    'success' => 0,
-                    'data' => $historyProduct,
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ]);
-            } else {
-                return response()->json([
-                    'success' => 0,
-                    'message' => ['Riwayat Tidak Ditemukan'],
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ], 404);
-            }
-
+            return $this->getDetailProduct();
         } else if (in_array($getData->type, [2, 3, 4])) {
-            $getDataDoctor = $this->getDetailDoctor($getDataId, $userId);
 
-            if ($getDataDoctor) {
-                return response()->json([
-                    'success' => 0,
-                    'data' => $getDataDoctor,
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ]);
-            }
         } else if (in_array($getData->type, [5, 6, 7])) {
 
-            $getDataLab = $this->getDetailLab($getDataId, $userId);
-
-            if ($getDataLab) {
-                return response()->json([
-                    'success' => 0,
-                    'data' => $getDataLab,
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ]);
-            }
         }
 //        else if (in_array($getData->type, [8,9,10])) {
 //
@@ -178,13 +131,65 @@ class HistoryController extends Controller
             ], 404);
         }
 
+        $userId = $user->id;
+        $getDataId = $getData->id;
+
+        $getDataDoctor = $this->getDetailDoctor($getDataId, $userId);
+
+        if ($getDataDoctor) {
+            return response()->json([
+                'success' => 0,
+                'data' => $getDataDoctor,
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ]);
+        }
+
+        $getDataLab = $this->getDetailLab($getDataId, $userId);
+
+        if ($getDataLab) {
+            return response()->json([
+                'success' => 0,
+                'data' => $getDataLab,
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ]);
+        }
+
+        $getDataProduct = $this->getDetailProduct($getDataId, $userId);
+
+        $listProduct = Product::selectRaw('transaction_details.id, product.id as product_id, product_qty, product.name, product.image, product.price')
+            ->join('transaction_details', 'transaction_details.product_id', '=', 'product.id')
+            ->where('transaction_details.transaction_id', $getDataProduct->id)->get();
+
+
+        $historyProduct = [
+            'transaction_product' => $getDataProduct,
+            'list_product' => $listProduct,
+            'address' => $this->getUserAddress($user->id)
+        ];
+
+        if ($getDataProduct) {
+            return response()->json([
+                'success' => 0,
+                'data' => $historyProduct,
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ]);
+        } else {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Riwayat Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+
     }
 
     private function getListProduct($userId, $getLimit, $s)
     {
         $getType = check_list_type_transaction('product');
 
-        $result = Transaction::selectRaw('transaction.id, transaction.status, total, subtotal, type, MIN(product_name) AS product_name, MIN(product.image) as image')
+        $result = Transaction::selectRaw('transaction.id, transaction.status, total, subtotal, type,
+            MIN(product_name) AS product_name, MIN(product.image) as image,
+            CONCAT("'.env('OSS_URL').'/'.'", MIN(product.image)) AS image_full')
             ->join('transaction_details', function($join){
                 $join->on('transaction_details.transaction_id','=','transaction.id')
                      ->on('transaction_details.id', '=', DB::raw("(select min(id) from transaction_details WHERE transaction_details.transaction_id = transaction.id)"));
@@ -201,21 +206,9 @@ class HistoryController extends Controller
         }
 
         $getData = $result->groupByRaw('transaction.id, transaction.status, total, subtotal, type, product_name, image')->paginate($getLimit);
-        $getResult = [];
-        foreach ($getData as $list) {
-            $getTemp = $list->toArray();
-            if (strlen($getTemp['image']) > 0) {
-                $getTemp['image_full'] = env('OSS_URL').'/'.$getTemp['image'];
-            }
-            else {
-                $getTemp['image_full'] = asset('assets/cms/images/no-img.png');
-            }
-
-            $getResult[] = $getTemp;
-        }
 
         return [
-            'data' => $getResult
+            'data' => $getData
         ];
 
     }
@@ -263,7 +256,9 @@ class HistoryController extends Controller
 
         $getType = check_list_type_transaction('doctor', $getServiceId);
 
-        $result = Transaction::selectRaw('transaction.id, transaction.created_at, transaction.type, doctor_category.name as category_doctor, transaction.status, MIN(doctor_name) AS doctor_name, MIN(users.image) AS image')
+        $result = Transaction::selectRaw('transaction.id, transaction.created_at, transaction.type,
+            doctor_category.name as category_doctor, transaction.status, MIN(doctor_name) AS doctor_name,
+            MIN(users.image) AS image, CONCAT("'.env('OSS_URL').'/'.'", MIN(users.image)) AS image_full')
             ->leftJoin('transaction_details', 'transaction_details.transaction_id','=','transaction.id')
             ->leftJoin('doctor', 'doctor.id','=','transaction_details.doctor_id')
             ->leftJoin('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
@@ -283,21 +278,9 @@ class HistoryController extends Controller
         }
 
         $getData = $result->groupByRaw('transaction.id, transaction.type, transaction.created_at, transaction.status, category_doctor, doctor_name, image')->paginate($getLimit);
-        $getResult = [];
-        foreach ($getData as $list) {
-            $getTemp = $list->toArray();
-            if (strlen($getTemp['image']) > 0) {
-                $getTemp['image_full'] = env('OSS_URL').'/'.$getTemp['image'];
-            }
-            else {
-                $getTemp['image_full'] = asset('assets/cms/images/no-img.png');
-            }
-
-            $getResult[] = $getTemp;
-        }
 
         return [
-            'data' => $getResult,
+            'data' => $getData,
             'service' => $getService
         ];
 
@@ -346,7 +329,8 @@ class HistoryController extends Controller
 
         $getType = check_list_type_transaction('lab', $getServiceId);
 
-        $result = Transaction::selectRaw('transaction.id, transaction.created_at, transaction.status, type, MIN(lab_name) AS lab_name, MIN(lab.image) as image')
+        $result = Transaction::selectRaw('transaction.id, transaction.created_at, transaction.status, type,
+            MIN(lab_name) AS lab_name, MIN(lab.image) as image, CONCAT("'.env('OSS_URL').'/'.'", MIN(lab.image)) AS image_full')
             ->join('transaction_details', function($join){
                 $join->on('transaction_details.transaction_id','=','transaction.id')
                      ->on('transaction_details.id', '=', DB::raw("(select min(id) from transaction_details WHERE transaction_details.transaction_id = transaction.id)"));
@@ -369,21 +353,9 @@ class HistoryController extends Controller
         }
 
         $getData = $result->groupByRaw('transaction.id, transaction.created_at, transaction.status, type, lab_name, image')->paginate($getLimit);
-        $getResult = [];
-        foreach ($getData as $list) {
-            $getTemp = $list->toArray();
-            if (strlen($getTemp['image']) > 0) {
-                $getTemp['image_full'] = env('OSS_URL').'/'.$getTemp['image'];
-            }
-            else {
-                $getTemp['image_full'] = asset('assets/cms/images/no-img.png');
-            }
-
-            $getResult[] = $getTemp;
-        }
 
         return [
-            'data' => $getResult,
+            'data' => $getData,
             'service' => $getService
         ];
 
