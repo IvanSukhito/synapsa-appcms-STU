@@ -83,7 +83,7 @@ class HistoryController extends Controller
         $user = $this->request->attributes->get('_user');
 
         $getData = Transaction::where('id', $id)
-            ->where('user_id',$user->id)
+//            ->where('user_id',$user->id)
             ->first();
         if (!$getData) {
             return response()->json([
@@ -93,70 +93,112 @@ class HistoryController extends Controller
             ], 404);
         }
 
-        $userId = $user->id;
-        $getDataId = $getData->id;
-
+        $getDataDetails = [];
         if ($getData->type == 1) {
-          //  return $this->getDetailProduct();
-            $getDataProduct = $this->getDetailProduct($getDataId, $userId);
-
-            $listProduct = Product::selectRaw('transaction_details.id, product.id as product_id, product_qty, product.name, product.image, product.price')
-                ->join('transaction_details', 'transaction_details.product_id', '=', 'product.id')
-                ->where('transaction_details.transaction_id', $getDataProduct->id)->get();
-
-
-            $historyProduct = [
-                'transaction_product' => $getDataProduct,
-                'list_product' => $listProduct,
-                'address' => $this->getUserAddress($user->id)
-            ];
-
-            if ($getDataProduct) {
-                return response()->json([
-                    'success' => 0,
-                    'data' => $historyProduct,
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ]);
-            } else {
-                return response()->json([
-                    'success' => 0,
-                    'message' => ['Riwayat Tidak Ditemukan'],
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ], 404);
-            }
-
-        } else if (in_array($getData->type, [2, 3, 4])) {
-            $getDataDoctor = $this->getDetailDoctor($getDataId, $userId);
-
-            if ($getDataDoctor) {
-                return response()->json([
-                    'success' => 0,
-                    'data' => $getDataDoctor,
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ]);
-            }
-        } else if (in_array($getData->type, [5, 6, 7])) {
-
-            $getDataLab = $this->getDetailLab($getDataId, $userId);
-
-            if ($getDataLab) {
-                return response()->json([
-                    'success' => 0,
-                    'data' => $getDataLab,
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ]);
-            }
+            $getDataDetails = $getData->getTransactionDetails()->selectRaw('transaction_details.id,
+                transaction_details.product_id, transaction_details.product_name, transaction_details.product_qty,
+                transaction_details.product_price,
+                product.image, CONCAT("'.env('OSS_URL').'/'.'", product.image) AS image_full')
+                ->join('product', 'product.id', '=', 'transaction_details.product_id', 'LEFT')
+                ->get();
         }
-//        else if (in_array($getData->type, [8,9,10])) {
+        else if (in_array($getData->type, [2,3,4])) {
+            $getDataDetails = $getData->getTransactionDetails()->selectRaw('transaction_details.*,
+                doctor_category.name AS doctor_category_name, users.image,
+                CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
+                ->join('doctor', 'doctor.id', '=', 'transaction_details.doctor_id', 'LEFT')
+                ->join('doctor_category', 'doctor_category.id', '=', 'doctor.doctor_category_id', 'LEFT')
+                ->join('users', 'users.id', '=', 'doctor.user_id', 'LEFT')
+                ->first();
+        }
+        else if (in_array($getData->type, [5,6,7])) {
+            $getDataDetails = $getData->getTransactionDetails()->selectRaw('transaction_details.*,
+                lab.image, CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full')
+                ->join('lab', 'lab.id', '=', 'transaction_details.lab_id', 'LEFT')
+                ->get();
+        }
+
+        $paymentInfo = json_decode($getData->payment_info, TRUE);
+        $userAddress = [
+            'receiver_name' => $getData->receiver_name,
+            'receiver_address' => $getData->receiver_address,
+            'receiver_phone' => $getData->receiver_phone,
+            'shipping_address_name' => $getData->shipping_address_name,
+            'shipping_address' => $getData->shipping_address,
+            'shipping_city_id' => $getData->shipping_city_id,
+            'shipping_city_name' => $getData->shipping_city_name,
+            'shipping_district_id' => $getData->shipping_district_id,
+            'shipping_district_name' => $getData->shipping_district_name,
+            'shipping_subdistrict_id' => $getData->shipping_subdistrict_id,
+            'shipping_subdistrict_name' => $getData->shipping_subdistrict_name,
+            'shipping_zipcode' => $getData->shipping_zipcode
+        ];
+
+        unset($getData->payment_info);
+        unset($getData->extra_info);
+
+        return response()->json([
+            'success' => 1,
+            'data' => [
+                'data' => $getData,
+                'details' => $getDataDetails,
+                'payment_info' => $paymentInfo,
+                'user_address' => $userAddress,
+            ],
+            'message' => ['Berhasil'],
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
+
+//        $userId = $user->id;
+//        $getDataId = $getData->id;
 //
+//        if ($getData->type == 1) {
+//            $getDataProduct = $this->getDetailProduct($getDataId, $userId);
+//
+//            $listProduct = Product::selectRaw('transaction_details.id, product.id as product_id, product_qty, product.name, product.image, product.price')
+//                ->join('transaction_details', 'transaction_details.product_id', '=', 'product.id')
+//                ->where('transaction_details.transaction_id', $getDataProduct->id)->get();
+//
+//            $historyProduct = [
+//                'transaction_product' => $getDataProduct,
+//                'list_product' => $listProduct,
+//                'address' => $this->getUserAddress($user->id)
+//            ];
+//
+//            return response()->json([
+//                'success' => 1,
+//                'data' => $historyProduct,
+//                'token' => $this->request->attributes->get('_refresh_token'),
+//            ]);
+//
+//        } else if (in_array($getData->type, [2, 3, 4])) {
+//            $getDataDoctor = $this->getDetailDoctor($getDataId, $userId);
+//
+//            return response()->json([
+//                'success' => 1,
+//                'data' => $getDataDoctor,
+//                'token' => $this->request->attributes->get('_refresh_token'),
+//            ]);
+//
+//        } else if (in_array($getData->type, [5, 6, 7])) {
+//
+//            $getDataLab = $this->getDetailLab($getDataId, $userId);
+//
+//            if ($getDataLab) {
+//                return response()->json([
+//                    'success' => 1,
+//                    'data' => $getDataLab,
+//                    'token' => $this->request->attributes->get('_refresh_token'),
+//                ]);
+//            }
 //        }
-        else {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Tipe Riwayat Transakti Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
+//        else {
+//            return response()->json([
+//                'success' => 0,
+//                'message' => ['Tipe Riwayat Transakti Tidak Ditemukan'],
+//                'token' => $this->request->attributes->get('_refresh_token'),
+//            ], 404);
+//        }
 
     }
 
@@ -240,7 +282,8 @@ class HistoryController extends Controller
             ->leftJoin('doctor', 'doctor.id','=','transaction_details.doctor_id')
             ->leftJoin('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
             ->leftJoin('users', 'users.id','=','doctor.user_id')
-            ->where('transaction.user_id', $userId)->orderBy('transaction.id','DESC');
+//            ->where('transaction.user_id', $userId)
+            ->orderBy('transaction.id','DESC');
 
 
         if ($getServiceId <= 0) {
@@ -338,15 +381,14 @@ class HistoryController extends Controller
 
     }
 
-    private function getDetailProduct($getDataId, $userId){
-
+    private function getDetailProduct($getDataId, $userId)
+    {
         $getData = Transaction::selectRaw('transaction.id, transaction.code, transaction.receiver_address, transaction.receiver_phone, transaction.created_at, shipping_address_name, shipping_name, shipping_price,  transaction.total as total, transaction.status as status, transaction.type, payment.icon_img as payment_image, transaction.payment_info as payment_info')
                     ->join('transaction_details', 'transaction_details.transaction_id', '=', 'transaction.id')
                     ->join('payment','payment.id', '=','transaction.payment_id')
                     ->where('transaction.user_id', $userId)
                     ->where('transaction.id', $getDataId)
                     ->where('transaction.type', 1)->first();
-
 
         if (strlen($getData['payment_image']) > 0) {
             $getData['payment_image_full'] = env('OSS_URL').'/'.$getData['payment_image'];
@@ -358,7 +400,8 @@ class HistoryController extends Controller
         return $getData;
     }
 
-    private function getDetailLab($getDataId, $userId){
+    private function getDetailLab($getDataId, $userId)
+    {
 
         $getData = Transaction::selectRaw('transaction.id, code, transaction.type, time_start, time_end, date_available, transaction.total as total_price,
         transaction.status as status, payment_name, payment.icon_img as payment_image, transaction.payment_info as payment_info')
@@ -388,44 +431,46 @@ class HistoryController extends Controller
             'infoPayment' => $paymentInfo
         ];
     }
-    private function getDetailDoctor($getDataId, $userId){
 
-         $getData = Transaction::selectRaw('transaction.id, code, transaction_details.doctor_name as doctor_name, transaction.created_at, transaction.type, doctor_category.name as category, klinik.name as clinic_name, transaction.total as total_price,
-         transaction.status as status, users.image as image, payment_name, payment.icon_img as payment_image, transaction.payment_info as payment_info')
-        ->join('klinik','klinik.id', '=', 'transaction.klinik_id')
-        ->join('transaction_details', 'transaction_details.transaction_id', '=', 'transaction.id')
-        ->join('doctor', 'doctor.id','=','transaction_details.doctor_id')
-        ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
-        ->join('users','users.id','=','doctor.user_id')
-        ->join('payment','payment.id', '=','transaction.payment_id')
-        ->where('transaction.user_id', $userId)
-        ->where('transaction.id', $getDataId)
-        ->first();
+    private function getDetailDoctor($getDataId, $userId)
+    {
+        $paymentInfo = [];
+        $getData = Transaction::selectRaw('transaction.id, code, transaction_details.doctor_name as doctor_name,
+            transaction.created_at, transaction.type, doctor_category.name as category, klinik.name as clinic_name,
+            transaction.total as total_price, transaction.status as status, users.image as image, payment_name,
+            payment.icon_img as payment_image, transaction.payment_info as payment_info')
+            ->join('klinik', 'klinik.id', '=', 'transaction.klinik_id')
+            ->join('transaction_details', 'transaction_details.transaction_id', '=', 'transaction.id')
+            ->join('doctor', 'doctor.id', '=', 'transaction_details.doctor_id')
+            ->join('doctor_category', 'doctor_category.id', '=', 'doctor.doctor_category_id')
+            ->join('users', 'users.id', '=', 'doctor.user_id')
+            ->join('payment', 'payment.id', '=', 'transaction.payment_id')
+            ->where('transaction.user_id', $userId)
+            ->where('transaction.id', $getDataId)
+            ->first();
 
-        $getResult = [];
-
+        if ($getData) {
             if (strlen($getData['image']) > 0) {
-                $getData['image_full'] = env('OSS_URL').'/'.$getData['image'];
-            }
-            else {
+                $getData['image_full'] = env('OSS_URL') . '/' . $getData['image'];
+            } else {
                 $getData['image_full'] = asset('assets/cms/images/no-img.png');
             }
-             if (strlen($getData['payment_image']) > 0) {
-                 $getData['payment_image_full'] = env('OSS_URL').'/'.$getData['payment_image'];
-             }
-             else {
-                 $getData['payment_image_full'] = asset('assets/cms/images/no-img.png');
-             }
+            if (strlen($getData['payment_image']) > 0) {
+                $getData['payment_image_full'] = env('OSS_URL') . '/' . $getData['payment_image'];
+            } else {
+                $getData['payment_image_full'] = asset('assets/cms/images/no-img.png');
+            }
 
-             $paymentInfo = json_decode($getData['payment_info'], true);
+            $paymentInfo = json_decode($getData['payment_info'], true);
 
-             unset($getData['payment_info']);
+            unset($getData['payment_info']);
 
-             $getResult[] = $getData;
+        }
 
         return [
-            'data' => $getResult,
-            'infoPayment' => $paymentInfo
+            'data' => $getData,
+            'info_payment' => $paymentInfo,
+            'user_address'
         ];
 
     }
