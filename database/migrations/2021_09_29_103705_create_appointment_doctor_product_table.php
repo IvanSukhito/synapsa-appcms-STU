@@ -23,6 +23,10 @@ class CreateAppointmentDoctorProductTable extends Migration
             $table->tinyInteger('choose')->default(0);
             $table->tinyInteger('status')->default(1);
             $table->timestamps();
+            $table->foreign('appointment_doctor_id', 'ad1')
+                ->references('id')->on('appointment_doctor')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
         });
     }
 
