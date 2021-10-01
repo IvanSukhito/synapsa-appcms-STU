@@ -104,10 +104,14 @@ class PaymentReturnController extends Controller
             }
         } else if (in_array($getType, [5, 6, 7])) {
             $transactionId = $getTransaction->id;
-            $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
-            if ($getDetail) {
+            $scheduleId = 0;
+            $getDetails = TransactionDetails::where('transaction_id', $transactionId)->get();
+            foreach ($getDetails as $getDetail) {
+                $scheduleId = $getDetail->schedule_id;
+            }
+            if ($getDetails) {
                 $logic = new SynapsaLogic();
-                $logic->setupAppointmentLab($getDetail->schedule_id, $transactionId);
+                $logic->setupAppointmentLab($getTransaction, $getDetails, $scheduleId);
             }
         } else if (in_array($getType, [8, 9, 10])) {
             $transactionId = $getTransaction->id;
@@ -117,6 +121,8 @@ class PaymentReturnController extends Controller
                 $logic->setupAppointmentNurse($getDetail->schedule_id, $transactionId);
             }
         }
+
+        return 1;
 
     }
 

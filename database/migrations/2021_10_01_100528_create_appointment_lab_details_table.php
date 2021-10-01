@@ -18,6 +18,7 @@ class CreateAppointmentLabDetailsTable extends Migration
             $table->unsignedBigInteger('appointment_lab_id')->default(0);
             $table->unsignedBigInteger('lab_id')->default(0);
             $table->string('lab_name')->nullable();
+            $table->decimal('lab_price', 26, 2)->default(0);
             $table->text('test_results')->nullable();
             $table->tinyInteger('status')->default(1);
             $table->timestamps();

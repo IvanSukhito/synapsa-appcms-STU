@@ -4,6 +4,7 @@ namespace App\Codes\Logic;
 
 use App\Codes\Models\V1\AppointmentDoctor;
 use App\Codes\Models\V1\AppointmentLab;
+use App\Codes\Models\V1\AppointmentLabDetails;
 use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\DoctorSchedule;
 use App\Codes\Models\V1\LabSchedule;
@@ -237,12 +238,8 @@ class SynapsaLogic
 
     }
 
-    public function setupAppointmentLab($scheduleId, $transactionId, $flag = true)
+    public function setupAppointmentLab($getTransaction, $getTransactionDetails, $scheduleId, $flag = true)
     {
-        $getTransaction = Transaction::where('id', $transactionId)->first();
-        if (!$getTransaction) {
-            return false;
-        }
         $getSchedule = LabSchedule::where('id', $scheduleId)->first();
         if ($getSchedule) {
             return false;
@@ -256,7 +253,7 @@ class SynapsaLogic
         $getUser = Users::where('id', $getTransaction->user_id)->first();
 
         if ($flag) {
-            AppointmentLab::create([
+            $getAppointmentLab = AppointmentLab::create([
                 'service_id' => $getSchedule->service_id,
                 'doctor_id' => $getSchedule->doctor_id,
                 'user_id' => $getTransaction->user_id,
@@ -268,6 +265,16 @@ class SynapsaLogic
                 'time_end' => $getSchedule->time_end,
                 'status' => 1
             ]);
+            foreach ($getTransactionDetails as $getTransactionDetail) {
+                AppointmentLabDetails::create([
+                    'appointment_lab_id' => $getAppointmentLab->id,
+                    'lab_id' => $getTransactionDetail->lab_id,
+                    'lab_name' => $getTransactionDetail->lab_name,
+                    'lab_price' => $getTransactionDetail->lab_price,
+                    'status' => 1
+                ]);
+            }
+
         }
 
         return true;

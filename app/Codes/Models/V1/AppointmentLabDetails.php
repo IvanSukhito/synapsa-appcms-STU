@@ -12,6 +12,7 @@ class AppointmentLabDetails extends Model
         'appointment_lab_id',
         'lab_id',
         'lab_name',
+        'lab_price',
         'test_results',
         'status'
     ];
