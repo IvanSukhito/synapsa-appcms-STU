@@ -154,7 +154,7 @@ class DoctorAppointmentController extends Controller
 
     }
 
-    public function doctorMedicine()
+    public function doctorMedicine($id)
     {
         $user = $this->request->attributes->get('_user');
 
@@ -174,9 +174,11 @@ class DoctorAppointmentController extends Controller
         }
 
         $data = Product::where('klinik_id', $user->klinik_id);
+
         if (strlen($s) > 0) {
             $data = $data->where('name', 'LIKE', "%$s%");
         }
+
         $data = $data->orderBy('name','ASC')->paginate($getLimit);
 
         return response()->json([
@@ -184,7 +186,6 @@ class DoctorAppointmentController extends Controller
             'data' => $data,
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
-
 
     }
 
