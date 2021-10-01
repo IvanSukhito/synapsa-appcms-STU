@@ -170,12 +170,8 @@ class SynapsaLogic
 
     }
 
-    public function setupAppointmentDoctor($scheduleId, $transactionId, $flag = true)
+    public function setupAppointmentDoctor($getTransaction, $getTransactionDetails, $scheduleId, $flag = true)
     {
-        $getTransaction = Transaction::where('id', $transactionId)->first();
-        if (!$getTransaction) {
-            return false;
-        }
         $getSchedule = DoctorSchedule::where('id', $scheduleId)->first();
         if ($getSchedule) {
             return false;
@@ -185,8 +181,6 @@ class SynapsaLogic
         if (!$getService) {
             return false;
         }
-
-        $getTransactionDetails = TransactionDetails::where('transaction_id', $transactionId)->first();
 
         $getUser = Users::where('id', $getTransaction->user_id)->first();
         $getDoctorData = Doctor::where('id', $getTransactionDetails->doctor_id)->first();

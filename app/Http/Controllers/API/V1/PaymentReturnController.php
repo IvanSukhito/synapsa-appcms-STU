@@ -50,39 +50,71 @@ class PaymentReturnController extends Controller
         $getAmount = $this->request->get('amount');
         if ($getExternalId) {
             if (substr($getExternalId, 0, 7) == 'va-fix-' && $getAmount) {
-
                 $getTransaction = Transaction::where('payment_refer_id', $getExternalId)->first();
                 if ($getTransaction) {
                     if ($getAmount >= $getTransaction->total) {
-                        $getType = $getTransaction->type;
-                        $getTransaction->status = 80;
-                        $getTransaction->save();
 
-                        if (in_array($getType, [2, 3, 4])) {
-                            $transactionId = $getTransaction->id;
-                            $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
-                            if ($getDetail) {
-                                $logic = new SynapsaLogic();
-                                $logic->setupAppointmentDoctor($getDetail->schedule_id, $transactionId);
-                            }
-                        } else if (in_array($getType, [5, 6, 7])) {
-                            $transactionId = $getTransaction->id;
-                            $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
-                            if ($getDetail) {
-                                $logic = new SynapsaLogic();
-                                $logic->setupAppointmentLab($getDetail->schedule_id, $transactionId);
-                            }
-                        } else if (in_array($getType, [8, 9, 10])) {
-                            $transactionId = $getTransaction->id;
-                            $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
-                            if ($getDetail) {
-                                $logic = new SynapsaLogic();
-                                $logic->setupAppointmentNurse($getDetail->schedule_id, $transactionId);
-                            }
-                        }
+                        $this->updateTransaction($getTransaction);
 
                     }
                 }
+            }
+        }
+
+    }
+
+    public function approveTransactionVa()
+    {
+        $getCode = $this->request->get('code');
+
+        $getTransaction = Transaction::where('payment_refer_id', $getCode)->first();
+        if ($getTransaction) {
+
+            $this->updateTransaction($getTransaction);
+
+        }
+
+    }
+
+    public function approveTransaction()
+    {
+        $getCode = $this->request->get('id');
+
+        $getTransaction = Transaction::where('id', $getCode)->first();
+        if ($getTransaction) {
+
+            $this->updateTransaction($getTransaction);
+
+        }
+
+    }
+
+    public function updateTransaction($getTransaction)
+    {
+        $getType = $getTransaction->type;
+        $getTransaction->status = 80;
+        $getTransaction->save();
+
+        if (in_array($getType, [2, 3, 4])) {
+            $transactionId = $getTransaction->id;
+            $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
+            if ($getDetail) {
+                $logic = new SynapsaLogic();
+                $logic->setupAppointmentDoctor($getTransaction, $getDetail, $getDetail->schedule_id);
+            }
+        } else if (in_array($getType, [5, 6, 7])) {
+            $transactionId = $getTransaction->id;
+            $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
+            if ($getDetail) {
+                $logic = new SynapsaLogic();
+                $logic->setupAppointmentLab($getDetail->schedule_id, $transactionId);
+            }
+        } else if (in_array($getType, [8, 9, 10])) {
+            $transactionId = $getTransaction->id;
+            $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
+            if ($getDetail) {
+                $logic = new SynapsaLogic();
+                $logic->setupAppointmentNurse($getDetail->schedule_id, $transactionId);
             }
         }
 

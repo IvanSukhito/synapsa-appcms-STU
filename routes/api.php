@@ -162,6 +162,9 @@ Route::get('redirect-to-app', ['uses' => 'App\Http\Controllers\API\V1\GeneralCon
 //Route::get('transaction-result', ['uses' => 'App\Http\Controllers\API\V1\PaymentReturnController@getTransactionResult'])->name('api.getTransactionResult');
 Route::post('transaction-result', ['uses' => 'App\Http\Controllers\API\V1\PaymentReturnController@postTransactionResult'])->name('api.postTransactionResult');
 
+Route::get('approve-transaction-va', ['uses' => 'App\Http\Controllers\API\V1\PaymentReturnController@approveTransactionVa'])->name('api.approveTransactionVa');
+Route::get('approve-transaction', ['uses' => 'App\Http\Controllers\API\V1\PaymentReturnController@approveTransaction'])->name('api.approveTransaction');
+
 Route::get('/', function() {
     return LARAVEL_START;
 });
