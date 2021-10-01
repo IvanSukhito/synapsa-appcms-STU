@@ -78,13 +78,19 @@ class AppointmentDoctorController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
-        else {
-            return response()->json([
-                'success' => 1,
+
+        $formPatient = json_decode($data->form_patient, true);
+        $doctorPrescription = json_decode($data->doctor_prescription, true);
+
+        return response()->json([
+            'success' => 1,
+            'data' => [
                 'data' => $data,
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ]);
-        }
+                'form_patient' => $formPatient,
+                'doctor_prescription' => $doctorPrescription
+            ],
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
 
     }
 
@@ -171,7 +177,7 @@ class AppointmentDoctorController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $data = AppointmentDoctor::where('user_id', $user->id)->where('id', $id)->first();
+        $data = AppointmentDoctor::whereIn('status', [1,2,80])->where('user_id', $user->id)->where('id', $id)->first();
         if (!$data) {
             return response()->json([
                 'success' => 0,
@@ -195,7 +201,7 @@ class AppointmentDoctorController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $data = AppointmentDoctor::where('user_id', $user->id)->where('id', $id)->first();
+        $data = AppointmentDoctor::whereIn('status', [80])->where('user_id', $user->id)->where('id', $id)->first();
         if (!$data) {
             return response()->json([
                 'success' => 0,
@@ -225,8 +231,15 @@ class AppointmentDoctorController extends Controller
         $validator = Validator::make($this->request->all(), [
             'cart_ids' => 'required|array',
         ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => 0,
+                'message' => $validator->messages()->all(),
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
 
-        $data = AppointmentDoctor::where('user_id', $user->id)->where('id', $id)->first();
+        $data = AppointmentDoctor::whereIn('status', [80])->where('user_id', $user->id)->where('id', $id)->first();
         if (!$data) {
             return response()->json([
                 'success' => 0,
@@ -280,7 +293,7 @@ class AppointmentDoctorController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $data = AppointmentDoctor::where('user_id', $user->id)->where('id', $id)->first();
+        $data = AppointmentDoctor::whereIn('status', [80])->where('user_id', $user->id)->where('id', $id)->first();
         if (!$data) {
             return response()->json([
                 'success' => 0,
@@ -301,7 +314,7 @@ class AppointmentDoctorController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $data = AppointmentDoctor::where('user_id', $user->id)->where('id', $id)->first();
+        $data = AppointmentDoctor::whereIn('status', [80])->where('user_id', $user->id)->where('id', $id)->first();
         if (!$data) {
             return response()->json([
                 'success' => 0,
@@ -322,7 +335,18 @@ class AppointmentDoctorController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $data = AppointmentDoctor::where('user_id', $user->id)->where('id', $id)->first();
+        $validator = Validator::make($this->request->all(), [
+            'payment_id' => 'required|numeric',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => 0,
+                'message' => $validator->messages()->all(),
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
+        $data = AppointmentDoctor::whereIn('status', [80])->where('user_id', $user->id)->where('id', $id)->first();
         if (!$data) {
             return response()->json([
                 'success' => 0,

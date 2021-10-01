@@ -121,7 +121,7 @@ class DoctorAppointmentController extends Controller
         $user = $this->request->attributes->get('_user');
         $getDoctor = Doctor::where('user_id', $user->id)->first();
 
-        $data = AppointmentDoctor::where('doctor_id', $getDoctor->id)->where('id', $id)->first();
+        $data = AppointmentDoctor::whereIn('status', [1,2])->where('doctor_id', $getDoctor->id)->where('id', $id)->first();
         if (!$data) {
             return response()->json([
                 'success' => 0,
@@ -146,7 +146,7 @@ class DoctorAppointmentController extends Controller
         $user = $this->request->attributes->get('_user');
         $getDoctor = Doctor::where('user_id', $user->id)->first();
 
-        $data = AppointmentDoctor::where('doctor_id', $getDoctor->id)->where('id', $id)->first();
+        $data = AppointmentDoctor::whereIn('status', [1,2,80])->where('doctor_id', $getDoctor->id)->where('id', $id)->first();
         if (!$data) {
             return response()->json([
                 'success' => 0,
