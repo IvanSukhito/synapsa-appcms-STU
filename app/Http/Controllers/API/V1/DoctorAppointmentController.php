@@ -129,7 +129,7 @@ class DoctorAppointmentController extends Controller
 
         return response()->json([
             'success' => 1,
-            'message' => ['Sukses Di Batalkan'],
+            'message' => ['Sukses Di Approve'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
 
