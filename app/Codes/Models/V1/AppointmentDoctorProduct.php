@@ -26,4 +26,9 @@ class AppointmentDoctorProduct extends Model
         return intval($this->product_price) > 0 ? number_format($this->product_price, 0, ',', '.') : 0;
     }
 
+    public function getAppointmentDoctor()
+    {
+        return $this->hasMany(AppointmentDoctor::class, 'appointment_doctor_id', 'id');
+    }
+
 }

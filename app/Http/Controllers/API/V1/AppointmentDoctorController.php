@@ -135,4 +135,88 @@ class AppointmentDoctorController extends Controller
 
     }
 
+    public function cancelMeeting($id)
+    {
+        $user = $this->request->attributes->get('_user');
+
+        $data = AppointmentDoctor::where('user_id', $user->id)->where('id', $id)->first();
+        if (!$data) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+
+        $data->status = 99;
+        $data->save();
+
+        return response()->json([
+            'success' => 1,
+            'message' => ['Sukses Di Batalkan'],
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
+
+    }
+
+    public function cart($id)
+    {
+        $user = $this->request->attributes->get('_user');
+
+        $data = AppointmentDoctor::where('user_id', $user->id)->where('id', $id)->first();
+        if (!$data) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+
+    }
+
+    public function shipping($id)
+    {
+        $user = $this->request->attributes->get('_user');
+
+        $data = AppointmentDoctor::where('user_id', $user->id)->where('id', $id)->first();
+        if (!$data) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+
+    }
+
+    public function payment($id)
+    {
+        $user = $this->request->attributes->get('_user');
+
+        $data = AppointmentDoctor::where('user_id', $user->id)->where('id', $id)->first();
+        if (!$data) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+
+    }
+
+    public function checkout($id)
+    {
+        $user = $this->request->attributes->get('_user');
+
+        $data = AppointmentDoctor::where('user_id', $user->id)->where('id', $id)->first();
+        if (!$data) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+
+    }
+
 }

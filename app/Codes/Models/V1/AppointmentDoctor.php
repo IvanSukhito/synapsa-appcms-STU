@@ -22,4 +22,9 @@ class AppointmentDoctor extends Model
         'status'
     ];
 
+    public function getAppointmentDoctorProduct()
+    {
+        return $this->hasMany(AppointmentDoctorProduct::class, 'appointment_doctor_id', 'id');
+    }
+
 }
