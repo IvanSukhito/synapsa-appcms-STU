@@ -9,6 +9,7 @@ use App\Codes\Models\V1\DeviceToken;
 use App\Codes\Models\V1\District;
 use App\Codes\Models\V1\Klinik;
 use App\Codes\Models\V1\SubDistrict;
+use App\Codes\Models\V1\Transaction;
 use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\UsersAddress;
 use App\Codes\Models\V1\ForgetPassword;
@@ -52,10 +53,16 @@ class GeneralController extends Controller
         Log::info("POST");
         Log::info(json_encode($this->request->all()));
         $getExternalId = $this->request->get('external_id');
+        $getAmount = $this->request->get('amount');
         if ($getExternalId) {
-            if (substr($getExternalId, 0, 7) == 'va-fix-') {
+            if (substr($getExternalId, 0, 7) == 'va-fix-' && $getAmount) {
 
-
+                $getTransaction = Transaction::where('payment_refer_id', $getExternalId)->first();
+                if ($getTransaction) {
+                    
+                    $getTransaction->status = 80;
+                    $getTransaction->save();
+                }
 
             }
         }
