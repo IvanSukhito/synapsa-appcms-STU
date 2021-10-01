@@ -4,9 +4,13 @@ namespace App\Http\Controllers\API\V1;
 
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\AppointmentDoctor;
+use App\Codes\Models\V1\AppointmentDoctorProduct;
+use App\Codes\Models\V1\AppointmentLabDetails;
+use App\Codes\Models\V1\Product;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -200,11 +204,75 @@ class AppointmentDoctorController extends Controller
             ], 404);
         }
 
+        $getDetails = Product::selectRaw('appointment_doctor_product.id, product.id as product_id, product.name, product.image,
+            product.price, product.unit, appointment_doctor_product.product_qty, appointment_doctor_product.choose')
+            ->join('appointment_doctor_product', 'appointment_doctor_product.product_id', '=', 'product.id')
+            ->where('appointment_doctor_product.appointment_doctor_id', '=', $id)->get();
+
         return response()->json([
             'success' => 1,
-            'message' => ['Progress'],
+            'data' => $getDetails,
+            'message' => ['Sukses'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
+
+    }
+
+    public function chooseCart($id)
+    {
+        $user = $this->request->attributes->get('_user');
+
+        $validator = Validator::make($this->request->all(), [
+            'cart_ids' => 'required|array',
+        ]);
+
+        $data = AppointmentDoctor::where('user_id', $user->id)->where('id', $id)->first();
+        if (!$data) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+
+        $getCartIds = $this->request->get('cart_ids');
+
+        DB::beginTransaction();
+
+        $getUsersCartDetails = AppointmentDoctorProduct::selectRaw('appointment_doctor_product.id, product_id, choose')
+            ->join('appointment_doctor', 'appointment_doctor.id', '=', 'appointment_doctor_product.appointment_doctor_id')
+            ->where('users_id', $user->id)->get();
+
+        $haveProduct = 0;
+        if ($getUsersCartDetails) {
+            foreach ($getUsersCartDetails as $getUsersCartDetail) {
+                if (in_array($getUsersCartDetail->product_id, $getCartIds)) {
+                    $haveProduct = 1;
+                    $getUsersCartDetail->choose = 1;
+                }
+                else {
+                    $getUsersCartDetail->choose = 0;
+                }
+                $getUsersCartDetail->save();
+            }
+        }
+
+        DB::commit();
+
+        if ($haveProduct == 1) {
+            return response()->json([
+                'success' => 1,
+                'token' => $this->request->attributes->get('_refresh_token'),
+                'message' => ['Berhasil Memilih Produk'],
+            ]);
+        }
+        else {
+            return response()->json([
+                'success' => 0,
+                'token' => $this->request->attributes->get('_refresh_token'),
+                'message' => ['Tidak ada Produk yang di pilih'],
+            ]);
+        }
 
     }
 
