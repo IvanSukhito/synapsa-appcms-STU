@@ -159,8 +159,8 @@ Route::get('version', ['uses' => 'App\Http\Controllers\API\V1\GeneralController@
 Route::post('version', ['uses' => 'App\Http\Controllers\API\V1\GeneralController@compareVersion'])->name('api.compareVersion');
 
 Route::get('redirect-to-app', ['uses' => 'App\Http\Controllers\API\V1\GeneralController@redirectApps'])->name('api.redirectApps');
-//Route::get('transaction-result', ['uses' => 'App\Http\Controllers\API\V1\GeneralController@getTransactionResult'])->name('api.getTransactionResult');
-Route::post('transaction-result', ['uses' => 'App\Http\Controllers\API\V1\GeneralController@postTransactionResult'])->name('api.postTransactionResult');
+//Route::get('transaction-result', ['uses' => 'App\Http\Controllers\API\V1\PaymentReturnController@getTransactionResult'])->name('api.getTransactionResult');
+Route::post('transaction-result', ['uses' => 'App\Http\Controllers\API\V1\PaymentReturnController@postTransactionResult'])->name('api.postTransactionResult');
 
 Route::get('/', function() {
     return LARAVEL_START;

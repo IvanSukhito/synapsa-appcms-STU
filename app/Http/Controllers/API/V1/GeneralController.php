@@ -40,63 +40,9 @@ class GeneralController extends Controller
         $this->limit = 10;
     }
 
-    public function redirectApps() {
+    public function redirectApps()
+    {
         return 'Return to Apps';
-    }
-
-    public function getTransactionResult()
-    {
-        Log::info("GET");
-        Log::info(json_encode($this->request->all()));
-    }
-
-    public function postTransactionResult()
-    {
-        Log::info("POST");
-        Log::info(json_encode($this->request->all()));
-        $getExternalId = $this->request->get('external_id');
-        $getAmount = $this->request->get('amount');
-        if ($getExternalId) {
-            if (substr($getExternalId, 0, 7) == 'va-fix-' && $getAmount) {
-
-                $getTransaction = Transaction::where('payment_refer_id', $getExternalId)->first();
-                if ($getTransaction) {
-                    if ($getAmount >= $getTransaction->total) {
-                        $getType = $getTransaction->type;
-                        $getTransaction->status = 80;
-                        $getTransaction->save();
-
-                        if (in_array($getType, [2,3,4])) {
-                            $transactionId = $getTransaction->id;
-                            $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
-                            if ($getDetail) {
-                                $logic = new SynapsaLogic();
-                                $logic->setupAppointmentDoctor($getDetail->schedule_id, $transactionId);
-                            }
-                        }
-                        else if (in_array($getType, [5,6,7])) {
-                            $transactionId = $getTransaction->id;
-                            $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
-                            if ($getDetail) {
-                                $logic = new SynapsaLogic();
-                                $logic->setupAppointmentLab($getDetail->schedule_id, $transactionId);
-                            }
-                        }
-                        else if (in_array($getType, [8,9,10])) {
-                            $transactionId = $getTransaction->id;
-                            $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
-                            if ($getDetail) {
-                                $logic = new SynapsaLogic();
-                                $logic->setupAppointmentNurse($getDetail->schedule_id, $transactionId);
-                            }
-                        }
-
-                    }
-                }
-            }
-        }
-
-
     }
 
     public function signUp()
@@ -135,21 +81,19 @@ class GeneralController extends Controller
             try {
                 $image = base64_to_jpeg($this->request->get('upload_ktp'));
                 $destinationPath = 'synapsaapps/users';
-                $set_file_name = md5('image'.strtotime('now').rand(0, 100)).'.jpg';
-                $getFile = Storage::put($destinationPath.'/'.$set_file_name, $image);
+                $set_file_name = md5('image' . strtotime('now') . rand(0, 100)) . '.jpg';
+                $getFile = Storage::put($destinationPath . '/' . $set_file_name, $image);
                 if ($getFile) {
-                    $getImage = $destinationPath.'/'.$set_file_name;
+                    $getImage = $destinationPath . '/' . $set_file_name;
                     $getUploadKtp = $getImage;
-                }
-                else {
+                } else {
                     return response()->json([
                         'success' => 0,
                         'token' => $this->request->attributes->get('_refresh_token'),
                         'message' => ['Gagal Mengunggah KTP'],
                     ], 422);
                 }
-            }
-            catch (\Exception $e) {
+            } catch (\Exception $e) {
                 return response()->json([
                     'success' => 0,
                     'message' => ['Gagal Mengunggah KTP'],
@@ -163,21 +107,19 @@ class GeneralController extends Controller
             try {
                 $image = base64_to_jpeg($this->request->get('upload_ktp'));
                 $destinationPath = 'synapsaapps/users';
-                $set_file_name = md5('image'.strtotime('now').rand(0, 100)).'.jpg';
-                $getFile = Storage::put($destinationPath.'/'.$set_file_name, $image);
+                $set_file_name = md5('image' . strtotime('now') . rand(0, 100)) . '.jpg';
+                $getFile = Storage::put($destinationPath . '/' . $set_file_name, $image);
                 if ($getFile) {
-                    $getImage = $destinationPath.'/'.$set_file_name;
+                    $getImage = $destinationPath . '/' . $set_file_name;
                     $getUploadImage = $getImage;
-                }
-                else {
+                } else {
                     return response()->json([
                         'success' => 0,
                         'token' => $this->request->attributes->get('_refresh_token'),
                         'message' => ['Gagal Mengunggah Foto'],
                     ], 422);
                 }
-            }
-            catch (\Exception $e) {
+            } catch (\Exception $e) {
                 return response()->json([
                     'success' => 0,
                     'token' => $this->request->attributes->get('_refresh_token'),
@@ -186,7 +128,7 @@ class GeneralController extends Controller
             }
         }
 
-        try{
+        try {
             $users = new Users();
             $users->klinik_id = $this->request->get('klinik_id');
             $users->city_id = $this->request->get('city_id');
@@ -247,9 +189,7 @@ class GeneralController extends Controller
                 ]
             ]);
 
-        }
-
-        catch (QueryException $e){
+        } catch (QueryException $e) {
             return response()->json([
                 'message' => ['Memasukan Gagal'],
                 'error' => $e->getMessage()
@@ -318,21 +258,18 @@ class GeneralController extends Controller
                     ],
                     'token' => (string)$token
                 ]);
-            }
-            catch (JWTException $e) {
+            } catch (JWTException $e) {
+                return response()->json([
+                    'success' => 0,
+                    'message' => ['Token Gagal dibuat'],
+                ], 422);
+            } catch (\Exception $e) {
                 return response()->json([
                     'success' => 0,
                     'message' => ['Token Gagal dibuat'],
                 ], 422);
             }
-            catch (\Exception $e) {
-                return response()->json([
-                    'success' => 0,
-                    'message' => ['Token Gagal dibuat'],
-                ], 422);
-            }
-        }
-        else {
+        } else {
             return response()->json([
                 'success' => 0,
                 'message' => [__('Gagal Login')],
@@ -340,7 +277,8 @@ class GeneralController extends Controller
         }
     }
 
-    public function forgotPassword(){
+    public function forgotPassword()
+    {
         $validator = Validator::make($this->request->all(), [
             'email' => 'required|email'
 
@@ -367,13 +305,13 @@ class GeneralController extends Controller
             ], 422);
         }
 
-       $getForgetPassword = ForgetPassword::where('users_id', $getUser->id)->where('status', 1)->where('created_at', '<', date('Y-m-d H:i:s', strtotime("-1 hour")))->first();
-       if ($getForgetPassword) {
-           return response()->json([
-               'success' => 0,
-               'message' => [__('Akun Sudah Meminta Lupa Sandi, Tunggu 1 Jam untuk meminta ulang lagi.')]
-           ], 422);
-       }
+        $getForgetPassword = ForgetPassword::where('users_id', $getUser->id)->where('status', 1)->where('created_at', '<', date('Y-m-d H:i:s', strtotime("-1 hour")))->first();
+        if ($getForgetPassword) {
+            return response()->json([
+                'success' => 0,
+                'message' => [__('Akun Sudah Meminta Lupa Sandi, Tunggu 1 Jam untuk meminta ulang lagi.')]
+            ], 422);
+        }
 
         $newCode = generateNewCode(6);
 
@@ -387,12 +325,12 @@ class GeneralController extends Controller
 
         $subject = 'Lupa Password';
 
-       Mail::send('mail.forgot', [
-           'user' => $getUser,
-           'code' => $newCode
-       ], function($m) use ($getUser, $subject) {
-           $m->to($getUser->email, $getUser->name)->subject($subject);
-       });
+        Mail::send('mail.forgot', [
+            'user' => $getUser,
+            'code' => $newCode
+        ], function ($m) use ($getUser, $subject) {
+            $m->to($getUser->email, $getUser->name)->subject($subject);
+        });
 
         return response()->json([
             'success' => 1,
@@ -483,11 +421,9 @@ class GeneralController extends Controller
             $token = JWTAuth::getToken();
 
             JWTAuth::invalidate($token);
-        }
-        catch (JWTException $e) {
+        } catch (JWTException $e) {
 
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
 
         }
 
@@ -530,17 +466,14 @@ class GeneralController extends Controller
             $getVersion = isset($setting['ios-version']) ? $setting['ios-version'] : '';
             if (version_compare($version, $getVersion) >= 0) {
                 $valid = 1;
-            }
-            else {
+            } else {
                 $urlPath = isset($setting['ios-url']) ? $setting['ios-url'] : '';
             }
-        }
-        else {
+        } else {
             $getVersion = isset($setting['android-version']) ? $setting['android-version'] : '';
             if (version_compare($version, $getVersion) >= 0) {
                 $valid = 1;
-            }
-            else {
+            } else {
                 $urlPath = isset($setting['android-url']) ? $setting['android-url'] : '';
             }
         }

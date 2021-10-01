@@ -3,12 +3,15 @@
 namespace App\Codes\Logic;
 
 use App\Codes\Models\V1\AppointmentDoctor;
+use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\DoctorSchedule;
 use App\Codes\Models\V1\LabSchedule;
 use App\Codes\Models\V1\LogServiceTransaction;
 use App\Codes\Models\V1\Service;
 use App\Codes\Models\V1\SetJob;
 use App\Codes\Models\V1\Transaction;
+use App\Codes\Models\V1\TransactionDetails;
+use App\Codes\Models\V1\Users;
 use App\Jobs\ProcessTransaction;
 
 class SynapsaLogic
@@ -183,12 +186,23 @@ class SynapsaLogic
             return false;
         }
 
+        $getTransactionDetails = TransactionDetails::where('transaction_id', $transactionId)->first();
+
+        $getUser = Users::where('id', $getTransaction->user_id)->first();
+        $getDoctorData = Doctor::where('id', $getTransactionDetails->doctor_id)->first();
+        $getDoctor = Users::where('id', $getDoctorData->user_id)->first();
+
         if ($flag) {
             AppointmentDoctor::create([
                 'service_id' => $getSchedule->service_id,
                 'doctor_id' => $getSchedule->doctor_id,
                 'user_id' => $getTransaction->user_id,
                 'type_appointment' => $getService->name,
+                'patient_name' => $getUser ? $getUser->fullname : '',
+                'doctor_name' => $getDoctor ? $getDoctor->fullname : '',
+                'date' => $getSchedule->date_available,
+                'time_start' => $getSchedule->time_start,
+                'time_end' => $getSchedule->time_end,
                 'status' => 1
             ]);
         }

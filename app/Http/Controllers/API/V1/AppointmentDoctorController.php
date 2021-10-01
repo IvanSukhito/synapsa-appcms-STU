@@ -30,12 +30,25 @@ class AppointmentDoctorController extends Controller
         $user = $this->request->attributes->get('_user');
 
         $s = strip_tags($this->request->get('s'));
+        $time = intval($this->request->get('time'));
         $getLimit = $this->request->get('limit');
         if ($getLimit <= 0) {
             $getLimit = $this->limit;
         }
 
-        $data = AppointmentDoctor::where('user_id', $user->id);
+        $dateNow = date('Y-m-d');
+
+        switch ($time) {
+            case 2 : $data = AppointmentDoctor::where('user_id', $user->id)->where('date', '=', $dateNow)->where('status', '!=', 99);
+                break;
+            case 3 : $data = AppointmentDoctor::where('user_id', $user->id)->where('date', '>', $dateNow)->where('status', '!=', 99);
+                break;
+            case 4 : $data = AppointmentDoctor::where('user_id', $user->id)->where('status', '=', 99);
+                break;
+            default: $data = AppointmentDoctor::where('user_id', $user->id)->where('date', '<', $dateNow)->where('status', '!=', 99);
+                break;
+        }
+
         if (strlen($s) > 0) {
             $data = $data->where('doctor_name', 'LIKE', "%$s%");
         }

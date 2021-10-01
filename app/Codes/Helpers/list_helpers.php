@@ -70,9 +70,13 @@ if ( ! function_exists('get_list_type_transaction2')) {
     function get_list_type_transaction2()
     {
         return [
-            2 => __('Telemed'),
-            3 => __('HomeCare'),
-            4 => __('Visit'),
+            1 => __('Product'),
+            2 => __('Doctor'),
+            3 => __('Doctor'),
+            4 => __('Doctor'),
+            5 => __('Lab'),
+            6 => __('Lab'),
+            7 => __('Lab')
         ];
     }
 }
@@ -81,9 +85,13 @@ if ( ! function_exists('get_list_type_transaction3')) {
     function get_list_type_transaction3()
     {
         return [
+            1 => __('Product'),
+            2 => __('Telemed'),
+            3 => __('HomeCare'),
+            4 => __('Visit'),
             5 => __('Telemed'),
             6 => __('HomeCare'),
-            7 => __('Visit'),
+            7 => __('Visit')
         ];
     }
 }
@@ -128,6 +136,18 @@ if ( ! function_exists('get_list_transaction')) {
             80 => __('general.complete'),
             90 => __('general.void'),
             99 => __('general.cancel'),
+        ];
+    }
+}
+
+if ( ! function_exists('get_list_appointment')) {
+    function get_list_appointment()
+    {
+        return [
+            1 => __('general.pending'),
+            2 => __('general.approve'),
+            80 => __('general.finish'),
+            90 => __('general.cancel')
         ];
     }
 }
