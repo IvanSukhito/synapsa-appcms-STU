@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers\API\V1;
 
+use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\AppointmentDoctor;
 use App\Codes\Models\V1\AppointmentDoctorProduct;
 use App\Codes\Models\V1\AppointmentLabDetails;
+use App\Codes\Models\V1\Payment;
 use App\Codes\Models\V1\Product;
+use App\Codes\Models\V1\Shipping;
+use App\Codes\Models\V1\Transaction;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -82,10 +86,16 @@ class AppointmentDoctorController extends Controller
         $formPatient = json_decode($data->form_patient, true);
         $doctorPrescription = json_decode($data->doctor_prescription, true);
 
+        $getDetails = Product::selectRaw('appointment_doctor_product.id, product.id as product_id, product.name, product.image,
+            product.price, product.unit, appointment_doctor_product.product_qty, appointment_doctor_product.choose')
+            ->join('appointment_doctor_product', 'appointment_doctor_product.product_id', '=', 'product.id')
+            ->where('appointment_doctor_product.appointment_doctor_id', '=', $id)->get();
+
         return response()->json([
             'success' => 1,
             'data' => [
                 'data' => $data,
+                'product' => $getDetails,
                 'form_patient' => $formPatient,
                 'doctor_prescription' => $doctorPrescription
             ],
@@ -217,7 +227,10 @@ class AppointmentDoctorController extends Controller
 
         return response()->json([
             'success' => 1,
-            'data' => $getDetails,
+            'data' => [
+                'data' => $data,
+                'product' => $getDetails
+            ],
             'message' => ['Sukses'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
@@ -284,7 +297,7 @@ class AppointmentDoctorController extends Controller
                 'success' => 0,
                 'token' => $this->request->attributes->get('_refresh_token'),
                 'message' => ['Tidak ada Produk yang di pilih'],
-            ]);
+            ], 422);
         }
 
     }
@@ -302,9 +315,29 @@ class AppointmentDoctorController extends Controller
             ], 404);
         }
 
+        $getDetails = Product::selectRaw('appointment_doctor_product.id, product.id as product_id, product.name, product.image,
+            product.price, product.unit, appointment_doctor_product.product_qty, appointment_doctor_product.choose')
+            ->join('appointment_doctor_product', 'appointment_doctor_product.product_id', '=', 'product.id')
+            ->where('appointment_doctor_product.appointment_doctor_id', '=', $id)->get();
+
+        if ($getDetails->count() <= 0) {
+            return response()->json([
+                'success' => 0,
+                'token' => $this->request->attributes->get('_refresh_token'),
+                'message' => ['Tidak ada Produk yang di pilih'],
+            ], 422);
+        }
+
+        $getShipping = Shipping::where('status', 80)->orderBy('orders', 'ASC')->get();
+
         return response()->json([
             'success' => 1,
-            'message' => ['Progress'],
+            'data' => [
+                'data' => $data,
+                'product' => $getDetails,
+                'shipping' => $getShipping
+            ],
+            'message' => ['Berhasil'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
 
@@ -323,9 +356,29 @@ class AppointmentDoctorController extends Controller
             ], 404);
         }
 
+        $getDetails = Product::selectRaw('appointment_doctor_product.id, product.id as product_id, product.name, product.image,
+            product.price, product.unit, appointment_doctor_product.product_qty, appointment_doctor_product.choose')
+            ->join('appointment_doctor_product', 'appointment_doctor_product.product_id', '=', 'product.id')
+            ->where('appointment_doctor_product.appointment_doctor_id', '=', $id)->get();
+
+        if ($getDetails->count() <= 0) {
+            return response()->json([
+                'success' => 0,
+                'token' => $this->request->attributes->get('_refresh_token'),
+                'message' => ['Tidak ada Produk yang di pilih'],
+            ], 422);
+        }
+
+        $getPayment = Payment::where('status', 80)->orderBy('orders', 'ASC')->get();
+
         return response()->json([
             'success' => 1,
-            'message' => ['Progress'],
+            'data' => [
+                'data' => $data,
+                'product' => $getDetails,
+                'payment' => $getPayment
+            ],
+            'message' => ['Berhasil'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
 
@@ -335,7 +388,9 @@ class AppointmentDoctorController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
+        $needPhone = 0;
         $validator = Validator::make($this->request->all(), [
+            'shipping_id' => 'required|numeric',
             'payment_id' => 'required|numeric',
         ]);
         if ($validator->fails()) {
@@ -344,6 +399,30 @@ class AppointmentDoctorController extends Controller
                 'message' => $validator->messages()->all(),
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
+        }
+
+        $paymentId = intval($this->request->get('payment_id'));
+        $getPayment = Payment::where('id', $paymentId)->first();
+        if (!$getPayment) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Payment Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
+        if ($getPayment->type == 2 && $getPayment->service == 'xendit' && in_array($getPayment->type_payment, ['ew_ovo', 'ew_dana', 'ew_linkaja'])) {
+            $needPhone = 1;
+            $validator = Validator::make($this->request->all(), [
+                'phone' => 'required|regex:/^(8\d+)/|numeric'
+            ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => 0,
+                    'message' => $validator->messages()->all(),
+                    'token' => $this->request->attributes->get('_refresh_token'),
+                ], 422);
+            }
         }
 
         $data = AppointmentDoctor::whereIn('status', [80])->where('user_id', $user->id)->where('id', $id)->first();
@@ -355,11 +434,62 @@ class AppointmentDoctorController extends Controller
             ], 404);
         }
 
-        return response()->json([
-            'success' => 1,
-            'message' => ['Progress'],
-            'token' => $this->request->attributes->get('_refresh_token'),
-        ]);
+        $getShippingPrice = 15000;
+
+        $total = 0;
+        $getDetails = Product::selectRaw('appointment_doctor_product.id, product.id as product_id, product.name, product.image,
+            product.price, product.unit, appointment_doctor_product.product_qty, appointment_doctor_product.choose')
+            ->join('appointment_doctor_product', 'appointment_doctor_product.product_id', '=', 'product.id')
+            ->where('appointment_doctor_product.appointment_doctor_id', '=', $id)->get();
+        foreach ($getDetails as $list) {
+            $total += $list->price;
+        }
+
+        $total += $getShippingPrice;
+
+        $getTotal = Transaction::where('klinik_id', $user->klinik_id)->whereYear('created_at', '=', date('Y'))
+            ->whereMonth('created_at', '=', date('m'))->count();
+
+        $newCode = str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT).rand(100,199);
+
+        $sendData = [
+            'job' => [
+                'code' => $newCode,
+                'payment_id' => $paymentId,
+                'user_id' => $user->id,
+                'type_service' => 'product_klinik',
+                'service_id' => 0
+            ],
+            'code' => $newCode,
+            'total' => $total,
+            'name' => $user->fullname
+        ];
+
+        if ($needPhone == 1) {
+            $sendData['phone'] = $this->request->get('phone');
+        }
+
+        $setLogic = new SynapsaLogic();
+        $getPaymentInfo = $setLogic->createPayment($getPayment, $sendData);
+        if ($getPaymentInfo['success'] == 1) {
+
+            return response()->json([
+                'success' => 1,
+                'data' => [
+                    'payment' => 0,
+                    'info' => $getPaymentInfo['info']
+                ],
+                'message' => ['Berhasil'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ]);
+        }
+        else {
+            return response()->json([
+                'success' => 0,
+                'message' => [$getPaymentInfo['message'] ?? '-'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
 
     }
 

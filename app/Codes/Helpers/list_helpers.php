@@ -123,6 +123,9 @@ if ( ! function_exists('check_list_type_transaction')) {
                 case 3 : return 10; break;
             }
         }
+        else if (strtolower($typeService) == 'product_klinik') {
+            return 11;
+        }
         return 0;
     }
 }

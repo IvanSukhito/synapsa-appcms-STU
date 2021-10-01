@@ -344,7 +344,7 @@ class ProductController extends Controller
                 'success' => 0,
                 'token' => $this->request->attributes->get('_refresh_token'),
                 'message' => ['Tidak ada Produk yang di pilih'],
-            ]);
+            ], 422);
         }
 
     }

@@ -293,7 +293,7 @@ class LabController extends Controller
                 'success' => 0,
                 'message' => ['Tidak ada Test Lab yang di pilih'],
                 'token' => $this->request->attributes->get('_refresh_token'),
-            ]);
+            ], 422);
         }
 
     }
