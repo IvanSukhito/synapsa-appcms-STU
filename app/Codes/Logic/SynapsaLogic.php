@@ -4,6 +4,7 @@ namespace App\Codes\Logic;
 
 use App\Codes\Models\V1\AppointmentDoctor;
 use App\Codes\Models\V1\DoctorSchedule;
+use App\Codes\Models\V1\LabSchedule;
 use App\Codes\Models\V1\LogServiceTransaction;
 use App\Codes\Models\V1\Service;
 use App\Codes\Models\V1\SetJob;
@@ -195,6 +196,47 @@ class SynapsaLogic
             DoctorSchedule::where('id', $scheduleId)->update([
                 'book' => 80
             ]);
+        }
+
+        return true;
+
+    }
+
+    public function setupAppointmentLab($scheduleId, $transactionId, $flag = true)
+    {
+        $getTransaction = Transaction::where('id', $transactionId)->first();
+        if (!$getTransaction) {
+            return false;
+        }
+        $getSchedule = LabSchedule::where('id', $scheduleId)->first();
+        if ($getSchedule) {
+            return false;
+        }
+
+        $getService = Service::where('id', $getSchedule->service_id);
+        if (!$getService) {
+            return false;
+        }
+
+        if ($flag) {
+//            AppointmentDoctor::create([
+//                'service_id' => $getSchedule->service_id,
+//                'doctor_id' => $getSchedule->doctor_id,
+//                'user_id' => $getTransaction->user_id,
+//                'type_appointment' => $getService->name,
+//                'status' => 1
+//            ]);
+        }
+
+        return true;
+
+    }
+
+    public function setupAppointmentNurse($scheduleId, $transactionId, $flag = true)
+    {
+        $getTransaction = Transaction::where('id', $transactionId)->first();
+        if (!$getTransaction) {
+            return false;
         }
 
         return true;

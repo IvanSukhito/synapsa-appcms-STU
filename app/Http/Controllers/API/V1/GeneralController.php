@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\V1;
 
 use App\Codes\Logic\AccessLogin;
+use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\City;
 use App\Codes\Models\V1\DeviceToken;
@@ -10,6 +11,7 @@ use App\Codes\Models\V1\District;
 use App\Codes\Models\V1\Klinik;
 use App\Codes\Models\V1\SubDistrict;
 use App\Codes\Models\V1\Transaction;
+use App\Codes\Models\V1\TransactionDetails;
 use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\UsersAddress;
 use App\Codes\Models\V1\ForgetPassword;
@@ -59,11 +61,38 @@ class GeneralController extends Controller
 
                 $getTransaction = Transaction::where('payment_refer_id', $getExternalId)->first();
                 if ($getTransaction) {
-                    
-                    $getTransaction->status = 80;
-                    $getTransaction->save();
-                }
+                    if ($getAmount >= $getTransaction->total) {
+                        $getType = $getTransaction->type;
+                        $getTransaction->status = 80;
+                        $getTransaction->save();
 
+                        if (in_array($getType, [2,3,4])) {
+                            $transactionId = $getTransaction->id;
+                            $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
+                            if ($getDetail) {
+                                $logic = new SynapsaLogic();
+                                $logic->setupAppointmentDoctor($getDetail->schedule_id, $transactionId);
+                            }
+                        }
+                        else if (in_array($getType, [5,6,7])) {
+                            $transactionId = $getTransaction->id;
+                            $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
+                            if ($getDetail) {
+                                $logic = new SynapsaLogic();
+                                $logic->setupAppointmentLab($getDetail->schedule_id, $transactionId);
+                            }
+                        }
+                        else if (in_array($getType, [8,9,10])) {
+                            $transactionId = $getTransaction->id;
+                            $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
+                            if ($getDetail) {
+                                $logic = new SynapsaLogic();
+                                $logic->setupAppointmentNurse($getDetail->schedule_id, $transactionId);
+                            }
+                        }
+
+                    }
+                }
             }
         }
 
