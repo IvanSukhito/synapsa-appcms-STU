@@ -275,16 +275,14 @@ class HistoryController extends Controller
 
         $getType = check_list_type_transaction('doctor', $getServiceId);
 
-        $result = Transaction::selectRaw('transaction.id, transaction.created_at, transaction.type,
+        $result = Transaction::selectRaw('transaction.id, transaction.created_at, transaction.type, transaction.user_id,
             doctor_category.name as category_doctor, transaction.status, MIN(doctor_name) AS doctor_name,
             MIN(users.image) AS image, CONCAT("'.env('OSS_URL').'/'.'", MIN(users.image)) AS image_full')
             ->leftJoin('transaction_details', 'transaction_details.transaction_id','=','transaction.id')
             ->leftJoin('doctor', 'doctor.id','=','transaction_details.doctor_id')
             ->leftJoin('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
             ->leftJoin('users', 'users.id','=','doctor.user_id')
-            ->where('transaction.user_id', $userId)
-            ->orderBy('transaction.id','DESC');
-
+            ->where('transaction.user_id', $userId);
 
         if ($getServiceId <= 0) {
             $result = $result->whereIn('type', [2,3,4]);
@@ -297,7 +295,9 @@ class HistoryController extends Controller
             $result = $result->where('code', 'LIKE', "%$s%")->orWhere('doctor_name', 'LIKE', "%$s%");
         }
 
-        $getData = $result->groupByRaw('transaction.id, transaction.type, transaction.created_at, transaction.status, category_doctor, doctor_name, image')->paginate($getLimit);
+        $getData = $result->orderBy('transaction.id','DESC')
+            ->groupByRaw('transaction.id, transaction.type, transaction.user_id, transaction.created_at, transaction.status, category_doctor')
+            ->paginate($getLimit);
 
         return [
             'data' => $getData,
