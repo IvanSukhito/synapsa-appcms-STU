@@ -48,18 +48,29 @@ class PaymentReturnController extends Controller
         Log::info(json_encode($this->request->all()));
         $getExternalId = $this->request->get('external_id');
         $getAmount = $this->request->get('amount');
+        $getStatus = $this->request->get('status');
         if ($getExternalId) {
             if (substr($getExternalId, 0, 7) == 'va-fix-' && $getAmount) {
                 $getTransaction = Transaction::where('payment_refer_id', $getExternalId)->first();
                 if ($getTransaction) {
                     if ($getAmount >= $getTransaction->total) {
-
                         $this->updateTransaction($getTransaction);
-
+                        return 1;
+                    }
+                }
+            }
+            else if (substr($getExternalId, 0, 3) == 'ew-' && $getAmount && $getStatus && $getStatus == 'COMPLETED') {
+                $getTransaction = Transaction::where('payment_refer_id', $getExternalId)->first();
+                if ($getTransaction) {
+                    if ($getAmount >= $getTransaction->total) {
+                        $this->updateTransaction($getTransaction);
+                        return 1;
                     }
                 }
             }
         }
+
+        return 0;
 
     }
 
