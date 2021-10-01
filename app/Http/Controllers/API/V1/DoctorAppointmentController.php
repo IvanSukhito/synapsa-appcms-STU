@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\V1;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\AppointmentDoctor;
 use App\Codes\Models\V1\AppointmentDoctorProduct;
+use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\Product;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -31,6 +32,7 @@ class DoctorAppointmentController extends Controller
     public function index()
     {
         $user = $this->request->attributes->get('_user');
+        $getDoctor = Doctor::where('user_id', $user->id)->first();
 
         $s = strip_tags($this->request->get('s'));
         $time = intval($this->request->get('time'));
@@ -42,13 +44,13 @@ class DoctorAppointmentController extends Controller
         $dateNow = date('Y-m-d');
 
         switch ($time) {
-            case 2 : $data = AppointmentDoctor::where('doctor_id', $user->id)->where('date', '=', $dateNow)->where('status', '!=', 99);
+            case 2 : $data = AppointmentDoctor::where('doctor_id', $getDoctor->id)->where('date', '=', $dateNow)->where('status', '!=', 99);
                 break;
-            case 3 : $data = AppointmentDoctor::where('doctor_id', $user->id)->where('date', '>', $dateNow)->where('status', '!=', 99);
+            case 3 : $data = AppointmentDoctor::where('doctor_id', $getDoctor->id)->where('date', '>', $dateNow)->where('status', '!=', 99);
                 break;
-            case 4 : $data = AppointmentDoctor::where('doctor_id', $user->id)->where('status', '=', 99);
+            case 4 : $data = AppointmentDoctor::where('doctor_id', $getDoctor->id)->where('status', '=', 99);
                 break;
-            default: $data = AppointmentDoctor::where('doctor_id', $user->id)->where('date', '<', $dateNow)->where('status', '!=', 99);
+            default: $data = AppointmentDoctor::where('doctor_id', $getDoctor->id)->where('date', '<', $dateNow)->where('status', '!=', 99);
                 break;
         }
         if (strlen($s) > 0) {
@@ -67,8 +69,9 @@ class DoctorAppointmentController extends Controller
     public function detail($id)
     {
         $user = $this->request->attributes->get('_user');
+        $getDoctor = Doctor::where('user_id', $user->id)->first();
 
-        $data = AppointmentDoctor::where('doctor_id', $user->id)->where('id', $id)->first();
+        $data = AppointmentDoctor::where('doctor_id', $getDoctor->id)->where('id', $id)->first();
         if (!$data) {
             return response()->json([
                 'success' => 0,
@@ -89,8 +92,9 @@ class DoctorAppointmentController extends Controller
     public function meeting($id)
     {
         $user = $this->request->attributes->get('_user');
+        $getDoctor = Doctor::where('user_id', $user->id)->first();
 
-        $data = AppointmentDoctor::where('doctor_id', $user->id)->where('id', $id)->first();
+        $data = AppointmentDoctor::where('doctor_id', $getDoctor->id)->where('id', $id)->first();
         if (!$data) {
             return response()->json([
                 'success' => 0,
@@ -109,8 +113,9 @@ class DoctorAppointmentController extends Controller
     public function approveMeeting($id)
     {
         $user = $this->request->attributes->get('_user');
+        $getDoctor = Doctor::where('user_id', $user->id)->first();
 
-        $data = AppointmentDoctor::where('doctor_id', $user->id)->where('id', $id)->first();
+        $data = AppointmentDoctor::where('doctor_id', $getDoctor->id)->where('id', $id)->first();
         if (!$data) {
             return response()->json([
                 'success' => 0,
@@ -133,8 +138,9 @@ class DoctorAppointmentController extends Controller
     public function cancelMeeting($id)
     {
         $user = $this->request->attributes->get('_user');
+        $getDoctor = Doctor::where('user_id', $user->id)->first();
 
-        $data = AppointmentDoctor::where('doctor_id', $user->id)->where('id', $id)->first();
+        $data = AppointmentDoctor::where('doctor_id', $getDoctor->id)->where('id', $id)->first();
         if (!$data) {
             return response()->json([
                 'success' => 0,
@@ -157,8 +163,9 @@ class DoctorAppointmentController extends Controller
     public function doctorMedicine($id)
     {
         $user = $this->request->attributes->get('_user');
+        $getDoctor = Doctor::where('user_id', $user->id)->first();
 
-        $data = AppointmentDoctor::where('doctor_id', $user->id)->where('id', $id)->first();
+        $data = AppointmentDoctor::where('doctor_id', $getDoctor->id)->where('id', $id)->first();
         if (!$data) {
             return response()->json([
                 'success' => 0,
@@ -192,6 +199,7 @@ class DoctorAppointmentController extends Controller
     public function doctorDiagnosis($id)
     {
         $user = $this->request->attributes->get('_user');
+        $getDoctor = Doctor::where('user_id', $user->id)->first();
 
         $validator = Validator::make($this->request->all(), [
             'diagnosis' => 'required',
@@ -206,7 +214,7 @@ class DoctorAppointmentController extends Controller
             ], 422);
         }
 
-        $data = AppointmentDoctor::where('doctor_id', $user->id)->where('id', $id)->first();
+        $data = AppointmentDoctor::where('doctor_id', $getDoctor->id)->where('id', $id)->first();
         if (!$data) {
             return response()->json([
                 'success' => 0,
