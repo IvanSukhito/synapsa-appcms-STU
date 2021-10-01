@@ -3,6 +3,7 @@
 namespace App\Codes\Logic;
 
 use Xendit\EWallets;
+use Xendit\QRCode;
 use Xendit\VirtualAccounts;
 use Xendit\Xendit;
 
@@ -192,6 +193,22 @@ class XenditLogic
         ];
 
         return $this->createEWallet($params);
+    }
+
+    public function createQrQris($transactionId, $amount, $phone)
+    {
+        $params = [
+            'external_id' => 'qr-'.$transactionId,
+            'type' => 'DYNAMIC',
+            'amount' => $amount,
+            'currency' => 'IDR',
+//            'callback_url' => 'https://synapsa.kelolain.id/transaction-result',
+            'callback_url' => route('api.postTransactionResult'),
+            'phone' => $phone
+        ];
+
+        Xendit::setApiKey($this->XENDIT_SECRET_KEY);
+        return QRCode::create($params);
     }
 
     public function createEWallet($params)

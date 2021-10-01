@@ -83,6 +83,28 @@ class SynapsaLogic
                 $message = $getData->result->message;
             }
         }
+        else if ($payment->service == 'xendit' && in_array($payment->type_payment, ['qr_qris'])) {
+            $getData = (object)$this->sendPayment($payment, $additional);
+
+            $success = 1;
+            $getInfo = $getData->result;
+
+            $getTypeService = $additional['job']['type_service'];
+            $getServiceId = $additional['job']['service_id'];
+            $getType = check_list_type_transaction($getTypeService, $getServiceId);
+
+            $getJobData = $additional['job'];
+            $getJobData['payment_refer_id'] = isset($getData->result->external_id) ? $getData->result->external_id : '';
+            $getJobData['type'] = $getType;
+
+            $job = SetJob::create([
+                'status' => 1,
+                'params' => json_encode($getJobData)
+            ]);
+
+            dispatch((new ProcessTransaction($job->id))->onQueue('high'));
+
+        }
         else {
             $message = 'Payment Error';
         }
@@ -141,6 +163,8 @@ class SynapsaLogic
                 case 'ew_dana': $result = $xendit->createEWalletDANA($getCode, $getTotal, $getPhone);
                     break;
                 case 'ew_linkaja': $result = $xendit->createEWalletLINKAJA($getCode, $getTotal, $getPhone);
+                    break;
+                case 'qr_qris': $result = $xendit->createQrQris($getCode, $getTotal, $getPhone);
                     break;
             }
 
