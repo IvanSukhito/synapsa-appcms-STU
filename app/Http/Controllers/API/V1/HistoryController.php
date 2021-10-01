@@ -83,7 +83,7 @@ class HistoryController extends Controller
         $user = $this->request->attributes->get('_user');
 
         $getData = Transaction::where('id', $id)
-//            ->where('user_id',$user->id)
+            ->where('user_id',$user->id)
             ->first();
         if (!$getData) {
             return response()->json([
@@ -282,7 +282,7 @@ class HistoryController extends Controller
             ->leftJoin('doctor', 'doctor.id','=','transaction_details.doctor_id')
             ->leftJoin('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
             ->leftJoin('users', 'users.id','=','doctor.user_id')
-//            ->where('transaction.user_id', $userId)
+            ->where('transaction.user_id', $userId)
             ->orderBy('transaction.id','DESC');
 
 
