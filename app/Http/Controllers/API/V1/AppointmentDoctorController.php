@@ -132,7 +132,22 @@ class AppointmentDoctorController extends Controller
 
     public function meeting($id)
     {
+        $user = $this->request->attributes->get('_user');
 
+        $data = AppointmentDoctor::where('user_id', $user->id)->where('id', $id)->first();
+        if (!$data) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => 1,
+            'message' => ['Progress'],
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
     }
 
     public function cancelMeeting($id)
@@ -172,6 +187,12 @@ class AppointmentDoctorController extends Controller
             ], 404);
         }
 
+        return response()->json([
+            'success' => 1,
+            'message' => ['Progress'],
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
+
     }
 
     public function shipping($id)
@@ -186,6 +207,12 @@ class AppointmentDoctorController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
+
+        return response()->json([
+            'success' => 1,
+            'message' => ['Progress'],
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
 
     }
 
@@ -202,6 +229,12 @@ class AppointmentDoctorController extends Controller
             ], 404);
         }
 
+        return response()->json([
+            'success' => 1,
+            'message' => ['Progress'],
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
+
     }
 
     public function checkout($id)
@@ -216,6 +249,12 @@ class AppointmentDoctorController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
+
+        return response()->json([
+            'success' => 1,
+            'message' => ['Progress'],
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
 
     }
 
