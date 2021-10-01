@@ -79,13 +79,19 @@ class DoctorAppointmentController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
-        else {
-            return response()->json([
-                'success' => 1,
+
+        $formPatient = json_decode($data->form_patient, true);
+        $doctorPrescription = json_decode($data->doctor_prescription, true);
+
+        return response()->json([
+            'success' => 1,
+            'data' => [
                 'data' => $data,
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ]);
-        }
+                'form_patient' => $formPatient,
+                'doctor_prescription' => $doctorPrescription
+            ],
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
 
     }
 
