@@ -19,6 +19,7 @@ class CreateAppointmentDoctorTable extends Migration
             $table->unsignedBigInteger('doctor_id')->default(0);
             $table->unsignedBigInteger('user_id')->default(0);
             $table->tinyInteger('type_appointment')->default(1);
+            $table->string('doctor_name')->nullable();
             $table->string('video_link')->nullable();
             $table->longText('form_patient')->nullable();
             $table->longText('diagnosis')->nullable();

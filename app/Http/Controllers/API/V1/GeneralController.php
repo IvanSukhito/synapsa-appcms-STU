@@ -134,7 +134,7 @@ class GeneralController extends Controller
         if ($this->request->get('upload_ktp')) {
             try {
                 $image = base64_to_jpeg($this->request->get('upload_ktp'));
-                $destinationPath = 'uploads/users';
+                $destinationPath = 'synapsaapps/users';
                 $set_file_name = md5('image'.strtotime('now').rand(0, 100)).'.jpg';
                 $getFile = Storage::put($destinationPath.'/'.$set_file_name, $image);
                 if ($getFile) {
@@ -162,7 +162,7 @@ class GeneralController extends Controller
         if ($this->request->get('image')) {
             try {
                 $image = base64_to_jpeg($this->request->get('upload_ktp'));
-                $destinationPath = 'uploads/users';
+                $destinationPath = 'synapsaapps/users';
                 $set_file_name = md5('image'.strtotime('now').rand(0, 100)).'.jpg';
                 $getFile = Storage::put($destinationPath.'/'.$set_file_name, $image);
                 if ($getFile) {

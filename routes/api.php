@@ -104,10 +104,12 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
 
    });
 
-   $router->group(['prefix' => 'appointment'], function () use ($router) {
+   $router->group(['prefix' => 'appointment-doctor'], function () use ($router) {
 
-       $router->get('/', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@index'])->name('api.appointment.index');
-       $router->get('detail/{id}', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@detail'])->name('api.appointment.detail');
+       $router->get('/', ['uses' => 'App\Http\Controllers\API\V1\AppointmentDoctorController@index'])->name('api.appointment-doctor.index');
+       $router->get('{id}', ['uses' => 'App\Http\Controllers\API\V1\AppointmentDoctorController@detail'])->name('api.appointment-doctor.detail');
+       $router->post('{id}', ['uses' => 'App\Http\Controllers\API\V1\AppointmentDoctorController@fillForm'])->name('api.appointment-doctor.fillForm');
+       $router->get('{id}/meeting', ['uses' => 'App\Http\Controllers\API\V1\AppointmentDoctorController@meeting'])->name('api.appointment-doctor.meeting');
 
    });
 

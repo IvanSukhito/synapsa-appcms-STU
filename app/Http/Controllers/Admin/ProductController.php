@@ -184,23 +184,11 @@ class ProductController extends _CrudController
         $getDescProduct = json_decode($product->desc, true);
 
         $temp = [];
-        foreach($getDescProduct as $index => $descProduct){
-
-            $temp = $descProduct;
-
-        }
-
-        $descProduct = $temp;
-
-
-        $temp = [];
         foreach($getDescProduct as $index => $listProduct){
-
             $temp = $listProduct;
         }
 
         $listProduct = $temp;
-
 
         $data['thisLabel'] = __('general.product');
         $data['viewType'] = 'show';
@@ -221,9 +209,7 @@ class ProductController extends _CrudController
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
 
-
         $viewType = 'create';
-
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
         $validate = $this->setValidateData($getListCollectData, $viewType);
@@ -260,7 +246,7 @@ class ProductController extends _CrudController
                 $getFileName = $dokument->getClientOriginalName();
                 $ext = explode('.', $getFileName);
                 $ext = end($ext);
-                $destinationPath = 'uploads/product';
+                $destinationPath = 'synapsaapps/product';
                 if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
 
                     $dokumentImage = Storage::putFile($destinationPath, $dokument);
@@ -344,7 +330,7 @@ class ProductController extends _CrudController
                 $getFileName = $dokument->getClientOriginalName();
                 $ext = explode('.', $getFileName);
                 $ext = end($ext);
-                $destinationPath = 'uploads/product';
+                $destinationPath = 'synapsaapps/product';
                 if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
 
                     $dokumentImage = Storage::putFile($destinationPath, $dokument);

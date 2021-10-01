@@ -22,7 +22,7 @@ class ProductCategory extends Model
     public function getIconFullAttribute()
     {
         return asset('assets/cms/images/no-img.png');
-//        return strlen($this->icon) > 0 ? asset('uploads/product/'.$this->icon) : asset('assets/cms/images/no-img.png');
+//        return strlen($this->icon) > 0 ? asset('synapsaapps/product/'.$this->icon) : asset('assets/cms/images/no-img.png');
     }
 
     public function getProduct()

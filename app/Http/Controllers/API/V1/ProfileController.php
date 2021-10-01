@@ -74,7 +74,7 @@ class ProfileController extends Controller
         if ($this->request->get('upload_ktp')) {
              try {
                  $image = base64_to_jpeg($this->request->get('upload_ktp'));
-                 $destinationPath = 'uploads/users';
+                 $destinationPath = 'synapsaapps/users';
                  $set_file_name = md5('image'.strtotime('now').rand(0, 100)).'.jpg';
                  $getFile = Storage::put($destinationPath.'/'.$set_file_name, $image);
                  if ($getFile) {
@@ -152,7 +152,7 @@ class ProfileController extends Controller
 
         try {
             $image = base64_to_jpeg($this->request->get('image'));
-            $destinationPath = 'uploads/users';
+            $destinationPath = 'synapsaapps/users';
             $set_file_name = md5('image'.strtotime('now').rand(0, 100)).'.jpg';
             $getFile = Storage::put($destinationPath.'/'.$set_file_name, $image);
             if ($getFile) {

@@ -4,21 +4,15 @@ namespace App\Http\Controllers\API\V1;
 
 use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Settings;
-use App\Codes\Models\V1\City;
-use App\Codes\Models\V1\District;
 use App\Codes\Models\V1\Payment;
 use App\Codes\Models\V1\Product;
 use App\Codes\Models\V1\ProductCategory;
-use App\Codes\Models\V1\SetJob;
 use App\Codes\Models\V1\Shipping;
-use App\Codes\Models\V1\SubDistrict;
-use App\Codes\Models\V1\TransactionDetails;
 use App\Codes\Models\V1\UsersAddress;
 use App\Codes\Models\V1\UsersCartDetail;
 use App\Codes\Models\V1\UsersCart;
 use App\Codes\Models\V1\Transaction;
 use App\Http\Controllers\Controller;
-use App\Jobs\ProcessTransaction;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -30,7 +24,6 @@ class ProductController extends Controller
     protected $request;
     protected $setting;
     protected $limit;
-
 
     public function __construct(Request $request)
     {

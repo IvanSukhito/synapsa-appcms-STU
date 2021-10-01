@@ -24,7 +24,7 @@ class Sliders extends Model
     public function getImageFullAttribute()
     {
         return asset('assets/cms/images/no-img.png');
-//        return strlen($this->image) > 0 ? asset('uploads/sliders/'.$this->image) : asset('assets/cms/images/no-img.png');
+//        return strlen($this->image) > 0 ? asset('synapsaapps/sliders/'.$this->image) : asset('assets/cms/images/no-img.png');
     }
 
 

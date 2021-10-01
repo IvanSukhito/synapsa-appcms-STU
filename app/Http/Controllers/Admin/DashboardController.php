@@ -31,9 +31,9 @@ class DashboardController extends Controller
         $data = $this->data;
 
 //        DB::beginTransaction();
-//        $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile('./uploads/ms_kegiatan_rev.xlsx');
+//        $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile('./synapsaapps/ms_kegiatan_rev.xlsx');
 //        $reader->setReadDataOnly(TRUE);
-//        $spreadsheet = $reader->load('./uploads/ms_kegiatan_rev.xlsx');
+//        $spreadsheet = $reader->load('./synapsaapps/ms_kegiatan_rev.xlsx');
 //        $spreadsheet = $spreadsheet->getActiveSheet();
 //        $data_array =  $spreadsheet->toArray();
 //        foreach ($data_array as $index => $val) {
@@ -54,9 +54,9 @@ class DashboardController extends Controller
 //        dd("A");
 //
 //        DB::beginTransaction();
-//        $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile('./uploads/pak.xlsx');
+//        $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile('./synapsaapps/pak.xlsx');
 //        $reader->setReadDataOnly(TRUE);
-//        $spreadsheet = $reader->load('./uploads/pak.xlsx');
+//        $spreadsheet = $reader->load('./synapsaapps/pak.xlsx');
 //        $spreadsheet = $spreadsheet->getActiveSheet();
 //        $data_array =  $spreadsheet->toArray();
 //
