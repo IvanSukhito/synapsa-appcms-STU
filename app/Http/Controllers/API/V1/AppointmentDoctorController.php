@@ -102,8 +102,8 @@ class AppointmentDoctorController extends Controller
         $listMedicalCheckup = [];
         foreach ($getMedicalCheckup as $listImage) {
             $image = base64_to_jpeg($listImage);
-            $destinationPath = 'synapsaapps/users/'.$user->id.'/';
-            $set_file_name = md5('medical_checkup'.strtotime('now').rand(0, 100)).'.jpg';
+            $destinationPath = 'synapsaapps/users/'.$user->id.'/forms/';
+            $set_file_name = date('Ymd').'_'.md5('medical_checkup'.strtotime('now').rand(0, 100)).'.jpg';
             $getFile = Storage::put($destinationPath.'/'.$set_file_name, $image);
             if ($getFile) {
                 $getImage = env('OSS_URL').'/'.$destinationPath.'/'.$set_file_name;
@@ -114,7 +114,7 @@ class AppointmentDoctorController extends Controller
         $saveFormPatient = [
             'body_height' => strip_tags($this->request->get('body_height')),
             'body_weight' => strip_tags($this->request->get('body_weight')),
-            'blood_pressure' => strip_tags($this->request->get('blood_preassure')),
+            'blood_pressure' => strip_tags($this->request->get('blood_pressure')),
             'body_temperature' => strip_tags($this->request->get('body_temperature')),
             'medical_checkup' => $listMedicalCheckup
         ];

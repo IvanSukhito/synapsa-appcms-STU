@@ -126,6 +126,19 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
 
    });
 
+    $router->group(['prefix' => 'doctor'], function () use ($router) {
+        $router->group(['prefix' => 'appointment'], function () use ($router) {
+
+            $router->get('/', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@index'])->name('api.doctor.appointment.index');
+            $router->get('{id}', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@detail'])->name('api.doctor.appointment.detail');
+            $router->get('{id}/meeting', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@meeting'])->name('api.doctor.appointment.meeting');
+            $router->get('{id}/approve-meeting', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@approveMeeting'])->name('api.doctor.appointment.approveMeeting');
+            $router->get('{id}/cancel-meeting', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@cancelMeeting'])->name('api.doctor.appointment.cancelMeeting');
+            $router->post('{id}/diagnosis', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@doctorDiagnosis'])->name('api.doctor.appointment.doctorDiagnosis');
+
+        });
+    });
+
 });
 
 // Non Login

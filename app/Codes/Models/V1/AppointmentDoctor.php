@@ -17,7 +17,8 @@ class AppointmentDoctor extends Model
         'video_link',
         'form_patient',
         'diagnosis',
-        'list_recipe',
+        'treatment',
+        'doctor_prescription',
         'extra_info',
         'status'
     ];

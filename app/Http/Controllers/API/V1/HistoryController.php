@@ -3,24 +3,13 @@
 namespace App\Http\Controllers\API\V1;
 
 use App\Codes\Models\Settings;
-use App\Codes\Models\V1\City;
-use App\Codes\Models\V1\District;
-use App\Codes\Models\V1\Payment;
 use App\Codes\Models\V1\Product;
-use App\Codes\Models\V1\ProductCategory;
-use App\Codes\Models\V1\Shipping;
 use App\Codes\Models\V1\Service;
-use App\Codes\Models\V1\SubDistrict;
-use App\Codes\Models\V1\TransactionDetails;
 use App\Codes\Models\V1\UsersAddress;
-use App\Codes\Models\V1\UsersCartDetail;
-use App\Codes\Models\V1\UsersCart;
 use App\Codes\Models\V1\Transaction;
 use App\Http\Controllers\Controller;
-use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Cache;
 
 
@@ -389,9 +378,9 @@ class HistoryController extends Controller
             $getData['payment_image_full'] = asset('assets/cms/images/no-img.png');
         }
         $paymentInfo = json_decode($getData['payment_info'], true);
-          
+
         unset($getData['payment_info']);
-       
+
         $getResult[] = $getData;
 
         return [
@@ -429,9 +418,9 @@ class HistoryController extends Controller
              }
 
              $paymentInfo = json_decode($getData['payment_info'], true);
-          
+
              unset($getData['payment_info']);
-            
+
              $getResult[] = $getData;
 
         return [
