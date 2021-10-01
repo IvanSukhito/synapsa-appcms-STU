@@ -13,6 +13,7 @@ class AppointmentDoctor extends Model
         'doctor_id',
         'doctor_name',
         'patient_name',
+        'patient_email',
         'user_id',
         'type_appointment',
         'date',

@@ -19,6 +19,7 @@ class CreateAppointmentLabTable extends Migration
             $table->unsignedBigInteger('user_id')->default(0);
             $table->tinyInteger('type_appointment')->default(1);
             $table->string('patient_name')->nullable();
+            $table->string('patient_email')->nullable();
             $table->date('date')->nullable();
             $table->time('time_start')->nullable();
             $table->time('time_end')->nullable();

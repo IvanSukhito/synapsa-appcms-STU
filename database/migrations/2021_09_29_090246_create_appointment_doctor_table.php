@@ -23,6 +23,7 @@ class CreateAppointmentDoctorTable extends Migration
             $table->time('time_start')->nullable();
             $table->time('time_end')->nullable();
             $table->string('patient_name')->nullable();
+            $table->string('patient_email')->nullable();
             $table->string('doctor_name')->nullable();
             $table->string('video_link')->nullable();
             $table->longText('form_patient')->nullable();

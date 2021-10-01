@@ -11,7 +11,8 @@ class AppointmentLab extends Model
     protected $fillable = [
         'service_id',
         'user_id',
-        'user_email',
+        'patient_name',
+        'patient_email',
         'type_appointment',
         'patient_name',
         'date',

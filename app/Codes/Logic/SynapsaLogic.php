@@ -3,6 +3,7 @@
 namespace App\Codes\Logic;
 
 use App\Codes\Models\V1\AppointmentDoctor;
+use App\Codes\Models\V1\AppointmentLab;
 use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\DoctorSchedule;
 use App\Codes\Models\V1\LabSchedule;
@@ -218,6 +219,7 @@ class SynapsaLogic
                 'user_id' => $getTransaction->user_id,
                 'type_appointment' => $getService->name,
                 'patient_name' => $getUser ? $getUser->fullname : '',
+                'patient_email' => $getUser ? $getUser->email : '',
                 'doctor_name' => $getDoctor ? $getDoctor->fullname : '',
                 'date' => $getSchedule->date_available,
                 'time_start' => $getSchedule->time_start,
@@ -251,14 +253,21 @@ class SynapsaLogic
             return false;
         }
 
+        $getUser = Users::where('id', $getTransaction->user_id)->first();
+
         if ($flag) {
-//            AppointmentDoctor::create([
-//                'service_id' => $getSchedule->service_id,
-//                'doctor_id' => $getSchedule->doctor_id,
-//                'user_id' => $getTransaction->user_id,
-//                'type_appointment' => $getService->name,
-//                'status' => 1
-//            ]);
+            AppointmentLab::create([
+                'service_id' => $getSchedule->service_id,
+                'doctor_id' => $getSchedule->doctor_id,
+                'user_id' => $getTransaction->user_id,
+                'patient_name' => $getUser ? $getUser->fullname : '',
+                'patient_email' => $getUser ? $getUser->email : '',
+                'type_appointment' => $getService->name,
+                'date' => $getSchedule->date_available,
+                'time_start' => $getSchedule->time_start,
+                'time_end' => $getSchedule->time_end,
+                'status' => 1
+            ]);
         }
 
         return true;
