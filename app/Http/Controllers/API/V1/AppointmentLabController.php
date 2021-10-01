@@ -59,13 +59,20 @@ class AppointmentLabController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
-        else {
-            return response()->json([
-                'success' => 1,
+
+        $getDetails = $data->getAppointmentLabDetails()->selectRaw('appointment_lab_details.*,
+            lab.image, CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full')
+            ->join('lab', 'lab.id', '=', 'appointment_lab_details.lab_id', 'LEFT')
+            ->get();
+
+        return response()->json([
+            'success' => 1,
+            'data' => [
                 'data' => $data,
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ]);
-        }
+                'details' => $getDetails
+            ],
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
 
     }
 
