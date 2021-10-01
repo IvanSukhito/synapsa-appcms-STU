@@ -58,7 +58,7 @@ class SynapsaLogic
         }
         else if ($payment->service == 'xendit' && in_array($payment->type_payment, ['ew_ovo', 'ew_dana', 'ew_linkaja'])) {
             $getData = (object)$this->sendPayment($payment, $additional);
-            if (in_array($getData->result->ewallet_type, ['OVO', 'DANA']) || $getData->result->status == 'REQUEST_RECEIVED') {
+            if (isset($getData->result->ewallet_type) && in_array($getData->result->ewallet_type, ['OVO', 'DANA']) || $getData->result->status == 'REQUEST_RECEIVED') {
                 $success = 1;
                 $getInfo = $getData->result;
 
@@ -77,6 +77,25 @@ class SynapsaLogic
 
                 dispatch((new ProcessTransaction($job->id))->onQueue('high'));
 
+            }
+            else if ($getData->result) {
+                $success = 1;
+                $getInfo = $getData->result;
+
+                $getTypeService = $additional['job']['type_service'];
+                $getServiceId = $additional['job']['service_id'];
+                $getType = check_list_type_transaction($getTypeService, $getServiceId);
+
+                $getJobData = $additional['job'];
+                $getJobData['payment_refer_id'] = $getData->result->external_id;
+                $getJobData['type'] = $getType;
+
+                $job = SetJob::create([
+                    'status' => 1,
+                    'params' => json_encode($getJobData)
+                ]);
+
+                dispatch((new ProcessTransaction($job->id))->onQueue('high'));
             }
             else {
                 $message = $getData->result->message;
