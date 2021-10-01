@@ -4,9 +4,12 @@ namespace App\Http\Controllers\API\V1;
 
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\AppointmentDoctor;
+use App\Codes\Models\V1\AppointmentDoctorProduct;
+use App\Codes\Models\V1\Product;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -104,7 +107,7 @@ class DoctorAppointmentController extends Controller
             ], 404);
         }
 
-        $data->status = 80;
+        $data->status = 2;
         $data->save();
 
         return response()->json([
@@ -139,13 +142,48 @@ class DoctorAppointmentController extends Controller
 
     }
 
+    public function doctorMedicine()
+    {
+        $user = $this->request->attributes->get('_user');
+
+        $data = AppointmentDoctor::where('doctor_id', $user->id)->where('id', $id)->first();
+        if (!$data) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+
+        $s = strip_tags($this->request->get('s'));
+        $getLimit = $this->request->get('limit');
+        if ($getLimit <= 0) {
+            $getLimit = $this->limit;
+        }
+
+        $data = Product::where('klinik_id', $user->klinik_id);
+        if (strlen($s) > 0) {
+            $data = $data->where('name', 'LIKE', "%$s%");
+        }
+        $data = $data->orderBy('name','ASC')->paginate($getLimit);
+
+        return response()->json([
+            'success' => 1,
+            'data' => $data,
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
+
+
+    }
+
     public function doctorDiagnosis($id)
     {
         $user = $this->request->attributes->get('_user');
 
         $validator = Validator::make($this->request->all(), [
             'diagnosis' => 'required',
-            'treatment' => 'required'
+            'treatment' => 'required',
+            'product_ids' => ''
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -177,10 +215,35 @@ class DoctorAppointmentController extends Controller
             }
         }
 
+        DB::beginTransaction();
+
+        $getListProduct = $this->request->get('product_ids');
+        $getListProductId = [];
+        foreach ($getListProduct as $productId => $qty) {
+            $getListProductId[] = $productId;
+        }
+
+        $getProducts = Product::whereIn('id', $getListProductId)->get();
+        foreach ($getProducts as $list) {
+            $getQty = isset($getListProduct[$list->id]) ? intval($getListProduct[$list->id]) : 1;
+            AppointmentDoctorProduct::create([
+                'appointment_doctor_id' => $id,
+                'product_id' => $list->id,
+                'product_name' => $list->name,
+                'product_qty' => $getQty,
+                'product_price' => $list->price,
+                'choose' => 0,
+                'status' => 1
+            ]);
+        }
+
         $data->diagnosis = strip_tags($this->request->get('diagnosis'));
         $data->treatment = strip_tags($this->request->get('treatment'));
         $data->doctor_prescription = json_encode($listDoctorPrescription);
+        $data->status = 80;
         $data->save();
+
+        DB::commit();
 
         return response()->json([
             'success' => 1,
