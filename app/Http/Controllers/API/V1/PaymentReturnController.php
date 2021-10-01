@@ -96,7 +96,11 @@ class PaymentReturnController extends Controller
 
             $this->updateTransaction($getTransaction);
 
+            return 1;
+
         }
+
+        return 0;
 
     }
 
@@ -132,8 +136,6 @@ class PaymentReturnController extends Controller
                 $logic->setupAppointmentNurse($getDetail->schedule_id, $transactionId);
             }
         }
-
-        return 1;
 
     }
 

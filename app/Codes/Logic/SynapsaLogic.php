@@ -15,6 +15,7 @@ use App\Codes\Models\V1\Transaction;
 use App\Codes\Models\V1\TransactionDetails;
 use App\Codes\Models\V1\Users;
 use App\Jobs\ProcessTransaction;
+use Illuminate\Support\Facades\DB;
 
 class SynapsaLogic
 {
@@ -200,11 +201,11 @@ class SynapsaLogic
     public function setupAppointmentDoctor($getTransaction, $getTransactionDetails, $scheduleId, $flag = true)
     {
         $getSchedule = DoctorSchedule::where('id', $scheduleId)->first();
-        if ($getSchedule) {
+        if (!$getSchedule) {
             return false;
         }
 
-        $getService = Service::where('id', $getSchedule->service_id);
+        $getService = Service::where('id', $getSchedule->service_id)->first();
         if (!$getService) {
             return false;
         }
@@ -218,7 +219,7 @@ class SynapsaLogic
                 'service_id' => $getSchedule->service_id,
                 'doctor_id' => $getSchedule->doctor_id,
                 'user_id' => $getTransaction->user_id,
-                'type_appointment' => $getService->name,
+                'type_appointment' => $getService ? $getService->name : '',
                 'patient_name' => $getUser ? $getUser->fullname : '',
                 'patient_email' => $getUser ? $getUser->email : '',
                 'doctor_name' => $getDoctor ? $getDoctor->fullname : '',
@@ -241,11 +242,11 @@ class SynapsaLogic
     public function setupAppointmentLab($getTransaction, $getTransactionDetails, $scheduleId, $flag = true)
     {
         $getSchedule = LabSchedule::where('id', $scheduleId)->first();
-        if ($getSchedule) {
+        if (!$getSchedule) {
             return false;
         }
 
-        $getService = Service::where('id', $getSchedule->service_id);
+        $getService = Service::where('id', $getSchedule->service_id)->first();
         if (!$getService) {
             return false;
         }
@@ -253,6 +254,8 @@ class SynapsaLogic
         $getUser = Users::where('id', $getTransaction->user_id)->first();
 
         if ($flag) {
+            DB::beginTransaction();
+
             $getAppointmentLab = AppointmentLab::create([
                 'service_id' => $getSchedule->service_id,
                 'doctor_id' => $getSchedule->doctor_id,
@@ -274,6 +277,8 @@ class SynapsaLogic
                     'status' => 1
                 ]);
             }
+
+            DB::commit();
 
         }
 
