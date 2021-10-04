@@ -349,12 +349,12 @@ class LabController extends Controller
 
         $getUsersAddress = UsersAddress::where('user_id', $user->id)->first();
 
-        $getAddressName = $getUsersAddress->address_name ?? '';
-        $getAddress = $getUsersAddress->address ?? '';
-        $getCity = $getUsersAddress->city_id ?? '';
-        $getDistrict = $getUsersAddress->district_id ?? '';
-        $getSubDistrict = $getUsersAddress->sub_district_id ?? '';
-        $getZipCode = $getUsersAddress->zip_code ?? '';
+        $getAddressName = $getUsersAddress->address_name ?? $user->address ?? '' ;
+        $getAddress = $getUsersAddress->address ?? $user->address_detail ?? '';
+        $getCity = $getUsersAddress->city_id ?? $user->city_id ?? '';
+        $getDistrict = $getUsersAddress->district_id ?? $user->district_id ?? '';
+        $getSubDistrict = $getUsersAddress->sub_district_id ?? $user->sub_district_id ?? '';
+        $getZipCode = $getUsersAddress->zip_code ?? $user->zip_code ?? '';
         $getPhone = $user->phone ?? '';
 
         return response()->json([

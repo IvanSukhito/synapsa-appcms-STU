@@ -23,7 +23,7 @@ class DemoSeeder extends Seeder
         }
 
         //Users
-        for ($i = 1; $i <= 200; $i++) {
+        for ($i = 1; $i <= 20; $i++) {
             DB::table('users')->insertGetId([
                 'klinik_id' => rand(1, 10),
                 'city_id' => 0,
@@ -79,7 +79,7 @@ class DemoSeeder extends Seeder
         }
 
         //Product
-        for ($i = 1; $i <= 100; $i++) {
+        for ($i = 1; $i <= 20; $i++) {
             DB::table('product')->insertGetId([
                 'product_category_id' => rand(1, 10),
                 'sku' => 'PRO' . $i,
@@ -106,7 +106,7 @@ class DemoSeeder extends Seeder
         }
 
         //Article
-        for ($i = 1; $i <= 200; $i++) {
+        for ($i = 1; $i <= 20; $i++) {
             DB::table('article')->insertGetId([
                 'article_category_id' => rand(1, 10),
                 'title' => 'ARTICLE ' . $i,
@@ -143,7 +143,7 @@ class DemoSeeder extends Seeder
             ]);
         }
         //Doctor
-        for ($i = 1; $i <= 100; $i++) {
+        for ($i = 1; $i <= 20; $i++) {
             DB::table('doctor')->insertGetId([
                 'user_id' => $i,
                 'doctor_category_id' => rand(1, 10),
@@ -154,7 +154,7 @@ class DemoSeeder extends Seeder
             ]);
         }
         //Doctor
-        for ($i = 1; $i <= 100; $i++) {
+        for ($i = 1; $i <= 20; $i++) {
             $serviceId = rand(1, 3);
             DB::table('doctor_service')->insertGetId([
                 'doctor_id' => $i,
@@ -181,7 +181,7 @@ class DemoSeeder extends Seeder
         }
 
         //Lab
-        for ($i = 1; $i <= 100; $i++) {
+        for ($i = 1; $i <= 20; $i++) {
             DB::table('lab')->insertGetId([
                 'parent_id' => $i > 10 ? rand(0,10) : 0,
                 'name' => 'LAB Product ' . $i,
@@ -236,7 +236,7 @@ class DemoSeeder extends Seeder
             ]);
         }
         //Notifications
-        for ($i = 1; $i <= 100; $i++) {
+        for ($i = 1; $i <= 10; $i++) {
             DB::table('notifications')->insertGetId([
                 'user_id' => rand(1, 10),
                 'title' => 'notif' . $i,
@@ -275,8 +275,5 @@ class DemoSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ]);
         }
-
-
-
     }
 }

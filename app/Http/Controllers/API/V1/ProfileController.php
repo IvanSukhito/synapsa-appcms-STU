@@ -308,7 +308,6 @@ class ProfileController extends Controller
         $user = $this->request->attributes->get('_user');
         $validator = Validator::make($this->request->all(), [
             'email' => 'required|email'
-
         ]);
         if ($validator->fails()) {
             return response()->json([

@@ -104,17 +104,20 @@ class HistoryController extends Controller
         }
         else if (in_array($getData->type, [2,3,4])) {
             $getDataDetails = $getData->getTransactionDetails()->selectRaw('transaction_details.*,
-                doctor_category.name AS doctor_category_name, users.image,
+                doctor_category.name AS doctor_category_name, users.image, date_available, time_start, time_end, klinik.name as klinik_name,
                 CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
                 ->join('doctor', 'doctor.id', '=', 'transaction_details.doctor_id', 'LEFT')
                 ->join('doctor_category', 'doctor_category.id', '=', 'doctor.doctor_category_id', 'LEFT')
                 ->join('users', 'users.id', '=', 'doctor.user_id', 'LEFT')
+                ->join('doctor_schedule','doctor_schedule.id','=','transaction_details.schedule_id','LEFT')
+                ->join('klinik', 'klinik.id', '=', 'users.klinik_id')
                 ->first();
         }
         else if (in_array($getData->type, [5,6,7])) {
             $getDataDetails = $getData->getTransactionDetails()->selectRaw('transaction_details.*,
-                lab.image, CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full')
+                lab.image, date_available, time_start, time_end, CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full')
                 ->join('lab', 'lab.id', '=', 'transaction_details.lab_id', 'LEFT')
+                ->join('lab_schedule','lab_schedule.id','=','transaction_details.schedule_id', 'LEFT')
                 ->get();
         }
 

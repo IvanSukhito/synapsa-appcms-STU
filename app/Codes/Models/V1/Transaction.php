@@ -39,6 +39,7 @@ class Transaction extends Model
         'type',
         'extra_info',
         'payment_info',
+        'status'
     ];
 
     protected $dates = [
