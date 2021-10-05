@@ -8,7 +8,9 @@ use App\Codes\Models\V1\District;
 use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\SubDistrict;
 use App\Codes\Models\V1\Users;
+use App\Codes\MOdels\V1\UsersAddress;
 use App\Codes\Models\V1\Klinik;
+use Illuminate\Database\Eloquent\Model;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
@@ -69,7 +71,7 @@ class UsersPatientController extends _CrudController
                     'create' => 'required',
                     'edit' => 'required'
                 ],
-                'type' => 'textarea',
+                'type' => 'texteditor',
                 'list' => 0,
             ],
             'address_detail' => [
@@ -77,7 +79,7 @@ class UsersPatientController extends _CrudController
                     'create' => 'required',
                     'edit' => 'required'
                 ],
-                'type' => 'textarea',
+                'type' => 'texteditor',
                 'list' => 0,
             ],
             'zip_code' => [
@@ -190,7 +192,7 @@ class UsersPatientController extends _CrudController
     }
 
     public function store(){
-        
+
         $this->callPermission();
 
         $viewType = 'create';
@@ -224,13 +226,34 @@ class UsersPatientController extends _CrudController
             }
         }
 
-    
+
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
         $data['upload_ktp'] = $dokumentImage;
         $data['password'] = bcrypt('123');
         $data['patient'] = 1;
+
         $getData = $this->crud->store($data);
+
+        $addressDetail = [
+            'address' => $getData->address,
+            'address_detail' => $getData->address_detail,
+            'city_id' => $getData->city_id,
+            'district_id' => $getData->district_id,
+            'sub_district_id' => $getData->sub_district_id,
+            'zip_code' => $getData->zip_code,
+        ];
+
+        $usersAddress = new UsersAddress();
+        $usersAddress->user_id = $getData->id;
+        $usersAddress->city_id = $getData->city_id;
+        $usersAddress->district_id = $getData->district_id;
+        $usersAddress->sub_district_id = $getData->sub_district_id;
+        $usersAddress->zip_code = $getData->zip_code;
+        $usersAddress->address_name = $getData->address;
+        $usersAddress->address = $getData->address_detail;
+        $usersAddress->address_detail = json_encode($addressDetail);
+        $usersAddress->save();
 
         $id = $getData->id;
 
@@ -241,11 +264,11 @@ class UsersPatientController extends _CrudController
             session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
             session()->flash('message_alert', 2);
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
-        }   
+        }
     }
-    
+
     public function update($id){
-        
+
         $this->callPermission();
 
         $viewType = 'edit';
@@ -284,7 +307,7 @@ class UsersPatientController extends _CrudController
             }
         }
 
-    
+
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
         $data['upload_ktp'] = $dokumentImage;
@@ -300,7 +323,7 @@ class UsersPatientController extends _CrudController
             session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
             session()->flash('message_alert', 2);
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
-        }   
+        }
     }
     public function dataTable()
     {
