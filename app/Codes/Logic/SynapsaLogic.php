@@ -258,7 +258,6 @@ class SynapsaLogic
 
             $getAppointmentLab = AppointmentLab::create([
                 'service_id' => $getSchedule->service_id,
-                'doctor_id' => $getSchedule->doctor_id,
                 'user_id' => $getTransaction->user_id,
                 'patient_name' => $getUser ? $getUser->fullname : '',
                 'patient_email' => $getUser ? $getUser->email : '',

@@ -47,13 +47,36 @@ class AppointmentDoctorController extends Controller
         $dateNow = date('Y-m-d');
 
         switch ($time) {
-            case 2 : $data = AppointmentDoctor::where('user_id', $user->id)->where('date', '=', $dateNow)->where('status', '!=', 99);
+            case 2 : $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
+                ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
+                ->join('users', 'users.id', '=', 'doctor.user_id')
+                ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
+                ->where('appointment_doctor.user_id', $user->id)
+                ->where('date', '=', $dateNow)
+                ->where('appointment_doctor.status', '!=', 99);
                 break;
-            case 3 : $data = AppointmentDoctor::where('user_id', $user->id)->where('date', '>', $dateNow)->where('status', '!=', 99);
+            case 3 : $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
+                ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
+                ->join('users', 'users.id', '=', 'doctor.user_id')
+                ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
+                ->where('appointment_doctor.user_id', $user->id)
+                ->where('appointment_doctor.date', '>', $dateNow)
+                ->where('appointment_doctor.status', '!=', 99);
                 break;
-            case 4 : $data = AppointmentDoctor::where('user_id', $user->id)->where('status', '=', 99);
+            case 4 : $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
+                ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
+                ->join('users', 'users.id', '=', 'doctor.user_id')
+                ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
+                ->where('appointment_doctor.user_id', $user->id)
+                ->where('appointment_doctor.status', '=', 99);
                 break;
-            default: $data = AppointmentDoctor::where('user_id', $user->id)->where('date', '<', $dateNow)->where('status', '!=', 99);
+            default: $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
+                ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
+                ->join('users', 'users.id', '=', 'doctor.user_id')
+                ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
+                ->where('appointment_doctor.user_id', $user->id)
+                ->where('date', '<', $dateNow)
+                ->where('appointment_doctor.status', '!=', 99);
                 break;
         }
 
@@ -74,7 +97,14 @@ class AppointmentDoctorController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $data = AppointmentDoctor::where('user_id', $user->id)->where('id', $id)->first();
+        $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
+            ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
+            ->join('users', 'users.id', '=', 'doctor.user_id')
+            ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
+            ->where('appointment_doctor.user_id', $user->id)
+            ->where('appointment_doctor.id', $id)
+            ->first();
+
         if (!$data) {
             return response()->json([
                 'success' => 0,

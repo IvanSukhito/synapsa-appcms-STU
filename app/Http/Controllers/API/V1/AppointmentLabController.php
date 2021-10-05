@@ -47,6 +47,7 @@ class AppointmentLabController extends Controller
                 break;
         }
 
+
         if (strlen($s) > 0) {
             $data = $data->where('doctor_name', 'LIKE', "%$s%");
         }
@@ -110,7 +111,6 @@ class AppointmentLabController extends Controller
             'message' => ['Sukses Di Batalkan'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
-
     }
 
 }

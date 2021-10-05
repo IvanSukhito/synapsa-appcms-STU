@@ -322,6 +322,7 @@ class ProfileController extends Controller
 
         if($getEmail == $user->email){
 
+
             return response()->json([
                 'success' => 1,
                 'message' => ['Berhasil Mengirim Link Verifikasi Kepada Email Anda'],
