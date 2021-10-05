@@ -104,26 +104,26 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
 
    });
 
-   $router->group(['prefix' => 'appointment-doctor'], function () use ($router) {
+   $router->group(['prefix' => 'appointment'], function () use ($router) {
 
-       $router->get('/', ['uses' => 'App\Http\Controllers\API\V1\AppointmentDoctorController@index'])->name('api.appointment-doctor.index');
-       $router->get('{id}', ['uses' => 'App\Http\Controllers\API\V1\AppointmentDoctorController@detail'])->name('api.appointment-doctor.detail');
-       $router->post('{id}', ['uses' => 'App\Http\Controllers\API\V1\AppointmentDoctorController@fillForm'])->name('api.appointment-doctor.fillForm');
-       $router->get('{id}/meeting', ['uses' => 'App\Http\Controllers\API\V1\AppointmentDoctorController@meeting'])->name('api.appointment-doctor.meeting');
-       $router->get('{id}/cancel-meeting', ['uses' => 'App\Http\Controllers\API\V1\AppointmentDoctorController@cancelMeeting'])->name('api.appointment-doctor.cancelMeeting');
-       $router->get('{id}/cart', ['uses' => 'App\Http\Controllers\API\V1\AppointmentDoctorController@cart'])->name('api.appointment-doctor.cart');
-       $router->get('{id}/cart', ['uses' => 'App\Http\Controllers\API\V1\AppointmentDoctorController@chooseCart'])->name('api.appointment-doctor.chooseCart');
-       $router->get('{id}/shipping', ['uses' => 'App\Http\Controllers\API\V1\AppointmentDoctorController@shipping'])->name('api.appointment-doctor.shipping');
-       $router->get('{id}/payment', ['uses' => 'App\Http\Controllers\API\V1\AppointmentDoctorController@payment'])->name('api.appointment-doctor.payment');
-       $router->post('{id}/checkout', ['uses' => 'App\Http\Controllers\API\V1\AppointmentDoctorController@checkout'])->name('api.appointment-doctor.checkout');
+       $router->get('/', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@index'])->name('api.appointment-doctor.index');
+       $router->get('{id}', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@detail'])->name('api.appointment-doctor.detail');
+       $router->post('{id}', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@fillForm'])->name('api.appointment-doctor.fillForm');
+       $router->get('{id}/meeting', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@meeting'])->name('api.appointment-doctor.meeting');
+       $router->get('{id}/cancel-meeting', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@cancelMeeting'])->name('api.appointment-doctor.cancelMeeting');
+       $router->get('{id}/cart', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@cart'])->name('api.appointment-doctor.cart');
+       $router->get('{id}/cart', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@chooseCart'])->name('api.appointment-doctor.chooseCart');
+       $router->get('{id}/shipping', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@shipping'])->name('api.appointment-doctor.shipping');
+       $router->get('{id}/payment', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@payment'])->name('api.appointment-doctor.payment');
+       $router->post('{id}/checkout', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@checkout'])->name('api.appointment-doctor.checkout');
 
    });
 
    $router->group(['prefix' => 'appointment-lab'], function () use ($router) {
 
-       $router->get('/', ['uses' => 'App\Http\Controllers\API\V1\AppointmentLabController@index'])->name('api.appointment-lab.index');
-       $router->get('{id}', ['uses' => 'App\Http\Controllers\API\V1\AppointmentLabController@detail'])->name('api.appointment-lab.detail');
-       $router->get('{id}/cancel-meeting', ['uses' => 'App\Http\Controllers\API\V1\AppointmentLabController@cancelMeeting'])->name('api.appointment-lab.cancelMeeting');
+       $router->get('/', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@index'])->name('api.appointment-lab.index');
+       $router->get('{id}', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@detail'])->name('api.appointment-lab.detail');
+       $router->get('{id}/cancel-meeting', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@cancelMeeting'])->name('api.appointment-lab.cancelMeeting');
 
    });
 
