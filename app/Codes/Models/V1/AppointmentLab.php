@@ -14,7 +14,6 @@ class AppointmentLab extends Model
         'patient_name',
         'patient_email',
         'type_appointment',
-        'patient_name',
         'date',
         'time_start',
         'time_end',

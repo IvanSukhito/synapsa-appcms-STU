@@ -6,6 +6,7 @@ use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\AppointmentDoctor;
 use App\Codes\Models\V1\AppointmentDoctorProduct;
+use App\Codes\Models\V1\AppointmentLab;
 use App\Codes\Models\V1\AppointmentLabDetails;
 use App\Codes\Models\V1\Payment;
 use App\Codes\Models\V1\Product;
@@ -37,7 +38,7 @@ class AppointmentDoctorController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $s = strip_tags($this->request->get('s'));
+//        $s = strip_tags($this->request->get('s'));
         $time = intval($this->request->get('time'));
         $getLimit = $this->request->get('limit');
         if ($getLimit <= 0) {
@@ -46,44 +47,66 @@ class AppointmentDoctorController extends Controller
 
         $dateNow = date('Y-m-d');
 
-        switch ($time) {
-            case 2 : $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
-                ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
-                ->join('users', 'users.id', '=', 'doctor.user_id')
-                ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
-                ->where('appointment_doctor.user_id', $user->id)
-                ->where('date', '=', $dateNow)
-                ->where('appointment_doctor.status', '!=', 99);
-                break;
-            case 3 : $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
-                ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
-                ->join('users', 'users.id', '=', 'doctor.user_id')
-                ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
-                ->where('appointment_doctor.user_id', $user->id)
-                ->where('appointment_doctor.date', '>', $dateNow)
-                ->where('appointment_doctor.status', '!=', 99);
-                break;
-            case 4 : $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
-                ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
-                ->join('users', 'users.id', '=', 'doctor.user_id')
-                ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
-                ->where('appointment_doctor.user_id', $user->id)
-                ->where('appointment_doctor.status', '=', 99);
-                break;
-            default: $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
-                ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
-                ->join('users', 'users.id', '=', 'doctor.user_id')
-                ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
-                ->where('appointment_doctor.user_id', $user->id)
-                ->where('date', '<', $dateNow)
-                ->where('appointment_doctor.status', '!=', 99);
-                break;
-        }
+        $data = AppointmentDoctor::selectRaw('appointment_doctor.id, appointment_doctor.doctor_id AS janji_id,
+            appointment_doctor.doctor_name AS janji_name, appointment_doctor.type_appointment, appointment_doctor.date,
+            appointment_doctor.time_start, appointment_doctor.time_end, appointment_doctor.status,
+            doctor_category.name AS doctor_category, users.image AS image,
+            CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
+            ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
+            ->join('users', 'users.id', '=', 'doctor.user_id')
+            ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
+            ->where('appointment_doctor.user_id', $user->id)
+//            ->where('date', '=', $dateNow)
+            ->where('appointment_doctor.status', '!=', 99)
+            ->union(
+                AppointmentLab::selectRaw('appointment_lab.id, 0 AS janji_id,
+                    0 AS janji_name, appointment_lab.type_appointment, appointment_lab.date,
+                    appointment_lab.time_start, appointment_lab.time_end, appointment_lab.status,
+                    0 AS doctor_category, 0 AS image,
+                    CONCAT("'.env('OSS_URL').'/'.'", 0) AS image_full')
+                ->where('user_id', $user->id)
+//                ->where('date', '=', $dateNow)
+                ->where('status', '!=', 99)
+            );
 
-        if (strlen($s) > 0) {
-            $data = $data->where('doctor_name', 'LIKE', "%$s%");
-        }
-        $data = $data->orderBy('id','DESC')->paginate($getLimit);
+//        switch ($time) {
+//            case 2 : $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
+//                ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
+//                ->join('users', 'users.id', '=', 'doctor.user_id')
+//                ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
+//                ->where('appointment_doctor.user_id', $user->id)
+//                ->where('date', '=', $dateNow)
+//                ->where('appointment_doctor.status', '!=', 99);
+//                break;
+//            case 3 : $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
+//                ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
+//                ->join('users', 'users.id', '=', 'doctor.user_id')
+//                ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
+//                ->where('appointment_doctor.user_id', $user->id)
+//                ->where('appointment_doctor.date', '>', $dateNow)
+//                ->where('appointment_doctor.status', '!=', 99);
+//                break;
+//            case 4 : $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
+//                ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
+//                ->join('users', 'users.id', '=', 'doctor.user_id')
+//                ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
+//                ->where('appointment_doctor.user_id', $user->id)
+//                ->where('appointment_doctor.status', '=', 99);
+//                break;
+//            default: $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
+//                ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
+//                ->join('users', 'users.id', '=', 'doctor.user_id')
+//                ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
+//                ->where('appointment_doctor.user_id', $user->id)
+//                ->where('date', '<', $dateNow)
+//                ->where('appointment_doctor.status', '!=', 99);
+//                break;
+//        }
+
+//        if (strlen($s) > 0) {
+//            $data = $data->where('doctor_name', 'LIKE', "%$s%");
+//        }
+        $data = $data->orderBy('date','DESC')->orderBy('time_start','ASC')->paginate($getLimit);
 
         return response()->json([
             'success' => 1,
