@@ -73,7 +73,7 @@ class AppointmentController extends Controller
 
         switch ($time) {
             case 2 : $data = AppointmentDoctor::selectRaw('appointment_doctor.id, appointment_doctor.doctor_id AS janji_id,
-                    appointment_doctor.doctor_name AS janji_name,  1 AS TYPE,appointment_doctor.type_appointment, appointment_doctor.date,
+                    appointment_doctor.doctor_name AS janji_name,  1 AS type,appointment_doctor.type_appointment, appointment_doctor.date,
                     appointment_doctor.time_start, appointment_doctor.time_end, appointment_doctor.status,
                     doctor_category.name AS doctor_category, users.image AS image,
                     CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
@@ -85,7 +85,7 @@ class AppointmentController extends Controller
                         ->where('appointment_doctor.status', '!=', 99)
                         ->union(
                             AppointmentLab::selectRaw('appointment_lab.id, lab.id AS janji_id,
-                            lab.name AS janji_name, 2 AS TYPE, appointment_lab.type_appointment, appointment_lab.date,
+                            lab.name AS janji_name, 2 AS type, appointment_lab.type_appointment, appointment_lab.date,
                             appointment_lab.time_start, appointment_lab.time_end, appointment_lab.status,
                             0 AS doctor_category, lab.image AS image,
                             CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full')
@@ -103,7 +103,7 @@ class AppointmentController extends Controller
                         );
             break;
             case 3 : $data = AppointmentDoctor::selectRaw('appointment_doctor.id, appointment_doctor.doctor_id AS janji_id,
-                    appointment_doctor.doctor_name AS janji_name,  1 AS TYPE,appointment_doctor.type_appointment, appointment_doctor.date,
+                    appointment_doctor.doctor_name AS janji_name,  1 AS type,appointment_doctor.type_appointment, appointment_doctor.date,
                     appointment_doctor.time_start, appointment_doctor.time_end, appointment_doctor.status,
                     doctor_category.name AS doctor_category, users.image AS image,
                     CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
@@ -115,7 +115,7 @@ class AppointmentController extends Controller
                 ->where('appointment_doctor.status', '!=', 99)
                 ->union(
                     AppointmentLab::selectRaw('appointment_lab.id, lab.id AS janji_id,
-                            lab.name AS janji_name, appointment_lab.type_appointment, 2 AS TYPE, appointment_lab.date,
+                            lab.name AS janji_name, appointment_lab.type_appointment, 2 AS type, appointment_lab.date,
                             appointment_lab.time_start, appointment_lab.time_end, appointment_lab.status,
                             0 AS doctor_category, lab.image AS image,
                             CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full')
@@ -133,7 +133,7 @@ class AppointmentController extends Controller
                 );
                 break;
             case 4 : $data = AppointmentDoctor::selectRaw('appointment_doctor.id, appointment_doctor.doctor_id AS janji_id,
-                    appointment_doctor.doctor_name AS janji_name, 1 AS TYPE, appointment_doctor.type_appointment, appointment_doctor.date,
+                    appointment_doctor.doctor_name AS janji_name, 1 AS type, appointment_doctor.type_appointment, appointment_doctor.date,
                     appointment_doctor.time_start, appointment_doctor.time_end, appointment_doctor.status,
                     doctor_category.name AS doctor_category, users.image AS image,
                     CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
@@ -144,7 +144,7 @@ class AppointmentController extends Controller
                 ->where('appointment_doctor.status', '!=', 99)
                 ->union(
                     AppointmentLab::selectRaw('appointment_lab.id, lab.id AS janji_id,
-                            lab.name AS janji_name, 2 AS TYPE, appointment_lab.type_appointment, appointment_lab.date,
+                            lab.name AS janji_name, 2 AS type, appointment_lab.type_appointment, appointment_lab.date,
                             appointment_lab.time_start, appointment_lab.time_end, appointment_lab.status,
                             0 AS doctor_category, lab.image AS image,
                             CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full')
@@ -162,7 +162,7 @@ class AppointmentController extends Controller
                 break;
            default:
                $data = AppointmentDoctor::selectRaw('appointment_doctor.id, appointment_doctor.doctor_id AS janji_id,
-                    appointment_doctor.doctor_name AS janji_name, 1 AS TYPE, appointment_doctor.type_appointment, appointment_doctor.date,
+                    appointment_doctor.doctor_name AS janji_name, 1 AS type, appointment_doctor.type_appointment, appointment_doctor.date,
                     appointment_doctor.time_start, appointment_doctor.time_end, appointment_doctor.status,
                     doctor_category.name AS doctor_category, users.image AS image,
                     CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
@@ -174,7 +174,7 @@ class AppointmentController extends Controller
                    ->where('appointment_doctor.status', '!=', 99)
                    ->union(
                        AppointmentLab::selectRaw('appointment_lab.id, lab.id AS janji_id,
-                            lab.name AS janji_name, 2 AS TYPE, appointment_lab.type_appointment, appointment_lab.date,
+                            lab.name AS janji_name, 2 AS type, appointment_lab.type_appointment, appointment_lab.date,
                             appointment_lab.time_start, appointment_lab.time_end, appointment_lab.status,
                             0 AS doctor_category, lab.image AS image,
                             CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full')
