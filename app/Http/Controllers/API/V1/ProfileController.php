@@ -345,7 +345,6 @@ class ProfileController extends Controller
     }
     public function updateVerifEmail($id){
 
-
         $getUser = Users::where('id', $id)->first();
 
         if (!$getUser) {
@@ -362,6 +361,8 @@ class ProfileController extends Controller
            'success' => 0,
            'message' => ['Email Berhasil Diverifikasi'],
        ]);
+
+        return view('welcome');
 
     }
 
