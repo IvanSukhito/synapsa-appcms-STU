@@ -69,7 +69,7 @@ class UsersDoctorController extends _CrudController
                     'create' => 'required',
                     'edit' => 'required'
                 ],
-                'type' => 'textarea',
+                'type' => 'texteditor',
                 'list' => 0,
             ],
             'address_detail' => [
@@ -77,7 +77,7 @@ class UsersDoctorController extends _CrudController
                     'create' => 'required',
                     'edit' => 'required'
                 ],
-                'type' => 'textarea',
+                'type' => 'texteditor',
                 'list' => 0,
             ],
             'zip_code' => [
@@ -190,7 +190,7 @@ class UsersDoctorController extends _CrudController
     }
 
     public function store(){
-        
+
         $this->callPermission();
 
         $viewType = 'create';
@@ -224,7 +224,7 @@ class UsersDoctorController extends _CrudController
             }
         }
 
-    
+
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
         $data['upload_ktp'] = $dokumentImage;
@@ -241,7 +241,7 @@ class UsersDoctorController extends _CrudController
             session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
             session()->flash('message_alert', 2);
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
-        }   
+        }
     }
     public function dataTable()
     {

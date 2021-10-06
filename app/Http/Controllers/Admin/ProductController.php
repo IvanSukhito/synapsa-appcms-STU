@@ -39,7 +39,9 @@ class ProductController extends _CrudController
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
-                ]
+                ],
+                'type' => 'money',
+
             ],
             'unit' => [
                 'validate' => [
@@ -226,7 +228,7 @@ class ProductController extends _CrudController
 
         $productCategoryId = $this->request->get('product_category_id');
         $productName = $this->request->get('name');
-        $productPrice = $this->request->get('price');
+        $productPrice = clear_money_format($this->request->get('price'));
         $productUnit = $this->request->get('unit');
         $productStock = $this->request->get('stock');
         $productStockFlag = $this->request->get('stock_flag');
@@ -305,7 +307,7 @@ class ProductController extends _CrudController
 
         $productCategoryId = $this->request->get('product_category_id');
         $productName = $this->request->get('name');
-        $productPrice = $this->request->get('price');
+        $productPrice = clear_money_format($this->request->get('price'));
         $productUnit = $this->request->get('unit');
         $productStock = $this->request->get('stock');
         $productStockFlag = $this->request->get('stock_flag');

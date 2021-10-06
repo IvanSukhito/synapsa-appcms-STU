@@ -16,11 +16,22 @@ class Admin extends Model
         'status'
     ];
 
+    protected $dates = [
+        'created_at',
+    ];
+
     protected $hidden = ['password'];
 
     public function getRole()
     {
         return $this->belongsTo(Role::class, 'role_id', 'id');
     }
+
+    public function getCreatedAtAttribute()
+    {
+        return \Carbon\Carbon::parse($this->attributes['created_at'])
+            ->format('H:i:s Y-m-d ');
+    }
+
 
 }

@@ -45,7 +45,7 @@ class DoctorController extends _CrudController
                     'create' => 'required',
                     'edit' => 'required'
                 ],
-                'type' => 'textarea',
+                'type' => 'texteditor',
                 'list' => 0,
             ],
             'nonformal_edu' => [
@@ -53,7 +53,7 @@ class DoctorController extends _CrudController
                     'create' => 'required',
                     'edit' => 'required'
                 ],
-                'type' => 'textarea',
+                'type' => 'texteditor',
                 'list' => 0,
             ],
             'service_id' => [

@@ -300,13 +300,14 @@ if ( ! function_exists('listAllMenu')) {
                         'type' => 1,
                     ],
                     [
-                        'name' => __('general.doctor_schedule'),
-                        'title' => __('general.doctor_schedule'),
-                        'active' => ['admin.doctor-schedule.'],
-                        'route' => 'admin.doctor-schedule.index',
-                        'key' => 'doctor-schedule',
+                        'name' => __('general.doctor_category'),
+                        'title' => __('general.doctor_category'),
+                        'active' => ['admin.doctor-category.'],
+                        'route' => 'admin.doctor-category.index',
+                        'key' => 'doctor-category',
                         'type' => 1,
                     ],
+
                 ],
             ],
             [
@@ -427,6 +428,15 @@ if ( ! function_exists('listAllMenu')) {
                 'type' => 1,
             ],
             [
+                'name' => __('general.payment'),
+                'icon' => '<i class="nav-icon fa fa-credit-card"></i>',
+                'title' => __('general.payment'),
+                'active' => ['admin.payment.'],
+                'route' => 'admin.payment.index',
+                'key' => 'payment',
+                'type' => 1,
+            ],
+            [
                 'name' => __('general.setting'),
                 'icon' => '<i class="nav-icon fa fa-gear"></i>',
                 'title' => __('general.setting'),
@@ -539,7 +549,9 @@ if ( ! function_exists('listAvailablePermission'))
                      'article-category',
                      'service',
                      'klinik',
-                     'lab-schedule'
+                     'lab-schedule',
+                     'doctor-category',
+                     'payment',
 
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [

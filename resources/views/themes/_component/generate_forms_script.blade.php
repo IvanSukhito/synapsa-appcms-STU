@@ -73,7 +73,7 @@
             digits: 2,
             autoGroup: true,
             prefix: '', //Space after $, this will not truncate the first character.
-            rightAlign: true
+            rightAlign: false
         });
     });
 

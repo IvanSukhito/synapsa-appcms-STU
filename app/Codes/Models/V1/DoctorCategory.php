@@ -16,7 +16,7 @@ class DoctorCategory extends Model
     ];
 
     protected $appends = [
-        'upload_icon_image'
+        'icon_img_full'
     ];
 
 
@@ -25,7 +25,7 @@ class DoctorCategory extends Model
         return $this->hasMany(Doctor::class, 'doctor_category_id', 'id');
     }
 
-    public function getUploadIconImageAttribute()
+    public function getIconImgFullAttribute()
     {
         return strlen($this->icon_img) > 0 ? asset('synapsaapps/users/'.$this->icon_img) : asset('assets/cms/images/no-img.png');
     }
