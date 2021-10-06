@@ -34,6 +34,7 @@ return [
     'doctor_category' => 'Doctor Category',
     'doctor_schedule' => 'Doctor Schedule',
     'doctor_id' => 'Doctor',
+    'verification_email' => 'Verification Email',
     'service_id' => 'Service',
     'doctor-category' => 'Doctor Category',
     'nurse' => 'Nurse',
