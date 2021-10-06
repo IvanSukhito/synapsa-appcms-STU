@@ -25,7 +25,7 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
         $router->post('password', ['uses' => 'App\Http\Controllers\API\V1\ProfileController@updatePassword'])->name('api.user.updatePassword');
         $router->get('address', ['uses' => 'App\Http\Controllers\API\V1\ProfileController@getAddress'])->name('api.user.getAddress');
         $router->post('address', ['uses' => 'App\Http\Controllers\API\V1\ProfileController@updateAddress'])->name('api.user.updateAddress');
-        $router->get('verification-email', ['uses' => 'App\Http\Controllers\API\V1\ProfileController@verifEmail'])->name('api.user.verifEmail');
+        $router->post('verification-email', ['uses' => 'App\Http\Controllers\API\V1\ProfileController@verifEmail'])->name('api.user.verifEmail');
         $router->post('verification-phone', ['uses' => 'App\Http\Controllers\API\V1\ProfileController@verifPhone'])->name('api.user.verifPhone');
         $router->get('notification', ['uses' => 'App\Http\Controllers\API\V1\ProfileController@notifications'])->name('api.user.notifications');
     });
