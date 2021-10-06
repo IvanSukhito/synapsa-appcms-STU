@@ -141,7 +141,7 @@ class AppointmentController extends Controller
                 ->join('users', 'users.id', '=', 'doctor.user_id')
                 ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
                 ->where('appointment_doctor.user_id', $user->id)
-                ->where('appointment_doctor.status', '!=', 99)
+                ->where('appointment_doctor.status', '=', 99)
                 ->union(
                     AppointmentLab::selectRaw('appointment_lab.id, lab.id AS janji_id,
                             lab.name AS janji_name, 2 AS type, \'lab\' AS type_name, appointment_lab.type_appointment, appointment_lab.date,
@@ -157,7 +157,7 @@ class AppointmentController extends Controller
                                 ->on('lab.id', '=', DB::raw("(select min(id) from lab WHERE lab.id = appointment_lab_details.lab_id)"));
                         })
                         ->where('appointment_lab.user_id', $user->id)
-                        ->where('appointment_lab.status', '!=', 99)
+                        ->where('appointment_lab.status', '=', 99)
                 );
                 break;
            default:
@@ -170,7 +170,8 @@ class AppointmentController extends Controller
                    ->join('users', 'users.id', '=', 'doctor.user_id')
                    ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
                    ->where('appointment_doctor.user_id', $user->id)
-                   ->where('appointment_doctor.status', '=', 99)
+                   ->where('appointment_doctor.date', '>', $dateNow)
+                   ->where('appointment_doctor.status', '!=', 99)
                    ->union(
                        AppointmentLab::selectRaw('appointment_lab.id, lab.id AS janji_id,
                             lab.name AS janji_name, 2 AS type, \'lab\' AS type_name, appointment_lab.type_appointment, appointment_lab.date,
@@ -186,7 +187,8 @@ class AppointmentController extends Controller
                                    ->on('lab.id', '=', DB::raw("(select min(id) from lab WHERE lab.id = appointment_lab_details.lab_id)"));
                            })
                            ->where('appointment_lab.user_id', $user->id)
-                           ->where('appointment_lab.status', '=', 99)
+                           ->where('appointment_lab.date', '>', $dateNow)
+                           ->where('appointment_lab.status', '!=', 99)
                    );
                break;
        }
