@@ -209,7 +209,8 @@ class AppointmentController extends Controller
 
         $type = intval($this->request->get('type'));
 
-        if($type == 1){
+        if($type == 1)
+        {
 
             $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
             ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
@@ -219,6 +220,14 @@ class AppointmentController extends Controller
             ->where('appointment_doctor.id', $id)
             ->first();
 
+            if (!$data) {
+                return response()->json([
+                    'success' => 0,
+                    'message' => ['Janji Temu Dokter Tidak Ditemukan'],
+                    'token' => $this->request->attributes->get('_refresh_token'),
+                ], 404);
+            }
+
             $formPatient = json_decode($data->form_patient, true);
             $doctorPrescription = json_decode($data->doctor_prescription, true);
 
@@ -227,28 +236,22 @@ class AppointmentController extends Controller
                 ->join('appointment_doctor_product', 'appointment_doctor_product.product_id', '=', 'product.id')
                 ->where('appointment_doctor_product.appointment_doctor_id', '=', $id)->get();
 
-            if (!$data) {
-                return response()->json([
-                    'success' => 0,
-                    'message' => ['Janji Temu Dokter Tidak Ditemukan'],
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ], 404);
-            }else{
-                return response()->json([
-                    'success' => 1,
-                    'data' => [
-                        'data' => $data,
-                        'product' => $getDetails,
-                        'form_patient' => $formPatient,
-                        'doctor_prescription' => $doctorPrescription,
-                        'address' => $this->getUserAddress($user->id),
-                        'phone'  => $this->getUserAddress($user->id)['phone']
-                    ],
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ]);
-            }
+            return response()->json([
+                'success' => 1,
+                'data' => [
+                    'data' => $data,
+                    'product' => $getDetails,
+                    'form_patient' => $formPatient,
+                    'doctor_prescription' => $doctorPrescription,
+                    'address' => $this->getUserAddress($user->id),
+                    'phone'  => $this->getUserAddress($user->id)['phone']
+                ],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ]);
 
-        }elseif($type == 2){
+        }
+        elseif($type == 2)
+        {
 
             $data = AppointmentLab::selectRaw('appointment_lab.*, lab.name as lab_name')
                     ->join('appointment_lab_details', function($join){
@@ -263,31 +266,36 @@ class AppointmentController extends Controller
                     ->where('appointment_lab.id', $id)
                     ->first();
 
-            $getDetails = $data->getAppointmentLabDetails()->selectRaw('appointment_lab_details.*,
-                    lab.image, CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full')
-                    ->join('lab','lab.id','=','appointment_lab_details.lab_id')
-                    ->get();
-
-
             if(!$data){
                 return response()->json([
                     'success' => 0,
                     'message' => ['Janji Temu Lab Tidak Ditemukan'],
                     'token' => $this->request->attributes->get('_refresh_token'),
                 ], 404);
-            }else{
-                return response()->json([
-                    'success' => 1,
-                    'data' => [
-                        'data' => $data,
-                        'lab_product' => $getDetails,
-                        'address' => $this->getUserAddress($user->id),
-                        'phone'  => $this->getUserAddress($user->id)['phone'],
-                     ],
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ]);
             }
+
+            $getDetails = $data->getAppointmentLabDetails()->selectRaw('appointment_lab_details.*,
+                    lab.image, CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full')
+                    ->join('lab','lab.id','=','appointment_lab_details.lab_id')
+                    ->get();
+
+            return response()->json([
+                'success' => 1,
+                'data' => [
+                    'data' => $data,
+                    'lab_product' => $getDetails,
+                    'address' => $this->getUserAddress($user->id),
+                    'phone'  => $this->getUserAddress($user->id)['phone'],
+                 ],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ]);
         }
+
+        return response()->json([
+            'success' => 0,
+            'message' => ['Type Janji Temu Tidak Ditemukan'],
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ], 404);
 
     }
 
