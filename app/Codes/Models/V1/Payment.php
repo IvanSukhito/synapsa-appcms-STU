@@ -20,12 +20,12 @@ class Payment extends Model
     ];
 
     protected $appends = [
-        'icon_full',
+        'icon_img_full',
         'price_nice',
         'setting_data',
     ];
 
-    public function getIconFullAttribute()
+    public function getIconImgFullAttribute()
     {
         if (strlen($this->icon_img) > 0) {
             return env('OSS_URL').'/'.$this->icon_img;

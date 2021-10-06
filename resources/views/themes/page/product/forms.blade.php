@@ -86,7 +86,7 @@ else {
                     <?php $no++; ?>
                     <b>Desc - {!! $no !!}</b>
                     <br>
-                    {{ Form::textarea('desc', $desc, array_merge(['id' => 'desc', 'name'=>'desc[]', 'class' => 'editor', 'placeholder' => __('general.desc')], $addAttribute)) }}
+                    {{ Form::textarea('desc', $desc, array_merge(['id' => 'desc', 'name'=>'desc[]', 'class' => 'texteditor', 'placeholder' => __('general.desc')], $addAttribute)) }}
                     <br>
                     @endforeach
                     @endif
@@ -156,7 +156,7 @@ else {
 
         $(document).ready(function() {
             $('.dropify').dropify();
-            
+
             $('.editor').each(function(i, item) {
             CKEDITOR.replace(item.id, {
                 autoParagraph: true,
@@ -165,7 +165,7 @@ else {
                 extraPlugins: 'justify,format,colorbutton,font,smiley'
             });
             });
-         
+
         });
 
         function add_desc1() {
