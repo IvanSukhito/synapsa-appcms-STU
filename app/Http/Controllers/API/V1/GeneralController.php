@@ -3,15 +3,13 @@
 namespace App\Http\Controllers\API\V1;
 
 use App\Codes\Logic\AccessLogin;
-use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\City;
 use App\Codes\Models\V1\DeviceToken;
 use App\Codes\Models\V1\District;
+use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\Klinik;
 use App\Codes\Models\V1\SubDistrict;
-use App\Codes\Models\V1\Transaction;
-use App\Codes\Models\V1\TransactionDetails;
 use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\UsersAddress;
 use App\Codes\Models\V1\ForgetPassword;
@@ -19,11 +17,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Intervention\Image\Facades\Image;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -236,26 +232,35 @@ class GeneralController extends Controller
 
                 $getKlinik = Klinik::where('id', $user->klinik_id)->first();
 
+                $result = [
+                    'klinik_id' => $user->klinik_id,
+                    'klinik_name' => $getKlinik ? $getKlinik->name : '',
+                    'fullname' => $user->fullname,
+                    'address' => $user->address,
+                    'address_detail' => $user->address_detail,
+                    'zip_code' => $user->zip_code,
+                    'gender' => intval($user->gender) == 1 ? 1 : 2,
+                    'phone' => $user->phone,
+                    'email' => $user->email,
+                    'patient' => $user->patient,
+                    'doctor' => $user->doctor,
+                    'nurse' => $user->nurse,
+                    'status' => $user->status,
+                    'status_nice' => $user->status_nice,
+                    'gender_nice' => $user->gender_nice
+                ];
+
+                if ($user->doctor == 1) {
+                    $getDoctor = Doctor::selectRaw('formal_edu, nonformal_edu, doctor_category_id, doctor_category.name AS doctor_category')
+                        ->join('doctor_category', 'doctor_category.id', '=', 'doctor.doctor_category_id')
+                        ->where('user_id', $user->id)->first();
+                    $result['info_doctor'] = $getDoctor;
+                }
+
                 return response()->json([
                     'success' => 1,
                     'message' => ['Sukses Login'],
-                    'data' => [
-                        'klinik_id' => $user->klinik_id,
-                        'klinik_name' => $getKlinik ? $getKlinik->name : '',
-                        'fullname' => $user->fullname,
-                        'address' => $user->address,
-                        'address_detail' => $user->address_detail,
-                        'zip_code' => $user->zip_code,
-                        'gender' => intval($user->gender) == 1 ? 1 : 2,
-                        'phone' => $user->phone,
-                        'email' => $user->email,
-                        'patient' => $user->patient,
-                        'doctor' => $user->doctor,
-                        'nurse' => $user->nurse,
-                        'status' => $user->status,
-                        'status_nice' => $user->status_nice,
-                        'gender_nice' => $user->gender_nice
-                    ],
+                    'data' => $result,
                     'token' => (string)$token
                 ]);
             } catch (JWTException $e) {

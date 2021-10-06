@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API\V1;
 
+use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\Klinik;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -25,22 +26,34 @@ class HomeController extends Controller
         $user = $this->request->attributes->get('_user');
         $getKlinik = Klinik::where('id', $user->klinik_id)->first();
 
+        $result = [
+            'klinik_id' => $user->klinik_id,
+            'klinik_name' => $getKlinik ? $getKlinik->name : '',
+            'fullname' => $user->fullname,
+            'address' => $user->address,
+            'address_detail' => $user->address_detail,
+            'zip_code' => $user->zip_code,
+            'gender' => intval($user->gender) == 1 ? 1 : 2,
+            'phone' => $user->phone,
+            'email' => $user->email,
+            'patient' => $user->patient,
+            'doctor' => $user->doctor,
+            'nurse' => $user->nurse,
+            'status' => $user->status,
+            'status_nice' => $user->status_nice,
+            'gender_nice' => $user->gender_nice
+        ];
+
+        if ($user->doctor == 1) {
+            $getDoctor = Doctor::selectRaw('formal_edu, nonformal_edu, doctor_category_id, doctor_category.name AS doctor_category')
+                ->join('doctor_category', 'doctor_category.id', '=', 'doctor.doctor_category_id')
+                ->where('user_id', $user->id)->first();
+            $result['info_doctor'] = $getDoctor;
+        }
+
         return response()->json([
             'success' => 1,
-            'data' => [
-                'klinik_id' => $user->klinik_id,
-                'klinik_name' => $getKlinik ? $getKlinik->name : '',
-                'fullname' => $user->fullname,
-                'address' => $user->address,
-                'address_detail' => $user->address_detail,
-                'zip_code' => $user->zip_code,
-                'gender' => $user->gender,
-                'phone' => $user->phone,
-                'email' => $user->email,
-                'patient' => $user->patient,
-                'doctor' => $user->doctor,
-                'nurse' => $user->nurse
-            ],
+            'data' => $result,
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
     }

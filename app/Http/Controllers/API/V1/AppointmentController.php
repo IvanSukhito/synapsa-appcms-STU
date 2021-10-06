@@ -252,7 +252,6 @@ class AppointmentController extends Controller
         }
         elseif($type == 2)
         {
-
             $data = AppointmentLab::selectRaw('appointment_lab.*, lab.name as lab_name')
                     ->join('appointment_lab_details', function($join){
                         $join->on('appointment_lab_details.appointment_lab_id','=','appointment_lab.id')
