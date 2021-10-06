@@ -4,6 +4,8 @@ namespace App\Http\Controllers\API\V1;
 
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\AppointmentLab;
+use App\Codes\Models\V1\LabSchedule;
+use App\Codes\Models\V1\TransactionDetails;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -35,6 +37,7 @@ class AppointmentLabController extends Controller
         }
 
         $dateNow = date('Y-m-d');
+
 
         switch ($time) {
             case 2 : $data = AppointmentLab::where('user_id', $user->id)->where('date', '=', $dateNow)->where('status', '!=', 99);
