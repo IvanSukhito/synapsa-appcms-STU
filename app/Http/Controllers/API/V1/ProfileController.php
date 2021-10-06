@@ -8,6 +8,7 @@ use App\Codes\Models\V1\Notifications;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Intervention\Image\Facades\Image;
@@ -306,22 +307,26 @@ class ProfileController extends Controller
     public function verifEmail(){
 
         $user = $this->request->attributes->get('_user');
-        $validator = Validator::make($this->request->all(), [
-            'email' => 'required|email'
-        ]);
-        if ($validator->fails()) {
+
+        $verify = $this->request->get('verify');
+        $getUser = Users::where('email', $user->email)->first();
+
+        if (!$getUser) {
             return response()->json([
                 'success' => 0,
-                'message' => $validator->messages()->all(),
-                'token' => $this->request->attributes->get('_refresh_token'),
+                'message' => [__('Email Tidak Ditemukan')]
             ], 422);
         }
 
-        $user = Users::where('id', $user->id)->first();
-        $getEmail = $this->request->get('email');
+        if($verify == 1){
 
-        if($getEmail == $user->email){
+            $subject = 'Verification Email';
 
+            Mail::send('mail.verify', [
+                'user' => $getUser,
+            ], function ($m) use ($getUser, $subject) {
+                $m->to($getUser->email, $getUser->name)->subject($subject);
+            });
 
             return response()->json([
                 'success' => 1,
