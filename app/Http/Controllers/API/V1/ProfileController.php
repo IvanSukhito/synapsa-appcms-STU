@@ -343,6 +343,29 @@ class ProfileController extends Controller
         }
 
     }
+    public function updateVerifEmail($id){
+
+        $user = $this->request->attributes->get('_user');
+
+        $getUser = Users::where('id', $id)->first();
+
+        if (!$getUser) {
+            return response()->json([
+                'success' => 0,
+                'message' => [__('Email Tidak Ditemukan')]
+            ], 422);
+        }
+
+       $getUser->verification_email = 1;
+       $getUser->save();
+
+       return response()->json([
+           'success' => 0,
+           'message' => ['Email Berhasil Diverifikasi'],
+           'token' => $this->request->attributes->get('_refresh_token'),
+       ]);
+
+    }
 
     public function verifPhone(){
 

@@ -20,7 +20,7 @@
                     </tr>
                     <tr>
                         <td width="100" align="center">
-                            <h4><b><a href="#">Verification Email</a></b></h4>
+                            <h4><b><a href="{{ route('api.user.updateVerifEmail', ['id' => $user->id]) }}">Verification Email</a></b></h4>
                         </td>
                     </tr>
                     </tbody>
