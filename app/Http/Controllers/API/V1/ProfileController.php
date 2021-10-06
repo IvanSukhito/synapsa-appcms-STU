@@ -345,7 +345,6 @@ class ProfileController extends Controller
     }
     public function updateVerifEmail($id){
 
-        $user = $this->request->attributes->get('_user');
 
         $getUser = Users::where('id', $id)->first();
 
@@ -362,7 +361,6 @@ class ProfileController extends Controller
        return response()->json([
            'success' => 0,
            'message' => ['Email Berhasil Diverifikasi'],
-           'token' => $this->request->attributes->get('_refresh_token'),
        ]);
 
     }
