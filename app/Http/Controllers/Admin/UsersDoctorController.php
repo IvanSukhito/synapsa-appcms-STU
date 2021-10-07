@@ -116,7 +116,6 @@ class UsersDoctorController extends _CrudController
                 ],
                 'path' => 'synapsaapps/users',
                 'type' => 'image',
-                'list' => 0,
             ],
             'phone' => [
                 'validate' => [
