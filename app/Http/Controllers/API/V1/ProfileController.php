@@ -310,9 +310,14 @@ class ProfileController extends Controller
 
         $verify = $this->request->get('verify');
 
-        $getUser = Users::where('email', $user->email)->where('verification_email',0)->first();
+        $getUser = Users::where('email', $user->email)->first();
 
         if (!$getUser) {
+            return response()->json([
+                'success' => 0,
+                'message' => [__('Email Tidak Ditemukan')]
+            ], 422);
+        }elseif ($getUser->verification_email == 0){
             return response()->json([
                 'success' => 0,
                 'message' => [__('Email Sudah Diverifikasi')]
