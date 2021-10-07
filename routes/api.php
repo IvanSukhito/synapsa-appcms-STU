@@ -166,6 +166,7 @@ Route::post('transaction-result', ['uses' => 'App\Http\Controllers\API\V1\Paymen
 
 Route::get('approve-transaction-va', ['uses' => 'App\Http\Controllers\API\V1\PaymentReturnController@approveTransactionVa'])->name('api.approveTransactionVa');
 Route::get('approve-transaction', ['uses' => 'App\Http\Controllers\API\V1\PaymentReturnController@approveTransaction'])->name('api.approveTransaction');
+Route::get('update-verification-email/{id}', ['uses' => 'App\Http\Controllers\API\V1\ProfileController@updateVerifEmail'])->name('api.user.updateVerifEmail');
 
 Route::get('/', function() {
     return LARAVEL_START;
