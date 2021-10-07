@@ -27,7 +27,10 @@ class DoctorCategory extends Model
 
     public function getIconImgFullAttribute()
     {
-        return strlen($this->icon_img) > 0 ? asset('synapsaapps/users/'.$this->icon_img) : asset('assets/cms/images/no-img.png');
+        if (strlen($this->icon_img) > 0) {
+            return env('OSS_URL').'/'.$this->icon_img;
+        }
+        return asset('assets/cms/images/no-img.png');
     }
 
     public static function boot()
