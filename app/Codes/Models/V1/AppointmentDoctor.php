@@ -27,10 +27,19 @@ class AppointmentDoctor extends Model
         'extra_info',
         'status'
     ];
+    protected $appends = [
+        'status_appointment',
+    ]
 
     public function getAppointmentDoctorProduct()
     {
         return $this->hasMany(AppointmentDoctorProduct::class, 'appointment_doctor_id', 'id');
     }
+
+     public function getStatusAppointmentAttribute()
+     {
+         $getList = get_list_appointment();
+         return $getList[$this->status] ?? $this->status;
+     }
 
 }

@@ -22,10 +22,20 @@ class AppointmentLab extends Model
         'extra_info',
         'status'
     ];
+    protected $appends = [
+        'status_appointment',
+    ]
+
+     public function getStatusAppointmentAttribute()
+     {
+         $getList = get_list_appointment();
+         return $getList[$this->status] ?? $this->status;
+     }
 
     public function getAppointmentLabDetails()
     {
         return $this->hasMany(AppointmentLabDetails::class, 'appointment_lab_id', 'id');
     }
+
 
 }
