@@ -192,6 +192,8 @@ class ProductController extends _CrudController
 
         $listProduct = $temp;
 
+        //dd($listProduct);
+
         $data['thisLabel'] = __('general.product');
         $data['viewType'] = 'show';
         $data['formsTitle'] = __('general.title_show', ['field' => __('general.product') . ' ' . $getData->name]);

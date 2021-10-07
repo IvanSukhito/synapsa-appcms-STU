@@ -74,20 +74,15 @@ else {
                     @include(env('ADMIN_TEMPLATE').'._component.generate_forms')
                     @if(in_array($viewType, ['show','edit']) )
                     <?php $no = 0; ?>
-                    @foreach($title as $title)
-                    <?php $no++; ?>
-                    <b>Title - {!! $no !!}</b>
-                    {{ Form::text('title', $title, array_merge(['id' => 'title','name'=>'title[]', 'class' => 'form-control', 'placeholder' => __('general.title')], $addAttribute)) }}
-                    <br>
-                    @endforeach
-                    <br>
-                    <?php  $no = 0; ?>
-                    @foreach($desc as $desc)
-                    <?php $no++; ?>
-                    <b>Desc - {!! $no !!}</b>
-                    <br>
-                    {{ Form::textarea('desc', $desc, array_merge(['id' => 'desc', 'name'=>'desc[]', 'class' => 'texteditor', 'placeholder' => __('general.desc')], $addAttribute)) }}
-                    <br>
+                    @foreach($title as $key => $title)
+                        <?php $no++; ?>
+                        <b>Title - {!! $no !!}</b>
+                        {{ Form::text('title', $title, array_merge(['id' => 'title','name'=>'title[]', 'class' => 'form-control', 'placeholder' => __('general.title')], $addAttribute)) }}
+                        <br>
+                        <b>Desc - {!! $no !!}</b>
+                        <br>
+                        {{ Form::textarea('desc', $desc[$key], array_merge(['id' => 'desc', 'name'=>'desc[]', 'class' => 'texteditor', 'placeholder' => __('general.desc')], $addAttribute)) }}
+                        <br>
                     @endforeach
                     @endif
                     @if(in_array($viewType, ['create','edit']) )
