@@ -10,8 +10,6 @@
         <tr>
             <td colspan="2" bgcolor="#ffffff" style="padding-bottom: 75px">
                 <table width="400" border="0" align="center" cellpadding="10" cellspacing="0">
-                    <form action="{{ route('api.user.updateVerifEmail', ['id' => $user->id]) }}" method="POST">
-                        @csrf
                     <tbody>
                     <tr>
                         <td align="center">
@@ -22,13 +20,10 @@
                     </tr>
                     <tr>
                         <td width="100" align="center">
-                            <button type="submit" class="mb-2 mr-2 btn btn-primary" title="@lang('general.verification_email')">
-                            <i class="fa fa-save"></i><span class=""> @lang('general.verification_email')</span>
-                            </button>
+                            <h4><b><a href="{{ route('api.user.updateVerifEmail', ['id' => $user->id]) }}">Verification Email</a></b></h4>
                         </td>
                     </tr>
                     </tbody>
-                    </form>
                 </table>
             </td>
         </tr>
