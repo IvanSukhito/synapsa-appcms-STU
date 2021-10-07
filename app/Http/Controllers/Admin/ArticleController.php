@@ -67,7 +67,6 @@ class ArticleController extends _CrudController
                 ],
                 'type' => 'texteditor',
                 'list' => 0,
-
             ],
             'publish_status' => [
                 'validate' => [
@@ -113,6 +112,10 @@ class ArticleController extends _CrudController
         $viewType = 'create';
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
+
+        unset($getListCollectData['thumbnail_img']);
+        unset($getListCollectData['image']);
+
         $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
         {
@@ -125,7 +128,7 @@ class ArticleController extends _CrudController
             }
         }
 
-        $dokument = $data['image'];
+        $dokument = $this->request->file('image');
         if ($dokument) {
             if ($dokument->getError() != 1) {
 
@@ -141,7 +144,7 @@ class ArticleController extends _CrudController
             }
         }
 
-        $dokumentThumbnail = $data['thumbnail_img'];
+        $dokumentThumbnail = $this->request->file('thumbnail_img');
         if ($dokumentThumbnail) {
             if ($dokumentThumbnail->getError() != 1) {
 
