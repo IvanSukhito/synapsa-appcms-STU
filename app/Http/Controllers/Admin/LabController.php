@@ -103,6 +103,9 @@ class LabController extends _CrudController
         $viewType = 'create';
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
+
+        unset($getListCollectData['image']);
+
         $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
         {
@@ -115,7 +118,7 @@ class LabController extends _CrudController
             }
         }
 
-        $dokument = $data['image'];
+        $dokument = $this->request->file('image');
         if ($dokument) {
             if ($dokument->getError() != 1) {
 
