@@ -317,13 +317,13 @@ class ProfileController extends Controller
                 'success' => 0,
                 'message' => [__('Email Tidak Ditemukan')]
             ], 422);
-        }
-        if ($getUser->verification_email == 1){
+        }elseif ($getUser->verification_email == 1){
             return response()->json([
                 'success' => 0,
                 'message' => [__('Email Sudah Diverifikasi')]
             ], 422);
         }
+
 
         if($verify == 1){
 
