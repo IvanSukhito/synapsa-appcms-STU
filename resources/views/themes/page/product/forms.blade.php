@@ -85,17 +85,14 @@ else {
                         <br>
                     @endforeach
                     @endif
-                    @if(in_array($viewType, ['create','edit']) )
-                    <label>Upload File</label>
-                      <br/>
-                      <div id="list_other1">
-                            <div class="d-flex align-items-center">
-                                <div class="p-2">
-                                    <input type="file" name="image" class="dropify" data-allowed-file-extensions="jpg jpeg png" accept="image/png, image/gif, image/jpeg" data-max-file-size="10M" required>
-                                </div>
+                    @if(in_array($viewType, ['edit']))
+                        <div id="list_desc">
+                            <div class="form-group">
+                                <a href="#" onclick="return add_desc1()" class="btn btn-warning">Tambah</a>
                             </div>
-                      </div>
-
+                        </div>
+                    @endif
+                    @if(in_array($viewType, ['create']) )
                        <div id="list_desc">
                            <div class="form-group">
                                <label for="desc">{{ __('general.desc') }}</label>

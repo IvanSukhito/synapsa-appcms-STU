@@ -50,9 +50,12 @@ class ProductController extends _CrudController
                 ]
             ],
             'image_full' => [
-                'create' => 0,
-                'edit' => 0,
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
                 'type' => 'image',
+                'lang' => 'image'
             ],
 
             'stock' => [
@@ -235,7 +238,7 @@ class ProductController extends _CrudController
         $productStock = $this->request->get('stock');
         $productStockFlag = $this->request->get('stock_flag');
         $productStatus = $this->request->get('status');
-        $dokument = $this->request->file('image');
+        $dokument = $this->request->file('image_full');
         $desc = $this->request->get('desc');
         $title = $this->request->get('title');
 
@@ -317,7 +320,7 @@ class ProductController extends _CrudController
         $productInformation = $this->request->get('information');
         $productIndication = $this->request->get('indication');
         $productDosis = $this->request->get('dosis');
-        $dokument = $this->request->file('image');
+        $dokument = $this->request->file('image_full');
         $title = $this->request->get('title');
         $desc = $this->request->get('desc');
         $descProduct = [];
