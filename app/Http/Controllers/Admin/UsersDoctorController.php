@@ -93,6 +93,7 @@ class UsersDoctorController extends _CrudController
                     'edit' => 'required'
                 ],
                 'type' => 'datepicker',
+                'list' => 0,
             ],
             'gender' => [
                 'validate' => [

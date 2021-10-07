@@ -95,6 +95,8 @@ class PaymentController extends _CrudController
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
 
+        unset($getListCollectData['icon_img']);
+
         $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
         {
@@ -107,7 +109,7 @@ class PaymentController extends _CrudController
             }
         }
 
-        $dokument = $data['icon_img'];
+        $dokument = $this->request->file('icon_img');
         if ($dokument) {
             if ($dokument->getError() != 1) {
 
@@ -158,6 +160,8 @@ class PaymentController extends _CrudController
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
 
+        unset($getListCollectData['icon_img']);
+
         $validate = $this->setValidateData($getListCollectData, $viewType, $id);
         if (count($validate) > 0)
         {
@@ -170,7 +174,7 @@ class PaymentController extends _CrudController
             }
         }
 
-        $dokument = $data['icon_img'];
+        $dokument = $this->request->file('icon_img');
         if ($dokument) {
             if ($dokument->getError() != 1) {
 

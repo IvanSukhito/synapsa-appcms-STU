@@ -198,6 +198,9 @@ class UsersPatientController extends _CrudController
         $viewType = 'create';
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
+
+        unset($getListCollectData['upload_ktp']);
+
         $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
         {
@@ -210,7 +213,7 @@ class UsersPatientController extends _CrudController
             }
         }
 
-        $dokument = $data['upload_ktp'];
+        $dokument = $this->request->file('upload_ktp');
         if ($dokument) {
             if ($dokument->getError() != 1) {
 
@@ -279,6 +282,9 @@ class UsersPatientController extends _CrudController
         }
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
+
+        unset($getListCollectData['upload_ktp']);
+
         $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
         {
@@ -291,7 +297,7 @@ class UsersPatientController extends _CrudController
             }
         }
 
-        $dokument = $data['upload_ktp'];
+        $dokument = $this->request->file('upload_ktp');
         if ($dokument) {
             if ($dokument->getError() != 1) {
 
