@@ -45,7 +45,7 @@ class PaymentController extends _CrudController
                 ],
                 'lang' => 'icon_full',
                 'type' => 'image',
-                'path' => 'synapapps/payment',
+                'path' => 'synapsaapps/payment',
             ],
             'orders' => [
                 'validate' => [
@@ -114,7 +114,7 @@ class PaymentController extends _CrudController
                 $getFileName = $dokument->getClientOriginalName();
                 $ext = explode('.', $getFileName);
                 $ext = end($ext);
-                $destinationPath = 'synapapps/payment';
+                $destinationPath = 'synapsaapps/payment';
                 if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
 
                     $dokumentImage = Storage::putFile($destinationPath, $dokument);
@@ -177,7 +177,7 @@ class PaymentController extends _CrudController
                 $getFileName = $dokument->getClientOriginalName();
                 $ext = explode('.', $getFileName);
                 $ext = end($ext);
-                $destinationPath = 'synapapps/payment';
+                $destinationPath = 'synapsaapps/payment';
                 if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
 
                     $dokumentImage = Storage::putFile($destinationPath, $dokument);

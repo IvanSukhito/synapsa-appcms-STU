@@ -46,7 +46,7 @@ class ArticleController extends _CrudController
                     'edit' => 'required'
                 ],
                 'type' => 'image',
-                'path' => 'synapapps/article',
+                'path' => 'synapsaapps/article',
                 'lang' => 'thumbnail_image'
             ],
 
@@ -56,7 +56,7 @@ class ArticleController extends _CrudController
                     'edit' => 'required'
                 ],
                 'type' => 'image',
-                'path' => 'synapapps/article',
+                'path' => 'synapsaapps/article',
                 'lang' => 'image',
                 'list' => 0,
             ],
@@ -132,7 +132,7 @@ class ArticleController extends _CrudController
                 $getFileName = $dokument->getClientOriginalName();
                 $ext = explode('.', $getFileName);
                 $ext = end($ext);
-                $destinationPath = 'synapapps/article';
+                $destinationPath = 'synapsaapps/article';
                 if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
 
                     $dokumentImage = Storage::putFile($destinationPath, $dokument);
@@ -148,7 +148,7 @@ class ArticleController extends _CrudController
                 $getFileName = $dokumentThumbnail->getClientOriginalName();
                 $ext = explode('.', $getFileName);
                 $ext = end($ext);
-                $destinationPath = 'synapapps/article';
+                $destinationPath = 'synapsaapps/article';
                 if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
 
                     $dokumentThumbnailImage = Storage::putFile($destinationPath, $dokumentThumbnail);

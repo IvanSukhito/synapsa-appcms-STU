@@ -114,7 +114,7 @@ class UsersDoctorController extends _CrudController
                     'create' => 'required',
                     'edit' => 'required'
                 ],
-                'path' => 'synapapps/users',
+                'path' => 'synapsaapps/users',
                 'type' => 'image',
                 'list' => 0,
             ],
@@ -215,7 +215,7 @@ class UsersDoctorController extends _CrudController
                 $getFileName = $dokument->getClientOriginalName();
                 $ext = explode('.', $getFileName);
                 $ext = end($ext);
-                $destinationPath = 'synapapps/users';
+                $destinationPath = 'synapsaapps/users';
                 if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
 
                     $dokumentImage = Storage::putFile($destinationPath, $dokument);

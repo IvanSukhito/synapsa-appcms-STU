@@ -37,7 +37,7 @@ class LabController extends _CrudController
                     'create' => 'required',
                     'edit' => 'required'
                 ],
-                'path' => 'synapapps/lab',
+                'path' => 'synapsaapps/lab',
                 'type' => 'image',
             ],
             'desc_lab' => [
@@ -122,7 +122,7 @@ class LabController extends _CrudController
                 $getFileName = $dokument->getClientOriginalName();
                 $ext = explode('.', $getFileName);
                 $ext = end($ext);
-                $destinationPath = 'synapapps/article';
+                $destinationPath = 'synapsaapps/lab';
                 if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
 
                     $dokumentImage = Storage::putFile($destinationPath, $dokument);
