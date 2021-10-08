@@ -47,30 +47,6 @@ class AppointmentController extends Controller
 
         $dateNow = date('Y-m-d');
 
-//        $data = AppointmentDoctor::selectRaw('appointment_doctor.id, appointment_doctor.doctor_id AS janji_id,
-//            appointment_doctor.doctor_name AS janji_name, 1 AS TYPE, appointment_doctor.type_appointment, appointment_doctor.date,
-//            appointment_doctor.time_start, appointment_doctor.time_end, appointment_doctor.status,
-//            doctor_category.name AS doctor_category, users.image AS image,
-//            CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
-//            ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
-//            ->join('users', 'users.id', '=', 'doctor.user_id')
-//            ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
-//            ->where('appointment_doctor.user_id', $user->id)
-//            //            ->where('date', '=', $dateNow)
-//            ->where('appointment_doctor.status', '!=', 99)
-//            ->union(
-//                AppointmentLab::selectRaw('appointment_lab.id, lab.id AS janji_id,
-//                    lab.name AS janji_name, 2 AS TYPE, appointment_lab.type_appointment, appointment_lab.date,
-//                    appointment_lab.time_start, appointment_lab.time_end, appointment_lab.status,
-//                    0 AS doctor_category, lab.image AS image,
-//                    CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full')
-//                ->join('appointment_lab_details','appointment_lab_details.appointment_lab_id','=','appointment_lab.id')
-//                ->join('lab','lab.id','=','appointment_lab_details.lab_id')
-//                ->where('appointment_lab.user_id', $user->id)
-//            //                ->where('date', '=', $dateNow)
-//                ->where('appointment_lab.status', '!=', 99)
-//            );
-
         switch ($time) {
             case 2 : $data = AppointmentDoctor::selectRaw('appointment_doctor.id, appointment_doctor.doctor_id AS janji_id,
                     appointment_doctor.doctor_name AS janji_name, 1 AS type, \'doctor\' AS type_name,appointment_doctor.type_appointment, appointment_doctor.date,
@@ -157,7 +133,7 @@ class AppointmentController extends Controller
                                 ->on('lab.id', '=', DB::raw("(select min(id) from lab WHERE lab.id = appointment_lab_details.lab_id)"));
                         })
                         ->where('appointment_lab.user_id', $user->id)
-                        ->where('appointment_doctor.status', '>=', 90)
+                        ->where('appointment_lab.status', '>=', 90)
                 );
                 break;
            default:
