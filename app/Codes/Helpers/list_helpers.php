@@ -150,7 +150,7 @@ if ( ! function_exists('get_list_appointment')) {
             1 => __('general.pending'),
             2 => __('general.approve'),
             80 => __('general.finish'),
-            70 => __('general.waiting');
+            70 => __('general.waiting'),
             90 => __('general.cancel')
         ];
     }

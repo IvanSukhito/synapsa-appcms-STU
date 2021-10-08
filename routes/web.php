@@ -41,6 +41,7 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                 'App\Http\Controllers\Admin\DoctorCategoryController' => 'doctor-category',
                 'App\Http\Controllers\Admin\ServiceController' => 'service',
                 'App\Http\Controllers\Admin\PaymentController' => 'payment',
+                'App\Http\Controllers\Admin\AppointmentLabController' => 'appointment-lab',
             ];
 
             foreach ($listRouter as $controller => $linkName) {
@@ -55,6 +56,10 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                     case 'lab-schedule':
                         $router->post($linkName . '/{id}/updateSchedule',   $controller.'@update')->name('admin.' . $linkName . '.updateLab');
                          break;
+                    case 'appointment-lab':
+                        $router->get($linkName . '/{id}/approve',   $controller.'@approve')->name('admin.' . $linkName . '.approve');
+                        $router->get($linkName . '/{id}/reject',   $controller.'@reject')->name('admin.' . $linkName . '.reject');
+                        break;
 
                 }
                 $router->get($linkName . '/data', $controller . '@dataTable')->name('admin.' . $linkName . '.dataTable');

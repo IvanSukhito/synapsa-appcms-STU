@@ -428,6 +428,15 @@ if ( ! function_exists('listAllMenu')) {
                 'type' => 1,
             ],
             [
+                'name' => __('general.appointment_lab'),
+                'icon' => '<i class="nav-icon fa fa-book"></i>',
+                'title' => __('general.appointment_lab'),
+                'active' => ['admin.appointment-lab.'],
+                'route' => 'admin.appointment-lab.index',
+                'key' => 'appointment-lab',
+                'type' => 1,
+            ],
+            [
                 'name' => __('general.payment'),
                 'icon' => '<i class="nav-icon fa fa-credit-card"></i>',
                 'title' => __('general.payment'),
@@ -504,7 +513,7 @@ if ( ! function_exists('listAvailablePermission'))
         foreach ([
                      'settings',
                      'faqs',
-
+                     'appointment-lab',
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [
@@ -553,6 +562,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'doctor-category',
                      'payment',
 
+
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [
@@ -583,6 +593,10 @@ if ( ! function_exists('listAvailablePermission'))
         $listPermission['doctor']['destroy'][] = 'admin.doctor.destroySchedule';
 
         $listPermission['lab-schedule']['edit'][] = 'admin.lab-schedule.updateLab';
+
+        $listPermission['appointment-lab']['edit'][] = 'admin.appointment-lab.approve';
+        $listPermission['appointment-lab']['edit'][] = 'admin.appointment-lab.reject';
+
         return $listPermission;
     }
 }

@@ -24,8 +24,17 @@ class AppointmentLab extends Model
     ];
     protected $appends = [
         'status_appointment',
-    ]
+    ];
 
+    protected $dates = [
+        'created_at',
+    ];
+
+    public function getCreatedAtAttribute()
+    {
+        return \Carbon\Carbon::parse($this->attributes['created_at'])
+            ->format('H:i:s Y-m-d ');
+    }
      public function getStatusAppointmentAttribute()
      {
          $getList = get_list_appointment();
