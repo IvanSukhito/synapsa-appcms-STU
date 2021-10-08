@@ -616,7 +616,7 @@ class ProductController extends Controller
 
         $getDetailsInformation = json_decode($getUsersCart->detail_information, true);
         $getDetailsShipping = json_decode($getUsersCart->detail_shipping, true);
-        $shippingId = $getDetailsShipping['shipping_id'];
+        $shippingId = $getDetailsShipping['shipping_id'] ?? 0;
         $getShipping = Shipping::where('id', $shippingId)->first();
         if (!$getShipping) {
             return response()->json([

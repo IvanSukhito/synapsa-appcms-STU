@@ -36,7 +36,10 @@ class Transaction extends Model
         'receiver_name',
         'receiver_phone',
         'receiver_address',
-        'type',
+        'category_service_id',
+        'category_service_name',
+        'type_service',
+        'type_service_name',
         'extra_info',
         'payment_info',
         'status'

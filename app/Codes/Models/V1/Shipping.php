@@ -15,4 +15,20 @@ class Shipping extends Model
         'settings',
         'status'
     ];
+
+    protected $appends = [
+        'shipping_price',
+        'shipping_price_nice'
+    ];
+
+    public function getShippingPriceAttribute()
+    {
+        return 15000;
+    }
+
+    public function getShippingPriceNiceAttribute()
+    {
+        return number_format(15000, 0, ',', '.');
+    }
+
 }
