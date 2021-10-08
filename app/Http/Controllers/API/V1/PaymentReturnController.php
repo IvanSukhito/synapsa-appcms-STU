@@ -106,12 +106,11 @@ class PaymentReturnController extends Controller
 
     public function updateTransaction($getTransaction)
     {
-        var_dump($getTransaction->toArray()); die();
         if ($getTransaction->status == 80) {
             return 0;
         }
 
-        $getType = $getTransaction->type;
+        $getType = $getTransaction->type_service;
         $getTransaction->status = 80;
         $getTransaction->save();
 
