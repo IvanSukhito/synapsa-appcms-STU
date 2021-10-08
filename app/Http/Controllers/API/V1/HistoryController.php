@@ -207,9 +207,9 @@ class HistoryController extends Controller
 
     private function getListProduct($userId, $getLimit, $s)
     {
-        $getType = check_list_type_transaction('product');
-
-        $result = Transaction::selectRaw('transaction.id, transaction.status, total, subtotal, type,
+        $result = Transaction::selectRaw('transaction.id, transaction.created_at,
+            transaction.category_service_id, transaction.category_service_name,
+            transaction.type_service, transaction.type_service_name, transaction.user_id, transaction.status,
             MIN(product_name) AS product_name, MIN(product.image) as image,
             CONCAT("'.env('OSS_URL').'/'.'", MIN(product.image)) AS image_full')
             ->join('transaction_details', function($join){
@@ -221,13 +221,15 @@ class HistoryController extends Controller
                      ->on('product.id', '=', DB::raw("(select min(id) from product WHERE product.id = transaction_details.product_id)"));
             })
             ->where('transaction.user_id', $userId)
-            ->where('type', $getType)->orderBy('transaction.id','DESC');
+            ->where('type_service', 1)->orderBy('transaction.id','DESC');
 
         if (strlen($s) > 0) {
             $result = $result->where('code', 'LIKE', "%$s%")->orWhere('product_name', 'LIKE', "%$s%");
         }
 
-        $getData = $result->groupByRaw('transaction.id, transaction.status, total, subtotal, type, product_name, image')->paginate($getLimit);
+        $getData = $result->groupByRaw('transaction.id, transaction.created_at,
+            transaction.category_service_id, transaction.category_service_name,
+            transaction.type_service, transaction.type_service_name, transaction.user_id, transaction.status')->paginate($getLimit);
 
         return [
             'data' => $getData
@@ -252,6 +254,9 @@ class HistoryController extends Controller
             ]
         ];
         foreach ($getService as $list) {
+            if ($firstService <= 0) {
+                $firstService = $list->id;
+            }
             $temp = [
                 'id' => $list->id,
                 'name' => $list->name,
@@ -276,22 +281,20 @@ class HistoryController extends Controller
             $getServiceId = $firstService;
         }
 
-        $getType = check_list_type_transaction('doctor', $getServiceId);
-
-        $result = Transaction::selectRaw('transaction.id, transaction.created_at, transaction.type, transaction.user_id,
-            doctor_category.name as category_doctor, transaction.status, MIN(doctor_name) AS doctor_name,
+        $result = Transaction::selectRaw('transaction.id, transaction.created_at,
+            transaction.category_service_id, transaction.category_service_name,
+            transaction.type_service, transaction.type_service_name, transaction.user_id, transaction.status,
+            doctor_category.name as category_doctor, MIN(doctor_name) AS doctor_name,
             MIN(users.image) AS image, CONCAT("'.env('OSS_URL').'/'.'", MIN(users.image)) AS image_full')
             ->leftJoin('transaction_details', 'transaction_details.transaction_id','=','transaction.id')
             ->leftJoin('doctor', 'doctor.id','=','transaction_details.doctor_id')
             ->leftJoin('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
             ->leftJoin('users', 'users.id','=','doctor.user_id')
-            ->where('transaction.user_id', $userId);
+            ->where('transaction.user_id', $userId)
+            ->where('type_service', 2);
 
-        if ($getServiceId <= 0) {
-            $result = $result->whereIn('type', [2,3,4]);
-        }
-        else {
-            $result = $result->where('type', $getType);
+        if ($getServiceId > 0) {
+            $result = $result->where('category_service_id', $getServiceId);
         }
 
         if (strlen($s) > 0) {
@@ -299,7 +302,10 @@ class HistoryController extends Controller
         }
 
         $getData = $result->orderBy('transaction.id','DESC')
-            ->groupByRaw('transaction.id, transaction.type, transaction.user_id, transaction.created_at, transaction.status, category_doctor')
+            ->groupByRaw('transaction.id, transaction.created_at,
+            transaction.category_service_id, transaction.category_service_name,
+            transaction.type_service, transaction.type_service_name, transaction.user_id, transaction.status,
+            category_doctor')
             ->paginate($getLimit);
 
         return [
@@ -326,6 +332,9 @@ class HistoryController extends Controller
             ]
         ];
         foreach ($getService as $list) {
+            if ($firstService <= 0) {
+                $firstService = $list->id;
+            }
             $temp = [
                 'id' => $list->id,
                 'name' => $list->name,
@@ -350,9 +359,9 @@ class HistoryController extends Controller
             $getServiceId = $firstService;
         }
 
-        $getType = check_list_type_transaction('lab', $getServiceId);
-
-        $result = Transaction::selectRaw('transaction.id, transaction.created_at, transaction.status, type,
+        $result = Transaction::selectRaw('transaction.id, transaction.created_at,
+            transaction.category_service_id, transaction.category_service_name,
+            transaction.type_service, transaction.type_service_name, transaction.user_id, transaction.status,
             MIN(lab_name) AS lab_name, MIN(lab.image) as image, CONCAT("'.env('OSS_URL').'/'.'", MIN(lab.image)) AS image_full')
             ->join('transaction_details', function($join){
                 $join->on('transaction_details.transaction_id','=','transaction.id')
@@ -362,20 +371,21 @@ class HistoryController extends Controller
                 $join->on('lab.id','=','transaction_details.lab_id')
                      ->on('lab.id', '=', DB::raw("(select min(id) from lab WHERE lab.id = transaction_details.lab_id)"));
             })
-            ->where('transaction.user_id', $userId)->orderBy('transaction.id','DESC');
+            ->where('transaction.user_id', $userId)
+            ->where('type_service', 3)
+            ->orderBy('transaction.id','DESC');
 
-        if ($getServiceId <= 0) {
-            $result = $result->whereIn('type', [5,6,7]);
-        }
-        else {
-            $result = $result->where('type', $getType);
+        if ($getServiceId > 0) {
+            $result = $result->where('category_service_id', $getServiceId);
         }
 
         if (strlen($s) > 0) {
             $result = $result->where('code', 'LIKE', "%$s%")->orWhere('lab_name', 'LIKE', "%$s%");
         }
 
-        $getData = $result->groupByRaw('transaction.id, transaction.created_at, transaction.status, type, lab_name, image')->paginate($getLimit);
+        $getData = $result->groupByRaw('transaction.id, transaction.created_at,
+            transaction.category_service_id, transaction.category_service_name,
+            transaction.type_service, transaction.type_service_name, transaction.user_id, transaction.status')->paginate($getLimit);
 
         return [
             'data' => $getData,
