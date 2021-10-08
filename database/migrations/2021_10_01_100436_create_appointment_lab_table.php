@@ -15,6 +15,7 @@ class CreateAppointmentLabTable extends Migration
     {
         Schema::create('appointment_lab', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('schedule_id')->default(0);
             $table->unsignedBigInteger('service_id')->default(0);
             $table->unsignedBigInteger('user_id')->default(0);
             $table->string('type_appointment')->nullable();

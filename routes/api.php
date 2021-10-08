@@ -107,16 +107,18 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
 
    $router->group(['prefix' => 'appointment'], function () use ($router) {
 
-       $router->get('/', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@index'])->name('api.appointment-doctor.index');
-       $router->get('{id}', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@detail'])->name('api.appointment-doctor.detail');
-       $router->post('{id}', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@fillForm'])->name('api.appointment-doctor.fillForm');
-       $router->get('{id}/meeting', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@meeting'])->name('api.appointment-doctor.meeting');
-       $router->get('{id}/cancel-meeting', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@cancelMeeting'])->name('api.appointment-doctor.cancelMeeting');
-       $router->get('{id}/cart', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@cart'])->name('api.appointment-doctor.cart');
-       $router->get('{id}/cart', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@chooseCart'])->name('api.appointment-doctor.chooseCart');
-       $router->get('{id}/shipping', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@shipping'])->name('api.appointment-doctor.shipping');
-       $router->get('{id}/payment', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@payment'])->name('api.appointment-doctor.payment');
-       $router->post('{id}/checkout', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@checkout'])->name('api.appointment-doctor.checkout');
+       $router->get('/', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@index'])->name('api.appointment.index');
+       $router->get('{id}', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@detail'])->name('api.appointment.detail');
+       $router->post('{id}', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@fillForm'])->name('api.appointment.fillForm');
+       $router->get('{id}/reschedule', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@reschedule'])->name('api.appointment.reschedule');
+       $router->post('{id}/reschedule', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@updateSchedule'])->name('api.appointment.updateSchedule');
+       $router->get('{id}/meeting', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@meeting'])->name('api.appointment.meeting');
+       $router->get('{id}/cancel-meeting', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@cancelMeeting'])->name('api.appointment.cancelMeeting');
+       $router->get('{id}/cart', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@cart'])->name('api.appointment.cart');
+       $router->get('{id}/cart', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@chooseCart'])->name('api.appointment.chooseCart');
+       $router->get('{id}/shipping', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@shipping'])->name('api.appointment.shipping');
+       $router->get('{id}/payment', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@payment'])->name('api.appointment.payment');
+       $router->post('{id}/checkout', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@checkout'])->name('api.appointment.checkout');
 
    });
 
