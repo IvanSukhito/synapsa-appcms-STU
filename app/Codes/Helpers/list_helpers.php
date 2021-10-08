@@ -136,8 +136,7 @@ if ( ! function_exists('get_list_appointment')) {
     {
         return [
             1 => __('general.pending'),
-            2 => __('general.approve'),
-            3 => __('general.reschedule'),
+            2 => __('general.reschedule'),
             80 => __('general.approved'),
             90 => __('general.cancel')
         ];
