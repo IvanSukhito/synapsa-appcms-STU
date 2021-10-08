@@ -14,7 +14,7 @@ class Transaction extends Model
         'payment_id',
         'shipping_id',
         'payment_refer_id',
-        'service',
+        'payment_service',
         'type_payment',
         'code',
         'payment_name',

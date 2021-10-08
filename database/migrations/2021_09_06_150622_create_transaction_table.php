@@ -20,7 +20,7 @@ class CreateTransactionTable extends Migration
             $table->unsignedBigInteger('payment_id')->default(0);
             $table->unsignedBigInteger('shipping_id')->default(0);
             $table->string('payment_refer_id')->nullable();
-            $table->string('service')->nullable();
+            $table->string('payment_service')->nullable();
             $table->string('type_payment')->nullable();
             $table->string('code')->nullable();
             $table->string('payment_name')->nullable();
@@ -42,7 +42,10 @@ class CreateTransactionTable extends Migration
             $table->string('receiver_name')->nullable();
             $table->string('receiver_phone')->nullable();
             $table->text('receiver_address')->nullable();
-            $table->tinyInteger('type')->default(0);
+            $table->unsignedBigInteger('category_service_id')->default(0);
+            $table->string('category_service_name')->nullable();
+            $table->tinyInteger('type_service')->default(0);
+            $table->string('type_service_name')->nullable();
             $table->text('extra_info')->nullable();
             $table->longText('payment_info')->nullable();
             $table->tinyInteger('status')->default(0);

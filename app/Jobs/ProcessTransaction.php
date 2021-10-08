@@ -6,6 +6,7 @@ use App\Codes\Models\V1\DoctorSchedule;
 use App\Codes\Models\V1\LabSchedule;
 use App\Codes\Models\V1\Payment;
 use App\Codes\Models\V1\Product;
+use App\Codes\Models\V1\Service;
 use App\Codes\Models\V1\SetJob;
 use App\Codes\Models\V1\Shipping;
 use App\Codes\Models\V1\Transaction;
@@ -142,6 +143,8 @@ class ProcessTransaction implements ShouldQueue
             'user_id' => $getUser->id,
             'code' => $newCode,
             'payment_refer_id' => $getPaymentReferId,
+            'payment_service' => $getPayment->service,
+            'type_payment' => $getPayment->type_payment,
             'shipping_id' => $getShippingId,
             'shipping_name' => $getShipping->name,
             'payment_id' => $getPaymentId,
@@ -159,7 +162,10 @@ class ProcessTransaction implements ShouldQueue
             'shipping_subdistrict_name' => $getUsersAddress->sub_district_name ?? '',
             'shipping_zipcode' => $getUsersAddress->zip_code ?? '',
             'payment_info' => $getPaymentInfo,
-            'type' => $getType,
+            'category_service_id' => 0,
+            'category_service_name' => '',
+            'type_service' => 1,
+            'type_service_name' => $getTypeService,
             'total_qty' => $totalQty,
             'subtotal' => $subTotal,
             'shipping_price' => $shippingPrice,
@@ -202,6 +208,7 @@ class ProcessTransaction implements ShouldQueue
         $getUsersAddress = UsersAddress::where('user_id', $getUserId)->first();
         $getPayment = Payment::where('id', $getPaymentId)->first();
         $getUser = Users::where('id', $getUserId)->first();
+        $getService = Service::where('id', $getDoctorSchedule->service_id)->first();
 
         $subTotal = $getDoctorInfo['price'];
         $total = $subTotal;
@@ -225,13 +232,16 @@ class ProcessTransaction implements ShouldQueue
         $getTransaction = Transaction::create([
             'klinik_id' => $getUser->klinik_id,
             'user_id' => $getUser->id,
-            'service' => $getPayment->service,
+            'payment_service' => $getPayment->service,
             'type_payment' => $getPayment->type_payment,
             'code' => $newCode,
             'payment_refer_id' => $getPaymentReferId,
             'payment_id' => $getPaymentId,
             'payment_name' => $getPayment->name,
-            'type' => $getType,
+            'category_service_id' => $getDoctorSchedule->service_id,
+            'category_service_name' => $getService ? $getService->name : '',
+            'type_service' => 2,
+            'type_service_name' => $getTypeService,
             'subtotal' => $subTotal,
             'total' => $total,
             'extra_info' => json_encode($extraInfo),
@@ -287,6 +297,7 @@ class ProcessTransaction implements ShouldQueue
         $getUsersAddress = UsersAddress::where('user_id', $getUserId)->first();
         $getPayment = Payment::where('id', $getPaymentId)->first();
         $getUser = Users::where('id', $getUserId)->first();
+        $getService = Service::where('id', $getLabSchedule->service_id)->first();
 
         $newCode = date('Ym').$getNewCode;
 
@@ -309,12 +320,15 @@ class ProcessTransaction implements ShouldQueue
             'user_id' => $getUser->id,
             'code' => $newCode,
             'payment_refer_id' => $getPaymentReferId,
-            'service' => $getPayment->service,
+            'payment_service' => $getPayment->service,
             'type_payment' => $getPayment->type_payment,
             'payment_id' => $getPaymentId,
             'payment_name' => $getPayment->name,
             'payment_info' => $getPaymentInfo,
-            'type' => $getType,
+            'category_service_id' => $getLabSchedule->service_id,
+            'category_service_name' => $getService ? $getService->name : '',
+            'type_service' => 3,
+            'type_service_name' => $getTypeService,
             'subtotal' => $total,
             'total' => $total,
             'extra_info' => json_encode($extraInfo),

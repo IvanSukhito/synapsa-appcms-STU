@@ -158,10 +158,21 @@ class DoctorAppointmentController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
+        else if ($data->status != 80) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Janji Temu Dokter Belum di Setujui'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
 
         return response()->json([
             'success' => 1,
-            'message' => ['Progress'],
+            'data' => [
+                'app_id' => env('AGORA_APP_ID'),
+                'channel' => $data->video_link
+            ],
+            'message' => ['Sukses'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
     }
