@@ -159,13 +159,14 @@ class DoctorAppointmentController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
-        else if ($data->status != 80) {
+        else if ($data->status != 3) {
             return response()->json([
                 'success' => 0,
                 'message' => ['Janji Temu Dokter Belum di Setujui'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
+
         $getService = Service::where('id', $data->service_id)->first();
         if (!$getService) {
             return response()->json([
@@ -217,9 +218,12 @@ class DoctorAppointmentController extends Controller
         $getService = Service::where('id', $data->service_id)->first();
         if ($getService && $getService->type == 1) {
             $data->video_link = $data->doctor_id.$data->user_id.'tele'.strtotime($data->date.$data->time_start .$data->time_end.$data->doctor_id.$data->user_id.rand(0,100));
+            $data->status = 3;
+        }
+        else {
+            $data->status = 4;
         }
 
-        $data->status = 80;
         $data->save();
 
         return response()->json([

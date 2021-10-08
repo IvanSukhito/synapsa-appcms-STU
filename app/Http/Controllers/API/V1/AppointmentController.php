@@ -10,6 +10,7 @@ use App\Codes\Models\V1\AppointmentLab;
 use App\Codes\Models\V1\AppointmentLabDetails;
 use App\Codes\Models\V1\Payment;
 use App\Codes\Models\V1\Product;
+use App\Codes\Models\V1\Service;
 use App\Codes\Models\V1\Shipping;
 use App\Codes\Models\V1\Transaction;
 use App\Codes\Models\V1\UsersAddress;
@@ -58,7 +59,7 @@ class AppointmentController extends Controller
                         ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
                         ->where('appointment_doctor.user_id', $user->id)
                        // ->where('appointment_doctor.date', '=', $dateNow)
-                        ->where('appointment_doctor.status', '<', 80)
+                        ->whereIn('appointment_doctor.status', [1,2])
                         ->union(
                             AppointmentLab::selectRaw('appointment_lab.id, lab.id AS janji_id,
                             lab.name AS janji_name, 2 AS type, \'lab\' AS type_name, appointment_lab.type_appointment, appointment_lab.date,
@@ -75,7 +76,7 @@ class AppointmentController extends Controller
                                 })
                                 ->where('appointment_lab.user_id', $user->id)
                                 //->where('appointment_lab.date', '=', $dateNow)
-                                ->where('appointment_lab.status', '<', 80)
+                                ->whereIn('appointment_lab.status', [1,2])
                         );
             break;
             case 3 : $data = AppointmentDoctor::selectRaw('appointment_doctor.id, appointment_doctor.doctor_id AS janji_id,
@@ -147,7 +148,7 @@ class AppointmentController extends Controller
                    ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
                    ->where('appointment_doctor.user_id', $user->id)
                    ->where('appointment_doctor.date', '>=', $dateNow)
-                   ->where('appointment_doctor.status', '=', 80)
+                   ->whereIn('appointment_doctor.status', [3,4])
                    ->union(
                        AppointmentLab::selectRaw('appointment_lab.id, lab.id AS janji_id,
                             lab.name AS janji_name, 2 AS type, \'lab\' AS type_name, appointment_lab.type_appointment, appointment_lab.date,
@@ -164,7 +165,7 @@ class AppointmentController extends Controller
                            })
                            ->where('appointment_lab.user_id', $user->id)
                            ->where('appointment_lab.date', '>=', $dateNow)
-                           ->where('appointment_lab.status', '=', 80)
+                           ->whereIn('appointment_lab.status', [3,4])
                    );
                break;
        }
@@ -300,6 +301,13 @@ class AppointmentController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
+        if (!in_array($data, [3,4])) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Janji Temu Dokter Belum di setujui'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
 
         $getMedicalCheckup = $this->request->get('medical_checkup');
         $listMedicalCheckup = [];
@@ -345,10 +353,37 @@ class AppointmentController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
+        else if ($data->status != 3) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Janji Temu Dokter Belum di Setujui'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+
+        $getService = Service::where('id', $data->service_id)->first();
+        if (!$getService) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Janji Temu Dokter Bukan untuk meeting'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+        elseif ($getService->type != 1) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Janji Temu Dokter Bukan untuk meeting'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
 
         return response()->json([
             'success' => 1,
-            'message' => ['Progress'],
+            'data' => [
+                'app_id' => env('AGORA_APP_ID'),
+                'channel' => $data->video_link
+            ],
+            'message' => ['Sukses'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
     }
@@ -610,7 +645,8 @@ class AppointmentController extends Controller
         $getDetails = Product::selectRaw('appointment_doctor_product.id, product.id as product_id, product.name, product.image,
             product.price, product.unit, appointment_doctor_product.product_qty, appointment_doctor_product.choose')
             ->join('appointment_doctor_product', 'appointment_doctor_product.product_id', '=', 'product.id')
-            ->where('appointment_doctor_product.appointment_doctor_id', '=', $id)->get();
+            ->where('appointment_doctor_product.appointment_doctor_id', '=', $id)->where('choose', 1)
+            ->get();
         foreach ($getDetails as $list) {
             $total += $list->price;
         }
@@ -628,7 +664,8 @@ class AppointmentController extends Controller
                 'payment_id' => $paymentId,
                 'user_id' => $user->id,
                 'type_service' => 'product_klinik',
-                'service_id' => 0
+                'service_id' => 0,
+                'appointment_doctor_id' => $id
             ],
             'code' => $newCode,
             'total' => $total,

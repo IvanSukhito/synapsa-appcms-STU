@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Codes\Models\V1\AppointmentDoctor;
 use App\Codes\Models\V1\DoctorSchedule;
 use App\Codes\Models\V1\LabSchedule;
 use App\Codes\Models\V1\Payment;
@@ -74,6 +75,10 @@ class ProcessTransaction implements ShouldQueue
             else if ($getType == 4) {
                 $this->transactionNurse();
             }
+            else if ($getType == 5) {
+                $getAppointmentDoctorId = isset($getParams['appointment_doctor_id']) ? intval($getParams['appointment_doctor_id']) : 0;
+                $this->transactionProductKlinik($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getPaymentInfo, $getAppointmentDoctorId);
+            }
         }
     }
 
@@ -117,6 +122,111 @@ class ProcessTransaction implements ShouldQueue
             ->join('users_cart_detail', 'users_cart_detail.product_id', '=', 'product.id')
             ->where('users_cart_detail.users_cart_id', '=', $getUsersCart->id)
             ->where('choose', 1)->get();
+
+        $newCode = date('Ym').$getNewCode;
+
+        DB::beginTransaction();
+
+        $totalQty = 0;
+        $subTotal = 0;
+        $shippingPrice = 15000;
+        $transactionDetails = [];
+        foreach ($getUsersCartDetails as $list) {
+            $totalQty += $list->qty;
+            $subTotal += ($list->qty * $list->price);
+            $transactionDetails[] = new TransactionDetails([
+                'product_id' => $list->product_id,
+                'product_name' => $list->product_name,
+                'product_qty' => $list->qty,
+                'product_price' => $list->price
+            ]);
+        }
+        $total = $subTotal + $shippingPrice;
+
+        $getTransaction = Transaction::create([
+            'klinik_id' => $getUser->klinik_id,
+            'user_id' => $getUser->id,
+            'code' => $newCode,
+            'payment_refer_id' => $getPaymentReferId,
+            'payment_service' => $getPayment->service,
+            'type_payment' => $getPayment->type_payment,
+            'shipping_id' => $getShippingId,
+            'shipping_name' => $getShipping->name,
+            'payment_id' => $getPaymentId,
+            'payment_name' => $getPayment->name,
+            'receiver_name' => $getDetailsInformation['receiver'] ?? '',
+            'receiver_address' => $getDetailsInformation['address'] ?? '',
+            'receiver_phone' => $getDetailsInformation['phone'] ?? '',
+            'shipping_address_name' => $getUsersAddress->address_name ?? '',
+            'shipping_address' => $getUsersAddress->address ?? '',
+            'shipping_city_id' => $getUsersAddress->city_id ?? 0,
+            'shipping_city_name' => $getUsersAddress->city_name ?? '',
+            'shipping_district_id' => $getUsersAddress->district_id ?? 0,
+            'shipping_district_name' => $getUsersAddress->district_name ?? '',
+            'shipping_subdistrict_id' => $getUsersAddress->sub_district_id ?? 0,
+            'shipping_subdistrict_name' => $getUsersAddress->sub_district_name ?? '',
+            'shipping_zipcode' => $getUsersAddress->zip_code ?? '',
+            'payment_info' => $getPaymentInfo,
+            'category_service_id' => 0,
+            'category_service_name' => '',
+            'type_service' => 1,
+            'type_service_name' => $getTypeService,
+            'total_qty' => $totalQty,
+            'subtotal' => $subTotal,
+            'shipping_price' => $shippingPrice,
+            'total' => $total,
+            'status' => 2
+        ]);
+
+        $getTransaction->getTransactionDetails()->saveMany($transactionDetails);
+
+        UsersCartDetail::where('users_cart_id', '=', $getUsersCart->id)
+            ->where('choose', 1)->delete();
+
+        DB::commit();
+
+        $this->getJob->status = 80;
+        $this->getJob->response = json_encode([
+            'service' => $getTypeService,
+            'service_id' => $getServiceId,
+            'transaction_id' => $getTransaction->id,
+            'message' => 'ok'
+        ]);
+        $this->getJob->save();
+
+    }
+
+    private function transactionProductKlinik($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getPaymentInfo, $getAppointmentDoctorId)
+    {
+        $getUser = Users::where('id', $getUserId)->first();
+        $getUsersAddress = UsersAddress::where('user_id', $getUserId)->first();
+        $getPayment = Payment::where('id', $getPaymentId)->first();
+
+        $data = AppointmentDoctor::whereIn('status', [80])->where('user_id', $getUserId)->where('id', $getAppointmentDoctorId)->first();
+        if (!$data) {
+            $this->getJob->status = 99;
+            $this->getJob->response = json_encode([
+                'service' => $getTypeService,
+                'service_id' => $getServiceId,
+                'message' => 'Janji Temu Dokter Tidak Ditemukan'
+            ]);
+            $this->getJob->save();
+            return;
+        }
+
+        $getShippingPrice = 15000;
+
+        $total = 0;
+        $getUsersCartDetails = Product::selectRaw('appointment_doctor_product.id, product.id as product_id, product.name, product.image,
+            product.price, product.unit, appointment_doctor_product.product_qty, appointment_doctor_product.choose')
+            ->join('appointment_doctor_product', 'appointment_doctor_product.product_id', '=', 'product.id')
+            ->where('appointment_doctor_product.appointment_doctor_id', '=', $getAppointmentDoctorId)->where('choose', 1)
+            ->get();
+        foreach ($getUsersCartDetails as $list) {
+            $total += $list->price;
+        }
+
+        $total += $getShippingPrice;
 
         $newCode = date('Ym').$getNewCode;
 
