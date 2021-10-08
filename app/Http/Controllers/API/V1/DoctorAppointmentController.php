@@ -33,6 +33,13 @@ class DoctorAppointmentController extends Controller
     {
         $user = $this->request->attributes->get('_user');
         $getDoctor = Doctor::where('user_id', $user->id)->first();
+        if (!$getDoctor) {
+            return response()->json([
+                'success' => 1,
+                'message' => ['Hanya menu untuk dokter'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
 
         $s = strip_tags($this->request->get('s'));
         $time = intval($this->request->get('time'));
@@ -49,15 +56,14 @@ class DoctorAppointmentController extends Controller
                         ->join('users', 'users.id', '=', 'doctor.user_id')
                         ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
                         ->where('doctor_id', $getDoctor->id)
-                        //->where('date', '=', $dateNow)
-                        ->where('appointment_doctor.status', '=', 80);
+                        ->where('appointment_doctor.status', '<', 80);
                 break;
             case 3 : $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
                         ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
                         ->join('users', 'users.id', '=', 'doctor.user_id')
                         ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
                         ->where('doctor_id', $getDoctor->id)
-                        ->where('date', '<', $dateNow)
+                        ->where('appointment_doctor.date', '<', $dateNow)
                         ->where('appointment_doctor.status', '=', 80);
                 break;
             case 4 : $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
@@ -65,7 +71,7 @@ class DoctorAppointmentController extends Controller
                         ->join('users', 'users.id', '=', 'doctor.user_id')
                         ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
                         ->where('doctor_id', $getDoctor->id)
-                        ->where('appointment_doctor.status', '=', 99);
+                        ->where('appointment_doctor.status', '>=', 90);
                 break;
             default: $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
                         ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
@@ -93,6 +99,13 @@ class DoctorAppointmentController extends Controller
     {
         $user = $this->request->attributes->get('_user');
         $getDoctor = Doctor::where('user_id', $user->id)->first();
+        if (!$getDoctor) {
+            return response()->json([
+                'success' => 1,
+                'message' => ['Hanya menu untuk dokter'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
 
         $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
             ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
@@ -129,6 +142,13 @@ class DoctorAppointmentController extends Controller
     {
         $user = $this->request->attributes->get('_user');
         $getDoctor = Doctor::where('user_id', $user->id)->first();
+        if (!$getDoctor) {
+            return response()->json([
+                'success' => 1,
+                'message' => ['Hanya menu untuk dokter'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
 
         $data = AppointmentDoctor::where('doctor_id', $getDoctor->id)->where('id', $id)->first();
         if (!$data) {
@@ -150,6 +170,13 @@ class DoctorAppointmentController extends Controller
     {
         $user = $this->request->attributes->get('_user');
         $getDoctor = Doctor::where('user_id', $user->id)->first();
+        if (!$getDoctor) {
+            return response()->json([
+                'success' => 1,
+                'message' => ['Hanya menu untuk dokter'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
 
         $data = AppointmentDoctor::whereIn('status', [1,2])->where('doctor_id', $getDoctor->id)->where('id', $id)->first();
         if (!$data) {
@@ -175,6 +202,13 @@ class DoctorAppointmentController extends Controller
     {
         $user = $this->request->attributes->get('_user');
         $getDoctor = Doctor::where('user_id', $user->id)->first();
+        if (!$getDoctor) {
+            return response()->json([
+                'success' => 1,
+                'message' => ['Hanya menu untuk dokter'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
 
         $data = AppointmentDoctor::whereIn('status', [1,2,80])->where('doctor_id', $getDoctor->id)->where('id', $id)->first();
         if (!$data) {
@@ -200,6 +234,13 @@ class DoctorAppointmentController extends Controller
     {
         $user = $this->request->attributes->get('_user');
         $getDoctor = Doctor::where('user_id', $user->id)->first();
+        if (!$getDoctor) {
+            return response()->json([
+                'success' => 1,
+                'message' => ['Hanya menu untuk dokter'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
 
         $data = AppointmentDoctor::where('doctor_id', $getDoctor->id)->where('id', $id)->first();
         if (!$data) {
@@ -236,6 +277,13 @@ class DoctorAppointmentController extends Controller
     {
         $user = $this->request->attributes->get('_user');
         $getDoctor = Doctor::where('user_id', $user->id)->first();
+        if (!$getDoctor) {
+            return response()->json([
+                'success' => 1,
+                'message' => ['Hanya menu untuk dokter'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
 
         $validator = Validator::make($this->request->all(), [
             'diagnosis' => 'required',

@@ -27,9 +27,10 @@ class AppointmentDoctor extends Model
         'extra_info',
         'status'
     ];
+
     protected $appends = [
         'status_appointment',
-    ]
+    ];
 
     public function getAppointmentDoctorProduct()
     {
