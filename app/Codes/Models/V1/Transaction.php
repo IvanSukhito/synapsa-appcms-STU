@@ -75,20 +75,17 @@ class Transaction extends Model
 
     public function getTypeTransactionAttribute()
     {
-        $getList = get_list_type_transaction();
-        return $getList[$this->type] ?? $this->type;
+        return $this->type_service_name.' '.$this->category_service_name;
     }
 
     public function getTypeTransaction2Attribute()
     {
-        $getList = get_list_type_transaction2();
-        return $getList[$this->type] ?? 0;
+        return $this->type_service_name;
     }
 
     public function getTypeTransaction3Attribute()
     {
-        $getList = get_list_type_transaction3();
-        return $getList[$this->type] ?? 0;
+        return $this->category_service_name;
     }
 
     public function getStatusTransactionAttribute()

@@ -106,18 +106,23 @@ class PaymentReturnController extends Controller
 
     public function updateTransaction($getTransaction)
     {
+        var_dump($getTransaction->toArray()); die();
+        if ($getTransaction->status == 80) {
+            return 0;
+        }
+
         $getType = $getTransaction->type;
         $getTransaction->status = 80;
         $getTransaction->save();
 
-        if (in_array($getType, [2, 3, 4])) {
+        if ($getType == 2) {
             $transactionId = $getTransaction->id;
             $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
             if ($getDetail) {
                 $logic = new SynapsaLogic();
                 $logic->setupAppointmentDoctor($getTransaction, $getDetail, $getDetail->schedule_id);
             }
-        } else if (in_array($getType, [5, 6, 7])) {
+        } else if ($getType == 3) {
             $transactionId = $getTransaction->id;
             $scheduleId = 0;
             $getDetails = TransactionDetails::where('transaction_id', $transactionId)->get();
@@ -128,13 +133,15 @@ class PaymentReturnController extends Controller
                 $logic = new SynapsaLogic();
                 $logic->setupAppointmentLab($getTransaction, $getDetails, $scheduleId);
             }
-        } else if (in_array($getType, [8, 9, 10])) {
+        } else if ($getType == 4) {
             $transactionId = $getTransaction->id;
             $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
             if ($getDetail) {
                 $logic = new SynapsaLogic();
                 $logic->setupAppointmentNurse($getDetail->schedule_id, $transactionId);
             }
+        } else if ($getType == 5) {
+            // Product Klinik
         }
 
     }

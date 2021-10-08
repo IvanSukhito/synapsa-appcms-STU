@@ -39,8 +39,7 @@ class SynapsaLogic
                 $getInfo['va_user'] = $getData->result->account_number;
 
                 $getTypeService = $additional['job']['type_service'];
-                $getServiceId = $additional['job']['service_id'];
-                $getType = check_list_type_transaction($getTypeService, $getServiceId);
+                $getType = check_list_type_transaction($getTypeService);
 
                 $getJobData = $additional['job'];
                 $getJobData['payment_refer_id'] = $getData->result->external_id;
@@ -67,8 +66,7 @@ class SynapsaLogic
                 $getInfo = $getData->result;
 
                 $getTypeService = $additional['job']['type_service'];
-                $getServiceId = $additional['job']['service_id'];
-                $getType = check_list_type_transaction($getTypeService, $getServiceId);
+                $getType = check_list_type_transaction($getTypeService);
 
                 $getJobData = $additional['job'];
                 $getJobData['payment_refer_id'] = isset($getData->result->external_id) ? $getData->result->external_id : '';
@@ -93,8 +91,7 @@ class SynapsaLogic
             $getInfo = $getData->result;
 
             $getTypeService = $additional['job']['type_service'];
-            $getServiceId = $additional['job']['service_id'];
-            $getType = check_list_type_transaction($getTypeService, $getServiceId);
+            $getType = check_list_type_transaction($getTypeService);
 
             $getJobData = $additional['job'];
             $getJobData['payment_refer_id'] = isset($getData->result->external_id) ? $getData->result->external_id : '';

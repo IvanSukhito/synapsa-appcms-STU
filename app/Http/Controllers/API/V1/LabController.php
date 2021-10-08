@@ -573,6 +573,7 @@ class LabController extends Controller
 
         $sendData = [
             'job' => [
+                'code' => $newCode,
                 'payment_id' => $paymentId,
                 'user_id' => $user->id,
                 'type_service' => 'lab',

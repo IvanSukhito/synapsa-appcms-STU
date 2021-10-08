@@ -97,34 +97,22 @@ if ( ! function_exists('get_list_type_transaction3')) {
 }
 
 if ( ! function_exists('check_list_type_transaction')) {
-    function check_list_type_transaction($typeService = 'product', $service = 0)
+    function check_list_type_transaction($typeService = 'product')
     {
         if (strtolower($typeService) == 'product') {
             return 1;
         }
         else if (strtolower($typeService) == 'doctor') {
-            switch ($service) {
-                case 1 : return 2; break;
-                case 2 : return 3; break;
-                case 3 : return 4; break;
-            }
+            return 2;
         }
         else if (strtolower($typeService) == 'lab') {
-            switch ($service) {
-                case 1 : return 5; break;
-                case 2 : return 6; break;
-                case 3 : return 7; break;
-            }
+            return 3;
         }
         else if (strtolower($typeService) == 'nurse') {
-            switch ($service) {
-                case 1 : return 8; break;
-                case 2 : return 9; break;
-                case 3 : return 10; break;
-            }
+            return 4;
         }
         else if (strtolower($typeService) == 'product_klinik') {
-            return 11;
+            return 5;
         }
         return 0;
     }

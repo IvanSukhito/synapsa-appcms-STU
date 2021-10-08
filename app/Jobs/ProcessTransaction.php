@@ -61,17 +61,17 @@ class ProcessTransaction implements ShouldQueue
             if ($getType == 1) {
                 $this->transactionProduct($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getPaymentInfo);
             }
-            else if (in_array($getType, [2,3,4])) {
+            else if ($getType == 2) {
                 $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
                 $getDoctorInfo = isset($getParams['doctor_info']) ? $getParams['doctor_info'] : [];
                 $this->transactionDoctor($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getDoctorInfo, $getPaymentInfo);
             }
-            else if (in_array($getType, [5,6,7])) {
+            else if ($getType == 3) {
                 $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
                 $getLabInfo = isset($getParams['lab_info']) ? $getParams['lab_info'] : [];
                 $this->transactionLab($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getLabInfo, $getPaymentInfo);
             }
-            else if (in_array($getType, [8,9,10])) {
+            else if ($getType == 4) {
                 $this->transactionNurse();
             }
         }
