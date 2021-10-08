@@ -9,6 +9,7 @@ use App\Codes\Models\V1\AppointmentDoctorProduct;
 use App\Codes\Models\V1\AppointmentLab;
 use App\Codes\Models\V1\AppointmentLabDetails;
 use App\Codes\Models\V1\DoctorSchedule;
+use App\Codes\Models\V1\LabSchedule;
 use App\Codes\Models\V1\Payment;
 use App\Codes\Models\V1\Product;
 use App\Codes\Models\V1\Service;
@@ -279,6 +280,14 @@ class AppointmentController extends Controller
     public function fillForm($id)
     {
         $user = $this->request->attributes->get('_user');
+        $type = intval($this->request->get('type'));
+        if ($type != 1) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Menu Hanya untuk pasien dokter'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
 
         $validator = Validator::make($this->request->all(), [
             'body_height' => 'numeric',
@@ -345,41 +354,42 @@ class AppointmentController extends Controller
     public function reschedule($id)
     {
         $user = $this->request->attributes->get('_user');
+        $type = intval($this->request->get('type'));
 
         $getDate = strtotime($this->request->get('date')) > 0 ?
             date('Y-m-d', strtotime($this->request->get('date'))) :
             date('Y-m-d', strtotime("+1 day"));
 
-        $getAppointmentDoctor = AppointmentDoctor::where('user_id', $user->id)->where('id', $id)->first();
-        if (!$getAppointmentDoctor) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-        else if ($getAppointmentDoctor->status != 1) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Janji Temu Dokter tidak bisa di ganti'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
+        if ($type == 1) {
+            $getAppointment = AppointmentDoctor::where('user_id', $user->id)->where('id', $id)->first();
+            if (!$getAppointment) {
+                return response()->json([
+                    'success' => 0,
+                    'message' => ['Janji Temu Dokter Tidak Ditemukan'],
+                    'token' => $this->request->attributes->get('_refresh_token'),
+                ], 404);
+            }
+            else if ($getAppointment->status != 1) {
+                return response()->json([
+                    'success' => 0,
+                    'message' => ['Janji Temu Dokter tidak bisa di ganti'],
+                    'token' => $this->request->attributes->get('_refresh_token'),
+                ], 422);
+            }
 
-        $serviceId = $getAppointmentDoctor->service_id;
-        $doctorId = $getAppointmentDoctor->doctor_id;
-        $getService = Service::where('id', $serviceId)->first();
-        $data = $this->getDoctorInfo($doctorId, $serviceId);
-        if (!$data) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Doktor Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-        else {
+            $serviceId = $getAppointment->service_id;
+            $doctorId = $getAppointment->doctor_id;
+            $getService = Service::where('id', $serviceId)->first();
+            $data = $this->getDoctorInfo($doctorId, $serviceId);
+            if (!$data) {
+                return response()->json([
+                    'success' => 0,
+                    'message' => ['Doktor Tidak Ditemukan'],
+                    'token' => $this->request->attributes->get('_refresh_token'),
+                ], 404);
+            }
 
-            $getDoctorSchedule = DoctorSchedule::where('doctor_id', '=', $id)->where('service_id', '=', $serviceId)
+            $getSchedule = DoctorSchedule::where('doctor_id', '=', $id)->where('service_id', '=', $serviceId)
                 ->where('date_available', '=', $getDate)
                 ->get();
 
@@ -393,18 +403,65 @@ class AppointmentController extends Controller
                     'address' => $getService->type == 2 ? 1 : 0,
                     'address_nice' => $getList[$getService->type] ?? '-',
                     'date' => $getDate,
-                    'schedule' => $getDoctorSchedule,
+                    'schedule' => $getSchedule,
                     'doctor' => $data,
                 ],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ]);
 
         }
+        else if ($type == 2) {
+            $getAppointment = AppointmentLab::where('user_id', $user->id)->where('id', $id)->first();
+            if (!$getAppointment) {
+                return response()->json([
+                    'success' => 0,
+                    'message' => ['Janji Temu Lab Tidak Ditemukan'],
+                    'token' => $this->request->attributes->get('_refresh_token'),
+                ], 404);
+            }
+            else if ($getAppointment->status != 1) {
+                return response()->json([
+                    'success' => 0,
+                    'message' => ['Janji Temu Lab tidak bisa di ganti'],
+                    'token' => $this->request->attributes->get('_refresh_token'),
+                ], 422);
+            }
+
+            $serviceId = $getAppointment->service_id;
+            $getService = Service::where('id', $serviceId)->first();
+
+            $getSchedule = LabSchedule::where('doctor_id', '=', $id)->where('service_id', '=', $serviceId)
+                ->where('date_available', '=', $getDate)
+                ->get();
+
+            $getList = get_list_type_service();
+
+            return response()->json([
+                'success' => 1,
+                'data' => [
+                    'schedule_start' => date('Y-m-d', strtotime("+1 day")),
+                    'schedule_end' => date('Y-m-d', strtotime("+366 day")),
+                    'address' => $getService->type == 2 ? 1 : 0,
+                    'address_nice' => $getList[$getService->type] ?? '-',
+                    'date' => $getDate,
+                    'schedule' => $getSchedule,
+                ],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ]);
+        }
+
+        return response()->json([
+            'success' => 0,
+            'message' => ['Type Janji Temu Tidak Ditemukan'],
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ], 404);
+
     }
 
     public function updateSchedule($id)
     {
         $user = $this->request->attributes->get('_user');
+        $type = intval($this->request->get('type'));
 
         $validator = Validator::make($this->request->all(), [
             'schedule_id' => 'numeric|required',
@@ -417,63 +474,123 @@ class AppointmentController extends Controller
             ], 422);
         }
 
-        $getAppointmentDoctor = AppointmentDoctor::where('user_id', $user->id)->where('id', $id)->first();
-        if (!$getAppointmentDoctor) {
+        if ($type == 1) {
+            $getAppointment = AppointmentDoctor::where('user_id', $user->id)->where('id', $id)->first();
+            if (!$getAppointment) {
+                return response()->json([
+                    'success' => 0,
+                    'message' => ['Janji Temu Dokter Tidak Ditemukan'],
+                    'token' => $this->request->attributes->get('_refresh_token'),
+                ], 404);
+            }
+            else if ($getAppointment->status != 1) {
+                return response()->json([
+                    'success' => 0,
+                    'message' => ['Janji Temu Dokter tidak bisa di ganti'],
+                    'token' => $this->request->attributes->get('_refresh_token'),
+                ], 422);
+            }
+
+            $serviceId = $getAppointment->service_id;
+            $doctorId = $getAppointment->doctor_id;
+
+            $scheduleId = $this->request->get('schedule_id');
+            $getSchedule = DoctorSchedule::where('id', $scheduleId)
+                ->where('doctor_id', $doctorId)->where('service_id', $serviceId)->where('book', 80)
+                ->where('date_available', '<', date('Y-m-d'))->first();
+            if (!$getSchedule) {
+                return response()->json([
+                    'success' => 0,
+                    'message' => ['Jadwal Tidak Ditemukan'],
+                    'token' => $this->request->attributes->get('_refresh_token'),
+                ], 422);
+            }
+
+            DB::beginTransaction();
+
+            $oldSchedule = $getAppointment->schedule_id;
+            DoctorSchedule::where('id', $oldSchedule)->update([
+                'book' => 80
+            ]);
+
+            $getSchedule->book = 99;
+            $getSchedule->save();
+
+            $getAppointment->schedule_id = $getSchedule->id;
+            $getAppointment->save();
+
+            DB::commit();
+
             return response()->json([
-                'success' => 0,
-                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
+                'success' => 1,
                 'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
+                'message' => ['Berhasil menganti schedule'],
+            ]);
         }
-        else if ($getAppointmentDoctor->status != 1) {
+        else if ($type == 2) {
+            $getAppointment = AppointmentLab::where('user_id', $user->id)->where('id', $id)->first();
+            if (!$getAppointment) {
+                return response()->json([
+                    'success' => 0,
+                    'message' => ['Janji Temu Lab Tidak Ditemukan'],
+                    'token' => $this->request->attributes->get('_refresh_token'),
+                ], 404);
+            }
+            else if ($getAppointment->status != 1) {
+                return response()->json([
+                    'success' => 0,
+                    'message' => ['Janji Temu Lab tidak bisa di ganti'],
+                    'token' => $this->request->attributes->get('_refresh_token'),
+                ], 422);
+            }
+
+            $serviceId = $getAppointment->service_id;
+
+            $scheduleId = $this->request->get('schedule_id');
+            $getSchedule = LabSchedule::where('id', $scheduleId)
+                ->where('service_id', $serviceId)->where('book', 80)
+                ->where('date_available', '<', date('Y-m-d'))->first();
+            if (!$getSchedule) {
+                return response()->json([
+                    'success' => 0,
+                    'message' => ['Jadwal Tidak Ditemukan'],
+                    'token' => $this->request->attributes->get('_refresh_token'),
+                ], 422);
+            }
+
+            DB::beginTransaction();
+
+            $getAppointment->schedule_id = $getSchedule->id;
+            $getAppointment->save();
+
+            DB::commit();
+
             return response()->json([
-                'success' => 0,
-                'message' => ['Janji Temu Dokter tidak bisa di ganti'],
+                'success' => 1,
                 'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
+                'message' => ['Berhasil menganti schedule'],
+            ]);
         }
-
-        $serviceId = $getAppointmentDoctor->service_id;
-        $doctorId = $getAppointmentDoctor->doctor_id;
-
-        $scheduleId = $this->request->get('schedule_id');
-        $getDoctorSchedule = DoctorSchedule::where('id', $scheduleId)
-            ->where('doctor_id', $doctorId)->where('service_id', $serviceId)->where('book', 80)
-            ->where('date_available', '<', date('Y-m-d'))->first();
-        if (!$getDoctorSchedule) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Jadwal Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
-
-        DB::beginTransaction();
-
-        $oldSchedule = $getAppointmentDoctor->schedule_id;
-        DoctorSchedule::where('id', $oldSchedule)->update([
-            'book' => 80
-        ]);
-
-        $getDoctorSchedule->book = 99;
-        $getDoctorSchedule->save();
-
-        $getAppointmentDoctor->schedule_id = $getDoctorSchedule->id;
-        $getAppointmentDoctor->save();
-
-        DB::commit();
 
         return response()->json([
-            'success' => 1,
+            'success' => 0,
+            'message' => ['Type Janji Temu Tidak Ditemukan'],
             'token' => $this->request->attributes->get('_refresh_token'),
-            'message' => ['Berhasil menganti schedule'],
-        ]);
+        ], 404);
 
     }
 
     public function meeting($id)
     {
         $user = $this->request->attributes->get('_user');
+        $type = intval($this->request->get('type'));
+        if ($type != 1) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Menu Hanya untuk pasien dokter'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
 
         $data = AppointmentDoctor::where('user_id', $user->id)->where('id', $id)->first();
         if (!$data) {
@@ -545,6 +662,14 @@ class AppointmentController extends Controller
     public function cart($id)
     {
         $user = $this->request->attributes->get('_user');
+        $type = intval($this->request->get('type'));
+        if ($type != 1) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Menu Hanya untuk pasien dokter'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
 
         $data = AppointmentDoctor::whereIn('status', [80])->where('user_id', $user->id)->where('id', $id)->first();
         if (!$data) {
@@ -575,6 +700,14 @@ class AppointmentController extends Controller
     public function chooseCart($id)
     {
         $user = $this->request->attributes->get('_user');
+        $type = intval($this->request->get('type'));
+        if ($type != 1) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Menu Hanya untuk pasien dokter'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
 
         $validator = Validator::make($this->request->all(), [
             'cart_ids' => 'required|array',
@@ -640,6 +773,14 @@ class AppointmentController extends Controller
     public function shipping($id)
     {
         $user = $this->request->attributes->get('_user');
+        $type = intval($this->request->get('type'));
+        if ($type != 1) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Menu Hanya untuk pasien dokter'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
 
         $data = AppointmentDoctor::whereIn('status', [80])->where('user_id', $user->id)->where('id', $id)->first();
         if (!$data) {
@@ -681,6 +822,14 @@ class AppointmentController extends Controller
     public function payment($id)
     {
         $user = $this->request->attributes->get('_user');
+        $type = intval($this->request->get('type'));
+        if ($type != 1) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Menu Hanya untuk pasien dokter'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
 
         $data = AppointmentDoctor::whereIn('status', [80])->where('user_id', $user->id)->where('id', $id)->first();
         if (!$data) {
@@ -722,6 +871,14 @@ class AppointmentController extends Controller
     public function checkout($id)
     {
         $user = $this->request->attributes->get('_user');
+        $type = intval($this->request->get('type'));
+        if ($type != 1) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Menu Hanya untuk pasien dokter'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
 
         $needPhone = 0;
         $validator = Validator::make($this->request->all(), [
