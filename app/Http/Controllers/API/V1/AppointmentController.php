@@ -389,7 +389,7 @@ class AppointmentController extends Controller
                 ], 404);
             }
 
-            $getSchedule = DoctorSchedule::where('doctor_id', '=', $id)->where('service_id', '=', $serviceId)
+            $getSchedule = DoctorSchedule::where('doctor_id', '=', $doctorId)->where('service_id', '=', $serviceId)
                 ->where('date_available', '=', $getDate)
                 ->get();
 
@@ -500,7 +500,6 @@ class AppointmentController extends Controller
                 ->where('service_id', $serviceId)->where('book', 80)
                 ->where('date_available', '>=', date('Y-m-d'))
                 ->first();
-            var_dump($getSchedule->toArray()); die();
             if (!$getSchedule) {
                 return response()->json([
                     'success' => 0,
