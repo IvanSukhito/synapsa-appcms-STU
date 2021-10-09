@@ -206,7 +206,7 @@ class DoctorAppointmentController extends Controller
             ], 422);
         }
 
-        $data = AppointmentDoctor::whereIn('status', [1,3])->where('doctor_id', $getDoctor->id)->where('id', $id)->first();
+        $data = AppointmentDoctor::whereIn('status', [1,2])->where('doctor_id', $getDoctor->id)->where('id', $id)->first();
         if (!$data) {
             return response()->json([
                 'success' => 0,
@@ -217,7 +217,7 @@ class DoctorAppointmentController extends Controller
 
         $getService = Service::where('id', $data->service_id)->first();
         if ($getService && $getService->type == 1) {
-            $data->video_link = $data->doctor_id.$data->user_id.'tele'.strtotime($data->date.$data->time_start .$data->time_end.$data->doctor_id.$data->user_id.rand(0,100));
+            $data->video_link = $data->doctor_id.$data->user_id.'tele'.md5($data->date.$data->time_start .$data->time_end.$data->doctor_id.$data->user_id.rand(0,100));
             $data->status = 3;
         }
         else {
@@ -246,7 +246,7 @@ class DoctorAppointmentController extends Controller
             ], 422);
         }
 
-        $data = AppointmentDoctor::whereIn('status', [1,2,3])->where('doctor_id', $getDoctor->id)->where('id', $id)->first();
+        $data = AppointmentDoctor::whereIn('status', [1,2])->where('doctor_id', $getDoctor->id)->where('id', $id)->first();
         if (!$data) {
             return response()->json([
                 'success' => 0,
@@ -278,7 +278,7 @@ class DoctorAppointmentController extends Controller
             ], 422);
         }
 
-        $data = AppointmentDoctor::where('doctor_id', $getDoctor->id)->where('id', $id)->first();
+        $data = AppointmentDoctor::whereIn('status', [3,4])->where('doctor_id', $getDoctor->id)->where('id', $id)->first();
         if (!$data) {
             return response()->json([
                 'success' => 0,
@@ -334,7 +334,7 @@ class DoctorAppointmentController extends Controller
             ], 422);
         }
 
-        $data = AppointmentDoctor::where('doctor_id', $getDoctor->id)->where('id', $id)->first();
+        $data = AppointmentDoctor::whereIn('status', [3,4])->where('doctor_id', $getDoctor->id)->where('id', $id)->first();
         if (!$data) {
             return response()->json([
                 'success' => 0,
