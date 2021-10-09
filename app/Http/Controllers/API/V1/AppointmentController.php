@@ -430,7 +430,7 @@ class AppointmentController extends Controller
             $serviceId = $getAppointment->service_id;
             $getService = Service::where('id', $serviceId)->first();
 
-            $getSchedule = LabSchedule::where('doctor_id', '=', $id)->where('service_id', '=', $serviceId)
+            $getSchedule = LabSchedule::where('service_id', '=', $serviceId)
                 ->where('date_available', '=', $getDate)
                 ->get();
 
@@ -517,6 +517,9 @@ class AppointmentController extends Controller
             $getSchedule->save();
 
             $getAppointment->schedule_id = $getSchedule->id;
+            $getAppointment->date = $getSchedule->date_available;
+            $getAppointment->time_start = $getSchedule->time_start;
+            $getAppointment->time_end = $getSchedule->time_end;
             $getAppointment->save();
 
             DB::commit();
@@ -549,7 +552,7 @@ class AppointmentController extends Controller
             $scheduleId = $this->request->get('schedule_id');
             $getSchedule = LabSchedule::where('id', $scheduleId)
                 ->where('service_id', $serviceId)->where('book', 80)
-                ->where('date_available', '<', date('Y-m-d'))->first();
+                ->where('date_available', '>=', date('Y-m-d'))->first();
             if (!$getSchedule) {
                 return response()->json([
                     'success' => 0,
@@ -561,6 +564,9 @@ class AppointmentController extends Controller
             DB::beginTransaction();
 
             $getAppointment->schedule_id = $getSchedule->id;
+            $getAppointment->date = $getSchedule->date_available;
+            $getAppointment->time_start = $getSchedule->time_start;
+            $getAppointment->time_end = $getSchedule->time_end;
             $getAppointment->save();
 
             DB::commit();
