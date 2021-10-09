@@ -496,8 +496,11 @@ class AppointmentController extends Controller
 
             $scheduleId = $this->request->get('schedule_id');
             $getSchedule = DoctorSchedule::where('id', $scheduleId)
-                ->where('doctor_id', $doctorId)->where('service_id', $serviceId)->where('book', 80)
-                ->where('date_available', '<', date('Y-m-d'))->first();
+                ->where('doctor_id', $doctorId)
+                ->where('service_id', $serviceId)->where('book', 80)
+                ->where('date_available', '>=', date('Y-m-d'))
+                ->first();
+            var_dump($getSchedule->toArray()); die();
             if (!$getSchedule) {
                 return response()->json([
                     'success' => 0,
@@ -589,14 +592,6 @@ class AppointmentController extends Controller
     public function meeting($id)
     {
         $user = $this->request->attributes->get('_user');
-        $type = intval($this->request->get('type'));
-        if ($type != 1) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Menu Hanya untuk pasien dokter'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
 
         $data = AppointmentDoctor::where('user_id', $user->id)->where('id', $id)->first();
         if (!$data) {
