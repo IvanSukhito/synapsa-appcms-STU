@@ -193,6 +193,7 @@ class DoctorAppointmentController extends Controller
             'success' => 1,
             'data' => [
                 'date' => $data->date,
+                'time_server' => date('H:i:s'),
                 'time_start' => $data->time_start,
                 'time_end' => $data->time_end,
                 'app_id' => env('AGORA_APP_ID'),
