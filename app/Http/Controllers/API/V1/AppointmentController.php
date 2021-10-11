@@ -611,6 +611,20 @@ class AppointmentController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
+        else if ($data->online_meeting == 80) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Meeting sudah selesai'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+        else if (in_array($data->online_meeting, [0,1])) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Meeting belum di mulai'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
 
         $getService = Service::where('id', $data->service_id)->first();
         if (!$getService) {
