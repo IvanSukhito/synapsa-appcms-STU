@@ -30,6 +30,8 @@ return [
     'users_doctor' => 'Doctor',
     'users_patient' => 'Patient',
     'patient' => 'Patient',
+    'patient_name' => 'Patient Name',
+    'patient_email' => 'Patient Email',
     'doctor' => 'Doctor',
     'doctor_category' => 'Doctor Category',
     'doctor_schedule' => 'Doctor Schedule',
