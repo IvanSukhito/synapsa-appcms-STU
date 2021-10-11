@@ -200,6 +200,60 @@ class DoctorAppointmentController extends Controller
         ]);
     }
 
+    public function finishMeeting()
+    {
+        $user = $this->request->attributes->get('_user');
+        $getDoctor = Doctor::where('user_id', $user->id)->first();
+        if (!$getDoctor) {
+            return response()->json([
+                'success' => 1,
+                'message' => ['Hanya menu untuk dokter'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
+        $data = AppointmentDoctor::where('doctor_id', $getDoctor->id)->where('id', $id)->first();
+        if (!$data) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+        else if ($data->status != 3) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Janji Temu Dokter Belum di Setujui'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+
+        $getService = Service::where('id', $data->service_id)->first();
+        if (!$getService) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Janji Temu Dokter Bukan untuk meeting'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+        elseif ($getService->type != 1) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Janji Temu Dokter Bukan untuk meeting'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+
+        $data->online_meeting = 80;
+        $data->save();
+
+        return response()->json([
+            'success' => 1,
+            'message' => ['Sukses'],
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
+    }
+
     public function approveMeeting($id)
     {
         $user = $this->request->attributes->get('_user');
