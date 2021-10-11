@@ -208,7 +208,7 @@ class HistoryController extends Controller
     private function getListProduct($userId, $getLimit, $s)
     {
         $result = Transaction::selectRaw('transaction.id, transaction.created_at,
-            transaction.category_service_id, transaction.category_service_name,
+            transaction.category_service_id, transaction.category_service_name, transaction.total_qty, transaction.subtotal, transaction.total,
             transaction.type_service, transaction.type_service_name, transaction.user_id, transaction.status,
             MIN(product_name) AS product_name, MIN(product.image) as image,
             CONCAT("'.env('OSS_URL').'/'.'", MIN(product.image)) AS image_full')
