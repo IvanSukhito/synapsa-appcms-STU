@@ -192,6 +192,9 @@ class DoctorAppointmentController extends Controller
         return response()->json([
             'success' => 1,
             'data' => [
+                'date' => $data->date,
+                'time_start' => $data->time_start,
+                'time_end' => $data->time_end,
                 'app_id' => env('AGORA_APP_ID'),
                 'channel' => $data->video_link
             ],
