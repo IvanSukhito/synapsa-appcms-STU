@@ -314,7 +314,7 @@ class AppointmentController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
-        if (!in_array($data->status, [1,2])) {
+        if (in_array($data->status, [1,2])) {
             return response()->json([
                 'success' => 0,
                 'message' => ['Janji Temu Dokter Belum di setujui'],
