@@ -94,7 +94,7 @@ class HistoryController extends Controller
         }
 
         $getDataDetails = [];
-        if ($getData->type == 1) {
+        if ($getData->type_service == 1) {
             $getDataDetails = $getData->getTransactionDetails()->selectRaw('transaction_details.id,
                 transaction_details.product_id, transaction_details.product_name, transaction_details.product_qty,
                 transaction_details.product_price,
@@ -102,7 +102,7 @@ class HistoryController extends Controller
                 ->join('product', 'product.id', '=', 'transaction_details.product_id', 'LEFT')
                 ->get();
         }
-        else if (in_array($getData->type, [2,3,4])) {
+        else if (in_array($getData->type_service, [2,3,4])) {
             $getDataDetails = $getData->getTransactionDetails()->selectRaw('transaction_details.*,
                 doctor_category.name AS doctor_category_name, users.image, date_available, time_start, time_end, klinik.name as klinik_name,
                 CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
@@ -113,7 +113,7 @@ class HistoryController extends Controller
                 ->join('klinik', 'klinik.id', '=', 'users.klinik_id')
                 ->first();
         }
-        else if (in_array($getData->type, [5,6,7])) {
+        else if (in_array($getData->type_service, [5,6,7])) {
             $getDataDetails = $getData->getTransactionDetails()->selectRaw('transaction_details.*,
                 lab.image, date_available, time_start, time_end, CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full')
                 ->join('lab', 'lab.id', '=', 'transaction_details.lab_id', 'LEFT')
@@ -155,7 +155,7 @@ class HistoryController extends Controller
 //        $userId = $user->id;
 //        $getDataId = $getData->id;
 //
-//        if ($getData->type == 1) {
+//        if ($getData->type_service == 1) {
 //            $getDataProduct = $this->getDetailProduct($getDataId, $userId);
 //
 //            $listProduct = Product::selectRaw('transaction_details.id, product.id as product_id, product_qty, product.name, product.image, product.price')
@@ -174,7 +174,7 @@ class HistoryController extends Controller
 //                'token' => $this->request->attributes->get('_refresh_token'),
 //            ]);
 //
-//        } else if (in_array($getData->type, [2, 3, 4])) {
+//        } else if (in_array($getData->type_service, [2, 3, 4])) {
 //            $getDataDoctor = $this->getDetailDoctor($getDataId, $userId);
 //
 //            return response()->json([
@@ -183,7 +183,7 @@ class HistoryController extends Controller
 //                'token' => $this->request->attributes->get('_refresh_token'),
 //            ]);
 //
-//        } else if (in_array($getData->type, [5, 6, 7])) {
+//        } else if (in_array($getData->type_service, [5, 6, 7])) {
 //
 //            $getDataLab = $this->getDetailLab($getDataId, $userId);
 //
@@ -370,7 +370,7 @@ class HistoryController extends Controller
 
     private function getDetailProduct($getDataId, $userId)
     {
-        $getData = Transaction::selectRaw('transaction.id, transaction.code, transaction.receiver_address, transaction.receiver_phone, transaction.created_at, shipping_address_name, shipping_name, shipping_price,  transaction.total as total, transaction.status as status, transaction.type, payment.icon_img as payment_image, transaction.payment_info as payment_info')
+        $getData = Transaction::selectRaw('transaction.id, transaction.code, transaction.receiver_address, transaction.receiver_phone, transaction.created_at, shipping_address_name, shipping_name, shipping_price,  transaction.total as total, transaction.status as status, transaction.type_service, payment.icon_img as payment_image, transaction.payment_info as payment_info')
                     ->join('transaction_details', 'transaction_details.transaction_id', '=', 'transaction.id')
                     ->join('payment','payment.id', '=','transaction.payment_id')
                     ->where('transaction.user_id', $userId)
@@ -390,7 +390,7 @@ class HistoryController extends Controller
     private function getDetailLab($getDataId, $userId)
     {
 
-        $getData = Transaction::selectRaw('transaction.id, code, transaction.type, time_start, time_end, date_available, transaction.total as total_price,
+        $getData = Transaction::selectRaw('transaction.id, code, transaction.type_service, time_start, time_end, date_available, transaction.total as total_price,
         transaction.status as status, payment_name, payment.icon_img as payment_image, transaction.payment_info as payment_info')
        ->join('transaction_details', 'transaction_details.transaction_id', '=', 'transaction.id')
        ->join('lab_schedule','lab_schedule.id','=','transaction_details.schedule_id')
@@ -423,7 +423,7 @@ class HistoryController extends Controller
     {
         $paymentInfo = [];
         $getData = Transaction::selectRaw('transaction.id, code, transaction_details.doctor_name as doctor_name,
-            transaction.created_at, transaction.type, doctor_category.name as category, klinik.name as clinic_name,
+            transaction.created_at, transaction.type_service, doctor_category.name as category, klinik.name as clinic_name,
             transaction.total as total_price, transaction.status as status, users.image as image, payment_name,
             payment.icon_img as payment_image, transaction.payment_info as payment_info')
             ->join('klinik', 'klinik.id', '=', 'transaction.klinik_id')
