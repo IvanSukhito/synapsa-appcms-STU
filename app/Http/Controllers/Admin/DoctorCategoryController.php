@@ -30,7 +30,7 @@ class DoctorCategoryController extends _CrudController
                 ],
                 'type' => 'image',
                 'lang' => 'icon-img-full',
-                'path' => 'synapapps/doctor_category',
+                'path' => 'synapsaapps/doctor_category',
             ],
             'action' => [
                 'create' => 0,
