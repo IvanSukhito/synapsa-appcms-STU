@@ -26,11 +26,13 @@ class AppointmentDoctor extends Model
         'treatment',
         'doctor_prescription',
         'extra_info',
+        'online_meeting',
         'status'
     ];
 
     protected $appends = [
         'status_appointment',
+        'online_meeting_nice'
     ];
 
     public function getAppointmentDoctorProduct()
@@ -42,6 +44,12 @@ class AppointmentDoctor extends Model
      {
          $getList = get_list_appointment();
          return $getList[$this->status] ?? $this->status;
+     }
+
+     public function getOnlineMeetingNiceAttribute()
+     {
+         $getList = get_list_online_meeting();
+         return $getList[$this->online_meeting] ?? $this->online_meeting;
      }
 
 }

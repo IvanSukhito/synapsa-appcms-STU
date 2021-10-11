@@ -56,6 +56,7 @@ class AppointmentController extends Controller
             case 2 : $data = AppointmentDoctor::selectRaw('appointment_doctor.id, appointment_doctor.doctor_id AS janji_id,
                     appointment_doctor.doctor_name AS janji_name, 1 AS type, \'doctor\' AS type_name,appointment_doctor.type_appointment, appointment_doctor.date,
                     appointment_doctor.time_start, appointment_doctor.time_end, appointment_doctor.status,
+                    IF(LENGTH(appointment_doctor.form_patient) > 10, 1, 0) AS form_patient, online_meeting,
                     doctor_category.name AS doctor_category, users.image AS image,
                     CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
                         ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
@@ -67,7 +68,7 @@ class AppointmentController extends Controller
                         ->union(
                             AppointmentLab::selectRaw('appointment_lab.id, lab.id AS janji_id,
                             lab.name AS janji_name, 2 AS type, \'lab\' AS type_name, appointment_lab.type_appointment, appointment_lab.date,
-                            appointment_lab.time_start, appointment_lab.time_end, appointment_lab.status,
+                            appointment_lab.time_start, appointment_lab.time_end, appointment_lab.status, 0 AS form_patient, 0 AS online_meeting,
                             0 AS doctor_category, lab.image AS image,
                             CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full')
                                 ->join('appointment_lab_details', function($join){
@@ -86,6 +87,7 @@ class AppointmentController extends Controller
             case 3 : $data = AppointmentDoctor::selectRaw('appointment_doctor.id, appointment_doctor.doctor_id AS janji_id,
                     appointment_doctor.doctor_name AS janji_name, 1 AS type, \'doctor\' AS type_name,appointment_doctor.type_appointment, appointment_doctor.date,
                     appointment_doctor.time_start, appointment_doctor.time_end, appointment_doctor.status,
+                    IF(LENGTH(appointment_doctor.form_patient) > 10, 1, 0) AS form_patient, online_meeting,
                     doctor_category.name AS doctor_category, users.image AS image,
                     CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
                 ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
@@ -96,7 +98,7 @@ class AppointmentController extends Controller
                 ->union(
                     AppointmentLab::selectRaw('appointment_lab.id, lab.id AS janji_id,
                             lab.name AS janji_name, appointment_lab.type_appointment, 2 AS type, \'lab\' AS type_name, appointment_lab.date,
-                            appointment_lab.time_start, appointment_lab.time_end, appointment_lab.status,
+                            appointment_lab.time_start, appointment_lab.time_end, appointment_lab.status, 0 AS form_patient, 0 AS online_meeting,
                             0 AS doctor_category, lab.image AS image,
                             CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full')
                         ->join('appointment_lab_details', function($join){
@@ -114,6 +116,7 @@ class AppointmentController extends Controller
             case 4 : $data = AppointmentDoctor::selectRaw('appointment_doctor.id, appointment_doctor.doctor_id AS janji_id,
                     appointment_doctor.doctor_name AS janji_name, 1 AS type, \'doctor\' AS type_name, appointment_doctor.type_appointment, appointment_doctor.date,
                     appointment_doctor.time_start, appointment_doctor.time_end, appointment_doctor.status,
+                    IF(LENGTH(appointment_doctor.form_patient) > 10, 1, 0) AS form_patient, online_meeting,
                     doctor_category.name AS doctor_category, users.image AS image,
                     CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
                 ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
@@ -124,7 +127,7 @@ class AppointmentController extends Controller
                 ->union(
                     AppointmentLab::selectRaw('appointment_lab.id, lab.id AS janji_id,
                             lab.name AS janji_name, 2 AS type, \'lab\' AS type_name, appointment_lab.type_appointment, appointment_lab.date,
-                            appointment_lab.time_start, appointment_lab.time_end, appointment_lab.status,
+                            appointment_lab.time_start, appointment_lab.time_end, appointment_lab.status, 0 AS form_patient, 0 AS online_meeting,
                             0 AS doctor_category, lab.image AS image,
                             CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full')
                         ->join('appointment_lab_details', function($join){
@@ -143,6 +146,7 @@ class AppointmentController extends Controller
                $data = AppointmentDoctor::selectRaw('appointment_doctor.id, appointment_doctor.doctor_id AS janji_id,
                     appointment_doctor.doctor_name AS janji_name, 1 AS type, \'doctor\' AS type_name, appointment_doctor.type_appointment, appointment_doctor.date,
                     appointment_doctor.time_start, appointment_doctor.time_end, appointment_doctor.status,
+                    IF(LENGTH(appointment_doctor.form_patient) > 10, 1, 0) AS form_patient, online_meeting,
                     doctor_category.name AS doctor_category, users.image AS image,
                     CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
                    ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
@@ -154,7 +158,7 @@ class AppointmentController extends Controller
                    ->union(
                        AppointmentLab::selectRaw('appointment_lab.id, lab.id AS janji_id,
                             lab.name AS janji_name, 2 AS type, \'lab\' AS type_name, appointment_lab.type_appointment, appointment_lab.date,
-                            appointment_lab.time_start, appointment_lab.time_end, appointment_lab.status,
+                            appointment_lab.time_start, appointment_lab.time_end, appointment_lab.status, 0 AS form_patient, 0 AS online_meeting,
                             0 AS doctor_category, lab.image AS image,
                             CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full')
                            ->join('appointment_lab_details', function($join){
@@ -322,7 +326,7 @@ class AppointmentController extends Controller
         $listMedicalCheckup = [];
         foreach ($getMedicalCheckup as $listImage) {
             $image = base64_to_jpeg($listImage);
-            $destinationPath = 'synapsaapps/users/'.$user->id.'/forms/';
+            $destinationPath = 'synapsaapps/users/'.$user->id.'/forms';
             $set_file_name = date('Ymd').'_'.md5('medical_checkup'.strtotime('now').rand(0, 100)).'.jpg';
             $getFile = Storage::put($destinationPath.'/'.$set_file_name, $image);
             if ($getFile) {
