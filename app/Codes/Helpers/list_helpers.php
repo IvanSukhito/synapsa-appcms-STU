@@ -145,6 +145,18 @@ if ( ! function_exists('get_list_appointment')) {
     }
 }
 
+if ( ! function_exists('get_list_online_meeting')) {
+    function get_list_online_meeting()
+    {
+        return [
+            0 => __('general.no_meeting'),
+            1 => __('general.waiting'),
+            2 => __('general.meeting'),
+            80 => __('general.complete')
+        ];
+    }
+}
+
 if ( ! function_exists('get_list_lang')) {
     function get_list_lang()
     {
