@@ -363,6 +363,7 @@ class GeneralController extends Controller
 
     public function searchCity()
     {
+        $this->limit = 500;
         $s = $this->request->get('s');
 
         $getData = City::query();
@@ -379,6 +380,7 @@ class GeneralController extends Controller
 
     public function searchDistrict()
     {
+        $this->limit = 500;
         $s = $this->request->get('s');
         $cityId = intval($this->request->get('city_id'));
 
@@ -399,6 +401,7 @@ class GeneralController extends Controller
 
     public function searchSubdistrict()
     {
+        $this->limit = 500;
         $s = $this->request->get('s');
         $districtId = intval($this->request->get('district_id'));
 
