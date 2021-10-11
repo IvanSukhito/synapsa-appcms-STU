@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Codes\Logic\_CrudController;
 use App\Codes\Models\V1\DoctorCategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class DoctorCategoryController extends _CrudController
 {
@@ -29,7 +30,8 @@ class DoctorCategoryController extends _CrudController
                 ],
                 'type' => 'image',
                 'lang' => 'icon-img-full',
-           ],
+                'path' => 'synapsaapps/doctor_category',
+            ],
             'action' => [
                 'create' => 0,
                 'edit' => 0,
@@ -42,6 +44,60 @@ class DoctorCategoryController extends _CrudController
             $request, 'general.doctor-category', 'doctor-category', 'V1\DoctorCategory', 'doctor-category',
             $passingData
         );
+    }
+
+    public function store()
+    {
+        $this->callPermission();
+
+        $viewType = 'create';
+
+        $getListCollectData = collectPassingData($this->passingData, $viewType);
+
+        unset($getListCollectData['icon_img']);
+
+        $validate = $this->setValidateData($getListCollectData, $viewType);
+        if (count($validate) > 0)
+        {
+            $data = $this->validate($this->request, $validate);
+        }
+        else {
+            $data = [];
+            foreach ($getListCollectData as $key => $val) {
+                $data[$key] = $this->request->get($key);
+            }
+        }
+
+        $dokument = $this->request->file('icon_img');
+        if ($dokument) {
+            if ($dokument->getError() != 1) {
+
+                $getFileName = $dokument->getClientOriginalName();
+                $ext = explode('.', $getFileName);
+                $ext = end($ext);
+                $destinationPath = 'synapsaapps/doctor_category';
+                if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
+
+                    $dokumentImage = Storage::putFile($destinationPath, $dokument);
+                }
+
+            }
+        }
+        $data = $this->getCollectedData($getListCollectData, $viewType, $data);
+
+        $data['icon_img'] = $dokumentImage;
+        $getData = $this->crud->store($data);
+
+        $id = $getData->id;
+
+        if($this->request->ajax()){
+            return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
+        }
+        else {
+            session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
+            session()->flash('message_alert', 2);
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
     }
 
 }
