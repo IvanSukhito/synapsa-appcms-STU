@@ -186,6 +186,9 @@ class DoctorAppointmentController extends Controller
             ], 404);
         }
 
+        $data->online_meeting = 2;
+        $data->save();
+
         return response()->json([
             'success' => 1,
             'data' => [
@@ -221,6 +224,7 @@ class DoctorAppointmentController extends Controller
         $getService = Service::where('id', $data->service_id)->first();
         if ($getService && $getService->type == 1) {
             $data->video_link = $data->doctor_id.$data->user_id.'tele'.md5($data->date.$data->time_start .$data->time_end.$data->doctor_id.$data->user_id.rand(0,100));
+            $data->online_meeting = 1;
             $data->status = 3;
         }
         else {
