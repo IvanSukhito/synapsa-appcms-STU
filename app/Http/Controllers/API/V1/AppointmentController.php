@@ -595,7 +595,13 @@ class AppointmentController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $data = AppointmentDoctor::where('user_id', $user->id)->where('id', $id)->first();
+        $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
+            ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
+            ->join('users', 'users.id', '=', 'doctor.user_id')
+            ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
+            ->where('appointment_doctor.user_id', $user->id)
+            ->where('appointment_doctor.id', $id)
+            ->first();
 
         if (!$data) {
             return response()->json([
@@ -645,6 +651,7 @@ class AppointmentController extends Controller
         return response()->json([
             'success' => 1,
             'data' => [
+                'info' => $data,
                 'date' => $data->date,
                 'time_server' => date('H:i:s'),
                 'time_start' => $data->time_start,
