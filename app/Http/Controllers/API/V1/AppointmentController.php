@@ -321,7 +321,7 @@ class AppointmentController extends Controller
         $listMedicalCheckup = [];
         foreach ($getMedicalCheckup as $listImage) {
             $image = base64_to_jpeg($listImage);
-            $destinationPath = 'synapsaapps/users/'.$user->id.'/forms/';
+            $destinationPath = 'synapsaapps/users/'.$user->id.'/forms';
             $set_file_name = date('Ymd').'_'.md5('medical_checkup'.strtotime('now').rand(0, 100)).'.jpg';
             $getFile = Storage::put($destinationPath.'/'.$set_file_name, $image);
             if ($getFile) {

@@ -345,7 +345,7 @@ class DoctorAppointmentController extends Controller
         $listDoctorPrescription = [];
         foreach ($getDoctorPrescription as $listImage) {
             $image = base64_to_jpeg($listImage);
-            $destinationPath = 'synapsaapps/users/'.$data->user_id.'/doctor/';
+            $destinationPath = 'synapsaapps/users/'.$data->user_id.'/doctor';
             $set_file_name = date('Ymd').'_'.md5('doctor_prescription'.strtotime('now').rand(0, 100)).'.jpg';
             $getFile = Storage::put($destinationPath.'/'.$set_file_name, $image);
             if ($getFile) {
