@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Codes\Models\V1\AppointmentDoctor;
+use App\Codes\Models\V1\AppointmentDoctorProduct;
 use App\Codes\Models\V1\DoctorSchedule;
 use App\Codes\Models\V1\LabSchedule;
 use App\Codes\Models\V1\Payment;
@@ -59,6 +60,9 @@ class ProcessTransaction implements ShouldQueue
             $getPaymentReferId = $getParams['payment_refer_id'] ?? '';
             $getPaymentInfo = $getParams['payment_info'] ?? '';
             $getNewCode = $getParams['code'] ?? '';
+            $getAppointmentDoctorId = $getParams['appointment_doctor_id'] ?? '';
+            $getDetailsInfo =  $getParams['detail_info'] ?? '';
+            $getShippingId = isset($getParams['shipping_id']) ? intval($getParams['shipping_id']) : 0;
             if ($getType == 1) {
                 $this->transactionProduct($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getPaymentInfo);
             }
@@ -77,7 +81,7 @@ class ProcessTransaction implements ShouldQueue
             }
             else if ($getType == 5) {
                 $getAppointmentDoctorId = isset($getParams['appointment_doctor_id']) ? intval($getParams['appointment_doctor_id']) : 0;
-                $this->transactionProductKlinik($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getPaymentInfo, $getAppointmentDoctorId);
+                $this->transactionProductKlinik($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getShippingId, $getPaymentInfo, $getDetailsInfo, $getAppointmentDoctorId);
             }
         }
     }
@@ -196,11 +200,14 @@ class ProcessTransaction implements ShouldQueue
 
     }
 
-    private function transactionProductKlinik($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getPaymentInfo, $getAppointmentDoctorId)
+    private function transactionProductKlinik($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getShippingId, $getPaymentInfo, $getDetailsInfo, $getAppointmentDoctorId)
     {
         $getUser = Users::where('id', $getUserId)->first();
         $getUsersAddress = UsersAddress::where('user_id', $getUserId)->first();
+
         $getPayment = Payment::where('id', $getPaymentId)->first();
+
+        $getReceiver = json_decode($getDetailsInfo, true);
 
         $data = AppointmentDoctor::whereIn('status', [80])->where('user_id', $getUserId)->where('id', $getAppointmentDoctorId)->first();
         if (!$data) {
@@ -214,14 +221,17 @@ class ProcessTransaction implements ShouldQueue
             return;
         }
 
+        $getShipping = Shipping::where('id', $getShippingId)->first();
+
         $getShippingPrice = 15000;
 
         $total = 0;
         $getUsersCartDetails = Product::selectRaw('appointment_doctor_product.id, product.id as product_id, product.name, product.image,
-            product.price, product.unit, appointment_doctor_product.product_qty, appointment_doctor_product.choose')
+            product.price, product.unit, appointment_doctor_product.product_qty as product_qty, appointment_doctor_product.choose')
             ->join('appointment_doctor_product', 'appointment_doctor_product.product_id', '=', 'product.id')
             ->where('appointment_doctor_product.appointment_doctor_id', '=', $getAppointmentDoctorId)->where('choose', 1)
             ->get();
+
         foreach ($getUsersCartDetails as $list) {
             $total += $list->price;
         }
@@ -237,12 +247,12 @@ class ProcessTransaction implements ShouldQueue
         $shippingPrice = 15000;
         $transactionDetails = [];
         foreach ($getUsersCartDetails as $list) {
-            $totalQty += $list->qty;
-            $subTotal += ($list->qty * $list->price);
+            $totalQty += $list->product_qty;
+            $subTotal += ($list->product_qty * $list->price);
             $transactionDetails[] = new TransactionDetails([
                 'product_id' => $list->product_id,
                 'product_name' => $list->product_name,
-                'product_qty' => $list->qty,
+                'product_qty' => $list->product_qty,
                 'product_price' => $list->price
             ]);
         }
@@ -259,9 +269,9 @@ class ProcessTransaction implements ShouldQueue
             'shipping_name' => $getShipping->name,
             'payment_id' => $getPaymentId,
             'payment_name' => $getPayment->name,
-            'receiver_name' => $getDetailsInformation['receiver'] ?? '',
-            'receiver_address' => $getDetailsInformation['address'] ?? '',
-            'receiver_phone' => $getDetailsInformation['phone'] ?? '',
+            'receiver_name' => $getReceiver['receiver_name'] ?? '',
+            'receiver_address' => $getReceiver['receiver_address'] ?? '',
+            'receiver_phone' => $getReceiver['receiver_phone'] ?? '',
             'shipping_address_name' => $getUsersAddress->address_name ?? '',
             'shipping_address' => $getUsersAddress->address ?? '',
             'shipping_city_id' => $getUsersAddress->city_id ?? 0,
@@ -285,7 +295,7 @@ class ProcessTransaction implements ShouldQueue
 
         $getTransaction->getTransactionDetails()->saveMany($transactionDetails);
 
-        UsersCartDetail::where('users_cart_id', '=', $getUsersCart->id)
+        AppointmentDoctorProduct::where('appointment_doctor_id', '=', $getAppointmentDoctorId)
             ->where('choose', 1)->delete();
 
         DB::commit();
