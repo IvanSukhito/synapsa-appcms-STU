@@ -113,7 +113,6 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
        $router->get('{id}/reschedule', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@reschedule'])->name('api.appointment.reschedule');
        $router->post('{id}/reschedule', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@updateSchedule'])->name('api.appointment.updateSchedule');
        $router->get('{id}/meeting', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@meeting'])->name('api.appointment.meeting');
-       $router->get('{id}/finish-meeting', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@finishMeeting'])->name('api.appointment.finishMeeting');
        $router->get('{id}/cancel-meeting', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@cancelMeeting'])->name('api.appointment.cancelMeeting');
        $router->get('{id}/cart', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@cart'])->name('api.appointment.cart');
        $router->post('{id}/cart', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@chooseCart'])->name('api.appointment.chooseCart');
@@ -125,13 +124,13 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
 
    });
 
-   $router->group(['prefix' => 'appointment-lab'], function () use ($router) {
-
-       $router->get('/', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@index'])->name('api.appointment-lab.index');
-       $router->get('{id}', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@detail'])->name('api.appointment-lab.detail');
-       $router->get('{id}/cancel-meeting', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@cancelMeeting'])->name('api.appointment-lab.cancelMeeting');
-
-   });
+//   $router->group(['prefix' => 'appointment-lab'], function () use ($router) {
+//
+//       $router->get('/', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@index'])->name('api.appointment-lab.index');
+//       $router->get('{id}', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@detail'])->name('api.appointment-lab.detail');
+//       $router->get('{id}/cancel-meeting', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@cancelMeeting'])->name('api.appointment-lab.cancelMeeting');
+//
+//   });
 
     $router->group(['prefix' => 'doctor'], function () use ($router) {
         $router->group(['prefix' => 'appointment'], function () use ($router) {
@@ -140,6 +139,7 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
             $router->get('{id}', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@detail'])->name('api.doctor.appointment.detail');
             $router->get('{id}/meeting', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@meeting'])->name('api.doctor.appointment.meeting');
             $router->get('{id}/approve-meeting', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@approveMeeting'])->name('api.doctor.appointment.approveMeeting');
+            $router->get('{id}/finish-meeting', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@finishMeeting'])->name('api.doctor.appointment.finishMeeting');
             $router->get('{id}/cancel-meeting', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@cancelMeeting'])->name('api.doctor.appointment.cancelMeeting');
             $router->get('{id}/medicine', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@doctorMedicine'])->name('api.doctor.appointment.doctorMedicine');
             $router->post('{id}/diagnosis', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@doctorDiagnosis'])->name('api.doctor.appointment.doctorDiagnosis');
