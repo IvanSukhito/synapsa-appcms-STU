@@ -242,8 +242,6 @@ class HistoryController extends Controller
         $getServiceDoctor = isset($this->setting['service-doctor']) ? json_decode($this->setting['service-doctor'], true) : [];
         $getService = Service::whereIn('id', $getServiceDoctor)->where('status', '=', 80)->orderBy('orders', 'ASC')->get();
 
-        $notFound = 1;
-        $firstService = 0;
         $tempService = [
             [
                 'id' => 0,
@@ -254,9 +252,6 @@ class HistoryController extends Controller
             ]
         ];
         foreach ($getService as $list) {
-            if ($firstService <= 0) {
-                $firstService = $list->id;
-            }
             $temp = [
                 'id' => $list->id,
                 'name' => $list->name,
@@ -266,20 +261,12 @@ class HistoryController extends Controller
             ];
 
             if ($list->id == $getServiceId) {
-                $notFound = 0;
                 $temp['active'] = 1;
             }
             $tempService[] = $temp;
         }
 
         $getService = $tempService;
-
-        if ($notFound == 1) {
-            if (count($getService) > 0) {
-                $getService[0]['active'] = 1;
-            }
-            $getServiceId = $firstService;
-        }
 
         $result = Transaction::selectRaw('transaction.id, transaction.created_at,
             transaction.category_service_id, transaction.category_service_name,
@@ -320,8 +307,6 @@ class HistoryController extends Controller
         $getServiceLab = isset($this->setting['service-lab']) ? json_decode($this->setting['service-lab'], true) : [];
         $getService = Service::whereIn('id', $getServiceLab)->where('status', '=', 80)->orderBy('orders', 'ASC')->get();
 
-        $notFound = 1;
-        $firstService = 0;
         $tempService = [
             [
                 'id' => 0,
@@ -332,9 +317,6 @@ class HistoryController extends Controller
             ]
         ];
         foreach ($getService as $list) {
-            if ($firstService <= 0) {
-                $firstService = $list->id;
-            }
             $temp = [
                 'id' => $list->id,
                 'name' => $list->name,
@@ -344,20 +326,12 @@ class HistoryController extends Controller
             ];
 
             if ($list->id == $getServiceId) {
-                $notFound = 0;
                 $temp['active'] = 1;
             }
             $tempService[] = $temp;
         }
 
         $getService = $tempService;
-
-        if ($notFound == 1) {
-            if (count($getService) > 0) {
-                $getService[0]['active'] = 1;
-            }
-            $getServiceId = $firstService;
-        }
 
         $result = Transaction::selectRaw('transaction.id, transaction.created_at,
             transaction.category_service_id, transaction.category_service_name,
