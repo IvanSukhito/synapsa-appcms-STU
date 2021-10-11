@@ -228,7 +228,7 @@ class HistoryController extends Controller
         }
 
         $getData = $result->groupByRaw('transaction.id, transaction.created_at,
-            transaction.category_service_id, transaction.category_service_name, transaction.total_qty,
+            transaction.category_service_id, transaction.category_service_name, transaction.total_qty, transaction.subtotal, transaction.total,
             transaction.type_service, transaction.type_service_name, transaction.user_id, transaction.status')->paginate($getLimit);
 
         return [
