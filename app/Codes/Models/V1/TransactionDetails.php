@@ -20,7 +20,10 @@ class TransactionDetails extends Model
         'doctor_price',
         'lab_id',
         'lab_name',
-        'lab_price'
+        'lab_price',
+        'nurse_id',
+        'nurse_shift',
+        'nurse_booked',
     ];
 
     protected $appends = [

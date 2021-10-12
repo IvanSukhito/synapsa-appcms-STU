@@ -5,6 +5,8 @@ namespace App\Codes\Logic;
 use App\Codes\Models\V1\AppointmentDoctor;
 use App\Codes\Models\V1\AppointmentLab;
 use App\Codes\Models\V1\AppointmentLabDetails;
+use App\Codes\Models\V1\AppointmentNurse;
+use App\Codes\Models\V1\BookNurse;
 use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\DoctorSchedule;
 use App\Codes\Models\V1\LabSchedule;
@@ -284,15 +286,38 @@ class SynapsaLogic
 
     }
 
-    public function setupAppointmentNurse($scheduleId, $transactionId, $flag = true)
+    public function setupAppointmentNurse($getTransaction, $nurseId, $transactionId, $flag = true)
     {
-        $getTransaction = Transaction::where('id', $transactionId)->first();
-        if (!$getTransaction) {
+        $getNurse = BookNurse::where('id', $nurseId)->first();
+        if (!$getNurse) {
             return false;
+        }
+
+        $getUser = Users::where('id', $getTransaction->user_id)->first();
+
+        if ($flag) {
+            DB::beginTransaction();
+
+            $getAppointmentNurse = AppointmentNurse::create([
+                'schedule_id' => $getNurse->id,
+                'service_id' => 0,
+                'user_id' => $getTransaction->user_id,
+                'patient_name' => $getUser ? $getUser->fullname : '',
+                'patient_email' => $getUser ? $getUser->email : '',
+                'type_appointment' => 'nurse',
+                'date' => $getNurse->date_booked,
+                'shift_qty' => $getNurse->shift_qty,
+                'status' => 1
+            ]);
+
+            DB::commit();
+
         }
 
         return true;
 
-    }
+
+        }
+
 
 }

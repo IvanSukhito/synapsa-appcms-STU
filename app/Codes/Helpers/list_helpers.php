@@ -62,6 +62,7 @@ if ( ! function_exists('get_list_type_transaction')) {
             5 => __('Lab Telemed'),
             6 => __('Lab HomeCare'),
             7 => __('Lab Visit'),
+            8 => __('Nurse'),
         ];
     }
 }
@@ -76,7 +77,8 @@ if ( ! function_exists('get_list_type_transaction2')) {
             4 => __('Doctor'),
             5 => __('Lab'),
             6 => __('Lab'),
-            7 => __('Lab')
+            7 => __('Lab'),
+            8 => __('Nurse'),
         ];
     }
 }
@@ -91,7 +93,8 @@ if ( ! function_exists('get_list_type_transaction3')) {
             4 => __('Visit'),
             5 => __('Telemed'),
             6 => __('HomeCare'),
-            7 => __('Visit')
+            7 => __('Visit'),
+            8 => __('Nurse'),
         ];
     }
 }

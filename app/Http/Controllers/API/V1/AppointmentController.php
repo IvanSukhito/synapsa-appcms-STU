@@ -8,6 +8,7 @@ use App\Codes\Models\V1\AppointmentDoctor;
 use App\Codes\Models\V1\AppointmentDoctorProduct;
 use App\Codes\Models\V1\AppointmentLab;
 use App\Codes\Models\V1\AppointmentLabDetails;
+use App\Codes\Models\V1\AppointmentNurse;
 use App\Codes\Models\V1\DoctorSchedule;
 use App\Codes\Models\V1\LabSchedule;
 use App\Codes\Models\V1\Payment;
@@ -55,7 +56,7 @@ class AppointmentController extends Controller
         switch ($time) {
             case 2 : $data = AppointmentDoctor::selectRaw('appointment_doctor.id, appointment_doctor.doctor_id AS janji_id,
                     appointment_doctor.doctor_name AS janji_name, 1 AS type, \'doctor\' AS type_name,appointment_doctor.type_appointment, appointment_doctor.date,
-                    appointment_doctor.time_start, appointment_doctor.time_end, appointment_doctor.status,
+                    appointment_doctor.time_start as time_start, appointment_doctor.time_end as time_end, appointment_doctor.status, 0 as shift_qty,
                     IF(LENGTH(appointment_doctor.form_patient) > 10, 1, 0) AS form_patient, online_meeting,
                     doctor_category.name AS doctor_category, users.image AS image,
                     CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
@@ -68,7 +69,7 @@ class AppointmentController extends Controller
                         ->union(
                             AppointmentLab::selectRaw('appointment_lab.id, lab.id AS janji_id,
                             lab.name AS janji_name, 2 AS type, \'lab\' AS type_name, appointment_lab.type_appointment, appointment_lab.date,
-                            appointment_lab.time_start, appointment_lab.time_end, appointment_lab.status, 0 AS form_patient, 0 AS online_meeting,
+                            appointment_lab.time_start as time_start, appointment_lab.time_end as time_end, appointment_lab.status, 0 as shift_qty, 0 AS form_patient, 0 AS online_meeting,
                             0 AS doctor_category, lab.image AS image,
                             CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full')
                                 ->join('appointment_lab_details', function($join){
@@ -82,11 +83,19 @@ class AppointmentController extends Controller
                                 ->where('appointment_lab.user_id', $user->id)
                                 //->where('appointment_lab.date', '=', $dateNow)
                                 ->whereIn('appointment_lab.status', [1,2])
+                        )
+                        ->union(
+                            AppointmentNurse::selectRaw('appointment_nurse.id, appointment_nurse.schedule_id as janji_id, 0 as janji_name, 3 AS type, \'nurse\' AS type_name, appointment_nurse.type_appointment,
+                             appointment_nurse.date, 0 as time_start, 0 as time_end, appointment_nurse.status, shift_qty as shift_qty, 0 AS form_patient, 0 AS online_meeting,
+                            0 AS doctor_category, 0 AS image, CONCAT("'.env('OSS_URL').'/'.'", 0) AS image_full')
+                                ->where('appointment_nurse.user_id', $user->id)
+                                //->where('appointment_lab.date', '=', $dateNow)
+                                ->whereIn('appointment_nurse.status', [1,2])
                         );
             break;
             case 3 : $data = AppointmentDoctor::selectRaw('appointment_doctor.id, appointment_doctor.doctor_id AS janji_id,
                     appointment_doctor.doctor_name AS janji_name, 1 AS type, \'doctor\' AS type_name,appointment_doctor.type_appointment, appointment_doctor.date,
-                    appointment_doctor.time_start, appointment_doctor.time_end, appointment_doctor.status,
+                    appointment_doctor.time_start as time_start, appointment_doctor.time_end as time_end, appointment_doctor.status, 0 as shift_qty,
                     IF(LENGTH(appointment_doctor.form_patient) > 10, 1, 0) AS form_patient, online_meeting,
                     doctor_category.name AS doctor_category, users.image AS image,
                     CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
@@ -97,8 +106,8 @@ class AppointmentController extends Controller
                 ->where('appointment_doctor.status', '=', 80)
                 ->union(
                     AppointmentLab::selectRaw('appointment_lab.id, lab.id AS janji_id,
-                            lab.name AS janji_name, appointment_lab.type_appointment, 2 AS type, \'lab\' AS type_name, appointment_lab.date,
-                            appointment_lab.time_start, appointment_lab.time_end, appointment_lab.status, 0 AS form_patient, 0 AS online_meeting,
+                            lab.name AS janji_name, 2 AS type, \'lab\' AS type_name, appointment_lab.type_appointment, appointment_lab.date,
+                            appointment_lab.time_start as time_start, appointment_lab.time_end as time_end, appointment_lab.status, 0 as shift_qty, 0 AS form_patient, 0 AS online_meeting,
                             0 AS doctor_category, lab.image AS image,
                             CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full')
                         ->join('appointment_lab_details', function($join){
@@ -111,11 +120,17 @@ class AppointmentController extends Controller
                         })
                         ->where('appointment_lab.user_id', $user->id)
                         ->where('appointment_lab.status', '=', 80)
+                )->union(
+                    AppointmentNurse::selectRaw('appointment_nurse.id, appointment_nurse.schedule_id as janji_id, 0 as janji_name, 3 AS type, \'nurse\' AS type_name, appointment_nurse.type_appointment,
+                             appointment_nurse.date, 0 as time_start, 0 as time_end, appointment_nurse.status, shift_qty as shift_qty, 0 AS form_patient, 0 AS online_meeting,
+                            0 AS doctor_category, 0 AS image, CONCAT("'.env('OSS_URL').'/'.'", 0) AS image_full')
+                        ->where('appointment_nurse.user_id', $user->id)
+                        ->where('appointment_nurse.status', '=',80)
                 );
                 break;
             case 4 : $data = AppointmentDoctor::selectRaw('appointment_doctor.id, appointment_doctor.doctor_id AS janji_id,
-                    appointment_doctor.doctor_name AS janji_name, 1 AS type, \'doctor\' AS type_name, appointment_doctor.type_appointment, appointment_doctor.date,
-                    appointment_doctor.time_start, appointment_doctor.time_end, appointment_doctor.status,
+                    appointment_doctor.doctor_name AS janji_name, 1 AS type, \'doctor\' AS type_name,appointment_doctor.type_appointment, appointment_doctor.date,
+                    appointment_doctor.time_start as time_start, appointment_doctor.time_end as time_end, appointment_doctor.status, 0 as shift_qty,
                     IF(LENGTH(appointment_doctor.form_patient) > 10, 1, 0) AS form_patient, online_meeting,
                     doctor_category.name AS doctor_category, users.image AS image,
                     CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
@@ -127,7 +142,7 @@ class AppointmentController extends Controller
                 ->union(
                     AppointmentLab::selectRaw('appointment_lab.id, lab.id AS janji_id,
                             lab.name AS janji_name, 2 AS type, \'lab\' AS type_name, appointment_lab.type_appointment, appointment_lab.date,
-                            appointment_lab.time_start, appointment_lab.time_end, appointment_lab.status, 0 AS form_patient, 0 AS online_meeting,
+                            appointment_lab.time_start as time_start, appointment_lab.time_end as time_end, appointment_lab.status, 0 as shift_qty, 0 AS form_patient, 0 AS online_meeting,
                             0 AS doctor_category, lab.image AS image,
                             CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full')
                         ->join('appointment_lab_details', function($join){
@@ -140,12 +155,19 @@ class AppointmentController extends Controller
                         })
                         ->where('appointment_lab.user_id', $user->id)
                         ->where('appointment_lab.status', '>=', 90)
+                )->union(
+                    AppointmentNurse::selectRaw('appointment_nurse.id, appointment_nurse.schedule_id as janji_id, 0 as janji_name, 3 AS type, \'nurse\' AS type_name, appointment_nurse.type_appointment,
+                             appointment_nurse.date, 0 as time_start, 0 as time_end, appointment_nurse.status, shift_qty as shift_qty, 0 AS form_patient, 0 AS online_meeting,
+                            0 AS doctor_category, 0 AS image, CONCAT("'.env('OSS_URL').'/'.'", 0) AS image_full')
+                        ->where('appointment_nurse.user_id', $user->id)
+                        //->where('appointment_lab.date', '=', $dateNow)
+                        ->where('appointment_nurse.status', '>=', 90)
                 );
                 break;
            default:
                $data = AppointmentDoctor::selectRaw('appointment_doctor.id, appointment_doctor.doctor_id AS janji_id,
-                    appointment_doctor.doctor_name AS janji_name, 1 AS type, \'doctor\' AS type_name, appointment_doctor.type_appointment, appointment_doctor.date,
-                    appointment_doctor.time_start, appointment_doctor.time_end, appointment_doctor.status,
+                    appointment_doctor.doctor_name AS janji_name, 1 AS type, \'doctor\' AS type_name,appointment_doctor.type_appointment, appointment_doctor.date,
+                    appointment_doctor.time_start as time_start, appointment_doctor.time_end as time_end, appointment_doctor.status, 0 as shift_qty,
                     IF(LENGTH(appointment_doctor.form_patient) > 10, 1, 0) AS form_patient, online_meeting,
                     doctor_category.name AS doctor_category, users.image AS image,
                     CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
@@ -158,7 +180,7 @@ class AppointmentController extends Controller
                    ->union(
                        AppointmentLab::selectRaw('appointment_lab.id, lab.id AS janji_id,
                             lab.name AS janji_name, 2 AS type, \'lab\' AS type_name, appointment_lab.type_appointment, appointment_lab.date,
-                            appointment_lab.time_start, appointment_lab.time_end, appointment_lab.status, 0 AS form_patient, 0 AS online_meeting,
+                            appointment_lab.time_start as time_start, appointment_lab.time_end as time_end, appointment_lab.status, 0 as shift_qty, 0 AS form_patient, 0 AS online_meeting,
                             0 AS doctor_category, lab.image AS image,
                             CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full')
                            ->join('appointment_lab_details', function($join){
@@ -172,6 +194,14 @@ class AppointmentController extends Controller
                            ->where('appointment_lab.user_id', $user->id)
                            ->where('appointment_lab.date', '>=', $dateNow)
                            ->whereIn('appointment_lab.status', [3,4])
+                   )
+                   ->union(
+                       AppointmentNurse::selectRaw('appointment_nurse.id, appointment_nurse.schedule_id as janji_id, 0 as janji_name, 3 AS type, \'nurse\' AS type_name, appointment_nurse.type_appointment,
+                             appointment_nurse.date, appointment_nurse.status, 0 as time_start, 0 as time_end, 0 AS form_patient, 0 AS online_meeting,
+                            0 AS doctor_category, 0 AS image, CONCAT("'.env('OSS_URL').'/'.'", 0) AS image_full, appointment_nurse.shift_qty as shift_qty')
+                           ->where('appointment_nurse.user_id', $user->id)
+                           ->where('appointment_nurse.date', '>=', $dateNow)
+                           ->whereIn('appointment_nurse.status', [3,4])
                    );
                break;
        }
@@ -271,7 +301,30 @@ class AppointmentController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token'),
             ]);
         }
+        elseif($type == 3)
+        {
+            $data = AppointmentNurse::selectRaw('appointment_nurse.*')
+                ->where('user_id',$user->id)
+                ->where('appointment_nurse.id', $id)
+                ->first();
 
+            if(!$data){
+                return response()->json([
+                    'success' => 0,
+                    'message' => ['Janji Temu Perawat Tidak Ditemukan'],
+                    'token' => $this->request->attributes->get('_refresh_token'),
+                ], 404);
+            }
+            return response()->json([
+                'success' => 1,
+                'data' => [
+                    'data' => $data,
+                    'address' => $this->getUserAddress($user->id),
+                    'phone'  => $this->getUserAddress($user->id)['phone'],
+                ],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ]);
+        }
         return response()->json([
             'success' => 0,
             'message' => ['Type Janji Temu Tidak Ditemukan'],

@@ -37,6 +37,7 @@ class HistoryController extends Controller
         $getDoctor = intval($this->request->get('doctor'));
         $getLab = intval($this->request->get('lab'));
         $getProduct = intval($this->request->get('product'));
+        $getNurse = intval($this->request->get('nurse'));
         $s = strip_tags($this->request->get('s'));
         $getLimit = intval($this->request->get('limit'));
 
@@ -44,16 +45,25 @@ class HistoryController extends Controller
             $getData = $this->getListDoctor($user->id, $getServiceId, $getLimit, $s);
             $getProduct = 0;
             $getLab = 0;
+            $getNurse = 0;
         }
         else if ($getLab == 1) {
             $getData = $this->getListLab($user->id, $getServiceId, $getLimit, $s);
             $getProduct = 0;
             $getDoctor = 0;
+            $getNurse = 0;
         }
         elseif ($getProduct == 1) {
             $getData = $this->getListProduct($user->id, $getLimit, $s);
             $getDoctor = 0;
             $getLab = 0;
+            $getNurse = 0;
+        }
+        elseif ($getNurse == 1){
+            $getData = $this->getListNurse($user->id, $getLimit);
+            $getDoctor = 0;
+            $getLab = 0;
+            $getProduct = 0;
         }
         else {
             $getData = $this->getListProduct($user->id, $getLimit, $s);
@@ -102,7 +112,7 @@ class HistoryController extends Controller
                 ->join('product', 'product.id', '=', 'transaction_details.product_id', 'LEFT')
                 ->get();
         }
-        else if (in_array($getData->type_service, [2,3,4])) {
+        else if ($getData->type_service == 2) {
             $getDataDetails = $getData->getTransactionDetails()->selectRaw('transaction_details.*,
                 doctor_category.name AS doctor_category_name, users.image, date_available, time_start, time_end, klinik.name as klinik_name,
                 CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
@@ -113,13 +123,18 @@ class HistoryController extends Controller
                 ->join('klinik', 'klinik.id', '=', 'users.klinik_id')
                 ->first();
         }
-        else if (in_array($getData->type_service, [5,6,7])) {
+        else if ($getData->type_service == 3) {
             $getDataDetails = $getData->getTransactionDetails()->selectRaw('transaction_details.*,
                 lab.image, date_available, time_start, time_end, CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full')
                 ->join('lab', 'lab.id', '=', 'transaction_details.lab_id', 'LEFT')
                 ->join('lab_schedule','lab_schedule.id','=','transaction_details.schedule_id', 'LEFT')
                 ->get();
         }
+        else if ($getData->type_service == 4) {
+            $getDataDetails = $getData->getTransactionDetails()->selectRaw('transaction_details.*')->get();
+        }
+
+
 
         $paymentInfo = json_decode($getData->payment_info, TRUE);
         $userAddress = [
@@ -367,6 +382,26 @@ class HistoryController extends Controller
         ];
 
     }
+
+    private function getListNurse($userId, $getLimit)
+    {
+        $result = Transaction::selectRaw('transaction.id, transaction.created_at,
+            transaction.type_service, transaction.type_service_name, transaction.user_id, transaction.status, nurse_booked, nurse_shift as shift_qty')
+            ->join('transaction_details','transaction_details.transaction_id','=','transaction.id')
+            ->where('transaction.user_id', $userId)
+            ->where('type_service', 4)->orderBy('transaction.id','DESC');
+
+        $getData = $result->groupByRaw('transaction.id, transaction.created_at,
+                    transaction.type_service, transaction.type_service_name, transaction.user_id, transaction.status,
+                    nurse_booked , shift_qty')
+                    ->paginate($getLimit);
+
+        return [
+            'data' => $getData
+        ];
+
+    }
+
 
     private function getDetailProduct($getDataId, $userId)
     {

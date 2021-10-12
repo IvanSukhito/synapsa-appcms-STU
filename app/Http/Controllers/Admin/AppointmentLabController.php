@@ -22,17 +22,6 @@ class AppointmentLabController extends _CrudController
                 'edit' => 0,
                 'show' => 0
             ],
-            'service' => [
-                'create' => 0,
-                'edit' => 0,
-                'list' => 0,
-            ],
-            'user' => [
-                'create' => 0,
-                'edit' => 0,
-                'list' => 0,
-                'lang' => 'User',
-            ],
             'patient_name' => [
                 'create' => 0,
                 'edit' => 0,
@@ -135,7 +124,7 @@ class AppointmentLabController extends _CrudController
             return redirect()->route('admin.' . $this->route . '.index');
         }
 
-        $getData->status = 2;
+        $getData->status = 4;
         $getData->save();
 
 

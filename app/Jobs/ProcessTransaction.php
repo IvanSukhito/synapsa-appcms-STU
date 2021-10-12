@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Codes\Models\V1\AppointmentDoctor;
 use App\Codes\Models\V1\AppointmentDoctorProduct;
+use App\Codes\Models\V1\BookNurse;
 use App\Codes\Models\V1\DoctorSchedule;
 use App\Codes\Models\V1\LabSchedule;
 use App\Codes\Models\V1\Payment;
@@ -20,6 +21,7 @@ use App\Codes\Models\V1\LabCart;
 use App\Codes\Models\V1\UsersCartDetail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -60,7 +62,6 @@ class ProcessTransaction implements ShouldQueue
             $getPaymentReferId = $getParams['payment_refer_id'] ?? '';
             $getPaymentInfo = $getParams['payment_info'] ?? '';
             $getNewCode = $getParams['code'] ?? '';
-            $getAppointmentDoctorId = $getParams['appointment_doctor_id'] ?? '';
             $getDetailsInfo =  $getParams['detail_info'] ?? '';
             $getShippingId = isset($getParams['shipping_id']) ? intval($getParams['shipping_id']) : 0;
             if ($getType == 1) {
@@ -76,8 +77,10 @@ class ProcessTransaction implements ShouldQueue
                 $getLabInfo = isset($getParams['lab_info']) ? $getParams['lab_info'] : [];
                 $this->transactionLab($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getLabInfo, $getPaymentInfo);
             }
-            else if ($getType == 4) {
-                $this->transactionNurse();
+            else if ($getType == 4){
+                $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
+                $getNurseInfo = isset($getParams['nurse_info']) ? $getParams['nurse_info'] : [];
+                $this->transactionNurse($getNewCode, $getPaymentReferId, $getTypeService,$getServiceId,  $getType, $getUserId, $getPaymentId, $getScheduleId, $getNurseInfo, $getPaymentInfo, $getDetailsInfo);
             }
             else if ($getType == 5) {
                 $getAppointmentDoctorId = isset($getParams['appointment_doctor_id']) ? intval($getParams['appointment_doctor_id']) : 0;
@@ -94,6 +97,7 @@ class ProcessTransaction implements ShouldQueue
         $getUsersCart = UsersCart::firstOrCreate([
             'users_id' => $getUserId,
         ]);
+        dd($getServiceId);
         $getDetailsInformation = json_decode($getUsersCart->detail_information, true);
         $getDetailsShipping = json_decode($getUsersCart->detail_shipping, true);
         $getShippingId = $getDetailsShipping['shipping_id'];
@@ -481,8 +485,81 @@ class ProcessTransaction implements ShouldQueue
         $this->getJob->save();
     }
 
-    private function transactionNurse()
+    private function transactionNurse($getNewCode, $getPaymentReferId, $getTypeService,$getServiceId,  $getType, $getUserId, $getPaymentId, $getScheduleId, $getNurseInfo, $getPaymentInfo, $getDetailsInfo)
     {
+        $getUser = Users::where('id', $getUserId)->first();
+        $getUsersAddress = UsersAddress::where('user_id', $getUserId)->first();
+
+        $getPayment = Payment::where('id', $getPaymentId)->first();
+
+        $getReceiver = json_decode($getDetailsInfo, true);
+
+
+        $data = BookNurse::where('user_id', $getUserId)->where('id', $getScheduleId)->first();
+        if (!$data) {
+            $this->getJob->status = 99;
+            $this->getJob->response = json_encode([
+                'service' => $getTypeService,
+                'service_id' => $getServiceId,
+                'message' => 'Janji Temu Nurse Tidak Ditemukan'
+            ]);
+            $this->getJob->save();
+            return;
+        }
+        if ($getUsersAddress) {
+            foreach (['address_name', 'address', 'city_id', 'city_name', 'district_id', 'district_name',
+                         'sub_district_id', 'sub_district_name', 'zip_code'] as $key) {
+                $extraInfo[$key] = isset($getUsersAddress->$key) ? $getUsersAddress->$key : '';
+            }
+        }
+
+        $price = 50000;
+        $total = $data->shift_qty*$price;
+
+        DB::beginTransaction();
+
+        $getTransaction = Transaction::create([
+            'klinik_id' => $getUser->klinik_id,
+            'user_id' => $getUser->id,
+            'code' => $getNewCode,
+            'payment_refer_id' => $getPaymentReferId,
+            'payment_service' => $getPayment->service,
+            'type_payment' => $getPayment->type_payment,
+            'payment_id' => $getPaymentId,
+            'payment_name' => $getPayment->name,
+            'receiver_name' => $getReceiver['receiver_name'] ?? '',
+            'receiver_address' => $getReceiver['receiver_address'] ?? '',
+            'receiver_phone' => $getReceiver['receiver_phone'] ?? '',
+            'payment_info' => $getPaymentInfo,
+            'category_service_id' => 0,
+            'category_service_name' => '',
+            'type_service' => 4,
+            'type_service_name' => $getTypeService,
+            'total_qty' => $data->shift_qty,
+            'subtotal' => $total,
+            'total' => $total,
+            'extra_info' => json_encode($extraInfo),
+            'status' => 2
+        ]);
+
+        TransactionDetails::create([
+            'transaction_id' => $getTransaction->id,
+            'schedule_id' => $getNurseInfo['id'],
+            'nurse_id' => $getNurseInfo['id'],
+            'nurse_shift' => $getNurseInfo['shift_qty'],
+            'nurse_booked' => $getNurseInfo['date_booked']
+        ]);
+
+        DB::commit();
+
+        $this->getJob->status = 80;
+        $this->getJob->response = json_encode([
+            'service' => $getTypeService,
+            'service_id' => $getServiceId,
+            'transaction_id' => $getTransaction->id,
+            'message' => 'ok'
+        ]);
+        $this->getJob->save();
 
     }
 

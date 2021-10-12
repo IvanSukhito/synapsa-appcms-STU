@@ -137,7 +137,7 @@ class PaymentReturnController extends Controller
             $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
             if ($getDetail) {
                 $logic = new SynapsaLogic();
-                $logic->setupAppointmentNurse($getDetail->schedule_id, $transactionId);
+                $logic->setupAppointmentNurse($getTransaction, $getDetail->schedule_id, $transactionId);
             }
         } else if ($getType == 5) {
             // Product Klinik

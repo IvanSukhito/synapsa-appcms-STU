@@ -50,14 +50,14 @@ class ArticleController extends _CrudController
                 'lang' => 'thumbnail_image'
             ],
 
-            'image' => [
+            'image_full' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
                 ],
                 'type' => 'image',
                 'path' => 'synapsaapps/article',
-                'lang' => 'image',
+                'lang' => 'image_full',
                 'list' => 0,
             ],
             'content' => [
