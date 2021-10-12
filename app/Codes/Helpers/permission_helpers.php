@@ -437,6 +437,15 @@ if ( ! function_exists('listAllMenu')) {
                 'type' => 1,
             ],
             [
+                'name' => __('general.appointment_nurse'),
+                'icon' => '<i class="nav-icon fa fa-book"></i>',
+                'title' => __('general.appointment_nurse'),
+                'active' => ['admin.appointment-nurse.'],
+                'route' => 'admin.appointment-nurse.index',
+                'key' => 'appointment-nurse',
+                'type' => 1,
+            ],
+            [
                 'name' => __('general.payment'),
                 'icon' => '<i class="nav-icon fa fa-credit-card"></i>',
                 'title' => __('general.payment'),
@@ -514,6 +523,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'settings',
                      'faqs',
                      'appointment-lab',
+                     'appointment-nurse'
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [
@@ -596,6 +606,9 @@ if ( ! function_exists('listAvailablePermission'))
 
         $listPermission['appointment-lab']['edit'][] = 'admin.appointment-lab.approve';
         $listPermission['appointment-lab']['edit'][] = 'admin.appointment-lab.reject';
+
+        $listPermission['appointment-nurse']['edit'][] = 'admin.appointment-nurse.approve';
+        $listPermission['appointment-nurse']['edit'][] = 'admin.appointment-nurse.reject';
 
         return $listPermission;
     }
