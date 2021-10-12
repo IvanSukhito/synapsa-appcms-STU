@@ -403,9 +403,12 @@ class LabController extends Controller
 
         $getData = $getData->where('choose',1);
 
+        $temp = [];
         foreach ($getData as $list) {
             $total += $list->price;
+            $temp[] = $list;
         }
+        $getData = $temp;
 
         return response()->json([
             'success' => 1,
