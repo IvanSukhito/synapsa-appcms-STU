@@ -401,7 +401,7 @@ class LabController extends Controller
 
         $getData = $this->getLabInfo($userId, $serviceId);
 
-        $getData = $getData->where('choose',1)->get();
+        $getData = $getData->where('choose',1);
 
         foreach ($getData as $list) {
             $total += $list->price;
