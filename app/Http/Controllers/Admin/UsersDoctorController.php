@@ -219,10 +219,8 @@ class UsersDoctorController extends _CrudController
                 $ext = end($ext);
                 $destinationPath = 'synapsaapps/users';
                 if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
-
                     $dokumentImage = Storage::putFile($destinationPath, $dokument);
                 }
-
             }
         }
 

@@ -49,15 +49,14 @@ class ProductController extends _CrudController
                     'edit' => 'required'
                 ]
             ],
-            'image' => [
+            'image_full' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
                 ],
                 'type' => 'image',
-                'lang' => 'image'
+                //'lang' => 'image'
             ],
-
             'stock' => [
                 'validate' => [
                     'create' => 'required',

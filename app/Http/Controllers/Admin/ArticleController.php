@@ -40,24 +40,20 @@ class ArticleController extends _CrudController
                 'type' => 'texteditor',
                 'list' => 0,
             ],
-            'thumbnail_img' => [
+            'thumbnail_img_full' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
                 ],
                 'type' => 'image',
-                'path' => 'synapsaapps/article',
                 'lang' => 'thumbnail_image'
             ],
-
             'image_full' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
                 ],
                 'type' => 'image',
-                'path' => 'synapsaapps/article',
-                'lang' => 'image_full',
                 'list' => 0,
             ],
             'content' => [
@@ -113,8 +109,8 @@ class ArticleController extends _CrudController
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
 
-        unset($getListCollectData['thumbnail_img']);
-        unset($getListCollectData['image']);
+        unset($getListCollectData['thumbnail_img_full']);
+        unset($getListCollectData['image_full']);
 
         $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
@@ -128,7 +124,7 @@ class ArticleController extends _CrudController
             }
         }
 
-        $dokument = $this->request->file('image');
+        $dokument = $this->request->file('image_full');
         if ($dokument) {
             if ($dokument->getError() != 1) {
 
@@ -144,7 +140,7 @@ class ArticleController extends _CrudController
             }
         }
 
-        $dokumentThumbnail = $this->request->file('thumbnail_img');
+        $dokumentThumbnail = $this->request->file('thumbnail_img_full');
         if ($dokumentThumbnail) {
             if ($dokumentThumbnail->getError() != 1) {
 

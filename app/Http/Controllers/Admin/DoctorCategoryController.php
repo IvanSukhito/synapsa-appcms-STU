@@ -23,14 +23,13 @@ class DoctorCategoryController extends _CrudController
                     'edit' => 'required'
                 ],
            ],
-            'icon_img' => [
+            'icon_img_full' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
                 ],
                 'type' => 'image',
-                'lang' => 'icon-img-full',
-                'path' => 'synapsaapps/doctor_category',
+                'lang' => 'image',
             ],
             'action' => [
                 'create' => 0,
@@ -54,7 +53,7 @@ class DoctorCategoryController extends _CrudController
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
 
-        unset($getListCollectData['icon_img']);
+        unset($getListCollectData['icon_img_full']);
 
         $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
@@ -68,7 +67,7 @@ class DoctorCategoryController extends _CrudController
             }
         }
 
-        $dokument = $this->request->file('icon_img');
+        $dokument = $this->request->file('icon_img_full');
         if ($dokument) {
             if ($dokument->getError() != 1) {
 

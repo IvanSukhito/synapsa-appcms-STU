@@ -38,14 +38,13 @@ class PaymentController extends _CrudController
                 ],
                 'type' => 'select',
             ],
-            'icon_img' => [
+            'icon_img_full' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
                 ],
-                'lang' => 'icon_full',
+                'lang' => 'icon_img',
                 'type' => 'image',
-                'path' => 'synapsaapps/payment',
             ],
             'orders' => [
                 'validate' => [
@@ -95,7 +94,7 @@ class PaymentController extends _CrudController
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
 
-        unset($getListCollectData['icon_img']);
+        unset($getListCollectData['icon_img_full']);
 
         $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
@@ -109,7 +108,7 @@ class PaymentController extends _CrudController
             }
         }
 
-        $dokument = $this->request->file('icon_img');
+        $dokument = $this->request->file('icon_img_full');
         if ($dokument) {
             if ($dokument->getError() != 1) {
 
