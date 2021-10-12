@@ -433,8 +433,10 @@ class DoctorAppointmentController extends Controller
 
         $getListProduct = $this->request->get('product_ids');
         $getListProductId = [];
-        foreach ($getListProduct as $productId => $qty) {
-            $getListProductId[] = $productId;
+        if ($getListProduct) {
+            foreach ($getListProduct as $productId => $qty) {
+                $getListProductId[] = $productId;
+            }
         }
 
         $getProducts = Product::whereIn('id', $getListProductId)->get();
