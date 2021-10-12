@@ -212,7 +212,7 @@ class DoctorAppointmentController extends Controller
         ]);
     }
 
-    public function finishMeeting()
+    public function finishMeeting($id)
     {
         $user = $this->request->attributes->get('_user');
         $getDoctor = Doctor::where('user_id', $user->id)->first();
