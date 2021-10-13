@@ -169,6 +169,7 @@ class GeneralController extends Controller
             return response()->json([
                 'message' => ['Data Berhasil Dimasukan'],
                 'data' => [
+                    'user_id' => $users->id
                     'klinik_id' => $users->klinik_id,
                     'fullname' => $users->fullname,
                     'address' => $users->address,
@@ -233,6 +234,7 @@ class GeneralController extends Controller
                 $getKlinik = Klinik::where('id', $user->klinik_id)->first();
 
                 $result = [
+                    'user_id' => $user->id,
                     'klinik_id' => $user->klinik_id,
                     'klinik_name' => $getKlinik ? $getKlinik->name : '',
                     'fullname' => $user->fullname,
@@ -363,7 +365,7 @@ class GeneralController extends Controller
 
     public function searchCity()
     {
-        $this->limit = 500;
+        $this->limit = 10;
         $s = $this->request->get('s');
 
         $getData = City::query();
@@ -380,7 +382,7 @@ class GeneralController extends Controller
 
     public function searchDistrict()
     {
-        $this->limit = 500;
+        $this->limit = 10;
         $s = $this->request->get('s');
         $cityId = intval($this->request->get('city_id'));
 
@@ -401,7 +403,7 @@ class GeneralController extends Controller
 
     public function searchSubdistrict()
     {
-        $this->limit = 500;
+        $this->limit = 10;
         $s = $this->request->get('s');
         $districtId = intval($this->request->get('district_id'));
 

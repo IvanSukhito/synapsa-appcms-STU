@@ -70,6 +70,7 @@ class HistoryController extends Controller
             $getProduct = 1;
             $getDoctor = 0;
             $getLab = 0;
+            $getNurse = 0;
         }
 
         return response()->json([
@@ -81,6 +82,7 @@ class HistoryController extends Controller
                     'doctor' => $getDoctor,
                     'product' => $getProduct,
                     'lab' => $getLab,
+                    'nurse' => $getNurse
                 ]
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
@@ -133,8 +135,6 @@ class HistoryController extends Controller
         else if ($getData->type_service == 4) {
             $getDataDetails = $getData->getTransactionDetails()->selectRaw('transaction_details.*')->get();
         }
-
-
 
         $paymentInfo = json_decode($getData->payment_info, TRUE);
         $userAddress = [
