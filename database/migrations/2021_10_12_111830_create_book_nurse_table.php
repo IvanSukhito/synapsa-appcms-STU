@@ -19,6 +19,7 @@ class CreateBookNurseTable extends Migration
             $table->date('date_booked')->nullable();
             $table->integer('shift_qty')->default(0);
             $table->decimal('total', 26, 2)->nullable();
+            $table->tinyInteger('status')->default(1);
             $table->timestamps();
         });
     }

@@ -14,6 +14,7 @@ class BookNurse extends Model
         'date_booked',
         'shift_qty',
         'total',
+        'status'
     ];
 
 

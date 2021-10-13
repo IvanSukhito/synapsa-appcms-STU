@@ -13,8 +13,6 @@ use App\Codes\Models\V1\LabSchedule;
 use App\Codes\Models\V1\LogServiceTransaction;
 use App\Codes\Models\V1\Service;
 use App\Codes\Models\V1\SetJob;
-use App\Codes\Models\V1\Transaction;
-use App\Codes\Models\V1\TransactionDetails;
 use App\Codes\Models\V1\Users;
 use App\Jobs\ProcessTransaction;
 use Illuminate\Support\Facades\DB;

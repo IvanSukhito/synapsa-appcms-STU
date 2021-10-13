@@ -77,12 +77,12 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
     });
 
     $router->group(['prefix' => 'transaction/nurse'], function () use ($router) {
-        $router->post('book-nurse', ['uses' => 'App\Http\Controllers\API\V1\NurseController@bookNurse'])->name('api.nurse.bookNurse');
-        $router->get('cart-receiver/{id}', ['uses' => 'App\Http\Controllers\API\V1\NurseController@getReceiver'])->name('api.nurse.getReceiver');
-        $router->get('cart-address/{id}', ['uses' => 'App\Http\Controllers\API\V1\NurseController@getAddress'])->name('api.nurse.getAddress');
-        $router->get('cart-summary/{id}', ['uses' => 'App\Http\Controllers\API\V1\NurseController@getSummary'])->name('api.nurse.getSummary');
-        $router->get('cart-payment/{id}', ['uses' => 'App\Http\Controllers\API\V1\NurseController@getPayment'])->name('api.nurse.getPayment');
-        $router->post('cart-checkout/{id}', ['uses' => 'App\Http\Controllers\API\V1\NurseController@checkout'])->name('api.nurse.checkout');
+        $router->post('book', ['uses' => 'App\Http\Controllers\API\V1\NurseController@bookNurse'])->name('api.nurse.bookNurse');
+        $router->get('receiver/{id}', ['uses' => 'App\Http\Controllers\API\V1\NurseController@getReceiver'])->name('api.nurse.getReceiver');
+        $router->get('address/{id}', ['uses' => 'App\Http\Controllers\API\V1\NurseController@getAddress'])->name('api.nurse.getAddress');
+        $router->get('summary/{id}', ['uses' => 'App\Http\Controllers\API\V1\NurseController@getSummary'])->name('api.nurse.getSummary');
+        $router->get('payment/{id}', ['uses' => 'App\Http\Controllers\API\V1\NurseController@getPayment'])->name('api.nurse.getPayment');
+        $router->post('checkout/{id}', ['uses' => 'App\Http\Controllers\API\V1\NurseController@checkout'])->name('api.nurse.checkout');
     });
 
     $router->group(['prefix' => 'transaction/lab'], function () use ($router) {

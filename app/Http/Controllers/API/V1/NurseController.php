@@ -54,8 +54,11 @@ class NurseController extends Controller
         $getDate = $this->request->get('date');
         $getQty = $this->request->get('shift_qty');
 
-        $nurse = new BookNurse();
-        $nurse->user_id = $user->id;
+        $nurse = BookNurse::firstOrCreate([
+            'user_id' => $user->id,
+            'status' => 1
+        ]);
+
         $nurse->date_booked = $getDate;
         $nurse->shift_qty = $getQty;
         $nurse->save();
@@ -69,8 +72,7 @@ class NurseController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $data = BookNurse::where('id',$id)->first();
-
+        $data = BookNurse::where('id',$id)->where('user_id',$user->id)->where('status',1)->first();
         if(!$data){
             return response()->json([
                 'success' => 0,
@@ -82,7 +84,6 @@ class NurseController extends Controller
         $getReceiver = $user->fullname ?? '';
         $getAddress = $user->address ?? '';
         $getPhone = $user->phone ?? '';
-
 
         return response()->json([
             'success' => 1,
@@ -100,8 +101,7 @@ class NurseController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $data = BookNurse::where('id',$id)->first();
-
+        $data = BookNurse::where('id',$id)->where('user_id',$user->id)->where('status',1)->first();
         if(!$data){
             return response()->json([
                 'success' => 0,
@@ -120,8 +120,7 @@ class NurseController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $data = BookNurse::where('id',$id)->first();
-
+        $data = BookNurse::where('id',$id)->where('user_id',$user->id)->where('status',1)->first();
         if(!$data){
             return response()->json([
                 'success' => 0,
@@ -154,8 +153,7 @@ class NurseController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $data = BookNurse::where('id',$id)->first();
-
+        $data = BookNurse::where('id',$id)->where('user_id',$user->id)->where('status',1)->first();
         if(!$data){
             return response()->json([
                 'success' => 0,
@@ -223,8 +221,7 @@ class NurseController extends Controller
 
         $paymentId = $this->request->get('payment_id');
 
-        $data = BookNurse::where('id',$id)->first();
-
+        $data = BookNurse::where('id',$id)->where('user_id',$user->id)->where('status',1)->first();
         if(!$data){
             return response()->json([
                 'success' => 0,
@@ -246,7 +243,6 @@ class NurseController extends Controller
 
         $price = 50000;
         $total = $data->shift_qty*$price;
-
         $getTotal = Transaction::where('klinik_id', $user->klinik_id)->whereYear('created_at', '=', date('Y'))
             ->whereMonth('created_at', '=', date('m'))->count();
 

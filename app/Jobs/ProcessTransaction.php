@@ -487,7 +487,6 @@ class ProcessTransaction implements ShouldQueue
 
     private function transactionNurse($getNewCode, $getPaymentReferId, $getTypeService,$getServiceId,  $getType, $getUserId, $getPaymentId, $getScheduleId, $getNurseInfo, $getPaymentInfo, $getDetailsInfo)
     {
-
         $getUser = Users::where('id', $getUserId)->first();
         $getUsersAddress = UsersAddress::where('user_id', $getUserId)->first();
 
@@ -549,6 +548,9 @@ class ProcessTransaction implements ShouldQueue
             'nurse_shift' => $getNurseInfo['shift_qty'],
             'nurse_booked' => $getNurseInfo['date_booked']
         ]);
+
+        $data->status = 80;
+        $data->save();
 
         DB::commit();
 
