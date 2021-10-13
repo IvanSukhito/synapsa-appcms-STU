@@ -80,7 +80,7 @@ class ProcessTransaction implements ShouldQueue
             else if ($getType == 4){
                 $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
                 $getNurseInfo = isset($getParams['nurse_info']) ? $getParams['nurse_info'] : [];
-                $this->transactionNurse($getNewCode, $getPaymentReferId, $getTypeService,$getServiceId,  $getType, $getUserId, $getPaymentId, $getScheduleId, $getNurseInfo, $getPaymentInfo, $getDetailsInfo);
+                $this->transactionNurse($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getNurseInfo, $getPaymentInfo, $getDetailsInfo);
             }
             else if ($getType == 5) {
                 $getAppointmentDoctorId = isset($getParams['appointment_doctor_id']) ? intval($getParams['appointment_doctor_id']) : 0;
@@ -487,6 +487,7 @@ class ProcessTransaction implements ShouldQueue
 
     private function transactionNurse($getNewCode, $getPaymentReferId, $getTypeService,$getServiceId,  $getType, $getUserId, $getPaymentId, $getScheduleId, $getNurseInfo, $getPaymentInfo, $getDetailsInfo)
     {
+
         $getUser = Users::where('id', $getUserId)->first();
         $getUsersAddress = UsersAddress::where('user_id', $getUserId)->first();
 
@@ -541,6 +542,8 @@ class ProcessTransaction implements ShouldQueue
             'extra_info' => json_encode($extraInfo),
             'status' => 2
         ]);
+
+        dd($getTransaction);
 
         TransactionDetails::create([
             'transaction_id' => $getTransaction->id,
