@@ -97,7 +97,7 @@ class ProcessTransaction implements ShouldQueue
         $getUsersCart = UsersCart::firstOrCreate([
             'users_id' => $getUserId,
         ]);
-        dd($getServiceId);
+
         $getDetailsInformation = json_decode($getUsersCart->detail_information, true);
         $getDetailsShipping = json_decode($getUsersCart->detail_shipping, true);
         $getShippingId = $getDetailsShipping['shipping_id'];
