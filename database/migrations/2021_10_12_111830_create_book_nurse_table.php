@@ -18,7 +18,7 @@ class CreateBookNurseTable extends Migration
             $table->unsignedBigInteger('user_id')->default(0);
             $table->date('date_booked')->nullable();
             $table->integer('shift_qty')->default(0);
-            $table->decimal('total', 26, 2)->nullable();
+            $table->decimal('total', 26, 2)->default(0)->nullable();
             $table->tinyInteger('status')->default(1);
             $table->timestamps();
         });
