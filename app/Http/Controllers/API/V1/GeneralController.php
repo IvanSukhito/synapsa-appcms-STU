@@ -169,7 +169,7 @@ class GeneralController extends Controller
             return response()->json([
                 'message' => ['Data Berhasil Dimasukan'],
                 'data' => [
-                    'user_id' => $users->id
+                    'user_id' => $users->id,
                     'klinik_id' => $users->klinik_id,
                     'fullname' => $users->fullname,
                     'address' => $users->address,
