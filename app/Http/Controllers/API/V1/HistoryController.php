@@ -401,7 +401,7 @@ class HistoryController extends Controller
                     nurse_booked , shift_qty')
                     ->paginate($getLimit);
 
-        dd($getData);
+
         return [
             'data' => $getData
         ];
