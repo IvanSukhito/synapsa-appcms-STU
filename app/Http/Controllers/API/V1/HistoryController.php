@@ -41,13 +41,17 @@ class HistoryController extends Controller
         $s = strip_tags($this->request->get('s'));
         $getLimit = intval($this->request->get('limit'));
 
+        if ($getLimit <= 0) {
+            $getLimit = $this->limit;
+        }
+
         if ($getDoctor == 1) {
             $getData = $this->getListDoctor($user->id, $getServiceId, $getLimit, $s);
             $getProduct = 0;
             $getLab = 0;
             $getNurse = 0;
         }
-        else if ($getLab == 1) {
+        elseif ($getLab == 1) {
             $getData = $this->getListLab($user->id, $getServiceId, $getLimit, $s);
             $getProduct = 0;
             $getDoctor = 0;
@@ -392,12 +396,12 @@ class HistoryController extends Controller
             ->where('type_service', 4)
             ->orderBy('transaction.id','DESC');
 
-        dd($result);
         $getData = $result->groupByRaw('transaction.id, transaction.created_at,
                     transaction.type_service, transaction.type_service_name, transaction.user_id, transaction.status,
                     nurse_booked , shift_qty')
                     ->paginate($getLimit);
 
+        dd($getData);
         return [
             'data' => $getData
         ];
