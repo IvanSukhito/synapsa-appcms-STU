@@ -389,8 +389,10 @@ class HistoryController extends Controller
             transaction.type_service, transaction.type_service_name, transaction.user_id, transaction.status, nurse_booked, nurse_shift as shift_qty')
             ->join('transaction_details','transaction_details.transaction_id','=','transaction.id')
             ->where('transaction.user_id', $userId)
-            ->where('type_service', 4)->orderBy('transaction.id','DESC');
+            ->where('type_service', 4)
+            ->orderBy('transaction.id','DESC');
 
+        dd($result);
         $getData = $result->groupByRaw('transaction.id, transaction.created_at,
                     transaction.type_service, transaction.type_service_name, transaction.user_id, transaction.status,
                     nurse_booked , shift_qty')
