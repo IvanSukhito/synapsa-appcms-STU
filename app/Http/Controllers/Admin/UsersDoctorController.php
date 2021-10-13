@@ -101,6 +101,7 @@ class UsersDoctorController extends _CrudController
                     'edit' => 'required'
                 ],
                 'type' => 'select',
+                'list' => 0
             ],
             'nik' => [
                 'validate' => [
@@ -115,7 +116,8 @@ class UsersDoctorController extends _CrudController
                     'edit' => 'required'
                 ],
                 'type' => 'image',
-                'lang' => 'ktp'
+                'lang' => 'ktp',
+                'list' => 0,
             ],
             'phone' => [
                 'validate' => [
