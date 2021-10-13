@@ -11,7 +11,7 @@ if ($fieldRequired == 1) {
     <label for="{{$fieldName}}">{{ __($fieldLang) }} {{ $fieldRequired == 1 ? ' *' : '' }}</label>
     @if($fieldValue)
         <br/>
-        <a href="{{ asset($path.$fieldValue) }}" target="_blank" title="{{$fieldName}}"  class="dropify"  data-fancybox>
+        <a href="{{ asset($path.$fieldValue) }}" target="_blank" title="{{$fieldName}}"  data-fancybox>
             <img src="{{ asset($path.$fieldValue) }}" class="img-responsive max-image-preview" alt="{{$fieldName}}"/>
         </a>
         <br/>

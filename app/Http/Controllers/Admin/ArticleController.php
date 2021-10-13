@@ -46,7 +46,7 @@ class ArticleController extends _CrudController
                     'edit' => 'required'
                 ],
                 'type' => 'image',
-                'lang' => 'thumbnail_image'
+                'lang' => 'thumbnail_img'
             ],
             'image_full' => [
                 'validate' => [
@@ -185,5 +185,126 @@ class ArticleController extends _CrudController
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
     }
+
+    public function update($id)
+    {
+        $this->callPermission();
+
+        $viewType = 'edit';
+
+        $getData = $this->crud->show($id);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $getListCollectData = collectPassingData($this->passingData, $viewType);
+
+        unset($getListCollectData['thumbnail_img_full']);
+        unset($getListCollectData['image_full']);
+
+        $validate = $this->setValidateData($getListCollectData, $viewType, $id);
+        if (count($validate) > 0)
+        {
+            $data = $this->validate($this->request, $validate);
+        }
+        else {
+            $data = [];
+            foreach ($getListCollectData as $key => $val) {
+                $data[$key] = $this->request->get($key);
+            }
+        }
+
+        $dokument = $this->request->file('image_full');
+        if ($dokument) {
+            if ($dokument->getError() != 1) {
+
+                $getFileName = $dokument->getClientOriginalName();
+                $ext = explode('.', $getFileName);
+                $ext = end($ext);
+                $destinationPath = 'synapsaapps/article';
+                if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
+
+                    $dokumentImage = Storage::putFile($destinationPath, $dokument);
+                }
+
+            }
+        }elseif($dokument == null){
+
+            $dokumentImage =  $getData->image;
+
+        }
+
+        $dokumentThumbnail = $this->request->file('thumbnail_img_full');
+        if ($dokumentThumbnail) {
+            if ($dokumentThumbnail->getError() != 1) {
+
+                $getFileName = $dokumentThumbnail->getClientOriginalName();
+                $ext = explode('.', $getFileName);
+                $ext = end($ext);
+                $destinationPath = 'synapsaapps/article';
+                if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
+
+                    $dokumentThumbnailImage = Storage::putFile($destinationPath, $dokumentThumbnail);
+                }
+
+            }
+        }elseif($dokumentThumbnail == null){
+
+            $dokumentThumbnailImage =  $getData->thumbnail_img;
+
+        }
+
+        $statusPublish = $this->request->get('publish_status');
+        //dd($statusPublish);
+        if($statusPublish == null){
+            $publish = 0;
+        }else{
+            $publish = 1;
+        }
+
+        $title = $data['title'];
+
+        $data = $this->getCollectedData($getListCollectData, $viewType, $data, $getData);
+
+        foreach ($getListCollectData as $key => $val) {
+            if($val['type'] == 'image_many') {
+                $getStorage = explode(',', $this->request->get($key.'_storage')) ?? [];
+                $getOldData = json_decode($getData->$key, true);
+                $tempData = [];
+                if ($getOldData) {
+                    foreach ($getOldData as $index => $value) {
+                        if (in_array($index, $getStorage)) {
+                            $tempData[] = $value;
+                        }
+                    }
+                }
+                if (isset($data[$key])) {
+                    foreach (json_decode($data[$key], true) as $index => $value) {
+                        $tempData[] = $value;
+                    }
+                }
+                $data[$key] = json_encode($tempData);
+            }
+        }
+
+        $data['image'] = $dokumentImage;
+        $data['thumbnail_img'] = $dokumentThumbnailImage;
+        $data['publish_status'] = $publish;
+        $data['slugs'] = create_slugs($title);
+
+        $getData = $this->crud->update($data, $id);
+
+        $id = $getData->id;
+
+        if($this->request->ajax()){
+            return response()->json(['result' => 1, 'message' => __('general.success_edit_', ['field' => $this->data['thisLabel']])]);
+        }
+        else {
+            session()->flash('message', __('general.success_edit_', ['field' => $this->data['thisLabel']]));
+            session()->flash('message_alert', 2);
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.show', $id);
+        }
+    }
+
 
 }

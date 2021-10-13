@@ -109,13 +109,13 @@ class UsersDoctorController extends _CrudController
                 ],
                 'list' => 0,
             ],
-            'upload_ktp' => [
+            'upload_ktp_full' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
                 ],
-                'path' => 'synapsaapps/users',
                 'type' => 'image',
+                'lang' => 'ktp'
             ],
             'phone' => [
                 'validate' => [
@@ -196,7 +196,7 @@ class UsersDoctorController extends _CrudController
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
 
-        unset($getListCollectData['upload_ktp']);
+        unset($getListCollectData['upload_ktp_full']);
 
         $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
@@ -210,7 +210,7 @@ class UsersDoctorController extends _CrudController
             }
         }
 
-        $dokument = $this->request->file('upload_ktp');
+        $dokument = $this->request->file('upload_ktp_full');
         if ($dokument) {
             if ($dokument->getError() != 1) {
 
@@ -228,6 +228,7 @@ class UsersDoctorController extends _CrudController
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
         $data['upload_ktp'] = $dokumentImage;
+        //dd($dokumentImage);
         $data['password'] = bcrypt('123');
         $data['doctor'] = 1;
         $getData = $this->crud->store($data);
@@ -243,6 +244,90 @@ class UsersDoctorController extends _CrudController
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
     }
+    public function update($id)
+    {
+        $this->callPermission();
+
+        $viewType = 'edit';
+
+        $getData = $this->crud->show($id);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $getListCollectData = collectPassingData($this->passingData, $viewType);
+
+        unset($getListCollectData['upload_ktp_full']);
+
+        $validate = $this->setValidateData($getListCollectData, $viewType, $id);
+        if (count($validate) > 0)
+        {
+            $data = $this->validate($this->request, $validate);
+        }
+        else {
+            $data = [];
+            foreach ($getListCollectData as $key => $val) {
+                $data[$key] = $this->request->get($key);
+            }
+        }
+
+        $dokument = $this->request->file('upload_ktp_full');
+        if ($dokument) {
+            if ($dokument->getError() != 1) {
+
+                $getFileName = $dokument->getClientOriginalName();
+                $ext = explode('.', $getFileName);
+                $ext = end($ext);
+                $destinationPath = 'synapsaapps/users';
+                if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
+                    $dokumentImage = Storage::putFile($destinationPath, $dokument);
+                }
+            }
+        }else{
+
+            $dokumentImage = $getData->upload_ktp;
+
+        }
+
+        $data = $this->getCollectedData($getListCollectData, $viewType, $data, $getData);
+
+        foreach ($getListCollectData as $key => $val) {
+            if($val['type'] == 'image_many') {
+                $getStorage = explode(',', $this->request->get($key.'_storage')) ?? [];
+                $getOldData = json_decode($getData->$key, true);
+                $tempData = [];
+                if ($getOldData) {
+                    foreach ($getOldData as $index => $value) {
+                        if (in_array($index, $getStorage)) {
+                            $tempData[] = $value;
+                        }
+                    }
+                }
+                if (isset($data[$key])) {
+                    foreach (json_decode($data[$key], true) as $index => $value) {
+                        $tempData[] = $value;
+                    }
+                }
+                $data[$key] = json_encode($tempData);
+            }
+        }
+
+        $getData = $this->crud->update($data, $id);
+
+        $data['upload_ktp'] = $dokumentImage;
+
+        $id = $getData->id;
+
+        if($this->request->ajax()){
+            return response()->json(['result' => 1, 'message' => __('general.success_edit_', ['field' => $this->data['thisLabel']])]);
+        }
+        else {
+            session()->flash('message', __('general.success_edit_', ['field' => $this->data['thisLabel']]));
+            session()->flash('message_alert', 2);
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.show', $id);
+        }
+    }
+
     public function dataTable()
     {
         $this->callPermission();
@@ -251,7 +336,7 @@ class UsersDoctorController extends _CrudController
 
         $dataTables = new DataTables();
 
-        $builder = $this->model::query()->selectRaw('users.id, users.fullname, users.gender, users.email, users.phone, klinik.name as klinik_id, users.status')
+        $builder = $this->model::query()->selectRaw('users.id, users.fullname, users.gender, users.email, users.phone, upload_ktp, klinik.name as klinik_id, users.status')
             ->where('users.doctor', '=', 1)
             ->leftJoin('klinik','klinik.id','=','users.klinik_id')
             ->where('klinik.status',80);

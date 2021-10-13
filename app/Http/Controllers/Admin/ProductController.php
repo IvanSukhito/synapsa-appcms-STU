@@ -52,7 +52,7 @@ class ProductController extends _CrudController
             'image_full' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
+                    'edit' => ''
                 ],
                 'type' => 'image',
                 //'lang' => 'image'
@@ -237,7 +237,7 @@ class ProductController extends _CrudController
         $productStock = $this->request->get('stock');
         $productStockFlag = $this->request->get('stock_flag');
         $productStatus = $this->request->get('status');
-        $dokument = $this->request->file('image');
+        $dokument = $this->request->file('image_full');
         $desc = $this->request->get('desc');
         $title = $this->request->get('title');
 
@@ -287,11 +287,15 @@ class ProductController extends _CrudController
         $this->callPermission();
 
         $adminId = session()->get('admin_id');
-        $getData = Users::where('id', $adminId)->first();
-        if (!$getData) {
+        $getUser = Users::where('id', $adminId)->first();
+        if (!$getUser) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
 
+        $getData = Product::where('id',$id)->first();
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
 
         $viewType = 'edit';
 
@@ -319,7 +323,7 @@ class ProductController extends _CrudController
         $productInformation = $this->request->get('information');
         $productIndication = $this->request->get('indication');
         $productDosis = $this->request->get('dosis');
-        $dokument = $this->request->file('image');
+        $dokument = $this->request->file('image_full');
         $title = $this->request->get('title');
         $desc = $this->request->get('desc');
         $descProduct = [];
@@ -343,6 +347,10 @@ class ProductController extends _CrudController
                 }
 
             }
+        }else{
+
+            $dokumentImage= $getData->image;
+
         }
 
         $product = Product::where('id',$id)->update([

@@ -26,7 +26,7 @@ class DoctorCategoryController extends _CrudController
             'icon_img_full' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
+                    'edit' => ''
                 ],
                 'type' => 'image',
                 'lang' => 'image',
@@ -98,5 +98,91 @@ class DoctorCategoryController extends _CrudController
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
     }
+
+
+    public function update($id)
+    {
+        $this->callPermission();
+
+        $viewType = 'edit';
+
+        $getData = $this->crud->show($id);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $getListCollectData = collectPassingData($this->passingData, $viewType);
+
+        $validate = $this->setValidateData($getListCollectData, $viewType, $id);
+        if (count($validate) > 0)
+        {
+            $data = $this->validate($this->request, $validate);
+        }
+        else {
+            $data = [];
+            foreach ($getListCollectData as $key => $val) {
+                $data[$key] = $this->request->get($key);
+            }
+        }
+
+        $dokument = $this->request->file('icon_img_full');
+        if ($dokument) {
+            if ($dokument->getError() != 1) {
+
+                $getFileName = $dokument->getClientOriginalName();
+                $ext = explode('.', $getFileName);
+                $ext = end($ext);
+                $destinationPath = 'synapsaapps/doctor_category';
+                if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
+
+                    $dokumentImage = Storage::putFile($destinationPath, $dokument);
+                }
+
+            }
+        }elseif($dokument == null){
+
+            $dokumentImage =  $getData->icon_img;
+
+        }
+
+        $data = $this->getCollectedData($getListCollectData, $viewType, $data, $getData);
+
+        foreach ($getListCollectData as $key => $val) {
+            if($val['type'] == 'image_many') {
+                $getStorage = explode(',', $this->request->get($key.'_storage')) ?? [];
+                $getOldData = json_decode($getData->$key, true);
+                $tempData = [];
+                if ($getOldData) {
+                    foreach ($getOldData as $index => $value) {
+                        if (in_array($index, $getStorage)) {
+                            $tempData[] = $value;
+                        }
+                    }
+                }
+                if (isset($data[$key])) {
+                    foreach (json_decode($data[$key], true) as $index => $value) {
+                        $tempData[] = $value;
+                    }
+                }
+                $data[$key] = json_encode($tempData);
+            }
+        }
+
+        $data['icon_img'] = $dokumentImage;
+
+        $getData = $this->crud->update($data, $id);
+
+        $id = $getData->id;
+
+        if($this->request->ajax()){
+            return response()->json(['result' => 1, 'message' => __('general.success_edit_', ['field' => $this->data['thisLabel']])]);
+        }
+        else {
+            session()->flash('message', __('general.success_edit_', ['field' => $this->data['thisLabel']]));
+            session()->flash('message_alert', 2);
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.show', $id);
+        }
+    }
+
 
 }

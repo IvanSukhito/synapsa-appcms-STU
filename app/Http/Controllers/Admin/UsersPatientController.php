@@ -111,14 +111,13 @@ class UsersPatientController extends _CrudController
                 ],
                 'list' => 0,
             ],
-            'upload_ktp' => [
+            'upload_ktp_full' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
                 ],
-                'path' => 'synapsaapps/users',
                 'type' => 'image',
-                'list' => 0,
+                'lang' => 'ktp'
             ],
             'phone' => [
                 'validate' => [
@@ -283,7 +282,7 @@ class UsersPatientController extends _CrudController
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
 
-        unset($getListCollectData['upload_ktp']);
+        unset($getListCollectData['upload_ktp_full']);
 
         $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
@@ -297,7 +296,7 @@ class UsersPatientController extends _CrudController
             }
         }
 
-        $dokument = $this->request->file('upload_ktp');
+        $dokument = $this->request->file('upload_ktp_full');
         if ($dokument) {
             if ($dokument->getError() != 1) {
 
@@ -311,6 +310,9 @@ class UsersPatientController extends _CrudController
                 }
 
             }
+        }
+        else{
+            $dokumentImage = $getData->upload_ktp;
         }
 
 
@@ -339,7 +341,7 @@ class UsersPatientController extends _CrudController
 
         $dataTables = new DataTables();
 
-        $builder = $this->model::query()->selectRaw('users.id, users.fullname, users.gender, users.email, users.phone, klinik.name as klinik_id, users.status')
+        $builder = $this->model::query()->selectRaw('users.id, users.fullname, users.gender, users.email, users.phone, upload_ktp, klinik.name as klinik_id, users.status')
             ->where('users.patient', '=', 1)
             ->leftJoin('klinik','klinik.id','=','users.klinik_id')
             ->where('klinik.status',80);

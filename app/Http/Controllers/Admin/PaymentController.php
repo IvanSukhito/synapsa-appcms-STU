@@ -41,7 +41,6 @@ class PaymentController extends _CrudController
             'icon_img_full' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
                 'lang' => 'icon_img',
                 'type' => 'image',
@@ -187,6 +186,10 @@ class PaymentController extends _CrudController
                 }
 
             }
+        }else{
+
+            $dokumentImage = $getData->icon_img;
+
         }
 
         $settings = $data['settings'];
