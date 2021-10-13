@@ -495,7 +495,6 @@ class ProcessTransaction implements ShouldQueue
 
         $getReceiver = json_decode($getDetailsInfo, true);
 
-
         $data = BookNurse::where('user_id', $getUserId)->where('id', $getScheduleId)->first();
         if (!$data) {
             $this->getJob->status = 99;
@@ -542,8 +541,6 @@ class ProcessTransaction implements ShouldQueue
             'extra_info' => json_encode($extraInfo),
             'status' => 2
         ]);
-
-        dd($getTransaction);
 
         TransactionDetails::create([
             'transaction_id' => $getTransaction->id,
