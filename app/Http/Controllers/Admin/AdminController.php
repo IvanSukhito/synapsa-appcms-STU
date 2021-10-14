@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
 use App\Codes\Models\Role;
+use App\Codes\Models\V1\Klinik;
+use App\Codes\Models\V1\Users;
 use Illuminate\Http\Request;
 
 class AdminController extends _CrudController
@@ -45,6 +47,14 @@ class AdminController extends _CrudController
                     'edit' => 'required'
                 ],
                 'type' => 'select'
+            ],
+            'klinik_id' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'type' => 'select2',
+                'lang' => 'klinik'
             ],
             'role_id' => [
                 'validate' => [
@@ -88,9 +98,17 @@ class AdminController extends _CrudController
         $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.admin.list_button';
         $this->listView['password'] = env('ADMIN_TEMPLATE').'.page.admin.password';
 
+        $getKlinik = Klinik::where('status', 80)->pluck('name', 'id')->toArray();
+        $listKlinik = [0 => 'Empty'];
+        if($getKlinik) {
+            foreach($getKlinik as $key => $value) {
+                $listKlinik[$key] = $value;
+            }
+        }
         $this->data['listSet'] = [
             'role_id' => Role::pluck('name', 'id')->toArray(),
-            'status' => get_list_active_inactive()
+            'status' => get_list_active_inactive(),
+            'klinik_id' => $listKlinik
         ];
 
     }

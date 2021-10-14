@@ -11,6 +11,7 @@ return [
     'add' => 'Add',
     'faqs' => 'Faqs',
     'klinik' => 'Klinik',
+    'clinic_phone' => 'Clinic Phone',
     'district' => 'District',
     'sub_district' => 'Sub District',
     'fullname' => 'Full Name',
@@ -251,6 +252,14 @@ return [
     'password_confirmation' => 'Password Confirmation',
     'news_and_event' => 'News & Event',
     'success_send_to_your_email' => 'Success Send to your Email: :field',
+
+    'monday' => 'Monday',
+    'tuesday' => 'Tuesday',
+    'wednesday' => 'Wednesday',
+    'thursday' => 'Thursday',
+    'friday' => 'Friday',
+    'saturday' => 'Saturday',
+    'sunday' => 'Sunday',
 
     'sign_out' => 'Sign Out',
     'sign_in' => 'Sign in',

@@ -455,6 +455,15 @@ if ( ! function_exists('listAllMenu')) {
                 'type' => 1,
             ],
             [
+                'name' => __('general.shipping'),
+                'icon' => '<i class="nav-icon fa fa-box"></i>',
+                'title' => __('general.shipping'),
+                'active' => ['admin.shipping.'],
+                'route' => 'admin.shipping.index',
+                'key' => 'shipping',
+                'type' => 1,
+            ],
+            [
                 'name' => __('general.setting'),
                 'icon' => '<i class="nav-icon fa fa-gear"></i>',
                 'title' => __('general.setting'),
@@ -571,7 +580,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'lab-schedule',
                      'doctor-category',
                      'payment',
-
+                     'shipping',
 
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [

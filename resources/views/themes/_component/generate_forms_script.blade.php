@@ -59,6 +59,22 @@
                 "separator": " | "
             }
         });
+
+        $('.timerange').daterangepicker({
+            timePicker: true,
+            timePicker24Hour: true,
+            autoUpdateInput: false,
+            // timePickerIncrement: 15,
+            locale: {
+                "format": "HH:mm",
+                "separator": " - "
+            }
+        }).on('show.daterangepicker', function (ev, picker) {
+            picker.container.find(".calendar-table").hide();
+        }).on('apply.daterangepicker', function (ev, picker) {
+            $(this).val(picker.startDate.format('HH:mm') + ' - ' + picker.endDate.format('HH:mm'));
+        });
+
         $('.select2').select2();
         $('.tagging').select2({
             tags: true

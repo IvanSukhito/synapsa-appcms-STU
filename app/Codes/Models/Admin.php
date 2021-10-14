@@ -2,6 +2,7 @@
 
 namespace App\Codes\Models;
 
+use App\Codes\Models\V1\Klinik;
 use Illuminate\Database\Eloquent\Model;
 
 class Admin extends Model
@@ -10,6 +11,7 @@ class Admin extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'name',
+        'klinik_id',
         'username',
         'password',
         'role_id',
@@ -31,6 +33,11 @@ class Admin extends Model
     {
         return \Carbon\Carbon::parse($this->attributes['created_at'])
             ->format('H:i:s Y-m-d ');
+    }
+
+    public function getKlinik()
+    {
+        return $this->belongsTo(Klinik::class, 'klinik_id', 'id');
     }
 
 

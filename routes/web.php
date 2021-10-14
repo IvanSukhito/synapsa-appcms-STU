@@ -41,6 +41,7 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                 'App\Http\Controllers\Admin\DoctorCategoryController' => 'doctor-category',
                 'App\Http\Controllers\Admin\ServiceController' => 'service',
                 'App\Http\Controllers\Admin\PaymentController' => 'payment',
+              //  'App\Http\Controllers\Admin\ShippingController' => 'Shipping',
                 'App\Http\Controllers\Admin\AppointmentLabController' => 'appointment-lab',
                 'App\Http\Controllers\Admin\AppointmentNurseController' => 'appointment-nurse',
             ];

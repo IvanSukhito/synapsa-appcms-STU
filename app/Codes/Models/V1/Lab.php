@@ -10,12 +10,14 @@ class Lab extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'parent_id',
+        'klinik_id',
         'name',
         'image',
         'desc_lab',
         'desc_benefit',
         'desc_preparation',
-        'recommended_for'
+        'recommended_for',
+        'priority'
     ];
 
     protected $appends = [
