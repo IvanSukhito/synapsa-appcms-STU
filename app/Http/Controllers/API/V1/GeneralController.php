@@ -223,7 +223,7 @@ class GeneralController extends Controller
             try {
                 $token = JWTAuth::fromUser($user);
 
-                $getToken = $this->request->get('token');
+                $getToken = $this->request->get('fcm_token');
                 if ($getToken && strlen($getToken) > 5) {
                     $getDeviceToken = DeviceToken::firstOrCreate([
                         'token' => $getToken
