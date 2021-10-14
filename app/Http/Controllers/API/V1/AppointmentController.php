@@ -414,10 +414,21 @@ class AppointmentController extends Controller
     {
         $user = $this->request->attributes->get('_user');
         $type = intval($this->request->get('type'));
+        $message = strip_tags($this->request->get('message'));
 
         $getDate = strtotime($this->request->get('date')) > 0 ?
             date('Y-m-d', strtotime($this->request->get('date'))) :
             date('Y-m-d', strtotime("+1 day"));
+
+        $dateNow = date('Y-m-d');
+
+        if($getDate <= $dateNow){
+            return response()->json([
+                'success' => 0,
+                'message' => ['Pilih Jadwal Harus Lebih Dari Hari Ini'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
 
         if ($type == 1) {
             $getAppointment = AppointmentDoctor::where('user_id', $user->id)->where('id', $id)->first();
@@ -428,7 +439,7 @@ class AppointmentController extends Controller
                     'token' => $this->request->attributes->get('_refresh_token'),
                 ], 404);
             }
-            else if ($getAppointment->status != 1) {
+            else if (!in_array($getAppointment->status, [1,2])) {
                 return response()->json([
                     'success' => 0,
                     'message' => ['Janji Temu Dokter tidak bisa di ganti'],
@@ -454,6 +465,10 @@ class AppointmentController extends Controller
 
             $getList = get_list_type_service();
 
+            $getAppointment->status = 2;
+            $getAppointment->message = $message;
+            $getAppointment->save();
+
             return response()->json([
                 'success' => 1,
                 'data' => [
@@ -478,7 +493,7 @@ class AppointmentController extends Controller
                     'token' => $this->request->attributes->get('_refresh_token'),
                 ], 404);
             }
-            else if ($getAppointment->status != 1) {
+            else if (!in_array($getAppointment->status, [1,2])) {
                 return response()->json([
                     'success' => 0,
                     'message' => ['Janji Temu Lab tidak bisa di ganti'],
@@ -542,7 +557,7 @@ class AppointmentController extends Controller
                     'token' => $this->request->attributes->get('_refresh_token'),
                 ], 404);
             }
-            else if ($getAppointment->status != 1) {
+            else if (!in_array($getAppointment->status, [1,2])) {
                 return response()->json([
                     'success' => 0,
                     'message' => ['Janji Temu Dokter tidak bisa di ganti'],
@@ -581,6 +596,7 @@ class AppointmentController extends Controller
             $getAppointment->date = $getSchedule->date_available;
             $getAppointment->time_start = $getSchedule->time_start;
             $getAppointment->time_end = $getSchedule->time_end;
+            $getAppointment->status = 1;
             $getAppointment->save();
 
             DB::commit();

@@ -27,7 +27,8 @@ class AppointmentDoctor extends Model
         'doctor_prescription',
         'extra_info',
         'online_meeting',
-        'status'
+        'status',
+        'message'
     ];
 
     protected $appends = [
