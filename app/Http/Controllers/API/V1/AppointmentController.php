@@ -350,6 +350,8 @@ class AppointmentController extends Controller
             'body_weight' => 'numeric',
             'blood_pressure' => '',
             'body_temperature' => 'numeric',
+            'keluhan' => 'required',
+            'medical_checkup' => ''
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -393,7 +395,8 @@ class AppointmentController extends Controller
             'body_weight' => strip_tags($this->request->get('body_weight')),
             'blood_pressure' => strip_tags($this->request->get('blood_pressure')),
             'body_temperature' => strip_tags($this->request->get('body_temperature')),
-            'medical_checkup' => $listMedicalCheckup
+            'medical_checkup' => $listMedicalCheckup,
+            'keluhan' => strip_tags($this->request->get('keluhan'))
         ];
 
         $data->form_patient = json_encode($saveFormPatient);

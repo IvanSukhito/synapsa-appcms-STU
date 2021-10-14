@@ -51,6 +51,16 @@ class NurseController extends Controller
             ], 422);
         }
 
+        $dateNow = strtotime(date('Y-m-d'));
+
+        if(strtotime($this->request->get('date')) <= $dateNow){
+            return response()->json([
+                'success' => 0,
+                'message' => ['Jadwal Sudah Lewat'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
         $getDate = $this->request->get('date');
         $getQty = $this->request->get('shift_qty');
 
