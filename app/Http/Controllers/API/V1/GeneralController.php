@@ -54,7 +54,7 @@ class GeneralController extends Controller
             'zip_code' => '',
             'dob' => 'required',
             'gender' => 'required',
-            'nik' => 'required|unique:users, nik',
+            'nik' => 'required|unique:users,nik',
             'upload_ktp' => 'required',
             'image' => 'required',
             'phone' => 'required|regex:/^(8\d+)/|numeric|unique:users,phone',
