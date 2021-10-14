@@ -147,7 +147,7 @@ class KlinikController extends _CrudController
             'klinik_id'=> $getData->id,
             'name' => $getData->name,
             'username' => strtolower(str_replace(' ', '', $getData->name)),
-            'password' => bcrypt('123'),
+            'password' => bcrypt(strtolower(str_replace(' ', '', $getData->name))),
             'status' => 80
         ]);
 
