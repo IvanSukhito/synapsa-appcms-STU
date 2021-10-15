@@ -137,6 +137,7 @@ class DemoSeeder extends Seeder
             DB::table('service')->insertGetId([
                 'name' => $name,
                 'orders' => $index + 1,
+                'type' => $index + 1,
                 'status' => 80,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
