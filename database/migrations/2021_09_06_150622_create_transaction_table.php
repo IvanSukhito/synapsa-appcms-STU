@@ -28,6 +28,8 @@ class CreateTransactionTable extends Migration
             $table->string('shipping_name')->nullable();
             $table->text('shipping_address_name')->nullable();
             $table->string('shipping_address')->nullable();
+            $table->integer('shipping_province_id')->default(0);
+            $table->string('shipping_province_name')->nullable();
             $table->integer('shipping_city_id')->default(0);
             $table->string('shipping_city_name')->nullable();
             $table->integer('shipping_district_id')->default(0);

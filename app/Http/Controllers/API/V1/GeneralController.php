@@ -9,6 +9,7 @@ use App\Codes\Models\V1\DeviceToken;
 use App\Codes\Models\V1\District;
 use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\Klinik;
+use App\Codes\Models\V1\Province;
 use App\Codes\Models\V1\SubDistrict;
 use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\UsersAddress;
@@ -363,16 +364,39 @@ class GeneralController extends Controller
 
     }
 
-    public function searchCity()
-    {
+    public function searchProvince(){
         $this->limit = 10;
         $s = $this->request->get('s');
 
-        $getData = City::query();
+        $getData = Province::query();
 
         if ($s) {
             $getData = $getData->where('name', 'LIKE', strip_tags($s));
         }
+
+        return response()->json([
+            'success' => 1,
+            'data' => $getData->paginate($this->limit)
+        ]);
+    }
+
+    public function searchCity()
+    {
+        $this->limit = 10;
+        $s = $this->request->get('s');
+        $provinceId = intval($this->request->get('province_id'));
+
+        $getData = City::query();
+
+        if ($provinceId) {
+            $getData = $getData->Where('province_id', 'LIKE', strip_tags($provinceId))->orWhere('name', 'LIKE', strip_tags($s));
+        }
+        else{
+            if ($s) {
+                $getData = $getData->where('name', 'LIKE', strip_tags($s));
+            }
+        }
+
 
         return response()->json([
             'success' => 1,
@@ -387,12 +411,14 @@ class GeneralController extends Controller
         $cityId = intval($this->request->get('city_id'));
 
         $getData = District::query();
-//        if ($cityId > 0) {
-//            $getData = $getData->where('city_id', $cityId);
-//        }
 
-        if ($s) {
-            $getData = $getData->where('name', 'LIKE', strip_tags($s));
+        if ($cityId) {
+            $getData = $getData->Where('city_id', 'LIKE', strip_tags($cityId))->orWhere('name', 'LIKE', strip_tags($s));
+        }
+        else{
+            if ($s) {
+                $getData = $getData->where('name', 'LIKE', strip_tags($s));
+            }
         }
 
         return response()->json([
@@ -408,12 +434,14 @@ class GeneralController extends Controller
         $districtId = intval($this->request->get('district_id'));
 
         $getData = SubDistrict::query();
-//        if ($districtId > 0) {
-//            $getData = $getData->where('district_id', $districtId);
-//        }
 
-        if ($s) {
-            $getData = $getData->where('name', 'LIKE', strip_tags($s));
+        if ($districtId) {
+            $getData = $getData->Where('district_id', 'LIKE', strip_tags($districtId))->orWhere('name', 'LIKE', strip_tags($s));
+        }
+        else{
+            if ($s) {
+                $getData = $getData->where('name', 'LIKE', strip_tags($s));
+            }
         }
 
         return response()->json([
