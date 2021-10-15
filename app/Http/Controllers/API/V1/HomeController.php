@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\V1;
 use App\Codes\Models\V1\DeviceToken;
 use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\Klinik;
+use App\Codes\Models\V1\Users;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Codes\Models\V1\Article;
@@ -29,10 +30,11 @@ class HomeController extends Controller
 
         $getToken = $this->request->get('fcm_token');
         if ($getToken && strlen($getToken) > 5) {
+            $getUser = Users::where('id', $user->id)->first();
             $getDeviceToken = DeviceToken::firstOrCreate([
                 'token' => $getToken
             ]);
-            $user->getDeviceToken()->sync([$getDeviceToken->id]);
+            $getUser->getDeviceToken()->sync([$getDeviceToken->id]);
         }
 
         $result = [
