@@ -9,8 +9,8 @@ class City extends Model
     protected $table = 'city';
     protected $primaryKey = 'id';
     protected $fillable = [
-      'name'
-
+      'province_id',
+      'name',
     ];
 
     public function getDistrict(){
