@@ -435,6 +435,7 @@ class ProductController extends Controller
 
         $getAddressName = $getUsersAddress ? $getUsersAddress->address_name : '';
         $getAddress = $getUsersAddress ? $getUsersAddress->address : '';
+        $getAddress = $getUsersAddress ? $getUsersAddress->province_id : '';
         $getCity = $getUsersAddress ? $getUsersAddress->city_id : '';
         $getDistrict = $getUsersAddress ? $getUsersAddress->district_id : '';
         $getSubDistrict = $getUsersAddress ? $getUsersAddress->sub_district_id : '';

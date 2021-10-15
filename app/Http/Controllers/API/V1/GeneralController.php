@@ -46,6 +46,7 @@ class GeneralController extends Controller
     {
         $validator = Validator::make($this->request->all(), [
             'klinik_id' => 'required',
+            'province_id' => 'required',
             'city_id' => 'required',
             'district_id' => '',
             'sub_district_id' => '',
@@ -128,6 +129,7 @@ class GeneralController extends Controller
         try {
             $users = new Users();
             $users->klinik_id = $this->request->get('klinik_id');
+            $users->province_id = $this->request->get('province_id');
             $users->city_id = $this->request->get('city_id');
             $users->district_id = $this->request->get('district_id');
             $users->sub_district_id = $this->request->get('sub_district_id');
@@ -151,6 +153,7 @@ class GeneralController extends Controller
             $addressDetail = [
                 'address' => $users->address,
                 'address_detail' => $users->address_detail,
+                'province_id' => $users->province_id,
                 'city_id' => $users->city_id,
                 'district_id' => $users->district_id,
                 'sub_district_id' => $users->sub_district_id,
@@ -158,6 +161,7 @@ class GeneralController extends Controller
             ];
             $usersAddress = new UsersAddress();
             $usersAddress->user_id = $users->id;
+            $usersAddress->province_id = $users->province_id;
             $usersAddress->city_id = $users->city_id;
             $usersAddress->district_id = $users->district_id;
             $usersAddress->sub_district_id = $users->sub_district_id;

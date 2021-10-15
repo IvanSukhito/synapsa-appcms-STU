@@ -242,6 +242,7 @@ class ProfileController extends Controller
 
         $user->address = strip_tags($this->request->get('address'));
         $user->address_detail = strip_tags($this->request->get('address_detail'));
+        $user->province_id = intval($this->request->get('province_id'));
         $user->city_id = intval($this->request->get('city_id'));
         $user->district_id = intval($this->request->get('district_id'));
         $user->sub_district_id = intval($this->request->get('sub_district_id'));
@@ -251,6 +252,7 @@ class ProfileController extends Controller
         $getUser = [
             'address' => $user->address,
             'address_detail' => $user->address_detail,
+            'province' => $user->province_id,
             'city' => $user->city_id,
             'district' => $user->district_id,
             'sub_district' => $user->sub_district_id,
