@@ -263,13 +263,39 @@ class DemoSeeder extends Seeder
             ]);
         }
         //Payment
-        for ($i = 1; $i <= 5; $i++) {
+        foreach ([
+            'Virtual Account BCA' => [
+                'service' => 'xendit',
+                'type_payment' => 'va_bca',
+                'orders' => 1,
+                'settings' => '{"va_number":"72102735985","va_name":"PT Synapsa Indonesia","va_info":[{"title":"ATM BCA","description":"<ul><li>Masukan Pin ATM Anda<\/li><li>Masukan Pin ATM Anda<\/li><li>Masukan Pin ATM Anda<\/li><\/ul>"},{"title":"Internet Banking BCA","description":"<ul><li>Masukan Pin ATM Anda<\/li><li>Masukan Pin ATM Anda<\/li><li>Masukan Pin ATM Anda<\/li><\/ul>"},{"title":"Mobile Banking BCA","description":"<ul><li>Masukan Pin ATM Anda<\/li><li>Masukan Pin ATM Anda<\/li><li>Masukan Pin ATM Anda<\/li><\/ul>"}]}',
+                'type' => 1,
+            ],
+            'Virtual Account BNI' => [
+                'service' => 'xendit',
+                'type_payment' => 'va_bca',
+                'orders' => 1,
+                'settings' => '{"va_number":"72102735987","va_name":"PT Synapsa Indonesia","va_info":[{"title":"ATM BNI","description":"<ul><li>Masukan Pin ATM Anda<\/li><li>Masukan Pin ATM Anda<\/li><li>Masukan Pin ATM Anda<\/li><\/ul>"},{"title":"Internet Banking BNI","description":"<ul><li>Masukan Pin ATM Anda<\/li><li>Masukan Pin ATM Anda<\/li><li>Masukan Pin ATM Anda<\/li><\/ul>"},{"title":"Mobile Banking BNI","description":"<ul><li>Masukan Pin ATM Anda<\/li><li>Masukan Pin ATM Anda<\/li><li>Masukan Pin ATM Anda<\/li><\/ul>"}]}',
+                'type' => 1,
+            ],
+            'OVO' => [
+
+            ],
+            'DANA' => [
+
+            ],
+            'QRIS' => [
+
+            ],
+                 ] as $payment => $list) {
             DB::table('payment')->insertGetId([
-                'name' => 'PAYMENT' . $i,
+                'name' => $payment,
                 'icon_img' => '',
-                'orders' => $i,
-                'settings' => '',
-                'type' => rand(1,2),
+                'service' => $list['service'],
+                'type_payment' => $list['type_payment'],
+                'orders' => $list['orders'],
+                'settings' => $list['settings'],
+                'type' => $list['type'],
                 'status' => 80,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
