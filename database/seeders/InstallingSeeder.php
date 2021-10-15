@@ -28,7 +28,7 @@ class InstallingSeeder extends Seeder
             'username' => 'admin',
             'password' => bcrypt('admin'),
             'role_id' => 1,
-            'status' => 1,
+            'status' => 80,
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
