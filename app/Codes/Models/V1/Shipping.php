@@ -34,7 +34,7 @@ class Shipping extends Model
 
     public function getIconFullAttribute()
     {
-        if (strlen($this->icon_img) > 0) {
+        if (strlen($this->icon) > 0) {
             return env('OSS_URL').'/'.$this->icon;
         }
         return asset('assets/cms/images/no-img.png');

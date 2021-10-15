@@ -456,7 +456,7 @@ if ( ! function_exists('listAllMenu')) {
             ],
             [
                 'name' => __('general.shipping'),
-                'icon' => '<i class="nav-icon fa fa-box"></i>',
+                'icon' => '<i class="nav-icon fa fa-shopping-cart"></i>',
                 'title' => __('general.shipping'),
                 'active' => ['admin.shipping.'],
                 'route' => 'admin.shipping.index',
