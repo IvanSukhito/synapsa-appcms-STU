@@ -17,7 +17,6 @@ class CreateCityTable extends Migration
             $table->id();
             $table->unsignedBigInteger('province_id')->default(0);
             $table->string('name')->nullable();
-
         });
     }
 
