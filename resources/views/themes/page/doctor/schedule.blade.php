@@ -192,6 +192,7 @@
                                 <input type="text" class="form-control" id="time_end" name="time_end" autocomplete="off" required>
                             </div>
                         </div>
+                        <span class="small">Telemed: 20 minute vidcall, 10 minute diagnosa</span>
                         <div class="form-group text-red" id="errorForm">
                         </div>
                     </div>

@@ -107,6 +107,15 @@ class TransactionController extends _CrudController
                 'list' => 0,
                 'lang' => 'general.shipping_address',
             ],
+            'shipping_province_id' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'list' => 0,
+                'type' => 'select2',
+                'lang' => 'general.shipping_city_id',
+            ],
             'shipping_city_id' => [
                 'validate' => [
                     'create' => 'required',
@@ -248,7 +257,7 @@ class TransactionController extends _CrudController
         $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.transaction.list';
         $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.transaction.list_button';
 
-        $getUsers = Users::where('status', 80)->where('patient',1)->pluck('fullname', 'id')->toArray();
+        $getUsers = Users::where('status', 80)->pluck('fullname', 'id')->toArray();
         if($getUsers) {
             foreach($getUsers as $key => $value) {
                 $listUsers[$key] = $value;
