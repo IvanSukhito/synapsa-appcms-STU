@@ -9,6 +9,7 @@ use App\Codes\Models\V1\DeviceToken;
 use App\Codes\Models\V1\District;
 use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\Klinik;
+use App\Codes\Models\V1\Province;
 use App\Codes\Models\V1\SubDistrict;
 use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\UsersAddress;
@@ -363,6 +364,22 @@ class GeneralController extends Controller
 
     }
 
+    public function searchProvince(){
+        $this->limit = 10;
+        $s = $this->request->get('s');
+
+        $getData = Province::query();
+
+        if ($s) {
+            $getData = $getData->where('name', 'LIKE', strip_tags($s));
+        }
+
+        return response()->json([
+            'success' => 1,
+            'data' => $getData->paginate($this->limit)
+        ]);
+    }
+
     public function searchCity()
     {
         $this->limit = 10;
@@ -384,12 +401,7 @@ class GeneralController extends Controller
     {
         $this->limit = 10;
         $s = $this->request->get('s');
-        $cityId = intval($this->request->get('city_id'));
-
         $getData = District::query();
-//        if ($cityId > 0) {
-//            $getData = $getData->where('city_id', $cityId);
-//        }
 
         if ($s) {
             $getData = $getData->where('name', 'LIKE', strip_tags($s));
@@ -405,12 +417,7 @@ class GeneralController extends Controller
     {
         $this->limit = 10;
         $s = $this->request->get('s');
-        $districtId = intval($this->request->get('district_id'));
-
         $getData = SubDistrict::query();
-//        if ($districtId > 0) {
-//            $getData = $getData->where('district_id', $districtId);
-//        }
 
         if ($s) {
             $getData = $getData->where('name', 'LIKE', strip_tags($s));

@@ -149,6 +149,7 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
             $router->get('{id}/meeting', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@meeting'])->name('api.doctor.appointment.meeting');
             $router->get('{id}/approve-meeting', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@approveMeeting'])->name('api.doctor.appointment.approveMeeting');
             $router->get('{id}/finish-meeting', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@finishMeeting'])->name('api.doctor.appointment.finishMeeting');
+            $router->get('{id}/reschedule', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@reschedule'])->name('api.doctor.appointment.reschedule');
             $router->get('{id}/cancel-meeting', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@cancelMeeting'])->name('api.doctor.appointment.cancelMeeting');
             $router->get('{id}/medicine', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@doctorMedicine'])->name('api.doctor.appointment.doctorMedicine');
             $router->post('{id}/diagnosis', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@doctorDiagnosis'])->name('api.doctor.appointment.doctorDiagnosis');
@@ -165,6 +166,7 @@ Route::get('logout', ['uses' => 'App\Http\Controllers\API\V1\GeneralController@l
 
 Route::post('sign-up', ['uses' => 'App\Http\Controllers\API\V1\GeneralController@signUp'])->name('api.signUp');
 Route::get('search-klinik', ['uses' => 'App\Http\Controllers\API\V1\GeneralController@searchKlinik'])->name('api.searchKlinik');
+Route::get('search-province', ['uses' => 'App\Http\Controllers\API\V1\GeneralController@searchProvince'])->name('api.searchProvince');
 Route::get('search-city', ['uses' => 'App\Http\Controllers\API\V1\GeneralController@searchCity'])->name('api.searchCity');
 Route::get('search-district', ['uses' => 'App\Http\Controllers\API\V1\GeneralController@searchDistrict'])->name('api.searchDistrict');
 Route::get('search-subdistrict', ['uses' => 'App\Http\Controllers\API\V1\GeneralController@searchSubdistrict'])->name('api.searchSubdistrict');
