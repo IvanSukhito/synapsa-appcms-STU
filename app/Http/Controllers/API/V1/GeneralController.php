@@ -384,12 +384,19 @@ class GeneralController extends Controller
     {
         $this->limit = 10;
         $s = $this->request->get('s');
+        $provinceId = intval($this->request->get('province_id'));
 
         $getData = City::query();
 
-        if ($s) {
-            $getData = $getData->where('name', 'LIKE', strip_tags($s));
+        if ($provinceId) {
+            $getData = $getData->Where('province_id', 'LIKE', strip_tags($provinceId))->orWhere('name', 'LIKE', strip_tags($s));
         }
+        else{
+            if ($s) {
+                $getData = $getData->where('name', 'LIKE', strip_tags($s));
+            }
+        }
+
 
         return response()->json([
             'success' => 1,
@@ -401,10 +408,17 @@ class GeneralController extends Controller
     {
         $this->limit = 10;
         $s = $this->request->get('s');
+        $cityId = intval($this->request->get('city_id'));
+
         $getData = District::query();
 
-        if ($s) {
-            $getData = $getData->where('name', 'LIKE', strip_tags($s));
+        if ($cityId) {
+            $getData = $getData->Where('city_id', 'LIKE', strip_tags($cityId))->orWhere('name', 'LIKE', strip_tags($s));
+        }
+        else{
+            if ($s) {
+                $getData = $getData->where('name', 'LIKE', strip_tags($s));
+            }
         }
 
         return response()->json([
@@ -417,10 +431,17 @@ class GeneralController extends Controller
     {
         $this->limit = 10;
         $s = $this->request->get('s');
+        $districtId = intval($this->request->get('district_id'));
+
         $getData = SubDistrict::query();
 
-        if ($s) {
-            $getData = $getData->where('name', 'LIKE', strip_tags($s));
+        if ($districtId) {
+            $getData = $getData->Where('district_id', 'LIKE', strip_tags($districtId))->orWhere('name', 'LIKE', strip_tags($s));
+        }
+        else{
+            if ($s) {
+                $getData = $getData->where('name', 'LIKE', strip_tags($s));
+            }
         }
 
         return response()->json([
