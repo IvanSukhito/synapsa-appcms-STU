@@ -16,6 +16,7 @@ class CreateUsersAddressTable extends Migration
         Schema::create('users_address', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id')->default(0);
+            $table->unsignedBigInteger('province_id')->default(0);
             $table->unsignedBigInteger('city_id')->default(0);
             $table->unsignedBigInteger('district_id')->default(0);
             $table->unsignedBigInteger('sub_district_id')->default(0);
