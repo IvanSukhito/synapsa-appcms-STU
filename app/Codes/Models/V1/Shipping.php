@@ -18,7 +18,8 @@ class Shipping extends Model
 
     protected $appends = [
         'shipping_price',
-        'shipping_price_nice'
+        'shipping_price_nice',
+        'icon_full',
     ];
 
     public function getShippingPriceAttribute()
@@ -30,5 +31,14 @@ class Shipping extends Model
     {
         return number_format(15000, 0, ',', '.');
     }
+
+    public function getIconFullAttribute()
+    {
+        if (strlen($this->icon_img) > 0) {
+            return env('OSS_URL').'/'.$this->icon;
+        }
+        return asset('assets/cms/images/no-img.png');
+    }
+
 
 }
