@@ -15,7 +15,7 @@ class CreateLabTable extends Migration
     {
         Schema::create('lab', function (Blueprint $table) {
             $table->id();
-            $table->integer('parent_id')->default(0);
+            $table->unsignedBigInteger('parent_id')->default(0);
             $table->unsignedBigInteger('klinik_id')->default(0);
             $table->string('name')->nullable();
             $table->text('image')->nullable();
