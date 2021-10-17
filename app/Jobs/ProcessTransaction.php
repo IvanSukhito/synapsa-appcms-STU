@@ -167,6 +167,8 @@ class ProcessTransaction implements ShouldQueue
             'receiver_phone' => $getDetailsInformation['phone'] ?? '',
             'shipping_address_name' => $getUsersAddress->address_name ?? '',
             'shipping_address' => $getUsersAddress->address ?? '',
+            'shipping_province_id' => $getUsersAddress->province_id ?? 0,
+            'shipping_province_name' => $getUsersAddress->province_name ?? '',
             'shipping_city_id' => $getUsersAddress->city_id ?? 0,
             'shipping_city_name' => $getUsersAddress->city_name ?? '',
             'shipping_district_id' => $getUsersAddress->district_id ?? 0,
@@ -278,6 +280,8 @@ class ProcessTransaction implements ShouldQueue
             'receiver_phone' => $getReceiver['receiver_phone'] ?? '',
             'shipping_address_name' => $getUsersAddress->address_name ?? '',
             'shipping_address' => $getUsersAddress->address ?? '',
+            'shipping_province_id' => $getUsersAddress->province_id ?? 0,
+            'shipping_province_name' => $getUsersAddress->province_name ?? '',
             'shipping_city_id' => $getUsersAddress->city_id ?? 0,
             'shipping_city_name' => $getUsersAddress->city_name ?? '',
             'shipping_district_id' => $getUsersAddress->district_id ?? 0,
@@ -344,8 +348,9 @@ class ProcessTransaction implements ShouldQueue
             'phone' => $getUser->phone ?? ''
         ];
 
+        $extraInfo = [];
         if ($getUsersAddress) {
-            foreach (['address_name', 'address', 'city_id', 'city_name', 'district_id', 'district_name',
+            foreach (['address_name', 'address', 'province_id','city_id', 'city_name', 'district_id', 'district_name',
                          'sub_district_id', 'sub_district_name', 'zip_code'] as $key) {
                 $extraInfo[$key] = isset($getUsersAddress->$key) ? $getUsersAddress->$key : '';
             }
@@ -507,7 +512,7 @@ class ProcessTransaction implements ShouldQueue
         }
         $extraInfo = [];
         if ($getUsersAddress) {
-            foreach (['address_name', 'address', 'city_id', 'city_name', 'district_id', 'district_name',
+            foreach (['address_name', 'address', 'province_id','city_id', 'city_name', 'district_id', 'district_name',
                          'sub_district_id', 'sub_district_name', 'zip_code'] as $key) {
                 $extraInfo[$key] = isset($getUsersAddress->$key) ? $getUsersAddress->$key : '';
             }

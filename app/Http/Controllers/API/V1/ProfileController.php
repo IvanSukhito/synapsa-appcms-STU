@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\V1;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\Notifications;
+use App\Codes\Models\V1\UsersAddress;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -207,6 +208,7 @@ class ProfileController extends Controller
         $getUser = [
             'address' => $user->address,
             'address_detail' => $user->address_detail,
+            'province' => $user->province_id,
             'city' => $user->city_id,
             'district' => $user->district_id,
             'sub_district' => $user->sub_district_id,
@@ -226,6 +228,8 @@ class ProfileController extends Controller
         $user = $this->request->attributes->get('_user');
 
         $user = Users::where('id', $user->id)->first();
+
+        $getUserAddress = UsersAddress::where('user_id', $user->id)->first();
 
         $validator = Validator::make($this->request->all(), [
             'address' => 'required',
@@ -249,6 +253,8 @@ class ProfileController extends Controller
         $user->zip_code = strip_tags($this->request->get('zip_code'));
         $user->save();
 
+
+
         $getUser = [
             'address' => $user->address,
             'address_detail' => $user->address_detail,
@@ -258,6 +264,20 @@ class ProfileController extends Controller
             'sub_district' => $user->sub_district_id,
             'zip_code' => $user->zip_code
         ];
+
+        if ($getUserAddress){
+
+            $getUserAddress->address_name = strip_tags($this->request->get('address'));
+            $getUserAddress->address = strip_tags($this->request->get('address_detail'));
+            $getUserAddress->address_detail = json_encode($getUser);
+            $getUserAddress->province_id = intval($this->request->get('province_id'));
+            $getUserAddress->city_id = intval($this->request->get('city_id'));
+            $getUserAddress->district_id = intval($this->request->get('district_id'));
+            $getUserAddress->sub_district_id = intval($this->request->get('sub_district_id'));
+            $getUserAddress->zip_code = strip_tags($this->request->get('zip_code'));
+            $getUserAddress->save();
+
+        }
 
         return response()->json([
             'success' => 1,
