@@ -274,19 +274,31 @@ class DemoSeeder extends Seeder
             ],
             'Virtual Account BNI' => [
                 'service' => 'xendit',
-                'type_payment' => 'va_bca',
-                'orders' => 1,
+                'type_payment' => 'va_bni',
+                'orders' => 2,
                 'settings' => '{"va_number":"72102735987","va_name":"PT Synapsa Indonesia","va_info":[{"title":"ATM BNI","description":"<ul><li>Masukan Pin ATM Anda<\/li><li>Masukan Pin ATM Anda<\/li><li>Masukan Pin ATM Anda<\/li><\/ul>"},{"title":"Internet Banking BNI","description":"<ul><li>Masukan Pin ATM Anda<\/li><li>Masukan Pin ATM Anda<\/li><li>Masukan Pin ATM Anda<\/li><\/ul>"},{"title":"Mobile Banking BNI","description":"<ul><li>Masukan Pin ATM Anda<\/li><li>Masukan Pin ATM Anda<\/li><li>Masukan Pin ATM Anda<\/li><\/ul>"}]}',
                 'type' => 1,
             ],
             'OVO' => [
-
+                'service' => 'xendit',
+                'type_payment' => 'ew_ovo',
+                'orders' => 3,
+                'settings' => '',
+                'type' => 2,
             ],
             'DANA' => [
-
+                'service' => 'xendit',
+                'type_payment' => 'ew_dana',
+                'orders' => 4,
+                'settings' => '',
+                'type' => 2,
             ],
             'QRIS' => [
-
+                'service' => 'xendit',
+                'type_payment' => 'qr_qris',
+                'orders' => 5,
+                'settings' => '',
+                'type' => 3,
             ],
                  ] as $payment => $list) {
             DB::table('payment')->insertGetId([

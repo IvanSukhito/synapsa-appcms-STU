@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use App\Codes\Models\V1\Payment;
 use Illuminate\Support\Facades\Storage;
 
-class PaymentController extends _CrudController
+class ShippingController extends _CrudController
 {
     public function __construct(Request $request)
     {
@@ -24,21 +24,8 @@ class PaymentController extends _CrudController
                     'edit' => 'required'
                 ],
            ],
-            'service' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'type' => 'select',
-            ],
-            'type_payment' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'type' => 'select',
-            ],
-            'icon_img_full' => [
+
+            'icon_full' => [
                 'validate' => [
                     'create' => 'required',
                 ],
@@ -76,7 +63,7 @@ class PaymentController extends _CrudController
         ];
 
         parent::__construct(
-            $request, 'general.payment', 'payment', 'V1\Payment', 'payment',
+            $request, 'general.shipping', 'shipping', 'V1\Shipping', 'shipping',
             $passingData
         );
 
@@ -93,7 +80,7 @@ class PaymentController extends _CrudController
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
 
-        unset($getListCollectData['icon_img_full']);
+        unset($getListCollectData['icon_full']);
 
         $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
@@ -107,14 +94,14 @@ class PaymentController extends _CrudController
             }
         }
 
-        $dokument = $this->request->file('icon_img_full');
+        $dokument = $this->request->file('icon_full');
         if ($dokument) {
             if ($dokument->getError() != 1) {
 
                 $getFileName = $dokument->getClientOriginalName();
                 $ext = explode('.', $getFileName);
                 $ext = end($ext);
-                $destinationPath = 'synapsaapps/payment';
+                $destinationPath = 'synapsaapps/shipping';
                 if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
 
                     $dokumentImage = Storage::putFile($destinationPath, $dokument);
@@ -128,7 +115,7 @@ class PaymentController extends _CrudController
 
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
-        $data['icon_img'] = $dokumentImage;
+        $data['icon'] = $dokumentImage;
         $data['settings'] = json_encode($settings);
 
         $getData = $this->crud->store($data);
@@ -158,7 +145,7 @@ class PaymentController extends _CrudController
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
 
-        unset($getListCollectData['icon_img_full']);
+        unset($getListCollectData['icon']);
 
         $validate = $this->setValidateData($getListCollectData, $viewType, $id);
         if (count($validate) > 0)
@@ -172,14 +159,14 @@ class PaymentController extends _CrudController
             }
         }
 
-        $dokument = $this->request->file('icon_img_full');
+        $dokument = $this->request->file('icon');
         if ($dokument) {
             if ($dokument->getError() != 1) {
 
                 $getFileName = $dokument->getClientOriginalName();
                 $ext = explode('.', $getFileName);
                 $ext = end($ext);
-                $destinationPath = 'synapsaapps/payment';
+                $destinationPath = 'synapsaapps/shipping';
                 if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
 
                     $dokumentImage = Storage::putFile($destinationPath, $dokument);
@@ -197,7 +184,7 @@ class PaymentController extends _CrudController
         $data = $this->getCollectedData($getListCollectData, $viewType, $data, $getData);
 
 
-        $data['icon_img'] = $dokumentImage;
+        $data['icon'] = $dokumentImage;
         $data['settings'] = json_encode($settings);
 
         $getData = $this->crud->update($data, $id);

@@ -237,6 +237,7 @@ if ( ! function_exists('get_list_type_payment')) {
             'ew_linkaja' => __('E-Wallet LINKAJA'),
             'ew_shopeepay' => __('E-Wallet SHOPEEPAY'),
             'ew_sakuku' => __('E-Wallet SAKUKU'),
+            'qr_qris' => __('QRIS')
         ];
     }
 }

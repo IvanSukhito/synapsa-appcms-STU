@@ -178,7 +178,7 @@
                                         <i class="fa fa-calendar"></i>
                                     </div>
                                 </div>
-                                <input type="text" class="form-control" id="time_start" name="time_start" autocomplete="off" required>
+                                <input onfocusout="return setTimeEnd(this)" type="text" class="form-control" id="time_start" name="time_start" autocomplete="off" required>
                             </div>
                         </div>
                         <div class="form-group">
@@ -192,6 +192,7 @@
                                 <input type="text" class="form-control" id="time_end" name="time_end" autocomplete="off" required>
                             </div>
                         </div>
+                        <span class="small">Notes:<br />Telemed: 20 minutes video call, 10 minutes diagnosa</span>
                         <div class="form-group text-red" id="errorForm">
                         </div>
                     </div>
@@ -219,11 +220,42 @@
                 format: 'HH:mm:ss',
                 stepping: 15
             });
-            $('#time_end').datetimepicker({
-                format: 'HH:mm:ss',
-                stepping: 15
-            });
+            // $('#time_end').datetimepicker({
+            //     format: 'HH:mm:ss',
+            //     stepping: 15
+            // });
         });
+
+        $('#service').on('change', function() {
+            let service = $('#service').val();
+            if(service === "1") {
+                if($('#time_start').val().length > 0) {
+                    let time = moment($('#time_start').val(), 'HH:mm:ss');
+                    time = time.add(30, 'minutes').format('HH:mm:ss');
+
+                    $('#time_end').attr('readonly', true);
+                    $('#time_end').val(time);
+                }
+            }
+            else {
+                $('#time_end').attr('readonly', false);
+            }
+        });
+
+        function setTimeEnd(curr) {
+            let service = $('#service').val();
+            console.log(typeof service);
+            if(service === "1") {
+                let time = moment($('#time_start').val(), 'HH:mm:ss');
+                time = time.add(30, 'minutes').format('HH:mm:ss');
+
+                $('#time_end').attr('readonly', true);
+                $('#time_end').val(time);
+            }
+            else {
+                $('#time_end').attr('readonly', false);
+            }
+        }
 
         function changeDate(curr) {
             let getLink = $(curr).data('link');

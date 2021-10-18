@@ -351,6 +351,7 @@ class LabController extends Controller
 
         $getAddressName = $getUsersAddress->address_name ?? $user->address ?? '' ;
         $getAddress = $getUsersAddress->address ?? $user->address_detail ?? '';
+        $getProvince = $getUsersAddress->province_id ?? $user->province_id ?? '';
         $getCity = $getUsersAddress->city_id ?? $user->city_id ?? '';
         $getDistrict = $getUsersAddress->district_id ?? $user->district_id ?? '';
         $getSubDistrict = $getUsersAddress->sub_district_id ?? $user->sub_district_id ?? '';
@@ -362,6 +363,7 @@ class LabController extends Controller
             'data' => [
                 'address_name' => $getAddressName,
                 'address' => $getAddress,
+                'province_id' => $getProvince,
                 'city_id' => $getCity,
                 'district_id' => $getDistrict,
                 'sub_district_id' => $getSubDistrict,

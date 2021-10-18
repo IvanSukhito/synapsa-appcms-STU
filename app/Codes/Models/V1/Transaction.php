@@ -22,6 +22,8 @@ class Transaction extends Model
         'shipping_name',
         'shipping_address_name',
         'shipping_address',
+        'shipping_province_id',
+        'shipping_province_name',
         'shipping_city_id',
         'shipping_city_name',
         'shipping_district_id',
