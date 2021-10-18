@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Codes\Logic\PushNotification;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class NotificationReminder extends Command
 {
@@ -36,6 +37,7 @@ class NotificationReminder extends Command
      */
     public function handle(): void
     {
+        Log::info("test");
         (new PushNotification())->checkMeeting(5);
     }
 
