@@ -114,26 +114,32 @@ class HistoryController extends Controller
             $getDataDetails = $getData->getTransactionDetails()->selectRaw('transaction_details.id,
                 transaction_details.product_id, transaction_details.product_name, transaction_details.product_qty,
                 transaction_details.product_price,
-                product.image, CONCAT("'.env('OSS_URL').'/'.'", product.image) AS image_full')
+                product.image, CONCAT("'.env('OSS_URL').'/'.'", product.image) AS image_full, CONCAT("'.env('OSS_URL').'/'.'", payment.icon_img) AS payment_icon')
                 ->join('product', 'product.id', '=', 'transaction_details.product_id', 'LEFT')
+                ->join('transaction','transaction.id','=','transaction_details.transaction_id', 'LEFT')
+                ->join('payment', 'payment.id', '=', 'transaction.payment_id')
                 ->get();
         }
         else if ($getData->type_service == 2) {
             $getDataDetails = $getData->getTransactionDetails()->selectRaw('transaction_details.*,
                 doctor_category.name AS doctor_category_name, users.image, date_available, time_start, time_end, klinik.name as klinik_name,
-                CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
+                CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full, CONCAT("'.env('OSS_URL').'/'.'", payment.icon_img) AS payment_icon')
                 ->join('doctor', 'doctor.id', '=', 'transaction_details.doctor_id', 'LEFT')
                 ->join('doctor_category', 'doctor_category.id', '=', 'doctor.doctor_category_id', 'LEFT')
                 ->join('users', 'users.id', '=', 'doctor.user_id', 'LEFT')
                 ->join('doctor_schedule','doctor_schedule.id','=','transaction_details.schedule_id','LEFT')
                 ->join('klinik', 'klinik.id', '=', 'users.klinik_id')
+                ->join('transaction','transaction.id','=','transaction_details.transaction_id', 'LEFT')
+                ->join('payment', 'payment.id', '=', 'transaction.payment_id')
                 ->first();
         }
         else if ($getData->type_service == 3) {
             $getDataDetails = $getData->getTransactionDetails()->selectRaw('transaction_details.*,
-                lab.image, date_available, time_start, time_end, CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full')
+                lab.image, date_available, time_start, time_end, CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full, , CONCAT("'.env('OSS_URL').'/'.'", payment.icon_img) AS payment_icon')
                 ->join('lab', 'lab.id', '=', 'transaction_details.lab_id', 'LEFT')
                 ->join('lab_schedule','lab_schedule.id','=','transaction_details.schedule_id', 'LEFT')
+                ->join('transaction','transaction.id','=','transaction_details.transaction_id', 'LEFT')
+                ->join('payment', 'payment.id', '=', 'transaction.payment_id')
                 ->get();
         }
         else if ($getData->type_service == 4) {
@@ -465,7 +471,7 @@ class HistoryController extends Controller
         $getData = Transaction::selectRaw('transaction.id, code, transaction_details.doctor_name as doctor_name,
             transaction.created_at, transaction.type_service, doctor_category.name as category, klinik.name as clinic_name,
             transaction.total as total_price, transaction.status as status, users.image as image, payment_name,
-            payment.icon_img as payment_image, transaction.payment_info as payment_info')
+            payment.icon_img as payment_icon, transaction.payment_info as payment_info')
             ->join('klinik', 'klinik.id', '=', 'transaction.klinik_id')
             ->join('transaction_details', 'transaction_details.transaction_id', '=', 'transaction.id')
             ->join('doctor', 'doctor.id', '=', 'transaction_details.doctor_id')

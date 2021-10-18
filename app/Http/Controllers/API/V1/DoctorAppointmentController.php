@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\V1;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\AppointmentDoctor;
 use App\Codes\Models\V1\AppointmentDoctorProduct;
+use App\Codes\Models\V1\DeviceToken;
 use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\Product;
 use App\Codes\Models\V1\Service;
@@ -58,7 +59,7 @@ class DoctorAppointmentController extends Controller
                         ->join('users', 'users.id', '=', 'doctor.user_id')
                         ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
                         ->where('doctor_id', $getDoctor->id)
-                        ->whereIn('appointment_doctor.status', [1,2]);
+                        ->whereIn('appointment_doctor.status', [1,2,3]);
                 break;
             case 3 : $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image,
                         CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
@@ -154,6 +155,8 @@ class DoctorAppointmentController extends Controller
             ], 422);
         }
 
+        $dateNow = strtotime(date('Y-m-d'));
+
         $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image,
                 CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
             ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
@@ -176,6 +179,13 @@ class DoctorAppointmentController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
+        else if(strtotime($data->date) != $dateNow){
+            return response()->json([
+                'success' => 0,
+                'message' => ['Meeting belum di mulai'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
 
         $getService = Service::where('id', $data->service_id)->first();
         if (!$getService) {
@@ -196,6 +206,7 @@ class DoctorAppointmentController extends Controller
         $data->online_meeting = 2;
         $data->save();
 
+
         return response()->json([
             'success' => 1,
             'data' => [
@@ -205,7 +216,8 @@ class DoctorAppointmentController extends Controller
                 'time_start' => $data->time_start,
                 'time_end' => $data->time_end,
                 'app_id' => env('AGORA_APP_ID'),
-                'channel' => $data->video_link
+                'channel' => $data->video_link,
+                'fcm_token' => $user->getDeviceToken->first()->token ?? '',
             ],
             'message' => ['Sukses'],
             'token' => $this->request->attributes->get('_refresh_token'),

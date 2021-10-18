@@ -419,9 +419,12 @@ class ProcessTransaction implements ShouldQueue
 
         $getData = $getLabInfo;
         $total = 0;
+        $klinikId = 0;
         foreach ($getData as $list) {
             $total += $list['price'];
+            $klinikId = $list['klinik_id'];
         }
+
 
         $getUsersAddress = UsersAddress::where('user_id', $getUserId)->first();
         $getPayment = Payment::where('id', $getPaymentId)->first();
@@ -445,7 +448,7 @@ class ProcessTransaction implements ShouldQueue
         DB::beginTransaction();
 
         $getTransaction = Transaction::create([
-            'klinik_id' => $getUser->klinik_id,
+            'klinik_id' => $klinikId ?? $getUser->klinik_id,
             'user_id' => $getUser->id,
             'code' => $newCode,
             'payment_refer_id' => $getPaymentReferId,
