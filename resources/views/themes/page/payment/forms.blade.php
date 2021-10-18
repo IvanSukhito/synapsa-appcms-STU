@@ -1,6 +1,6 @@
 <?php
-$title = isset($listProduct['title']) ? $listProduct['title'] : null;
-$desc = isset($listProduct['desc']) ? $listProduct['desc'] : null;
+$title = isset($listSettings['title']) ? $listSettings['title'] : null;
+$desc = isset($listSettings['desc']) ? $listSettings['desc'] : null;
 
 
 switch ($viewType) {
@@ -95,7 +95,7 @@ else {
                     @if(in_array($viewType, ['create']) )
                        <div id="list_desc">
                            <div class="form-group">
-                               <label for="desc">{{ __('general.desc') }}</label>
+                               <label for="desc">{{ __('general.settings') }}</label>
                                {{ Form::text('title', old('title'), ['id' => 'title', 'name'=>'title[]', 'class' => 'form-control', 'placeholder' => __('general.title')]) }}
                                <br>
                                {{ Form::textarea('desc', old('desc'), ['id' => 'desc', 'name'=>'desc[]', 'class' => 'editor', 'placeholder' => __('general.desc')]) }}

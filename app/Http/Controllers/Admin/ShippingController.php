@@ -46,6 +46,9 @@ class ShippingController extends _CrudController
                 ],
                 'type' => 'textarea',
                 'list' => 0,
+                'edit' => 0,
+                'create' => 0,
+                'show' => 0,
             ],
             'status' => [
                 'validate' => [
@@ -67,11 +70,16 @@ class ShippingController extends _CrudController
             $passingData
         );
 
+        $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.shipping.forms';
+        $this->listView['edit'] = env('ADMIN_TEMPLATE').'.page.shipping.forms';
+        $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.shipping.forms';
+
         $this->data['listSet']['status'] = get_list_active_inactive();
         $this->data['listSet']['type_payment'] = get_list_type_payment();
         $this->data['listSet']['service'] = get_list_service_payment();
 
     }
+
     public function store()
     {
         $this->callPermission();
@@ -94,6 +102,15 @@ class ShippingController extends _CrudController
             }
         }
 
+        $desc = $this->request->get('desc');
+        $title = $this->request->get('title');
+
+        $settings = [];
+        $settings[]  = [
+            'title' => $title,
+            'desc' => $desc
+        ];
+
         $dokument = $this->request->file('icon_full');
         if ($dokument) {
             if ($dokument->getError() != 1) {
@@ -110,16 +127,12 @@ class ShippingController extends _CrudController
             }
         }
 
-        $settings = $data['settings'];
-
-
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
         $data['icon'] = $dokumentImage;
         $data['settings'] = json_encode($settings);
 
         $getData = $this->crud->store($data);
-
 
         $id = $getData->id;
 
@@ -129,8 +142,47 @@ class ShippingController extends _CrudController
         else {
             session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
             session()->flash('message_alert', 2);
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.show', $id);
+        }
+    }
+
+    public function edit($id){
+        $this->callPermission();
+
+        $getData = $this->crud->show($id);
+        if (!$getData) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
+
+        $data = $this->data;
+
+        $getSettings = json_decode($getData->settings, true);
+
+        if($getSettings) {
+            $temp = [];
+            foreach ($getSettings as $index => $listSettings) {
+                $temp = $listSettings;
+            }
+
+            $listSettings = $temp;
+        }
+        else {
+            $title = [];
+            $desc = [];
+            $listSettings = [
+                $title[] = 'title' => [''],
+                $desc[] = 'desc' => [''],
+            ];
+        }
+
+        $data['thisLabel'] = __('general.product');
+        $data['viewType'] = 'edit';
+        $data['formsTitle'] = __('general.title_edit', ['field' => __('general.product') . ' ' . $getData->name]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['listSettings'] = $listSettings;
+        $data['data'] = $getData;
+
+        return view($this->listView[$data['viewType']], $data);
     }
 
     public function update($id){
@@ -159,6 +211,15 @@ class ShippingController extends _CrudController
             }
         }
 
+        $desc = $this->request->get('desc');
+        $title = $this->request->get('title');
+
+        $settings = [];
+        $settings[]  = [
+            'title' => $title,
+            'desc' => $desc
+        ];
+
         $dokument = $this->request->file('icon');
         if ($dokument) {
             if ($dokument->getError() != 1) {
@@ -173,16 +234,12 @@ class ShippingController extends _CrudController
                 }
 
             }
-        }else{
-
+        }
+        else {
             $dokumentImage = $getData->icon_img;
-
         }
 
-        $settings = $data['settings'];
-
         $data = $this->getCollectedData($getListCollectData, $viewType, $data, $getData);
-
 
         $data['icon'] = $dokumentImage;
         $data['settings'] = json_encode($settings);
@@ -199,6 +256,45 @@ class ShippingController extends _CrudController
             session()->flash('message_alert', 2);
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
+    }
+
+    public function show($id){
+        $this->callPermission();
+
+        $getData = $this->crud->show($id);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $data = $this->data;
+
+        $getSettings = json_decode($getData->settings, true);
+
+        if($getSettings) {
+            $temp = [];
+            foreach ($getSettings as $index => $listSettings) {
+                $temp = $listSettings;
+            }
+
+            $listSettings = $temp;
+        }
+        else {
+            $title = [];
+            $desc = [];
+            $listSettings = [
+                $title[] = 'title' => [''],
+                $desc[] = 'desc' => [''],
+            ];
+        }
+
+        $data['thisLabel'] = __('general.product');
+        $data['viewType'] = 'show';
+        $data['formsTitle'] = __('general.title_show', ['field' => __('general.product') . ' ' . $getData->name]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['listSettings'] = $listSettings;
+        $data['data'] = $getData;
+
+        return view($this->listView[$data['viewType']], $data);
     }
 
 }
