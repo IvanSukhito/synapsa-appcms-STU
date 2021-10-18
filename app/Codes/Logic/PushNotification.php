@@ -21,7 +21,7 @@ class PushNotification
     {
         $dateNow = date('Y-m-d');
         $time = date('H:i:00', strtotime("+".$minute." minute"));
-        Log::info("$dateNow, $time, ".date('Y-m-d H:i:s'));
+//        Log::info("$dateNow, $time, ".date('Y-m-d H:i:s'));
         $getServiceIds = Service::where('type', 1)->pluck('id')->toArray();
 
         $data = AppointmentDoctor::selectRaw('doctor.user_id as janji_id, appointment_doctor.user_id')
