@@ -40,10 +40,22 @@ class AccessAdminController extends Controller
             $getRole = Role::where('id', $user->role_id)->first();
             $getPermissionData = isset($getRole) ? json_decode($getRole->permission_data, TRUE) : null;
 
+            $getRoleClinic = isset($getPermissionData['role_clinic']) ? 1 : 0;
+
+            //dd($getRoleClinic);
+            $getClinic = 0;
+            if ($getRoleClinic == 1) {
+                $getClinicData = $user->getKlinik()->first();
+                if ($getClinicData) {
+                    $getClinic = $getClinicData->id;
+                }
+            }
+            //dd($getClinic);
             session()->flush();
             session()->put('admin_id', $user->id);
             session()->put('admin_name', $user->name);
             session()->put('admin_role', $user->role_id);
+            session()->put('admin_clinic_id', $getClinic);
             session()->put('admin_super_admin', isset($getPermissionData['super_admin']) ? 1 : 0);
             try {
                 session_start();

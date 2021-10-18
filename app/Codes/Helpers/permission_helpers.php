@@ -133,6 +133,9 @@ if ( ! function_exists('getValidatePermissionMenu')) {
                 if ($key == 'super_admin') {
                     $listMenu['super_admin'] = 1;
                 }
+                else if ($key == 'role_clinic') {
+                    $listMenu['role_clinic'] = 1;
+                }
                 else {
                     if (is_array($route)) {
                         foreach ($route as $key2 => $route2) {
@@ -155,6 +158,12 @@ if ( ! function_exists('generateListPermission')) {
                     <input '.$value.' style="margin-right: 5px;" type="checkbox" class="checkThis super_admin"
                     data-name="super_admin" name="permission[super_admin]" value="1" id="super_admin"/>
                     Super Admin
+                </label><br/><br/>';
+        $value = isset($data['role_clinic']) ? 'checked' : '';
+        $html .= '<label for="role_clinic">
+                    <input '.$value.' style="margin-right: 5px;" type="checkbox" class="role_clinic"
+                    data-name="role_clinic" name="permission[role_clinic]" value="1" id="role_clinic"/>
+                    Clinic
                 </label><br/><br/>';
         $html .= createTreePermission(listAllMenu(), 0, 'checkThis super_admin', $data);
         return $html;
@@ -210,6 +219,8 @@ if ( ! function_exists('getPermissionRouteList')) {
         $listPermission = listAvailablePermission();
         foreach ($listPermission as $key => $list) {
             if ($key == 'super_admin')
+                continue;
+            if ($key == 'role_clinic')
                 continue;
             foreach ($list as $key2 => $listRoute) {
                 if (isset($listMenu[$key][$key2])) {
@@ -464,6 +475,15 @@ if ( ! function_exists('listAllMenu')) {
                 'type' => 1,
             ],
             [
+                'name' => __('general.clinic_info'),
+                'icon' => '<i class="nav-icon fa fa-hospital-o"></i>',
+                'title' => __('general.clinic_info'),
+                'active' => ['admin.clinic_info.'],
+                'route' => 'admin.clinic_info.index',
+                'key' => 'clinic_info',
+                'type' => 1,
+            ],
+            [
                 'name' => __('general.setting'),
                 'icon' => '<i class="nav-icon fa fa-gear"></i>',
                 'title' => __('general.setting'),
@@ -532,7 +552,8 @@ if ( ! function_exists('listAvailablePermission'))
                      'settings',
                      'faqs',
                      'appointment-lab',
-                     'appointment-nurse'
+                     'appointment-nurse',
+                     'clinic_info',
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [
