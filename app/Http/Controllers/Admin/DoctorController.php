@@ -59,7 +59,7 @@ class DoctorController extends _CrudController
             'service_id' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
+                    'edit' => ''
                 ],
                 'type' => 'multiselect2',
                 'show' => 0,
@@ -101,7 +101,7 @@ class DoctorController extends _CrudController
         };
 
         $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.doctor.forms';
-        $this->listView['edit'] = env('ADMIN_TEMPLATE').'.page.doctor.forms';
+        $this->listView['edit'] = env('ADMIN_TEMPLATE').'.page.doctor.forms_edit';
         $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.doctor.forms';
 
         $this->listView['schedule'] = env('ADMIN_TEMPLATE').'.page.doctor.schedule';
@@ -185,12 +185,15 @@ class DoctorController extends _CrudController
 
         $data = $this->data;
 
+        $getDoctorService = DoctorService::where('doctor_id',$id)->get();
+        $getDoctorService = $getDoctorService;
+
         $data['thisLabel'] = __('general.doctor');
         $data['viewType'] = 'edit';
         $data['formsTitle'] = __('general.title_create', ['field' => __('general.doctor') . ' ' . $getData->name]);
         $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
         $data['data'] = $getData;
-
+        $data['doctorService'] = $getDoctorService;
         return view($this->listView[$data['viewType']], $data);
     }
 
@@ -277,13 +280,17 @@ class DoctorController extends _CrudController
         $serviceId = $this->request->get('service_id');
         $price = clear_money_format($this->request->get('price'));
 
-        foreach($serviceId as $key => $list){
+        //dd($serviceId);
 
+        if($serviceId){
+            foreach($serviceId as $key => $list){
+                //dd($list);
                 DoctorService::where('doctor_id', $id)->update([
                     'doctor_id' => $getData->id,
                     'service_id' => $list,
                     'price' => $price[$key]
                 ]);
+            }
         }
 
 
@@ -323,10 +330,13 @@ class DoctorController extends _CrudController
 
         $data = $this->data;
 
+        $getDoctorService = DoctorService::where('doctor_id',$id)->get();
+
         $data['viewType'] = 'show';
         $data['formsTitle'] = __('general.title_show', ['field' => $data['thisLabel']]);
         $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
         $data['data'] = $getData;
+        $data['doctorService'] = $getDoctorService;
         $data['getScheduleData'] = $getScheduleData;
 
         return view($this->listView[$data['viewType']], $data);
