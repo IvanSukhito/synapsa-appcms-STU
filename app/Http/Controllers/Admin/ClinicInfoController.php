@@ -80,7 +80,6 @@ class ClinicInfoController extends _CrudController
     {
         $adminClinicId = session()->get('admin_clinic_id');
 
-        //dd($adminClinicId);
         $getData = $this->crud->show($adminClinicId);
         if (!$getData) {
             return redirect()->route('admin');

@@ -264,32 +264,13 @@ if ( ! function_exists('listAllMenu')) {
     {
         return [
             [
-                'name' => __('general.article'),
-                'icon' => '<i class="nav-icon fa fa-newspaper-o"></i>',
-                'title' => __('general.article'),
-                'active' => [
-                    'admin.article.',
-                    'admin.article-category.',
-                ],
-                'type' => 2,
-                'data' => [
-                    [
-                        'name' => __('general.article'),
-                        'title' => __('general.article'),
-                        'active' => ['admin.article.'],
-                        'route' => 'admin.article.index',
-                        'key' => 'article',
-                        'type' => 1,
-                    ],
-                    [
-                        'name' => __('general.article-category'),
-                        'title' => __('general.article-category'),
-                        'active' => ['admin.article-category.'],
-                        'route' => 'admin.article-category.index',
-                        'key' => 'article-category',
-                        'type' => 1,
-                    ],
-                ],
+                'name' => __('general.clinic_info'),
+                'icon' => '<i class="nav-icon fa fa-hospital-o"></i>',
+                'title' => __('general.clinic_info'),
+                'active' => ['admin.clinic_info.'],
+                'route' => 'admin.clinic_info.index',
+                'key' => 'clinic_info',
+                'type' => 1,
             ],
             [
                 'name' => __('general.doctor'),
@@ -297,8 +278,7 @@ if ( ! function_exists('listAllMenu')) {
                 'title' => __('general.doctor'),
                 'active' => [
                     'admin.doctor.',
-                    'admin.doctor-schedule.',
-                    'admin.doctor-service.'
+                    'admin.doctor-category.'
                 ],
                 'type' => 2,
                 'data' => [
@@ -370,7 +350,6 @@ if ( ! function_exists('listAllMenu')) {
                     ],
                 ],
             ],
-            //Lab
             [
                 'name' => __('general.lab'),
                 'icon' => '<i class="nav-icon fa fa-flask"></i>',
@@ -399,7 +378,6 @@ if ( ! function_exists('listAllMenu')) {
                     ],
                 ],
             ],
-            //
             [
                 'name' => __('general.users'),
                 'icon' => '<i class="nav-icon fa fa-user"></i>',
@@ -475,13 +453,32 @@ if ( ! function_exists('listAllMenu')) {
                 'type' => 1,
             ],
             [
-                'name' => __('general.clinic_info'),
-                'icon' => '<i class="nav-icon fa fa-hospital-o"></i>',
-                'title' => __('general.clinic_info'),
-                'active' => ['admin.clinic_info.'],
-                'route' => 'admin.clinic_info.index',
-                'key' => 'clinic_info',
-                'type' => 1,
+                'name' => __('general.article'),
+                'icon' => '<i class="nav-icon fa fa-newspaper-o"></i>',
+                'title' => __('general.article'),
+                'active' => [
+                    'admin.article.',
+                    'admin.article-category.',
+                ],
+                'type' => 2,
+                'data' => [
+                    [
+                        'name' => __('general.article'),
+                        'title' => __('general.article'),
+                        'active' => ['admin.article.'],
+                        'route' => 'admin.article.index',
+                        'key' => 'article',
+                        'type' => 1,
+                    ],
+                    [
+                        'name' => __('general.article-category'),
+                        'title' => __('general.article-category'),
+                        'active' => ['admin.article-category.'],
+                        'route' => 'admin.article-category.index',
+                        'key' => 'article-category',
+                        'type' => 1,
+                    ],
+                ],
             ],
             [
                 'name' => __('general.setting'),
