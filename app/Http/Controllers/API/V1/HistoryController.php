@@ -246,7 +246,7 @@ class HistoryController extends Controller
                      ->on('product.id', '=', DB::raw("(select min(id) from product WHERE product.id = transaction_details.product_id)"));
             })
             ->where('transaction.user_id', $userId)
-            ->where('type_service', 1)->orderBy('transaction.id','DESC');
+            ->whereIn('type_service', [1,5])->orderBy('transaction.id','DESC');
 
         if (strlen($s) > 0) {
             $result = $result->where('code', 'LIKE', "%$s%")->orWhere('product_name', 'LIKE', "%$s%");
