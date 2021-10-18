@@ -255,6 +255,7 @@ class SynapsaLogic
             DB::beginTransaction();
 
             $getAppointmentLab = AppointmentLab::create([
+                'klinik_id' => $getTransaction->klinik_id,
                 'schedule_id' => $getSchedule->id,
                 'service_id' => $getSchedule->service_id,
                 'user_id' => $getTransaction->user_id,

@@ -702,7 +702,7 @@ class LabController extends Controller
 
     private function getLabInfo($userId, $serviceId){
 
-        return Lab::selectRaw('lab_cart.id, lab.id AS lab_id, lab.parent_id ,lab.name, lab_service.price,
+        return Lab::selectRaw('lab_cart.id, lab.id AS lab_id, lab.klinik_id as klinik_id, lab.parent_id ,lab.name, lab_service.price,
                 lab.image, lab_cart.choose')
         ->join('lab_service', 'lab_service.lab_id','=','lab.id')
         ->join('lab_cart', 'lab_cart.lab_id','=','lab.id')
