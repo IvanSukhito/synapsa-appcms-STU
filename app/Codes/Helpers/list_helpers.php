@@ -128,6 +128,8 @@ if ( ! function_exists('get_list_transaction')) {
             1 => __('general.pending'),
             2 => __('general.pending_payment'),
             80 => __('general.complete'),
+            81 => __('general.proses'),
+            82 => __('general.proses_pengiriman'),
             90 => __('general.void'),
             99 => __('general.cancel'),
         ];
