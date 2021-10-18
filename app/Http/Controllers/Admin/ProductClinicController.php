@@ -108,9 +108,9 @@ class ProductClinicController extends _CrudController
         $this->data['listSet']['status'] = get_list_active_inactive();
         $this->data['listSet']['stock_flag'] = get_list_stock_flag();
         //$this->listView['index'] = env('ADMIN_TEMPLATE').'.page.product.list';
-        $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.product-rujukan.forms';
-        $this->listView['edit'] = env('ADMIN_TEMPLATE').'.page.product-rujukan.forms';
-        $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.product-rujukan.forms';
+        $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.product-clinic.forms';
+        $this->listView['edit'] = env('ADMIN_TEMPLATE').'.page.product-clinic.forms';
+        $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.product-clinic.forms';
     }
 
     public function create(){
