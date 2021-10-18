@@ -678,6 +678,7 @@ class AppointmentController extends Controller
             ->first();
 
         $dateNow = strtotime(date('Y-m-d'));
+        $timeNow = strtotime("+5 minutes");
 
         if (!$data) {
             return response()->json([
@@ -710,7 +711,14 @@ class AppointmentController extends Controller
         else if(strtotime($data->date) != $dateNow){
             return response()->json([
                 'success' => 0,
-                'message' => ['Meeting belum di mulai'],
+                'message' => ['Hari Meeting belum di mulai'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+        else if($timeNow >= strtotime($data->time_start) && strtotime($data->time_end) <= strtotime("now")){
+            return response()->json([
+                'success' => 0,
+                'message' => ['Waktu Meeting belum di mulai'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
