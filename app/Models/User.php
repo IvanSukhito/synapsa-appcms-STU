@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Codes\Models\V1\DeviceToken;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -63,4 +64,8 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+    public function getDeviceToken()
+    {
+        return $this->belongsToMany(DeviceToken::class, 'user_device_token', 'user_id', 'device_token_id');
+    }
 }

@@ -11,6 +11,7 @@ return [
     'add' => 'Add',
     'faqs' => 'Faqs',
     'klinik' => 'Klinik',
+    'clinic_info' => 'Clinic Info',
     'clinic_phone' => 'Clinic Phone',
     'district' => 'District',
     'sub_district' => 'Sub District',

@@ -353,6 +353,7 @@ class AppointmentController extends Controller
             'keluhan' => 'required',
             'medical_checkup' => ''
         ]);
+
         if ($validator->fails()) {
             return response()->json([
                 'success' => 0,
@@ -400,6 +401,7 @@ class AppointmentController extends Controller
         ];
 
         $data->form_patient = json_encode($saveFormPatient);
+        $data->status = 3;
         $data->save();
 
         return response()->json([
@@ -675,6 +677,9 @@ class AppointmentController extends Controller
             ->where('appointment_doctor.id', $id)
             ->first();
 
+        $dateNow = strtotime(date('Y-m-d'));
+        $timeNow = strtotime("+5 minutes");
+
         if (!$data) {
             return response()->json([
                 'success' => 0,
@@ -703,6 +708,20 @@ class AppointmentController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
+        else if(strtotime($data->date) != $dateNow){
+            return response()->json([
+                'success' => 0,
+                'message' => ['Hari Meeting belum di mulai'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+        else if($timeNow >= strtotime($data->time_start) && strtotime($data->time_end) <= strtotime("now")){
+            return response()->json([
+                'success' => 0,
+                'message' => ['Waktu Meeting belum di mulai'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
 
         $getService = Service::where('id', $data->service_id)->first();
         if (!$getService) {
@@ -729,7 +748,8 @@ class AppointmentController extends Controller
                 'time_start' => $data->time_start,
                 'time_end' => $data->time_end,
                 'app_id' => env('AGORA_APP_ID'),
-                'channel' => $data->video_link
+                'channel' => $data->video_link,
+                'fcm_token' => $user->getDeviceToken->first()->token ?? ''
             ],
             'message' => ['Sukses'],
             'token' => $this->request->attributes->get('_refresh_token'),
