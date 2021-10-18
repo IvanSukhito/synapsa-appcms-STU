@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
+use App\Codes\Models\Admin;
 use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\DoctorSchedule;
 use App\Codes\Models\V1\DoctorService;
@@ -117,14 +118,17 @@ class DoctorController extends _CrudController
     {
         $this->callPermission();
 
-        //$userId = session()->get('admin_id');
+        $adminId = session()->get('admin_id');
 
+        $getAdmin = Admin::where('id', $adminId)->first();
         $dataTables = new DataTables();
 
         $builder = $this->model::query()->selectRaw('doctor.id as id, users.fullname as user_id, doctor_category.name as doctor_category_id')
             ->join('users','users.id', '=', 'doctor.user_id')
             ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
-            ->where('users.doctor',1);
+            ->where('users.doctor',1)
+            ->where('users.klinik_id', $getAdmin->klinik_id);
+
 
 
         $dataTables = $dataTables->eloquent($builder)

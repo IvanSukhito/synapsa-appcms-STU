@@ -361,6 +361,14 @@ if ( ! function_exists('listAllMenu')) {
                         'type' => 1,
                     ],
                     [
+                        'name' => __('general.product_clinic'),
+                        'title' => __('general.product_clinic'),
+                        'active' => ['admin.product_clinic.'],
+                        'route' => 'admin.product-clinic.index',
+                        'key' => 'product-clinic',
+                        'type' => 1,
+                    ],
+                    [
                         'name' => __('general.product-category'),
                         'title' => __('general.product-category'),
                         'active' => ['admin.product-category.'],
@@ -591,6 +599,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'role',
                      'article',
                      'product',
+                     'product-clinic',
                      'lab',
                      'users',
                      'doctor',
