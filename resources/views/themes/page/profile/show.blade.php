@@ -34,7 +34,7 @@ else {
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="<?php echo route('admin') ?>"><i class="fa fa-dashboard"></i> {{ __('general.home') }}</a></li>
-                        <li class="breadcrumb-item"><a href="<?php echo route('admin.' . $thisRoute) ?>"> {{ __('general.title_home', ['field' => $thisLabel]) }}</a></li>
+                        <li class="breadcrumb-item"><a href="<?php echo route('admin.' . $thisRoute .'.index') ?>"> {{ __('general.title_home', ['field' => $thisLabel]) }}</a></li>
                         <li class="breadcrumb-item active">{{ $formsTitle }}</li>
                     </ol>
                 </div>
