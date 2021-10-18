@@ -149,10 +149,21 @@ class ProductController extends _CrudController
         $product = Product::where('id',$id)->first();
         $getDescProduct = json_decode($product->desc, true);
 
-        $temp = [];
-        foreach($getDescProduct as $index => $listProduct){
+        if($getDescProduct) {
+            $temp = [];
+            foreach ($getDescProduct as $index => $listProduct) {
+                $temp = $listProduct;
+            }
 
-            $temp = $listProduct;
+            $listProduct = $temp;
+        }
+        else {
+            $title = [];
+            $desc = [];
+            $listProduct = [
+                $title[] = 'title' => [''],
+                $desc[] = 'desc' => [''],
+            ];
         }
 
         $listDescProduct = $temp;
