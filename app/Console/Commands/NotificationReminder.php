@@ -37,7 +37,6 @@ class NotificationReminder extends Command
      */
     public function handle(): void
     {
-        Log::info("test");
         (new PushNotification())->checkMeeting(5);
     }
 
