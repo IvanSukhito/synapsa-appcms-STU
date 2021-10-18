@@ -135,7 +135,7 @@ class HistoryController extends Controller
         }
         else if ($getData->type_service == 3) {
             $getDataDetails = $getData->getTransactionDetails()->selectRaw('transaction_details.*,
-                lab.image, date_available, time_start, time_end, CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full, , CONCAT("'.env('OSS_URL').'/'.'", payment.icon_img) AS payment_icon')
+                lab.image, date_available, time_start, time_end, CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full, CONCAT("'.env('OSS_URL').'/'.'", payment.icon_img) AS payment_icon')
                 ->join('lab', 'lab.id', '=', 'transaction_details.lab_id', 'LEFT')
                 ->join('lab_schedule','lab_schedule.id','=','transaction_details.schedule_id', 'LEFT')
                 ->join('transaction','transaction.id','=','transaction_details.transaction_id', 'LEFT')
