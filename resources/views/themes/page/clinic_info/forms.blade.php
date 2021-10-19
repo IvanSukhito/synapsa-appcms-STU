@@ -183,9 +183,14 @@ else {
                                             <td>{{ $data->address ?? '-'}}</td>
                                         </tr>
                                         <tr>
-                                            <td>@lang('general.pic_clinic')/@lang('general.phone')</td>
+                                            <td>@lang('general.clinic_phone')</td>
                                             <td>:</td>
-                                            <td> {{ $data->pic ?? '-' }} / {{ '+62'.$data->no_telp ?? '-' }}</td>
+                                            <td>{{ '+62'.$data->no_telp ?? '-' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>@lang('general.email')</td>
+                                            <td>:</td>
+                                            <td> {{ $data->email ?? '-' }}</td>
                                         </tr>
                                         <tr>
                                             <td>@lang('general.monday')</td>
