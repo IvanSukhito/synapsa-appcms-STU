@@ -1,6 +1,6 @@
 <?php
 $title = isset($listSettings['title']) ? $listSettings['title'] : null;
-$desc = isset($listSettings['desc']) ? $listSettings['desc'] : null;
+$desc = isset($listSettings['description']) ? $listSettings['description'] : null;
 
 
 switch ($viewType) {
