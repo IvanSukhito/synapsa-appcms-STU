@@ -202,6 +202,11 @@ class DoctorController extends _CrudController
     {
         $this->callPermission();
 
+        $this->validate($this->request, [
+            'service_id' => 'required',
+            'price' => 'required'
+        ]);
+
         $viewType = 'create';
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
@@ -232,7 +237,7 @@ class DoctorController extends _CrudController
             DoctorService::create([
                 'doctor_id' => $getData->id,
                 'service_id' => $list,
-                'price' => $price[$key]
+                'price' => $price[$key] != null ? $price[$key] : 0
             ]);
         }
 
@@ -281,12 +286,9 @@ class DoctorController extends _CrudController
         $serviceId = $this->request->get('service_id');
         $price = clear_money_format($this->request->get('price'));
 
-        //dd($serviceId);
-
         if($serviceId){
             foreach($serviceId as $key => $list){
-                //dd($list);
-                DoctorService::where('doctor_id', $id)->update([
+                DoctorService::where('doctor_id', $id)->where('service_id', $list)->update([
                     'doctor_id' => $getData->id,
                     'service_id' => $list,
                     'price' => $price[$key]
