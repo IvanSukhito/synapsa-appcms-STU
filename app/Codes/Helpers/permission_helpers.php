@@ -293,6 +293,15 @@ if ( ! function_exists('listAllMenu')) {
                 'type' => 1,
             ],
             [
+                'name' => __('general.user_clinic'),
+                'icon' => '<i class="nav-icon fa fa-user"></i>',
+                'title' => __('general.user_clinic'),
+                'active' => ['admin.user_clinic.'],
+                'route' => 'admin.user_clinic.index',
+                'key' => 'user_clinic',
+                'type' => 1,
+            ],
+            [
                 'name' => __('general.doctor'),
                 'icon' => '<i class="nav-icon fa fa-user-md"></i>',
                 'title' => __('general.doctor'),
@@ -630,6 +639,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'payment',
                      'shipping',
                      'doctor_clinic',
+                     'user_clinic',
 
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [

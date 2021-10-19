@@ -42,6 +42,8 @@ return [
     'patient_email' => 'Patient Email',
     'doctor' => 'Doctor',
     'doctor_clinic' => 'Doctor Clinic',
+    'users_clinic' => 'User Clinic',
+    'user_clinic' => 'User Clinic',
     'doctor_category' => 'Doctor Category',
     'doctor_schedule' => 'Doctor Schedule',
     'doctor_id' => 'Doctor',
