@@ -4,8 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 
 use App\Codes\Models\Admin;
-use App\Codes\Models\Users;
 use App\Codes\Models\V1\Klinik;
+use App\Codes\Models\V1\Transaction;
+use App\Codes\Models\V1\Users;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -32,6 +33,8 @@ class DashboardController extends Controller
         $adminId = session()->get('admin_id');
         $getClinic = Admin::where('id', $adminId)->first();
 
+        //dd($getRoleClinic);
+
         if($getRoleClinic == 1) {
             if ($this->request->get('daterange')) {
                 $getDateRange = $this->request->get('daterange');
@@ -39,13 +42,16 @@ class DashboardController extends Controller
                 $dateStart = date('Y-m-d 00:00:00', strtotime($dateSplit[0]));
                 $dateEnd = isset($dateSplit[1]) ? date('Y-m-d 23:59:59', strtotime($dateSplit[1])) : date('Y-m-d 23:59:59', strtotime($dateSplit[0]));
 
-
-                $data['clinic'] = Klinik::where('id',$getClinic->klinik_id)->first();
-                //$data['user'] = Users::where('klinik_id', $getClinic->klinik_id)->first();
+                $data['clinic'] = Klinik::where('id', $getClinic->klinik_id)->first();
+                $data['user'] = Users::where('klinik_id', $getClinic->klinik_id)->where('patient',1)->get();
+                $data['transactionDoctor'] = Transaction::where('klinik_id', $getClinic->klinik_id)->where('type_service', 2);
+                $data['transactionLab'] = Transaction::where('klinik_id', $getClinic->klinik_id)->where('type_service', 3);
             }
             else {
-                $data['clinic'] = Klinik::where('id',$getClinic->klinik_id)->first();
-                //$data['user'] = Users::where('klinik_id', $getClinic->klinik_id)->first();
+                $data['clinic'] = Klinik::where('id', $getClinic->klinik_id)->first();
+                $data['user'] = Users::where('klinik_id', $getClinic->klinik_id)->where('patient',1)->get();
+                $data['transactionDoctor'] = Transaction::where('klinik_id', $getClinic->klinik_id)->where('type_service', 2);
+                $data['transactionLab'] = Transaction::where('klinik_id', $getClinic->klinik_id)->where('type_service', 3);
             }
 
 

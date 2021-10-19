@@ -20,7 +20,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\DataTables;
 
-class TransactionController extends _CrudController
+class TransactionDoctorController extends _CrudController
 {
     public function __construct(Request $request)
     {
@@ -253,11 +253,11 @@ class TransactionController extends _CrudController
         ];
 
         parent::__construct(
-            $request, 'general.transaction', 'transaction', 'V1\Transaction', 'transaction',
+            $request, 'general.transaction_doctor', 'transaction-doctor', 'V1\Transaction', 'transaction-doctor',
             $passingData
         );
-        $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.transaction.list';
-        $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.transaction.list_button';
+        $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.transaction-doctor.list';
+        $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.transaction-doctor.list_button';
 
         $getUsers = Users::where('status', 80)->pluck('fullname', 'id')->toArray();
         if($getUsers) {
@@ -352,16 +352,13 @@ class TransactionController extends _CrudController
 
         $getAdmin = Admin::where('id', $adminId)->first();
 
-        $builder = $this->model::query()->select('*')->where('klinik_id', $getAdmin->klinik_id);
+        $builder = $this->model::query()->select('*')->where('klinik_id', $getAdmin->klinik_id)->where('type_service', 2);
 
         if ($this->request->get('filter_klinik_id') && $this->request->get('filter_klinik_id') != 0) {
             $builder = $builder->where('klinik_id', $this->request->get('filter_klinik_id'));
         }
         if ($this->request->get('filter_payment_id') && $this->request->get('filter_payment_id') != 0) {
             $builder = $builder->where('payment_id', $this->request->get('filter_payment_id'));
-        }
-        if ($this->request->get('filter_shipping_id') && $this->request->get('filter_shipping_id') != 0) {
-            $builder = $builder->where('shipping_id', $this->request->get('filter_shipping_id'));
         }
         if ($this->request->get('status') && $this->request->get('status') != 0) {
             $builder = $builder->where('status', $this->request->get('status'));

@@ -217,6 +217,8 @@ return [
     'orders' => 'Orders',
     'sound' => 'Sound',
     'transaction' => 'Transaction',
+    'transaction_lab' => 'Transaction Lab',
+    'transaction_doctor' => 'Transaction Doctor',
     'city' => 'City',
     'browser' => 'Browser',
     'ip_address' => 'IP Address',

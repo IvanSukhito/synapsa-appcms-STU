@@ -31,6 +31,8 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                 'App\Http\Controllers\Admin\ProductController' => 'product',
                 'App\Http\Controllers\Admin\ProductClinicController' => 'product-clinic',
                 'App\Http\Controllers\Admin\TransactionController' => 'transaction',
+                'App\Http\Controllers\Admin\TransactionLabController' => 'transaction-lab',
+                'App\Http\Controllers\Admin\TransactionDoctorController' => 'transaction-doctor',
                 'App\Http\Controllers\Admin\ProductCategoryController' => 'product-category',
                 'App\Http\Controllers\Admin\LabController' => 'lab',
                 'App\Http\Controllers\Admin\LabScheduleController' => 'lab-schedule',
@@ -53,13 +55,8 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
             foreach ($listRouter as $controller => $linkName) {
 
                 switch ($linkName) {
-                    case 'doctor':
-                        $router->get($linkName . '/{id}/schedule',   $controller.'@schedule')->name('admin.' . $linkName . '.schedule');
-                        $router->post($linkName . '/{id}/schedule',   $controller.'@storeSchedule')->name('admin.' . $linkName . '.storeSchedule');
-                        $router->post($linkName . '/{id}/schedule/{scheduleId}',   $controller.'@updateSchedule')->name('admin.' . $linkName . '.updateSchedule');
-                        $router->delete($linkName . '/{id}/schedule/{scheduleId}',   $controller.'@destroySchedule')->name('admin.' . $linkName . '.destroySchedule');
-                        break;
                     case 'doctor_clinic':
+                    case 'doctor':
                         $router->get($linkName . '/{id}/schedule',   $controller.'@schedule')->name('admin.' . $linkName . '.schedule');
                         $router->post($linkName . '/{id}/schedule',   $controller.'@storeSchedule')->name('admin.' . $linkName . '.storeSchedule');
                         $router->post($linkName . '/{id}/schedule/{scheduleId}',   $controller.'@updateSchedule')->name('admin.' . $linkName . '.updateSchedule');
@@ -70,6 +67,8 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                          break;
                     case 'appointment-nurse':
                     case 'appointment-lab':
+                    case 'transaction-lab':
+                    case 'transaction-doctor':
                         $router->get($linkName . '/{id}/approve',   $controller.'@approve')->name('admin.' . $linkName . '.approve');
                         $router->get($linkName . '/{id}/reject',   $controller.'@reject')->name('admin.' . $linkName . '.reject');
                         break;

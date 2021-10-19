@@ -88,12 +88,13 @@ if ($daterange) {
             <div class="row">
                 <div class="col-md-12">
                     <div class="row">
+
                         <div class="col-md-4">
                             <!-- small box -->
 
-                            <a href="#" class="small-box bg-info">
+                            <a href="#" class="small-box bg-warning">
                                 <div class="inner">
-                                    <h3>0</h3>
+                                    <h3>{!! $user->count() ?? 0 !!}</h3>
 
                                     <p>Pasien Terdaftar</p>
                                 </div>
@@ -115,9 +116,9 @@ if ($daterange) {
                         <div class="col-md-4">
                             <!-- small box -->
 
-                            <a href="#" class="small-box bg-success">
+                            <a href="#" class="small-box bg-info">
                                 <div class="inner">
-                                    <h3>0</h3>
+                                    <h3>{!! $transactionLab->count() ?? 0 !!}</h3>
 
                                     <p>Lab Transaksi</p>
                                 </div>
@@ -128,7 +129,7 @@ if ($daterange) {
                             <!-- small box -->
                             <a href="#" class="small-box bg-danger">
                                 <div class="inner">
-                                    <h3>0</h3>
+                                    <h3>{!! $transactionDoctor->count() ?? 0 !!}</h3>
 
                                     <p>Dokter Transaksi</p>
                                 </div>
