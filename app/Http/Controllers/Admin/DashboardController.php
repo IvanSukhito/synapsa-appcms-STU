@@ -41,11 +41,11 @@ class DashboardController extends Controller
 
 
                 $data['clinic'] = Klinik::where('id',$getClinic->klinik_id)->first();
-                $data['user'] = Users::where('klinik_id', $getClinic->klinik_id)->first();
+                //$data['user'] = Users::where('klinik_id', $getClinic->klinik_id)->first();
             }
             else {
                 $data['clinic'] = Klinik::where('id',$getClinic->klinik_id)->first();
-                $data['user'] = Users::where('klinik_id', $getClinic->klinik_id)->first();
+                //$data['user'] = Users::where('klinik_id', $getClinic->klinik_id)->first();
             }
 
 
