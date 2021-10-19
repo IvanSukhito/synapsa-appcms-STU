@@ -179,13 +179,13 @@ class DoctorAppointmentController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
-        //else if(strtotime($data->date) != $dateNow){
-        //    return response()->json([
-        //        'success' => 0,
-        //        'message' => ['Meeting belum di mulai'],
-        //        'token' => $this->request->attributes->get('_refresh_token'),
-        //    ], 422);
-        //}
+        else if(strtotime($data->date) != $dateNow){
+            return response()->json([
+                'success' => 0,
+                'message' => ['Meeting belum di mulai'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
 
         $getService = Service::where('id', $data->service_id)->first();
         if (!$getService) {
