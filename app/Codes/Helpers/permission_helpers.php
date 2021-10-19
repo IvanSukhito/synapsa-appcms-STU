@@ -372,7 +372,7 @@ if ( ! function_exists('listAllMenu')) {
                     [
                         'name' => __('general.product_clinic'),
                         'title' => __('general.product_clinic'),
-                        'active' => ['admin.product_clinic.'],
+                        'active' => ['admin.product-clinic.'],
                         'route' => 'admin.product-clinic.index',
                         'key' => 'product-clinic',
                         'type' => 1,
