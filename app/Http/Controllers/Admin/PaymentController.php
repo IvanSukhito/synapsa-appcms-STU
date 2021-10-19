@@ -171,14 +171,24 @@ class PaymentController extends _CrudController
         $getSettings = json_decode($getData->settings, true);
 
         if($getSettings) {
-            $title = [];
-            $desc = [];
-            foreach ($getSettings['va_info'] as $index => $listSettings) {
-                $title[] = $listSettings['title'];
-                $desc[] = $listSettings['description'];
-            }
+            if(isset($getSettings['va_info'])) {
+                $title = [];
+                $desc = [];
+                foreach ($getSettings['va_info'] as $index => $listSettings) {
+                    $title[] = $listSettings['title'];
+                    $desc[] = $listSettings['description'];
+                }
 
-            $listSettings= ['title' => $title, 'desc' => $desc];
+                $listSettings = ['title' => $title, 'desc' => $desc];
+            }
+            else {
+                $temp = [];
+                foreach($getSettings as $index => $listSettings) {
+                    $temp = $listSettings;
+                }
+
+                $listSettings = $temp;
+            }
         }
         else {
             $title = [];
@@ -286,14 +296,24 @@ class PaymentController extends _CrudController
         $getSettings = json_decode($getData->settings, true);
 
         if($getSettings) {
-            $title = [];
-            $desc = [];
-            foreach ($getSettings['va_info'] as $index => $listSettings) {
-                $title[] = $listSettings['title'];
-                $desc[] = $listSettings['description'];
-            }
+            if(isset($getSettings['va_info'])) {
+                $title = [];
+                $desc = [];
+                foreach ($getSettings['va_info'] as $index => $listSettings) {
+                    $title[] = $listSettings['title'];
+                    $desc[] = $listSettings['description'];
+                }
 
-            $listSettings= ['title' => $title, 'desc' => $desc];
+                $listSettings = ['title' => $title, 'desc' => $desc];
+            }
+            else {
+                $temp = [];
+                foreach($getSettings as $index => $listSettings) {
+                    $temp = $listSettings;
+                }
+
+                $listSettings = $temp;
+            }
         }
         else {
             $title = [];
