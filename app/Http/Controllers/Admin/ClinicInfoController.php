@@ -36,6 +36,13 @@ class ClinicInfoController extends _CrudController
                 ],
                 'lang' => 'general.phone'
             ],
+            'email' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'lang' => 'general.email'
+            ],
             'monday' => [
                 'edit' => 0,
             ],
@@ -78,7 +85,7 @@ class ClinicInfoController extends _CrudController
 
     public function index()
     {
-        $adminClinicId = session()->get('admin_clinic_id');
+        $adminClinicId = session()->get('admin_id');
 
         $getData = $this->crud->show($adminClinicId);
         if (!$getData) {
@@ -91,7 +98,7 @@ class ClinicInfoController extends _CrudController
     public function edit($id)
     {
         $this->callPermission();
-        $id = session()->get('admin_clinic_id');
+        $id = session()->get('admin_id');
 
         $getData = $this->crud->show($id);
         if (!$getData) {
@@ -111,7 +118,7 @@ class ClinicInfoController extends _CrudController
     public function update($id)
     {
         $this->callPermission();
-        $id = session()->get('admin_clinic_id');
+        $id = session()->get('admin_id');
 
         $viewType = 'edit';
 
@@ -156,6 +163,21 @@ class ClinicInfoController extends _CrudController
             }
         }
 
+        $saveData = [
+        'monday' => $this->request->get('monday'),
+        'tuesday' => $this->request->get('tuesday'),
+        'wednesday' => $this->request->get('wednesday'),
+        'thursday' => $this->request->get('thursday'),
+        'friday' => $this->request->get('friday'),
+        'saturday' => $this->request->get('saturday'),
+        'sunday' => $this->request->get('sunday'),
+    ];
+
+        foreach($saveData as $key => $val) {
+            $data[$key] = $val;
+        }
+
+
         $getData = $this->crud->update($data, $id);
 
         $id = $getData->id;
@@ -174,7 +196,7 @@ class ClinicInfoController extends _CrudController
     {
         $this->callPermission();
 
-        $id = session()->get('admin_clinic_id');
+        $id = session()->get('admin_id');
 
         $viewType = 'show';
 

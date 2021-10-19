@@ -46,6 +46,7 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                 'App\Http\Controllers\Admin\AppointmentLabController' => 'appointment-lab',
                 'App\Http\Controllers\Admin\AppointmentNurseController' => 'appointment-nurse',
                 'App\Http\Controllers\Admin\ClinicInfoController' => 'clinic_info',
+                'App\Http\Controllers\Admin\DoctorClinicController' => 'doctor_clinic',
             ];
 
             foreach ($listRouter as $controller => $linkName) {
@@ -57,14 +58,17 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                         $router->post($linkName . '/{id}/schedule/{scheduleId}',   $controller.'@updateSchedule')->name('admin.' . $linkName . '.updateSchedule');
                         $router->delete($linkName . '/{id}/schedule/{scheduleId}',   $controller.'@destroySchedule')->name('admin.' . $linkName . '.destroySchedule');
                         break;
+                    case 'doctor_clinic':
+                        $router->get($linkName . '/{id}/schedule',   $controller.'@schedule')->name('admin.' . $linkName . '.schedule');
+                        $router->post($linkName . '/{id}/schedule',   $controller.'@storeSchedule')->name('admin.' . $linkName . '.storeSchedule');
+                        $router->post($linkName . '/{id}/schedule/{scheduleId}',   $controller.'@updateSchedule')->name('admin.' . $linkName . '.updateSchedule');
+                        $router->delete($linkName . '/{id}/schedule/{scheduleId}',   $controller.'@destroySchedule')->name('admin.' . $linkName . '.destroySchedule');
+                        break;
                     case 'lab-schedule':
                         $router->post($linkName . '/{id}/updateSchedule',   $controller.'@update')->name('admin.' . $linkName . '.updateLab');
                          break;
-                    case 'appointment-lab':
-                        $router->get($linkName . '/{id}/approve',   $controller.'@approve')->name('admin.' . $linkName . '.approve');
-                        $router->get($linkName . '/{id}/reject',   $controller.'@reject')->name('admin.' . $linkName . '.reject');
-                        break;
                     case 'appointment-nurse':
+                    case 'appointment-lab':
                         $router->get($linkName . '/{id}/approve',   $controller.'@approve')->name('admin.' . $linkName . '.approve');
                         $router->get($linkName . '/{id}/reject',   $controller.'@reject')->name('admin.' . $linkName . '.reject');
                         break;

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
+use App\Codes\Models\Admin;
 use App\Codes\Models\V1\City;
 use App\Codes\Models\V1\District;
 use App\Codes\Models\V1\Klinik;
@@ -345,7 +346,11 @@ class TransactionController extends _CrudController
 
         $dataTables = new DataTables();
 
-        $builder = $this->model::query()->select('*');
+        $adminId = session()->get('admin_id');
+
+        $getAdmin = Admin::where('id', $adminId)->first();
+
+        $builder = $this->model::query()->select('*')->where('klinik_id', $getAdmin->klinik_id);
 
         if ($this->request->get('filter_klinik_id') && $this->request->get('filter_klinik_id') != 0) {
             $builder = $builder->where('klinik_id', $this->request->get('filter_klinik_id'));
