@@ -42,7 +42,7 @@ class PaymentController extends _CrudController
                 'validate' => [
                     'create' => 'required',
                 ],
-                'lang' => 'icon_img',
+                'lang' => 'general.icon_img',
                 'type' => 'image',
             ],
             'orders' => [

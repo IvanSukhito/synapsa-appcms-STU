@@ -46,7 +46,7 @@ class ArticleController extends _CrudController
                     'edit' => 'required'
                 ],
                 'type' => 'image',
-                'lang' => 'thumbnail_img'
+                'lang' => 'general.thumbnail_img'
             ],
             'image_full' => [
                 'validate' => [

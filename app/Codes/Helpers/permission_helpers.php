@@ -398,35 +398,6 @@ if ( ! function_exists('listAllMenu')) {
                 ],
             ],
             [
-                'name' => __('general.users'),
-                'icon' => '<i class="nav-icon fa fa-user"></i>',
-                'title' => __('general.users'),
-                'active' => [
-                    'admin.users.',
-                    'admin.users-doctor.',
-                    'admin.users-patient.'
-                ],
-                'type' => 2,
-                'data' => [
-                    [
-                        'name' => __('general.users_doctor'),
-                        'title' => __('general.users_doctor'),
-                        'active' => ['admin.users-doctor.'],
-                        'route' => 'admin.users-doctor.index',
-                        'key' => 'users-doctor',
-                        'type' => 1,
-                    ],
-                    [
-                        'name' => __('general.users_patient'),
-                        'title' => __('general.users_patient'),
-                        'active' => ['admin.users-patient.'],
-                        'route' => 'admin.users-patient.index',
-                        'key' => 'users-patient',
-                        'type' => 1,
-                    ],
-                ],
-            ],
-            [
                 'name' => __('general.transaction'),
                 'icon' => '<i class="nav-icon fa fa-handshake-o"></i>',
                 'title' => __('general.transaction'),
@@ -471,6 +442,36 @@ if ( ! function_exists('listAllMenu')) {
                 'key' => 'shipping',
                 'type' => 1,
             ],
+            [
+                'name' => __('general.users'),
+                'icon' => '<i class="nav-icon fa fa-user"></i>',
+                'title' => __('general.users'),
+                'active' => [
+                    'admin.users.',
+                    'admin.users-doctor.',
+                    'admin.users-patient.'
+                ],
+                'type' => 2,
+                'data' => [
+                    [
+                        'name' => __('general.users_doctor'),
+                        'title' => __('general.users_doctor'),
+                        'active' => ['admin.users-doctor.'],
+                        'route' => 'admin.users-doctor.index',
+                        'key' => 'users-doctor',
+                        'type' => 1,
+                    ],
+                    [
+                        'name' => __('general.users_patient'),
+                        'title' => __('general.users_patient'),
+                        'active' => ['admin.users-patient.'],
+                        'route' => 'admin.users-patient.index',
+                        'key' => 'users-patient',
+                        'type' => 1,
+                    ],
+                ],
+            ],
+
             [
                 'name' => __('general.article'),
                 'icon' => '<i class="nav-icon fa fa-newspaper-o"></i>',
