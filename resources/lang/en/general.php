@@ -110,6 +110,7 @@ return [
     'content' => 'Content',
     'images' => 'Images',
     'date' => 'Date',
+    'daterange' => 'Date Range',
     'action' => 'Action',
     'create' => 'Create',
     'show' => 'Show',

@@ -50,12 +50,13 @@ class AccessAdminController extends Controller
                     $getClinic = $getClinicData->id;
                 }
             }
-            //dd($getClinic);
+
             session()->flush();
             session()->put('admin_id', $user->id);
             session()->put('admin_name', $user->name);
             session()->put('admin_role', $user->role_id);
             session()->put('admin_clinic_id', $getClinic);
+            session()->put('admin_role_clinic', $getRoleClinic);
             session()->put('admin_super_admin', isset($getPermissionData['super_admin']) ? 1 : 0);
             try {
                 session_start();
