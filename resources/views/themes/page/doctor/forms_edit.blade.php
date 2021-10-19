@@ -122,15 +122,10 @@ else {
 
         $(document).ready(function() {
            // $('#service_id').change();
-            $('#listDoctorService').change();
+           //  $('#listDoctorService').change();
             $('.multiselect2').select2({
                 tags: true
             });
-
-        });
-
-
-        $('#listDoctorService').on('change',function(){
 
             let html = '';
             let i = 0;
@@ -165,8 +160,6 @@ else {
                     }
 
                     $('#service_id').val(getServiceId);
-                    $('#service_id').attr('readonly', true);
-
 
                     let totalService = getServiceId.length;
                     $('#infoService').html('Total' + '&nbsp;' + totalService +'&nbsp;'+'Service');
@@ -182,45 +175,45 @@ else {
                         prefix: '', //Space after $, this will not truncate the first character.
                         rightAlign: false
                     });
-
                 });
             });
+            $('#service_id').select2('destroy').attr('readonly', true).css({'-moz-appearance': 'none','-webkit-appearance': 'none'});
         });
 
-        $('#a').on('change',function(){
-            let html = '';
-            let i = 0;
-            $.each(listDoctorService, function(index, item){
-                var Service = item.service_id;
-                var Price = item.price;
-                var Doctor = item.doctor_id;
+        {{--$('#a').on('change',function(){--}}
+        {{--    let html = '';--}}
+        {{--    let i = 0;--}}
+        {{--    $.each(listDoctorService, function(index, item){--}}
+        {{--        var Service = item.service_id;--}}
+        {{--        var Price = item.price;--}}
+        {{--        var Doctor = item.doctor_id;--}}
 
-                html += '<div class="form-group">' +
-                    //'<select id='+
-                    '<label for="service">{{ __('general.service') }} ' + (i + 1) + ' <span class="text-red">*</span></label>' +
-                    '<input type="text" id="service_' + i +'" name="service[' + i + ']" class="form-control" disabled placeholder="@lang('general.service')"  value="' + listDataService[Service] + '"> ' +
-                    '</div>'+
-                    '<div class="form-group">' +
-                    '<label for="price">{{ __('general.price') }} ' + (i + 1) + ' <span class="text-red">*</span></label>' +
-                    '<input type="text" id="price_' + i +'" name="price[' + i + ']" class="form-control setMoney" placeholder="@lang('general.price')"  value="' + Price + ' "> ' +
-                    '</div>';
+        {{--        html += '<div class="form-group">' +--}}
+        {{--            //'<select id='+--}}
+        {{--            '<label for="service">{{ __('general.service') }} ' + (i + 1) + ' <span class="text-red">*</span></label>' +--}}
+        {{--            '<input type="text" id="service_' + i +'" name="service[' + i + ']" class="form-control" disabled placeholder="@lang('general.service')"  value="' + listDataService[Service] + '"> ' +--}}
+        {{--            '</div>'+--}}
+        {{--            '<div class="form-group">' +--}}
+        {{--            '<label for="price">{{ __('general.price') }} ' + (i + 1) + ' <span class="text-red">*</span></label>' +--}}
+        {{--            '<input type="text" id="price_' + i +'" name="price[' + i + ']" class="form-control setMoney" placeholder="@lang('general.price')"  value="' + Price + ' "> ' +--}}
+        {{--            '</div>';--}}
 
 
-                $('#listDoctorService').html(html);
+        {{--        $('#listDoctorService').html(html);--}}
 
-                console.log(Service);
-                $('#service_id').val(Service);
+        {{--        console.log(Service);--}}
+        {{--        $('#service_id').val(Service);--}}
 
-                $('.setMoney').inputmask('numeric', {
-                    radixPoint: ".",
-                    groupSeparator: ",",
-                    digits: 2,
-                    autoGroup: true,
-                    prefix: '', //Space after $, this will not truncate the first character.
-                    rightAlign: false
-                });
-            });
-        });
+        {{--        $('.setMoney').inputmask('numeric', {--}}
+        {{--            radixPoint: ".",--}}
+        {{--            groupSeparator: ",",--}}
+        {{--            digits: 2,--}}
+        {{--            autoGroup: true,--}}
+        {{--            prefix: '', //Space after $, this will not truncate the first character.--}}
+        {{--            rightAlign: false--}}
+        {{--        });--}}
+        {{--    });--}}
+        {{--});--}}
 
 
     </script>
