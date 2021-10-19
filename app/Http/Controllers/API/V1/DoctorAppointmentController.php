@@ -448,7 +448,7 @@ class DoctorAppointmentController extends Controller
         $validator = Validator::make($this->request->all(), [
             'diagnosis' => 'required',
             'treatment' => 'required',
-            'product_ids' => ''
+            'product_ids' => 'array'
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -483,10 +483,11 @@ class DoctorAppointmentController extends Controller
         DB::beginTransaction();
 
         $getListProduct = $this->request->get('product_ids');
+        //dd($getListProduct);
         $getListProductId = [];
         if ($getListProduct) {
             foreach ($getListProduct as $productId => $qty) {
-                $getListProductId[] = $productId;
+                $getListProductId[] = $qty;
             }
         }
 
