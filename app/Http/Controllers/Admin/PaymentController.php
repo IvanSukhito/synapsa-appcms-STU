@@ -120,7 +120,7 @@ class PaymentController extends _CrudController
         $settings = [];
         $settings[]  = [
             'title' => $title,
-            'desc' => $desc
+            'description' => $desc
         ];
 
         $dokument = $this->request->file('icon_img_full');
@@ -145,7 +145,6 @@ class PaymentController extends _CrudController
         $data['settings'] = json_encode($settings);
 
         $getData = $this->crud->store($data);
-
 
         $id = $getData->id;
 
@@ -172,12 +171,14 @@ class PaymentController extends _CrudController
         $getSettings = json_decode($getData->settings, true);
 
         if($getSettings) {
-            $temp = [];
-            foreach ($getSettings as $index => $listSettings) {
-                $temp = $listSettings;
+            $title = [];
+            $desc = [];
+            foreach ($getSettings['va_info'] as $index => $listSettings) {
+                $title[] = $listSettings['title'];
+                $desc[] = $listSettings['description'];
             }
 
-            $listSettings = $temp;
+            $listSettings= ['title' => $title, 'desc' => $desc];
         }
         else {
             $title = [];
@@ -230,7 +231,7 @@ class PaymentController extends _CrudController
         $settings = [];
         $settings[]  = [
             'title' => $title,
-            'desc' => $desc
+            'description' => $desc
         ];
 
         $dokument = $this->request->file('icon_img_full');
@@ -285,12 +286,14 @@ class PaymentController extends _CrudController
         $getSettings = json_decode($getData->settings, true);
 
         if($getSettings) {
-            $temp = [];
-            foreach ($getSettings as $index => $listSettings) {
-                $temp = $listSettings;
+            $title = [];
+            $desc = [];
+            foreach ($getSettings['va_info'] as $index => $listSettings) {
+                $title[] = $listSettings['title'];
+                $desc[] = $listSettings['description'];
             }
 
-            $listSettings = $temp;
+            $listSettings= ['title' => $title, 'desc' => $desc];
         }
         else {
             $title = [];
