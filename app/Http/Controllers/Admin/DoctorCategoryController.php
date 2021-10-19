@@ -113,6 +113,8 @@ class DoctorCategoryController extends _CrudController
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
 
+        unset($getListCollectData['icon_img_full']);
+
         $validate = $this->setValidateData($getListCollectData, $viewType, $id);
         if (count($validate) > 0)
         {
