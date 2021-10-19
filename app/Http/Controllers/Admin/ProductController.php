@@ -150,12 +150,20 @@ class ProductController extends _CrudController
         $getDescProduct = json_decode($product->desc, true);
 
         if($getDescProduct) {
-            $temp = [];
+            $title = [];
+            $desc = [];
             foreach ($getDescProduct as $index => $listProduct) {
-                $temp = $listProduct;
+                if(isset($listProduct['content'])) {
+                    $title[] = $listProduct['title'];
+                    $desc[] = $listProduct['content'];
+                }
+                else {
+                    $title = $listProduct['title'];
+                    $desc = $listProduct['desc'];
+                }
             }
 
-            $listProduct = $temp;
+            $listProduct = ['title' => $title, 'desc' => $desc];
         }
         else {
             $title = [];
@@ -166,13 +174,11 @@ class ProductController extends _CrudController
             ];
         }
 
-        $listDescProduct = $temp;
-
         $data['thisLabel'] = __('general.product');
         $data['viewType'] = 'edit';
         $data['formsTitle'] = __('general.title_edit', ['field' => __('general.product') . ' ' . $getData->name]);
         $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
-        $data['listProduct'] = $listDescProduct;
+        $data['listProduct'] = $listProduct;
         $data['data'] = $getData;
 
         return view($this->listView[$data['viewType']], $data);
@@ -198,12 +204,30 @@ class ProductController extends _CrudController
         $product = Product::where('id',$id)->first();
         $getDescProduct = json_decode($product->desc, true);
 
-        $temp = [];
-        foreach($getDescProduct as $index => $listProduct){
-            $temp = $listProduct;
-        }
+        if($getDescProduct) {
+            $title = [];
+            $desc = [];
+            foreach ($getDescProduct as $index => $listProduct) {
+                if(isset($listProduct['content'])) {
+                    $title[] = $listProduct['title'];
+                    $desc[] = $listProduct['content'];
+                }
+                else {
+                    $title = $listProduct['title'];
+                    $desc = $listProduct['desc'];
+                }
+            }
 
-        $listProduct = $temp;
+            $listProduct = ['title' => $title, 'desc' => $desc];
+        }
+        else {
+            $title = [];
+            $desc = [];
+            $listProduct = [
+                $title[] = 'title' => [''],
+                $desc[] = 'desc' => [''],
+            ];
+        }
 
         //dd($listProduct);
 
