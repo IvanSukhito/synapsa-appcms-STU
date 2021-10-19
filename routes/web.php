@@ -47,6 +47,7 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                 'App\Http\Controllers\Admin\AppointmentNurseController' => 'appointment-nurse',
                 'App\Http\Controllers\Admin\ClinicInfoController' => 'clinic_info',
                 'App\Http\Controllers\Admin\DoctorClinicController' => 'doctor_clinic',
+                'App\Http\Controllers\Admin\UsersClinicController' => 'user_clinic',
             ];
 
             foreach ($listRouter as $controller => $linkName) {
