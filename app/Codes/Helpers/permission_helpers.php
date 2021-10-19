@@ -284,6 +284,15 @@ if ( ! function_exists('listAllMenu')) {
                 'type' => 1,
             ],
             [
+                'name' => __('general.doctor_clinic'),
+                'icon' => '<i class="nav-icon fa fa-user-plus"></i>',
+                'title' => __('general.doctor_clinic'),
+                'active' => ['admin.doctor_clinic.'],
+                'route' => 'admin.doctor_clinic.index',
+                'key' => 'doctor_clinic',
+                'type' => 1,
+            ],
+            [
                 'name' => __('general.doctor'),
                 'icon' => '<i class="nav-icon fa fa-user-md"></i>',
                 'title' => __('general.doctor'),
@@ -620,6 +629,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'doctor-category',
                      'payment',
                      'shipping',
+                     'doctor_clinic',
 
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
@@ -649,6 +659,11 @@ if ( ! function_exists('listAvailablePermission'))
         $listPermission['doctor']['create'][] = 'admin.doctor.storeSchedule';
         $listPermission['doctor']['edit'][] = 'admin.doctor.updateSchedule';
         $listPermission['doctor']['destroy'][] = 'admin.doctor.destroySchedule';
+
+        $listPermission['doctor_clinic']['create'][] = 'admin.doctor_clinic.schedule';
+        $listPermission['doctor_clinic']['create'][] = 'admin.doctor_clinic.storeSchedule';
+        $listPermission['doctor_clinic']['edit'][] = 'admin.doctor_clinic.updateSchedule';
+        $listPermission['doctor_clinic']['destroy'][] = 'admin.doctor_clinic.destroySchedule';
 
         $listPermission['lab-schedule']['edit'][] = 'admin.lab-schedule.updateLab';
 

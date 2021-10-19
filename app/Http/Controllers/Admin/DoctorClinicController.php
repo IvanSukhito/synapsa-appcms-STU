@@ -13,7 +13,7 @@ use Yajra\DataTables\DataTables;
 use App\Codes\Models\V1\Service;
 use Illuminate\Http\Request;
 
-class DoctorController extends _CrudController
+class DoctorClinicController extends _CrudController
 {
     protected $limit;
 
@@ -76,7 +76,7 @@ class DoctorController extends _CrudController
 
 
         parent::__construct(
-            $request, 'general.doctor', 'doctor', 'V1\Doctor', 'doctor',
+            $request, 'general.doctor_clinic', 'doctor_clinic', 'V1\Doctor', 'doctor_clinic',
             $passingData
         );
 
@@ -101,16 +101,16 @@ class DoctorController extends _CrudController
             $service_id[$key] = $val;
         };
 
-        $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.doctor.forms';
-        $this->listView['edit'] = env('ADMIN_TEMPLATE').'.page.doctor.forms_edit';
-        $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.doctor.forms';
+        $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.doctor_clinic.forms';
+        $this->listView['edit'] = env('ADMIN_TEMPLATE').'.page.doctor_clinic.forms_edit';
+        $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.doctor_clinic.forms';
 
-        $this->listView['schedule'] = env('ADMIN_TEMPLATE').'.page.doctor.schedule';
+        $this->listView['schedule'] = env('ADMIN_TEMPLATE').'.page.doctor_clinic.schedule';
 
         $this->data['listSet']['user_id'] = $listUsers;
         $this->data['listSet']['service_id'] = $service_id;
         $this->data['listSet']['doctor_category_id'] = $listDoctorCategory;
-        $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.doctor.list_button';
+        $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.doctor_clinic.list_button';
 
     }
 
@@ -126,7 +126,8 @@ class DoctorController extends _CrudController
         $builder = $this->model::query()->selectRaw('doctor.id as id, users.fullname as user_id, doctor_category.name as doctor_category_id')
             ->join('users','users.id', '=', 'doctor.user_id')
             ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
-            ->where('users.doctor',1);
+            ->where('users.doctor',1)
+            ->where('users.klinik_id', $getAdmin->klinik_id);
 
         $dataTables = $dataTables->eloquent($builder)
             ->addColumn('action', function ($query) {
@@ -201,11 +202,6 @@ class DoctorController extends _CrudController
     {
         $this->callPermission();
 
-        $this->validate($this->request, [
-            'service_id' => 'required',
-            'price' => 'required'
-        ]);
-
         $viewType = 'create';
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
@@ -236,7 +232,7 @@ class DoctorController extends _CrudController
             DoctorService::create([
                 'doctor_id' => $getData->id,
                 'service_id' => $list,
-                'price' => $price[$key] != null ? $price[$key] : 0
+                'price' => $price[$key]
             ]);
         }
 
@@ -285,9 +281,12 @@ class DoctorController extends _CrudController
         $serviceId = $this->request->get('service_id');
         $price = clear_money_format($this->request->get('price'));
 
+        //dd($serviceId);
+
         if($serviceId){
             foreach($serviceId as $key => $list){
-                DoctorService::where('doctor_id', $id)->where('service_id', $list)->update([
+                //dd($list);
+                DoctorService::where('doctor_id', $id)->update([
                     'doctor_id' => $getData->id,
                     'service_id' => $list,
                     'price' => $price[$key]
@@ -342,6 +341,7 @@ class DoctorController extends _CrudController
         $data['getScheduleData'] = $getScheduleData;
 
         return view($this->listView[$data['viewType']], $data);
+
     }
 
     public function schedule($id)
