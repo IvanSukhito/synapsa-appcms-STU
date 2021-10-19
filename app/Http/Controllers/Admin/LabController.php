@@ -32,12 +32,11 @@ class LabController extends _CrudController
                     'edit' => 'required'
                 ]
             ],
-            'image' => [
+            'image_full' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
                 ],
-                'path' => 'synapsaapps/lab',
                 'type' => 'image',
             ],
             'desc_lab' => [
@@ -71,6 +70,7 @@ class LabController extends _CrudController
                 ],
                 'type' => 'multiselect2',
                 'list' => 0,
+                'show'  => 0,
             ],
             'action' => [
                 'create' => 0,
@@ -104,7 +104,7 @@ class LabController extends _CrudController
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
 
-        unset($getListCollectData['image']);
+        unset($getListCollectData['image_full']);
 
         $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
