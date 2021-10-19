@@ -114,7 +114,6 @@ class ShippingController extends _CrudController
         $dokument = $this->request->file('icon_full');
         if ($dokument) {
             if ($dokument->getError() != 1) {
-
                 $getFileName = $dokument->getClientOriginalName();
                 $ext = explode('.', $getFileName);
                 $ext = end($ext);
@@ -197,7 +196,7 @@ class ShippingController extends _CrudController
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
 
-        unset($getListCollectData['icon']);
+        unset($getListCollectData['icon_full']);
 
         $validate = $this->setValidateData($getListCollectData, $viewType, $id);
         if (count($validate) > 0)
@@ -220,10 +219,9 @@ class ShippingController extends _CrudController
             'desc' => $desc
         ];
 
-        $dokument = $this->request->file('icon');
+        $dokument = $this->request->file('icon_full');
         if ($dokument) {
             if ($dokument->getError() != 1) {
-
                 $getFileName = $dokument->getClientOriginalName();
                 $ext = explode('.', $getFileName);
                 $ext = end($ext);
