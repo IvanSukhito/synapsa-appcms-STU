@@ -129,8 +129,6 @@ class DoctorController extends _CrudController
             ->where('users.doctor',1)
             ->where('users.klinik_id', $getAdmin->klinik_id);
 
-
-
         $dataTables = $dataTables->eloquent($builder)
             ->addColumn('action', function ($query) {
                 return view($this->listView['dataTable'], [
@@ -190,7 +188,6 @@ class DoctorController extends _CrudController
         $data = $this->data;
 
         $getDoctorService = DoctorService::where('doctor_id',$id)->get();
-        $getDoctorService = $getDoctorService;
 
         $data['thisLabel'] = __('general.doctor');
         $data['viewType'] = 'edit';

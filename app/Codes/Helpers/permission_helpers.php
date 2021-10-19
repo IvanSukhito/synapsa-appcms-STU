@@ -130,7 +130,10 @@ if ( ! function_exists('getValidatePermissionMenu')) {
         $listMenu = [];
         if ($permission) {
             foreach ($permission as $key => $route) {
-                if ($key == 'super_admin') {
+                if ($key == 'check_all') {
+                    $listMenu['check_all'] = 1;
+                }
+                else if ($key == 'super_admin') {
                     $listMenu['super_admin'] = 1;
                 }
                 else if ($key == 'role_clinic') {
@@ -153,9 +156,17 @@ if ( ! function_exists('getValidatePermissionMenu')) {
 
 if ( ! function_exists('generateListPermission')) {
     function generateListPermission($data = null) {
+        $html = '';
+
+        $value = isset($data['check_all']) ? 'checked' : '';
+        $html .= '<label for="check_all">
+                    <input '.$value.' style="margin-right: 5px;" type="checkbox" class="checkThis check_all"
+                    data-name="check_all" name="permission[check_all]" value="1" id="check_all"/>
+                    ALL
+                </label><br/><br/>';
         $value = isset($data['super_admin']) ? 'checked' : '';
-        $html = '<label for="super_admin">
-                    <input '.$value.' style="margin-right: 5px;" type="checkbox" class="checkThis super_admin"
+        $html .= '<label for="super_admin">
+                    <input '.$value.' style="margin-right: 5px;" type="checkbox" class="super_admin"
                     data-name="super_admin" name="permission[super_admin]" value="1" id="super_admin"/>
                     Super Admin
                 </label><br/><br/>';
@@ -165,7 +176,7 @@ if ( ! function_exists('generateListPermission')) {
                     data-name="role_clinic" name="permission[role_clinic]" value="1" id="role_clinic"/>
                     Clinic
                 </label><br/><br/>';
-        $html .= createTreePermission(listAllMenu(), 0, 'checkThis super_admin', $data);
+        $html .= createTreePermission(listAllMenu(), 0, 'checkThis check_all', $data);
         return $html;
     }
 }
