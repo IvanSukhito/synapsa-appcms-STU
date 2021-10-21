@@ -19,7 +19,8 @@ class Product extends Model
         'desc',
         'stock',
         'stock_flag',
-        'status'
+        'status',
+        'top'
     ];
 
     protected $appends = [

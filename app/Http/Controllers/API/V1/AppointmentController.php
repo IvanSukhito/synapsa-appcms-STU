@@ -65,7 +65,7 @@ class AppointmentController extends Controller
                         ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
                         ->where('appointment_doctor.user_id', $user->id)
                        // ->where('appointment_doctor.date', '=', $dateNow)
-                        ->whereIn('appointment_doctor.status', [1,2])
+                        ->whereIn('appointment_doctor.status', [1])
                         ->union(
                             AppointmentLab::selectRaw('appointment_lab.id, lab.id AS janji_id,
                             lab.name AS janji_name, 2 AS type, \'lab\' AS type_name, appointment_lab.type_appointment, appointment_lab.date,
@@ -82,7 +82,7 @@ class AppointmentController extends Controller
                                 })
                                 ->where('appointment_lab.user_id', $user->id)
                                 //->where('appointment_lab.date', '=', $dateNow)
-                                ->whereIn('appointment_lab.status', [1,2])
+                                ->whereIn('appointment_lab.status', [1])
                         )
                         ->union(
                             AppointmentNurse::selectRaw('appointment_nurse.id, appointment_nurse.schedule_id as janji_id, 0 as janji_name, 3 AS type, \'nurse\' AS type_name, appointment_nurse.type_appointment,
@@ -90,7 +90,7 @@ class AppointmentController extends Controller
                             0 AS doctor_category, 0 AS image, CONCAT("'.env('OSS_URL').'/'.'", 0) AS image_full')
                                 ->where('appointment_nurse.user_id', $user->id)
                                 //->where('appointment_lab.date', '=', $dateNow)
-                                ->whereIn('appointment_nurse.status', [1,2])
+                                ->whereIn('appointment_nurse.status', [1])
                         );
             break;
             case 3 : $data = AppointmentDoctor::selectRaw('appointment_doctor.id, appointment_doctor.doctor_id AS janji_id,
@@ -138,7 +138,7 @@ class AppointmentController extends Controller
                 ->join('users', 'users.id', '=', 'doctor.user_id')
                 ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
                 ->where('appointment_doctor.user_id', $user->id)
-                ->where('appointment_doctor.status', '>=', 2)
+                ->whereIn('appointment_doctor.status', [2,90])
                 ->union(
                     AppointmentLab::selectRaw('appointment_lab.id, lab.id AS janji_id,
                             lab.name AS janji_name, 2 AS type, \'lab\' AS type_name, appointment_lab.type_appointment, appointment_lab.date,
@@ -154,14 +154,14 @@ class AppointmentController extends Controller
                                 ->on('lab.id', '=', DB::raw("(select min(id) from lab WHERE lab.id = appointment_lab_details.lab_id)"));
                         })
                         ->where('appointment_lab.user_id', $user->id)
-                        ->where('appointment_lab.status', '>=', 2)
+                        ->whereIn('appointment_lab.status', [2,90])
                 )->union(
                     AppointmentNurse::selectRaw('appointment_nurse.id, appointment_nurse.schedule_id as janji_id, 0 as janji_name, 3 AS type, \'nurse\' AS type_name, appointment_nurse.type_appointment,
                              appointment_nurse.date, 0 as time_start, 0 as time_end, appointment_nurse.status, shift_qty as shift_qty, 0 AS form_patient, 0 AS online_meeting,
                             0 AS doctor_category, 0 AS image, CONCAT("'.env('OSS_URL').'/'.'", 0) AS image_full')
                         ->where('appointment_nurse.user_id', $user->id)
                         //->where('appointment_lab.date', '=', $dateNow)
-                        ->where('appointment_nurse.status', '>=', 2)
+                        ->whereIn('appointment_nurse.status', [2,90])
                 );
                 break;
            default:
@@ -206,7 +206,8 @@ class AppointmentController extends Controller
                break;
        }
 
-        $data = $data->orderBy('date','DESC')->orderBy('time_start','ASC')->paginate($getLimit);
+        //$data = $data->orderBy('date','DESC')->orderBy('time_start','ASC')->paginate($getLimit);
+        $data = $data->orderBy('id','DESC')->orderBy('time_start','DESC')->paginate($getLimit);
 
         return response()->json([
             'success' => 1,
@@ -701,27 +702,27 @@ class AppointmentController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
-        else if (in_array($data->online_meeting, [0,1])) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Meeting belum di mulai'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-        else if(strtotime($data->date) != $dateNow){
-            return response()->json([
-                'success' => 0,
-                'message' => ['Hari Meeting belum di mulai'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
-        else if(!($timeBuffer >= strtotime($data->time_start))){
-            return response()->json([
-                'success' => 0,
-                'message' => ['Waktu Meeting belum di mulai'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
+        //   else if (in_array($data->online_meeting, [0,1])) {
+        //       return response()->json([
+        //           'success' => 0,
+        //           'message' => ['Meeting belum di mulai'],
+        //           'token' => $this->request->attributes->get('_refresh_token'),
+        //       ], 404);
+        //   }
+        //   else if(strtotime($data->date) != $dateNow){
+        //       return response()->json([
+        //           'success' => 0,
+        //           'message' => ['Hari Meeting belum di mulai'],
+        //           'token' => $this->request->attributes->get('_refresh_token'),
+        //       ], 422);
+        //   }
+        //   else if(!($timeBuffer >= strtotime($data->time_start))){
+        //       return response()->json([
+        //           'success' => 0,
+        //           'message' => ['Waktu Meeting belum di mulai'],
+        //           'token' => $this->request->attributes->get('_refresh_token'),
+        //       ], 422);
+        //   }
         else if(strtotime($data->time_end) < strtotime("now")){
             return response()->json([
                 'success' => 0,

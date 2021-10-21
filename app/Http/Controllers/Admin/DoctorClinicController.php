@@ -80,7 +80,11 @@ class DoctorClinicController extends _CrudController
             $passingData
         );
 
-        $getUsers = Users::where('status', 80)->where('doctor',1)->pluck('fullname', 'id')->toArray();
+        $adminId = session()->get('admin_id');
+
+        $getAdmin = Admin::where('id', $adminId)->first();
+
+        $getUsers = Users::where('status', 80)->where('doctor',1)->where('klinik_id', $getAdmin->klinik_id)->pluck('fullname', 'id')->toArray();
         $listUsers = [];
         if($getUsers) {
             foreach($getUsers as $key => $value) {

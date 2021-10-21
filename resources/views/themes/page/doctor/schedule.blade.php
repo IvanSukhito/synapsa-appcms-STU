@@ -238,6 +238,11 @@
                 }
             }
             else {
+                $('#time_end').datetimepicker({
+                    format: 'HH:mm:ss',
+                    stepping: 15
+                });
+
                 $('#time_end').attr('readonly', false);
             }
         });

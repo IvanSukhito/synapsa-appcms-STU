@@ -38,7 +38,8 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
     Route::get('article/{id}', ['uses' => 'App\Http\Controllers\API\V1\ArticleController@getArticleDetail'])->name('api.getArticleDetail');
 
     Route::get('product-rujukan', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getProductRujukan'])->name('api.getProductRujukan');
-    Route::get('product', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getProduct'])->name('api.getProduct');
+    Route::get('product-priority', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getProductPriority'])->name('api.getProductPriority');
+    Route::get('product', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getProductRujukan'])->name('api.getProduct');
     Route::get('product/{id}', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getProductDetail'])->name('api.getProductDetail');
 
     Route::get('faqs', ['uses' => 'App\Http\Controllers\API\V1\FaqsController@getFaqs'])->name('api.getFaqs');
@@ -150,7 +151,7 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
             $router->get('{id}/approve-meeting', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@approveMeeting'])->name('api.doctor.appointment.approveMeeting');
             $router->get('{id}/finish-meeting', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@finishMeeting'])->name('api.doctor.appointment.finishMeeting');
             $router->get('{id}/reschedule', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@reschedule'])->name('api.doctor.appointment.reschedule');
-            $router->get('{id}/cancel-meeting', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@cancelMeeting'])->name('api.doctor.appointment.cancelMeeting');
+//            $router->get('{id}/cancel-meeting', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@cancelMeeting'])->name('api.doctor.appointment.cancelMeeting');
             $router->get('{id}/medicine', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@doctorMedicine'])->name('api.doctor.appointment.doctorMedicine');
             $router->post('{id}/diagnosis', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@doctorDiagnosis'])->name('api.doctor.appointment.doctorDiagnosis');
 
