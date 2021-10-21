@@ -57,7 +57,8 @@ class DoctorController extends Controller
             ->join('doctor_service', 'doctor_service.doctor_id','=','doctor.id')
             ->where('doctor.doctor_category_id','=', $getCategoryData['getCategoryId'])
             ->where('doctor_service.service_id','=', $getServiceData['getServiceId'])
-            ->where('users.doctor','=', 1);
+            ->where('users.doctor','=', 1)
+            ->where('users.klinik_id','=', $user->klinik_id);
 
         if (strlen($s) > 0) {
             $data = $data->where('users.fullname', 'LIKE', "%$s%");
