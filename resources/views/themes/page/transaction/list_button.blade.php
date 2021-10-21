@@ -7,9 +7,9 @@
 @endif
         @if ($permission['edit'])
             <a href="{{ route('admin.' . $thisRoute . '.edit', $query->{$masterId}) }}"class="mb-1 btn btn-primary btn-sm"
-               title="@lang('general.edit')">
+               title="@lang('general.edit_status')">
                 <i class="fa fa-pencil"></i>
-                <span class="d-none d-md-inline"> @lang('general.edit')</span>
+                <span class="d-none d-md-inline"> @lang('general.edit_status')</span>
             </a>
         @endif
 {{--@if ($permission['edit'] && in_array($query->status, [1, 2]))--}}
