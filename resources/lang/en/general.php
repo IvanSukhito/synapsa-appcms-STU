@@ -354,5 +354,10 @@ return [
     'error_upload_photo' => 'Upload Image error, please use another image',
     'error_reach_limit_' => ':field already reach the limit',
     'error_could_not_create_token_' => 'Cannot Create Token :field',
+    'import' => 'Import',
+    'import_product' => 'Import Product',
+    'example_import_product' => 'Example Import Product',
+    'download' => 'Download',
+    'failed_import_product' => 'Terjadi Kesalahan, Import Produk Gagal',
 
 ];

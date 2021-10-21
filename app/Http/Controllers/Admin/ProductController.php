@@ -149,9 +149,9 @@ class ProductController extends _CrudController
         $product = Product::where('id',$id)->first();
         $getDescProduct = json_decode($product->desc, true);
 
+        $title = [];
+        $desc = [];
         if($getDescProduct) {
-            $title = [];
-            $desc = [];
             foreach ($getDescProduct as $index => $listProduct) {
                 if(isset($listProduct['content'])) {
                     $title[] = $listProduct['title'];
@@ -166,8 +166,6 @@ class ProductController extends _CrudController
             $listProduct = ['title' => $title, 'desc' => $desc];
         }
         else {
-            $title = [];
-            $desc = [];
             $listProduct = [
                 $title[] = 'title' => [''],
                 $desc[] = 'desc' => [''],
@@ -204,9 +202,9 @@ class ProductController extends _CrudController
         $product = Product::where('id',$id)->first();
         $getDescProduct = json_decode($product->desc, true);
 
+        $title = [];
+        $desc = [];
         if($getDescProduct) {
-            $title = [];
-            $desc = [];
             foreach ($getDescProduct as $index => $listProduct) {
                 if(isset($listProduct['content'])) {
                     $title[] = $listProduct['title'];
@@ -221,8 +219,6 @@ class ProductController extends _CrudController
             $listProduct = ['title' => $title, 'desc' => $desc];
         }
         else {
-            $title = [];
-            $desc = [];
             $listProduct = [
                 $title[] = 'title' => [''],
                 $desc[] = 'desc' => [''],
