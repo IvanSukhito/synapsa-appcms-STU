@@ -583,13 +583,15 @@ class ProductClinicController extends _CrudController
                                     $kategoriProduk = $kategoriCheck->id;
                                 }
                                 else {
-                                    $saveCategory = [
-                                        'name' => $kategoriProduk,
-                                        'status' => 80
-                                    ];
+                                    if(strlen($kategoriProduk) > 0) {
+                                        $saveCategory = [
+                                            'name' => $kategoriProduk,
+                                            'status' => 80
+                                        ];
 
-                                    $productCategory = ProductCategory::create($saveCategory);
-                                    $kategoriProduk = $productCategory->id;
+                                        $productCategory = ProductCategory::create($saveCategory);
+                                        $kategoriProduk = $productCategory->id;
+                                    }
                                 }
 
                                 $flag = strtolower(str_replace(' ', '', $stockFlag));
