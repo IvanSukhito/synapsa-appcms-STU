@@ -132,12 +132,10 @@ else {
             $.each(listDataService, function(index, item) {
 
                 $.each(listDoctorService, function(index2, item2){
-
                     if (parseInt(index) === parseInt(item2.service_id)) {
                         var getService = item;
                         var getPrice = item2.price;
 
-                        console.log(i);
                         html += '<div class="form-group">' +
                             '<label for="service">{{ __('general.service') }} ' + (i+1) + ' <span class="text-red">*</span></label>' +
                             '<input type="text" id="service_' + i +'" name="service[' + i + ']" class="form-control" placeholder="@lang('general.service')" disabled value="' + getService + '"> ' +
@@ -150,18 +148,9 @@ else {
 
                     }
 
-                    var ServiceId = item2.service_id;
-                    var getServiceId = [];
-                    var a = 0;
+                    $('#service_id').val(item2.service_id);
 
-                    for (a = 1; a <= ServiceId; a++){
-                        getServiceId.push(a)
-                        //array.push is used to push a value inside array
-                    }
-
-                    $('#service_id').val(getServiceId);
-
-                    let totalService = getServiceId.length;
+                    let totalService = listDoctorService.length;
                     $('#infoService').html('Total' + '&nbsp;' + totalService +'&nbsp;'+'Service');
 
 
