@@ -545,116 +545,116 @@ class ProductClinicController extends _CrudController
         $getFile = $this->request->file('import_product');
 
         if($getFile) {
-            $destinationPath = 'synapsaapps/product/example_import';
+//            $destinationPath = 'synapsaapps/product/example_import';
+//
+//            $getUrl = Storage::put($destinationPath, $getFile);
+//
+//            die(env('OSS_URL') . '/' . $getUrl);
 
-            $getUrl = Storage::put($destinationPath, $getFile);
+            try {
+                $getFileName = $getFile->getClientOriginalName();
+                $ext = explode('.', $getFileName);
+                $ext = end($ext);
+                if (in_array(strtolower($ext), ['xlsx', 'xls'])) {
+                    $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($getFile);
+                    $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader($inputFileType);
+                    $data = $reader->load($getFile);
 
-            die(env('OSS_URL') . '/' . $getUrl);
+                    if ($data) {
+                        $spreadsheet = $data->getActiveSheet();
+                        foreach ($spreadsheet->getRowIterator() as $key => $row) {
+                            if($key >= 6) {
+                                $kategoriProduk = $spreadsheet->getCell("B" . $key)->getValue();
+                                $sku = $spreadsheet->getCell("C" . $key)->getValue();
+                                $namaProduk = $spreadsheet->getCell("D" . $key)->getValue();
+                                $hargaProduk = $spreadsheet->getCell("E" . $key)->getValue();
+                                $unitProduk = $spreadsheet->getCell("F" . $key)->getValue();
+                                $stockProduk = $spreadsheet->getCell("G" . $key)->getValue();
+                                $stockFlag = strtolower(str_replace(' ', '', $spreadsheet->getCell("H" . $key)->getValue()));
+                                $title1 = $spreadsheet->getCell("I" . $key)->getValue();
+                                $desc1 = $spreadsheet->getCell("J" . $key)->getValue();
+                                $title2 = $spreadsheet->getCell("K" . $key)->getValue();
+                                $desc2 = $spreadsheet->getCell("L" . $key)->getValue();
+                                $title3 = $spreadsheet->getCell("M" . $key)->getValue();
+                                $desc3 = $spreadsheet->getCell("N" . $key)->getValue();
 
-//            try {
-//                $getFileName = $getFile->getClientOriginalName();
-//                $ext = explode('.', $getFileName);
-//                $ext = end($ext);
-//                if (in_array(strtolower($ext), ['xlsx', 'xls'])) {
-//                    $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($getFile);
-//                    $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader($inputFileType);
-//                    $data = $reader->load($getFile);
-//
-//                    if ($data) {
-//                        $spreadsheet = $data->getActiveSheet();
-//                        foreach ($spreadsheet->getRowIterator() as $key => $row) {
-//                            if($key >= 6) {
-//                                $kategoriProduk = $spreadsheet->getCell("B" . $key)->getValue();
-//                                $sku = $spreadsheet->getCell("C" . $key)->getValue();
-//                                $namaProduk = $spreadsheet->getCell("D" . $key)->getValue();
-//                                $hargaProduk = $spreadsheet->getCell("E" . $key)->getValue();
-//                                $unitProduk = $spreadsheet->getCell("F" . $key)->getValue();
-//                                $stockProduk = $spreadsheet->getCell("G" . $key)->getValue();
-//                                $stockFlag = strtolower(str_replace(' ', '', $spreadsheet->getCell("H" . $key)->getValue()));
-//                                $title1 = $spreadsheet->getCell("I" . $key)->getValue();
-//                                $desc1 = $spreadsheet->getCell("J" . $key)->getValue();
-//                                $title2 = $spreadsheet->getCell("K" . $key)->getValue();
-//                                $desc2 = $spreadsheet->getCell("L" . $key)->getValue();
-//                                $title3 = $spreadsheet->getCell("M" . $key)->getValue();
-//                                $desc3 = $spreadsheet->getCell("N" . $key)->getValue();
-//
-//                                $kategoriCheck = ProductCategory::where('name', $kategoriProduk)->first();
-//                                if($kategoriCheck) {
-//                                    $kategoriProduk = $kategoriCheck->id;
-//                                }
-//                                else {
-//                                    $saveCategory = [
-//                                        'name' => $kategoriProduk,
-//                                        'status' => 80
-//                                    ];
-//
-//                                    $productCategory = ProductCategory::create($saveCategory);
-//                                    $kategoriProduk = $productCategory->id;
-//                                }
-//
-//                                $flag = strtolower(str_replace(' ', '', $stockFlag));
-//                                if($flag == 'unlimited') {
-//                                    $stockFlag = 1;
-//                                }
-//                                else if($flag = 'limited') {
-//                                    $stockFlag = 2;
-//                                }
-//                                else {
-//                                    $stockFlag = 0;
-//                                }
-//
-//                                $descProduct = [];
-//                                if(strlen($title1) > 0) {
-//                                    if(strlen($title2) > 0 && strlen($title3) > 0) {
-//                                        $descProduct[] = [
-//                                            'title' => [$title1, $title2, $title3],
-//                                            'desc' => [$desc1, $desc2, $desc3],
-//                                        ];
-//                                    }
-//                                    else if(strlen($title2) > 0 && strlen($title3) <= 0) {
-//                                        $descProduct[] = [
-//                                            'title' => [$title1, $title2],
-//                                            'desc' => [$desc1, $desc2],
-//                                        ];
-//                                    }
-//                                    else if(strlen($title3) > 0 && strlen($title2) <= 0) {
-//                                        $descProduct[] = [
-//                                            'title' => [$title1, $title3],
-//                                            'desc' => [$desc1, $desc3],
-//                                        ];
-//                                    }
-//                                    else {
-//                                        $descProduct[] = [
-//                                            'title' => [$title1],
-//                                            'desc' => [$desc1],
-//                                        ];
-//                                    }
-//                                }
-//
-//                                $saveData = [
-//                                    'product_category_id' => $kategoriProduk,
-//                                    'klinik_id' => $getAdmin->klinik_id,
-//                                    'sku' => $sku,
-//                                    'name' => $namaProduk,
-//                                    'price' => $hargaProduk,
-//                                    'unit' => $unitProduk,
-//                                    'stock' => $stockProduk,
-//                                    'stock_flag' => $stockFlag,
-//                                    'desc' => json_encode($descProduct),
-//                                    'status' => 80,
-//                                ];
-//
-//                                Product::create($saveData);
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//            catch(\Exception $e) {
-//                session()->flash('message', __('general.failed_import_product'));
-//                session()->flash('message_alert', 1);
-//                return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
-//            }
+                                $kategoriCheck = ProductCategory::where('name', $kategoriProduk)->first();
+                                if($kategoriCheck) {
+                                    $kategoriProduk = $kategoriCheck->id;
+                                }
+                                else {
+                                    $saveCategory = [
+                                        'name' => $kategoriProduk,
+                                        'status' => 80
+                                    ];
+
+                                    $productCategory = ProductCategory::create($saveCategory);
+                                    $kategoriProduk = $productCategory->id;
+                                }
+
+                                $flag = strtolower(str_replace(' ', '', $stockFlag));
+                                if($flag == 'unlimited') {
+                                    $stockFlag = 1;
+                                }
+                                else if($flag = 'limited') {
+                                    $stockFlag = 2;
+                                }
+                                else {
+                                    $stockFlag = 0;
+                                }
+
+                                $descProduct = [];
+                                if(strlen($title1) > 0) {
+                                    if(strlen($title2) > 0 && strlen($title3) > 0) {
+                                        $descProduct[] = [
+                                            'title' => [$title1, $title2, $title3],
+                                            'desc' => [$desc1, $desc2, $desc3],
+                                        ];
+                                    }
+                                    else if(strlen($title2) > 0 && strlen($title3) <= 0) {
+                                        $descProduct[] = [
+                                            'title' => [$title1, $title2],
+                                            'desc' => [$desc1, $desc2],
+                                        ];
+                                    }
+                                    else if(strlen($title3) > 0 && strlen($title2) <= 0) {
+                                        $descProduct[] = [
+                                            'title' => [$title1, $title3],
+                                            'desc' => [$desc1, $desc3],
+                                        ];
+                                    }
+                                    else {
+                                        $descProduct[] = [
+                                            'title' => [$title1],
+                                            'desc' => [$desc1],
+                                        ];
+                                    }
+                                }
+
+                                $saveData = [
+                                    'product_category_id' => $kategoriProduk,
+                                    'klinik_id' => $getAdmin->klinik_id,
+                                    'sku' => $sku,
+                                    'name' => $namaProduk,
+                                    'price' => $hargaProduk,
+                                    'unit' => $unitProduk,
+                                    'stock' => $stockProduk,
+                                    'stock_flag' => $stockFlag,
+                                    'desc' => json_encode($descProduct),
+                                    'status' => 80,
+                                ];
+
+                                Product::create($saveData);
+                            }
+                        }
+                    }
+                }
+            }
+            catch(\Exception $e) {
+                session()->flash('message', __('general.failed_import_product'));
+                session()->flash('message_alert', 1);
+                return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+            }
         }
 
         if($this->request->ajax()){

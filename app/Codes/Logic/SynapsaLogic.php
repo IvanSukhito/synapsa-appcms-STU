@@ -319,7 +319,7 @@ class SynapsaLogic
     }
 
     public function downloadExampleImportProduct() {
-        $file = env('OSS_URL') . '/' . '';
+        $file = env('OSS_URL') . '/' . 'synapsaapps/product/example_import/uB2jJ6dmcFIetHuRnu3EuVjqGRme2H72I2I0jEDP.xlsx';
         $fileName = create_slugs('Example Import Product Clinic');
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
