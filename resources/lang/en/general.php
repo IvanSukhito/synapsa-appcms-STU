@@ -220,6 +220,7 @@ return [
     'orders' => 'Orders',
     'sound' => 'Sound',
     'transaction' => 'Transaction',
+    'transaction_product' => 'Transaction Product',
     'transaction_lab' => 'Transaction Lab',
     'transaction_doctor' => 'Transaction Doctor',
     'city' => 'City',

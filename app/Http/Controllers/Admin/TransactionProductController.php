@@ -20,7 +20,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\DataTables;
 
-class TransactionDoctorController extends _CrudController
+class TransactionProductController extends _CrudController
 {
     public function __construct(Request $request)
     {
@@ -33,7 +33,9 @@ class TransactionDoctorController extends _CrudController
             'klinik_id' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
+                ],
+                'extra' => [
+                    'edit' => ['disabled' => true]
                 ],
                 'lang' => 'general.klinik',
                 'type' => 'select2',
@@ -41,7 +43,9 @@ class TransactionDoctorController extends _CrudController
             'user_id' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
+                ],
+                'extra' => [
+                    'edit' => ['disabled' => true]
                 ],
                 'lang' => 'general.name',
                 'type' => 'select2',
@@ -49,7 +53,9 @@ class TransactionDoctorController extends _CrudController
             'payment_id' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
+                ],
+                'extra' => [
+                    'edit' => ['disabled' => true]
                 ],
                 'lang' => 'general.payment_id',
                 'type' => 'select2',
@@ -57,7 +63,9 @@ class TransactionDoctorController extends _CrudController
             'shipping_id' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
+                ],
+                'extra' => [
+                    'edit' => ['disabled' => true]
                 ],
                 'lang' => 'general.shipping',
                 'type' => 'select2',
@@ -65,14 +73,18 @@ class TransactionDoctorController extends _CrudController
             'code' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
-                'lang' => 'general.code',
+                'extra' => [
+                    'edit' => ['disabled' => true]
+                ],
+                'lang' => 'general.transaction_code',
             ],
             'payment_name' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
+                ],
+                'extra' => [
+                    'edit' => ['disabled' => true]
                 ],
                 'list' => 0,
                 'lang' => 'general.payment_name',
@@ -80,7 +92,9 @@ class TransactionDoctorController extends _CrudController
             'payment_detail' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
+                ],
+                'extra' => [
+                    'edit' => ['disabled' => true]
                 ],
                 'list' => 0,
                 'lang' => 'general.payment_detail',
@@ -88,7 +102,9 @@ class TransactionDoctorController extends _CrudController
             'shipping_name' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
+                ],
+                'extra' => [
+                    'edit' => ['disabled' => true]
                 ],
                 'list' => 0,
                 'lang' => 'general.shipping_name',
@@ -96,15 +112,17 @@ class TransactionDoctorController extends _CrudController
             'shipping_address_name' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'list' => 0,
                 'lang' => 'general.shipping_address_name',
             ],
             'shipping_address' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
+                ],
+                'extra' => [
+                    'edit' => ['disabled' => true]
                 ],
                 'list' => 0,
                 'lang' => 'general.shipping_address',
@@ -112,8 +130,8 @@ class TransactionDoctorController extends _CrudController
             'shipping_province_id' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'list' => 0,
                 'type' => 'select2',
                 'lang' => 'general.shipping_city_id',
@@ -121,8 +139,8 @@ class TransactionDoctorController extends _CrudController
             'shipping_city_id' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'list' => 0,
                 'type' => 'select2',
                 'lang' => 'general.shipping_city_id',
@@ -130,8 +148,8 @@ class TransactionDoctorController extends _CrudController
             'shipping_district_id' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'list' => 0,
                 'type' => 'select2',
                 'lang' => 'general.shipping_district_id',
@@ -139,8 +157,8 @@ class TransactionDoctorController extends _CrudController
             'shipping_subdistrict_id' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'list' => 0,
                 'type' => 'select2',
                 'lang' => 'general.shipping_subdistrict_id',
@@ -148,15 +166,17 @@ class TransactionDoctorController extends _CrudController
             'shipping_zipcode' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'list' => 0,
                 'lang' => 'general.shipping_zipcode',
             ],
             'shipping_price' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
+                ],
+                'extra' => [
+                    'edit' => ['disabled' => true]
                 ],
                 'list' => 0,
                 'type' => 'number',
@@ -165,7 +185,9 @@ class TransactionDoctorController extends _CrudController
             'total_qty' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
+                ],
+                'extra' => [
+                    'edit' => ['disabled' => true]
                 ],
                 'list' => 0,
                 'type' => 'number',
@@ -174,8 +196,8 @@ class TransactionDoctorController extends _CrudController
             'subtotal' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'list' => 0,
                 'type' => 'number',
                 'lang' => 'general.subtotal',
@@ -183,7 +205,9 @@ class TransactionDoctorController extends _CrudController
             'total' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
+                ],
+                'extra' => [
+                    'edit' => ['disabled' => true]
                 ],
                 'type' => 'number',
                 'lang' => 'general.total',
@@ -191,14 +215,18 @@ class TransactionDoctorController extends _CrudController
             'receiver_name' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
+                ],
+                'extra' => [
+                    'edit' => ['disabled' => true]
                 ],
                 'lang' => 'general.receiver_name',
             ],
             'receiver_phone' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
+                ],
+                'extra' => [
+                    'edit' => ['disabled' => true]
                 ],
                 'list' => 0,
                 'lang' => 'general.receiver_phone',
@@ -206,7 +234,9 @@ class TransactionDoctorController extends _CrudController
             'receiver_address' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
+                ],
+                'extra' => [
+                    'edit' => ['disabled' => true]
                 ],
                 'list' => 0,
                 'lang' => 'general.receiver_address',
@@ -214,20 +244,20 @@ class TransactionDoctorController extends _CrudController
             'type' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'list' => 0,
                 'type' => 'select',
                 'lang' => 'general.type',
             ],
-            'extra_info' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'list' => 0,
-                'lang' => 'general.extra_info',
-            ],
+//            'extra_info' => [
+//                'validate' => [
+//                    'create' => 'required',
+//                    'edit' => 'required'
+//                ],
+//                'list' => 0,
+//                'lang' => 'general.extra_info',
+//            ],
             'status' => [
                 'validate' => [
                     'create' => 'required',
@@ -239,25 +269,25 @@ class TransactionDoctorController extends _CrudController
             'created_at' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'type' => 'datetime',
                 'lang' => 'general.created_at',
             ],
             'action' => [
                 'create' => 0,
                 'edit' => 0,
-                'show' => 0,
+                'show'  => 0,
                 'custom' => ',orderable:false'
             ]
         ];
 
         parent::__construct(
-            $request, 'general.transaction_doctor', 'transaction-doctor', 'V1\Transaction', 'transaction-doctor',
+            $request, 'general.transaction_product', 'transaction-product', 'V1\Transaction', 'transaction-product',
             $passingData
         );
-        $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.transaction-doctornlab.list';
-        $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.transaction-doctornlab.list_button';
+        $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.transaction.list';
+        $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.transaction.list_button';
 
         $getUsers = Users::where('status', 80)->pluck('fullname', 'id')->toArray();
         if($getUsers) {
@@ -320,17 +350,23 @@ class TransactionDoctorController extends _CrudController
         foreach(Shipping::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
             $shipping_id[$key] = $val;
         }
-        $status = [0 => 'All'];
+
+        $status = [];
         foreach(get_list_transaction() as $key => $val) {
             $status[$key] = $val;
         }
 
+        $status_form = [0 => 'All'];
+        foreach(get_list_transaction() as $key => $val) {
+            $status_form[$key] = $val;
+        }
 
 
         $this->data['listSet']['user_id'] = $listUsers;
         $this->data['listSet']['klinik_id'] = $listKlinik;
         $this->data['listSet']['filter_klinik_id'] = $klinik_id;
         $this->data['listSet']['status'] = $status;
+        $this->data['listSet']['status_form'] = $status_form;
         $this->data['listSet']['filter_payment_id'] = $payment_id;
         $this->data['listSet']['filter_shipping_id'] = $shipping_id;
         $this->data['listSet']['payment_id'] = $listPayment;
@@ -338,7 +374,6 @@ class TransactionDoctorController extends _CrudController
         $this->data['listSet']['shipping_city_id'] = $listShippingCity;
         $this->data['listSet']['shipping_district_id'] = $listShippingDistrict;
         $this->data['listSet']['shipping_subdistrict_id'] = $listShippingSubdistrict;
-        $this->data['listSet']['status'] = get_list_transaction();
         $this->data['listSet']['type'] = get_list_type_transaction();
 
     }
@@ -352,13 +387,16 @@ class TransactionDoctorController extends _CrudController
 
         $getAdmin = Admin::where('id', $adminId)->first();
 
-        $builder = $this->model::query()->select('*')->where('klinik_id', $getAdmin->klinik_id)->where('type_service', 2);
+        $builder = $this->model::query()->select('*')->where('klinik_id', $getAdmin->klinik_id)->where('type_service', 1);
 
         if ($this->request->get('filter_klinik_id') && $this->request->get('filter_klinik_id') != 0) {
             $builder = $builder->where('klinik_id', $this->request->get('filter_klinik_id'));
         }
         if ($this->request->get('filter_payment_id') && $this->request->get('filter_payment_id') != 0) {
             $builder = $builder->where('payment_id', $this->request->get('filter_payment_id'));
+        }
+        if ($this->request->get('filter_shipping_id') && $this->request->get('filter_shipping_id') != 0) {
+            $builder = $builder->where('shipping_id', $this->request->get('filter_shipping_id'));
         }
         if ($this->request->get('status') && $this->request->get('status') != 0) {
             $builder = $builder->where('status', $this->request->get('status'));

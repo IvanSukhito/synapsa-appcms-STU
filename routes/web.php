@@ -33,6 +33,7 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                 'App\Http\Controllers\Admin\TransactionController' => 'transaction',
                 'App\Http\Controllers\Admin\TransactionLabController' => 'transaction-lab',
                 'App\Http\Controllers\Admin\TransactionDoctorController' => 'transaction-doctor',
+                'App\Http\Controllers\Admin\TransactionProductController' => 'transaction-product',
                 'App\Http\Controllers\Admin\ProductCategoryController' => 'product-category',
                 'App\Http\Controllers\Admin\LabController' => 'lab',
                 'App\Http\Controllers\Admin\LabScheduleController' => 'lab-schedule',

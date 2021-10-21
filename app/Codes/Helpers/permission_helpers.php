@@ -421,7 +421,7 @@ if ( ! function_exists('listAllMenu')) {
                 'title' => __('general.transaction'),
                 'active' => [
                     'admin.transaction-lab.',
-                    'admin.transaction-doctor.',
+                    'admin.transaction-doctornlab.',
                 ],
                 'type' => 2,
                 'data' => [
@@ -439,6 +439,14 @@ if ( ! function_exists('listAllMenu')) {
                         'active' => ['admin.transaction-doctor.'],
                         'route' => 'admin.transaction-doctor.index',
                         'key' => 'transaction-doctor',
+                        'type' => 1,
+                    ],
+                    [
+                        'name' => __('general.transaction_product'),
+                        'title' => __('general.transaction_product'),
+                        'active' => ['admin.transaction-product.'],
+                        'route' => 'admin.transaction-product.index',
+                        'key' => 'transaction-product',
                         'type' => 1,
                     ],
                 ],
@@ -618,6 +626,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'appointment-lab',
                      'appointment-nurse',
                      'clinic_info',
+                     'transaction-product',
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [
