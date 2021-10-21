@@ -108,6 +108,7 @@ return [
     'security' => 'Security',
     'back' => 'Back',
     'edit' => 'Edit',
+    'edit_status' => 'Edit Status',
     'update' => 'Update',
     'title' => 'Title',
     'content' => 'Content',
