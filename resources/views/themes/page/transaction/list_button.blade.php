@@ -3,6 +3,7 @@
        title="@lang('general.show')">
         <i class="fa fa-eye"></i>
         <span class="d-none d-md-inline"> @lang('general.show')</span>
+    </a>
 @endif
         @if ($permission['edit'])
             <a href="{{ route('admin.' . $thisRoute . '.edit', $query->{$masterId}) }}"class="mb-1 btn btn-primary btn-sm"
