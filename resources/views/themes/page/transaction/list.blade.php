@@ -82,7 +82,7 @@ if ($daterange) {
 
                                 <div class="col-md-3">
                                     <label for="status">{{ __('general.status') }}</label>
-                                    {{ Form::select('status', $listSet['status'], old('status', $status), ['class' => 'form-control', 'autocomplete' => 'off']) }}
+                                    {{ Form::select('status', $listSet['status_form'], old('status', $status), ['class' => 'form-control', 'autocomplete' => 'off']) }}
                                 </div>
 
                                 <div class="col-md-3">
