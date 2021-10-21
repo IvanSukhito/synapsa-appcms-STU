@@ -644,7 +644,9 @@ class ProductClinicController extends _CrudController
                                     'status' => 80,
                                 ];
 
-                                Product::create($saveData);
+                                if(strlen($namaProduk) > 0) {
+                                    Product::create($saveData);
+                                }
                             }
                         }
                     }
