@@ -58,6 +58,10 @@ class LabController extends Controller
             $data = $data->where('name', 'LIKE', "%$s%");
         }
 
+        if ($this->request->get('priority')) {
+            $data = $data->where('priority', 1);
+        }
+
         $data = $data->orderBy('name', 'ASC')->paginate($getLimit);
 
         if (!$data) {
