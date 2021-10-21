@@ -220,14 +220,14 @@ class TransactionController extends _CrudController
                 'type' => 'select',
                 'lang' => 'general.type',
             ],
-            'extra_info' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'list' => 0,
-                'lang' => 'general.extra_info',
-            ],
+//            'extra_info' => [
+//                'validate' => [
+//                    'create' => 'required',
+//                    'edit' => 'required'
+//                ],
+//                'list' => 0,
+//                'lang' => 'general.extra_info',
+//            ],
             'status' => [
                 'validate' => [
                     'create' => 'required',
