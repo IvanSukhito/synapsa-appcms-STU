@@ -33,87 +33,87 @@ class TransactionController extends _CrudController
             'klinik_id' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'lang' => 'general.klinik',
                 'type' => 'select2',
             ],
             'user_id' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'lang' => 'general.name',
                 'type' => 'select2',
             ],
             'payment_id' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'lang' => 'general.payment_id',
                 'type' => 'select2',
             ],
             'shipping_id' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'lang' => 'general.shipping',
                 'type' => 'select2',
             ],
             'code' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'lang' => 'general.code',
             ],
             'payment_name' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'list' => 0,
                 'lang' => 'general.payment_name',
             ],
             'payment_detail' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'list' => 0,
                 'lang' => 'general.payment_detail',
             ],
             'shipping_name' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'list' => 0,
                 'lang' => 'general.shipping_name',
             ],
             'shipping_address_name' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'list' => 0,
                 'lang' => 'general.shipping_address_name',
             ],
             'shipping_address' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'list' => 0,
                 'lang' => 'general.shipping_address',
             ],
             'shipping_province_id' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'list' => 0,
                 'type' => 'select2',
                 'lang' => 'general.shipping_city_id',
@@ -121,8 +121,8 @@ class TransactionController extends _CrudController
             'shipping_city_id' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'list' => 0,
                 'type' => 'select2',
                 'lang' => 'general.shipping_city_id',
@@ -130,8 +130,8 @@ class TransactionController extends _CrudController
             'shipping_district_id' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'list' => 0,
                 'type' => 'select2',
                 'lang' => 'general.shipping_district_id',
@@ -139,8 +139,8 @@ class TransactionController extends _CrudController
             'shipping_subdistrict_id' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'list' => 0,
                 'type' => 'select2',
                 'lang' => 'general.shipping_subdistrict_id',
@@ -148,16 +148,16 @@ class TransactionController extends _CrudController
             'shipping_zipcode' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'list' => 0,
                 'lang' => 'general.shipping_zipcode',
             ],
             'shipping_price' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'list' => 0,
                 'type' => 'number',
                 'lang' => 'general.shipping_price',
@@ -165,8 +165,8 @@ class TransactionController extends _CrudController
             'total_qty' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'list' => 0,
                 'type' => 'number',
                 'lang' => 'general.total_qty',
@@ -174,8 +174,8 @@ class TransactionController extends _CrudController
             'subtotal' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'list' => 0,
                 'type' => 'number',
                 'lang' => 'general.subtotal',
@@ -183,39 +183,39 @@ class TransactionController extends _CrudController
             'total' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'type' => 'number',
                 'lang' => 'general.total',
             ],
             'receiver_name' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'lang' => 'general.receiver_name',
             ],
             'receiver_phone' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'list' => 0,
                 'lang' => 'general.receiver_phone',
             ],
             'receiver_address' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'list' => 0,
                 'lang' => 'general.receiver_address',
             ],
             'type' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'list' => 0,
                 'type' => 'select',
                 'lang' => 'general.type',
@@ -239,8 +239,8 @@ class TransactionController extends _CrudController
             'created_at' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
+                'edit' => 0,
                 'type' => 'datetime',
                 'lang' => 'general.created_at',
             ],
