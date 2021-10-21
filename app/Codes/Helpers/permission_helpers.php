@@ -614,6 +614,7 @@ if ( ! function_exists('listAvailablePermission'))
         foreach ([
                      'settings',
                      'faqs',
+                     'transaction',
                      'appointment-lab',
                      'appointment-nurse',
                      'clinic_info',
