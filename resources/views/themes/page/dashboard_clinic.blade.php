@@ -106,7 +106,7 @@ if ($daterange) {
 
                             <a href="#" class="small-box bg-primary">
                                 <div class="inner">
-                                    <h3>0</h3>
+                                    <h3>{!! $transaction->count() ?? 0 !!}</h3>
 
                                     <p>Ringkasan Transaksi</p>
                                 </div>
