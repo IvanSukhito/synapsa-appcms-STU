@@ -59,7 +59,7 @@ class DoctorAppointmentController extends Controller
                         ->join('users', 'users.id', '=', 'doctor.user_id')
                         ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
                         ->where('doctor_id', $getDoctor->id)
-                        ->whereIn('appointment_doctor.status', [1,2,3]);
+                        ->whereIn('appointment_doctor.status', [1]);
                 break;
             case 3 : $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image,
                         CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
@@ -75,7 +75,7 @@ class DoctorAppointmentController extends Controller
                         ->join('users', 'users.id', '=', 'doctor.user_id')
                         ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
                         ->where('doctor_id', $getDoctor->id)
-                        ->where('appointment_doctor.status', '>=', 2);
+                        ->where('appointment_doctor.status', 2);
                 break;
             default: $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image,
                         CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
@@ -319,37 +319,37 @@ class DoctorAppointmentController extends Controller
 
     }
 
-//    public function cancelMeeting($id)
-//    {
-//        $user = $this->request->attributes->get('_user');
-//        $getDoctor = Doctor::where('user_id', $user->id)->first();
-//        if (!$getDoctor) {
-//            return response()->json([
-//                'success' => 1,
-//                'message' => ['Hanya menu untuk dokter'],
-//                'token' => $this->request->attributes->get('_refresh_token'),
-//            ], 422);
-//        }
-//
-//        $data = AppointmentDoctor::whereIn('status', [1,2])->where('doctor_id', $getDoctor->id)->where('id', $id)->first();
-//        if (!$data) {
-//            return response()->json([
-//                'success' => 0,
-//                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
-//                'token' => $this->request->attributes->get('_refresh_token'),
-//            ], 404);
-//        }
-//
-//        $data->status = 99;
-//        $data->save();
-//
-//        return response()->json([
-//            'success' => 1,
-//            'message' => ['Sukses Di Batalkan'],
-//            'token' => $this->request->attributes->get('_refresh_token'),
-//        ]);
-//
-//    }
+    public function cancelMeeting($id)
+    {
+        $user = $this->request->attributes->get('_user');
+        $getDoctor = Doctor::where('user_id', $user->id)->first();
+        if (!$getDoctor) {
+            return response()->json([
+                'success' => 1,
+                'message' => ['Hanya menu untuk dokter'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
+        $data = AppointmentDoctor::whereIn('status', [1,2])->where('doctor_id', $getDoctor->id)->where('id', $id)->first();
+        if (!$data) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+
+        $data->status = 99;
+        $data->save();
+
+        return response()->json([
+            'success' => 1,
+            'message' => ['Sukses Di Batalkan'],
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
+
+    }
 
     public function reschedule($id){
 
