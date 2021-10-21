@@ -277,7 +277,7 @@ class TransactionController extends _CrudController
             'action' => [
                 'create' => 0,
                 'edit' => 0,
-                'show' => 0,
+                'show'  => 0,
                 'custom' => ',orderable:false'
             ]
         ];
@@ -351,9 +351,14 @@ class TransactionController extends _CrudController
             $shipping_id[$key] = $val;
         }
 
-        $status = [0 => 'All'];
+        $status = [];
         foreach(get_list_transaction() as $key => $val) {
             $status[$key] = $val;
+        }
+
+        $status_form = [0 => 'All'];
+        foreach(get_list_transaction() as $key => $val) {
+            $status_form[$key] = $val;
         }
 
 
@@ -361,6 +366,7 @@ class TransactionController extends _CrudController
         $this->data['listSet']['klinik_id'] = $listKlinik;
         $this->data['listSet']['filter_klinik_id'] = $klinik_id;
         $this->data['listSet']['status'] = $status;
+        $this->data['listSet']['status_form'] = $status_form;
         $this->data['listSet']['filter_payment_id'] = $payment_id;
         $this->data['listSet']['filter_shipping_id'] = $shipping_id;
         $this->data['listSet']['payment_id'] = $listPayment;
