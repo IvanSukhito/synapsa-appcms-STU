@@ -421,7 +421,8 @@ if ( ! function_exists('listAllMenu')) {
                 'title' => __('general.transaction'),
                 'active' => [
                     'admin.transaction-lab.',
-                    'admin.transaction-doctornlab.',
+                    'admin.transaction-doctor.',
+                    'admin.transaction-product.',
                 ],
                 'type' => 2,
                 'data' => [
