@@ -723,13 +723,13 @@ class AppointmentController extends Controller
         //           'token' => $this->request->attributes->get('_refresh_token'),
         //       ], 422);
         //   }
-        else if(strtotime($data->time_end) < strtotime("now")){
-            return response()->json([
-                'success' => 0,
-                'message' => ['Waktu Meeting sudah selesai'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
+        //else if(strtotime($data->time_end) < strtotime("now")){
+        //    return response()->json([
+        //        'success' => 0,
+        //        'message' => ['Waktu Meeting sudah selesai'],
+        //        'token' => $this->request->attributes->get('_refresh_token'),
+        //    ], 422);
+        //}
 
         $getService = Service::where('id', $data->service_id)->first();
         if (!$getService) {
