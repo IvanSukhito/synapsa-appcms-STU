@@ -148,7 +148,15 @@ else {
 
                     }
 
-                    $('#service_id').val(item2.service_id);
+                    var ServiceId = item2.service_id;
+                    var getServiceId = [];
+                    var a = 0;
+
+                    for (a = 1; a <= ServiceId; a++){
+                        getServiceId.push(a)
+                    }
+
+                    $('#service_id').val(getServiceId);
 
                     let totalService = listDoctorService.length;
                     $('#infoService').html('Total' + '&nbsp;' + totalService +'&nbsp;'+'Service');
