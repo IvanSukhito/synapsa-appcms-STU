@@ -34,7 +34,9 @@ class TransactionController extends _CrudController
                 'validate' => [
                     'create' => 'required',
                 ],
-                'edit' => 0,
+                'extra' => [
+                    'edit' => ['disabled' => true]
+                ],
                 'lang' => 'general.klinik',
                 'type' => 'select2',
             ],
@@ -42,7 +44,9 @@ class TransactionController extends _CrudController
                 'validate' => [
                     'create' => 'required',
                 ],
-                'edit' => 0,
+                'extra' => [
+                    'edit' => ['disabled' => true]
+                ],
                 'lang' => 'general.name',
                 'type' => 'select2',
             ],
@@ -50,7 +54,9 @@ class TransactionController extends _CrudController
                 'validate' => [
                     'create' => 'required',
                 ],
-                'edit' => 0,
+                'extra' => [
+                    'edit' => ['disabled' => true]
+                ],
                 'lang' => 'general.payment_id',
                 'type' => 'select2',
             ],
@@ -58,7 +64,9 @@ class TransactionController extends _CrudController
                 'validate' => [
                     'create' => 'required',
                 ],
-                'edit' => 0,
+                'extra' => [
+                    'edit' => ['disabled' => true]
+                ],
                 'lang' => 'general.shipping',
                 'type' => 'select2',
             ],
@@ -66,14 +74,18 @@ class TransactionController extends _CrudController
                 'validate' => [
                     'create' => 'required',
                 ],
-                'edit' => 0,
-                'lang' => 'general.code',
+                'extra' => [
+                    'edit' => ['disabled' => true]
+                ],
+                'lang' => 'general.transaction_code',
             ],
             'payment_name' => [
                 'validate' => [
                     'create' => 'required',
                 ],
-                'edit' => 0,
+                'extra' => [
+                    'edit' => ['disabled' => true]
+                ],
                 'list' => 0,
                 'lang' => 'general.payment_name',
             ],
@@ -81,7 +93,9 @@ class TransactionController extends _CrudController
                 'validate' => [
                     'create' => 'required',
                 ],
-                'edit' => 0,
+                'extra' => [
+                    'edit' => ['disabled' => true]
+                ],
                 'list' => 0,
                 'lang' => 'general.payment_detail',
             ],
@@ -89,7 +103,9 @@ class TransactionController extends _CrudController
                 'validate' => [
                     'create' => 'required',
                 ],
-                'edit' => 0,
+                'extra' => [
+                    'edit' => ['disabled' => true]
+                ],
                 'list' => 0,
                 'lang' => 'general.shipping_name',
             ],
@@ -105,7 +121,9 @@ class TransactionController extends _CrudController
                 'validate' => [
                     'create' => 'required',
                 ],
-                'edit' => 0,
+                'extra' => [
+                    'edit' => ['disabled' => true]
+                ],
                 'list' => 0,
                 'lang' => 'general.shipping_address',
             ],
@@ -157,7 +175,9 @@ class TransactionController extends _CrudController
                 'validate' => [
                     'create' => 'required',
                 ],
-                'edit' => 0,
+                'extra' => [
+                    'edit' => ['disabled' => true]
+                ],
                 'list' => 0,
                 'type' => 'number',
                 'lang' => 'general.shipping_price',
@@ -166,7 +186,9 @@ class TransactionController extends _CrudController
                 'validate' => [
                     'create' => 'required',
                 ],
-                'edit' => 0,
+                'extra' => [
+                    'edit' => ['disabled' => true]
+                ],
                 'list' => 0,
                 'type' => 'number',
                 'lang' => 'general.total_qty',
@@ -184,7 +206,9 @@ class TransactionController extends _CrudController
                 'validate' => [
                     'create' => 'required',
                 ],
-                'edit' => 0,
+                'extra' => [
+                    'edit' => ['disabled' => true]
+                ],
                 'type' => 'number',
                 'lang' => 'general.total',
             ],
@@ -192,14 +216,18 @@ class TransactionController extends _CrudController
                 'validate' => [
                     'create' => 'required',
                 ],
-                'edit' => 0,
+                'extra' => [
+                    'edit' => ['disabled' => true]
+                ],
                 'lang' => 'general.receiver_name',
             ],
             'receiver_phone' => [
                 'validate' => [
                     'create' => 'required',
                 ],
-                'edit' => 0,
+                'extra' => [
+                    'edit' => ['disabled' => true]
+                ],
                 'list' => 0,
                 'lang' => 'general.receiver_phone',
             ],
@@ -207,7 +235,9 @@ class TransactionController extends _CrudController
                 'validate' => [
                     'create' => 'required',
                 ],
-                'edit' => 0,
+                'extra' => [
+                    'edit' => ['disabled' => true]
+                ],
                 'list' => 0,
                 'lang' => 'general.receiver_address',
             ],
