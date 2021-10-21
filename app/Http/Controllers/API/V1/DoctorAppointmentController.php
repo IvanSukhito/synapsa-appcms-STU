@@ -59,7 +59,7 @@ class DoctorAppointmentController extends Controller
                         ->join('users', 'users.id', '=', 'doctor.user_id')
                         ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
                         ->where('doctor_id', $getDoctor->id)
-                        ->whereIn('appointment_doctor.status', [1,2,3]);
+                        ->whereIn('appointment_doctor.status', [1]);
                 break;
             case 3 : $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image,
                         CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
@@ -75,7 +75,7 @@ class DoctorAppointmentController extends Controller
                         ->join('users', 'users.id', '=', 'doctor.user_id')
                         ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
                         ->where('doctor_id', $getDoctor->id)
-                        ->where('appointment_doctor.status', '>=', 2);
+                        ->where('appointment_doctor.status', 2);
                 break;
             default: $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image,
                         CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')

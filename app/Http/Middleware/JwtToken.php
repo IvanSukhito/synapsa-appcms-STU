@@ -31,23 +31,32 @@ class JwtToken
                 $refresh_token = (string)$token;
             }
 
-            if (in_array($user->status, [80])) {
-                if (in_array($user->lang, ['id'])) {
-                    App::setLocale($user->lang);
+            if ($user) {
+                if (in_array($user->status, [80])) {
+                    if (in_array($user->lang, ['id'])) {
+                        App::setLocale($user->lang);
+                    }
+
+                    $request->attributes->add([
+                        '_refresh_token' => $refresh_token,
+                        '_user' => $user
+                    ]);
+
+                    return $next($request);
                 }
-
-                $request->attributes->add([
-                    '_refresh_token' => $refresh_token,
-                    '_user' => $user
-                ]);
-
-                return $next($request);
+                else {
+                    return response()->json([
+                        'success' => 0,
+                        'login' => 1,
+                        'message' => ['User inactive'],
+                    ], 403);
+                }
             }
             else {
                 return response()->json([
                     'success' => 0,
                     'login' => 1,
-                    'message' => ['User inactive'],
+                    'message' => ['Token Not Found'],
                 ], 403);
             }
         }
