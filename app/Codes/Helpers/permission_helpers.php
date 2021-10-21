@@ -712,7 +712,7 @@ if ( ! function_exists('listAvailablePermission'))
 
         $listPermission['appointment-nurse']['edit'][] = 'admin.appointment-nurse.approve';
         $listPermission['appointment-nurse']['edit'][] = 'admin.appointment-nurse.reject';
-//
+
 //        $listPermission['transaction']['edit'][] = 'admin.transaction.approve';
 //        $listPermission['transaction']['edit'][] = 'admin.transaction.reject';
 

@@ -320,11 +320,11 @@ class TransactionController extends _CrudController
         foreach(Shipping::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
             $shipping_id[$key] = $val;
         }
+
         $status = [0 => 'All'];
         foreach(get_list_transaction() as $key => $val) {
             $status[$key] = $val;
         }
-
 
 
         $this->data['listSet']['user_id'] = $listUsers;
@@ -338,7 +338,6 @@ class TransactionController extends _CrudController
         $this->data['listSet']['shipping_city_id'] = $listShippingCity;
         $this->data['listSet']['shipping_district_id'] = $listShippingDistrict;
         $this->data['listSet']['shipping_subdistrict_id'] = $listShippingSubdistrict;
-        $this->data['listSet']['status'] = get_list_transaction();
         $this->data['listSet']['type'] = get_list_type_transaction();
 
     }

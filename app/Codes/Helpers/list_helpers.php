@@ -127,6 +127,7 @@ if ( ! function_exists('get_list_transaction')) {
         return [
             1 => __('general.pending'),
             2 => __('general.pending_payment'),
+            3 => __('general.payment_received'),
             80 => __('general.complete'),
             81 => __('general.proses'),
             82 => __('general.proses_pengiriman'),
