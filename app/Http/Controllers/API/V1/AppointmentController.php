@@ -206,7 +206,8 @@ class AppointmentController extends Controller
                break;
        }
 
-        $data = $data->orderBy('date','DESC')->orderBy('time_start','ASC')->paginate($getLimit);
+        //$data = $data->orderBy('date','DESC')->orderBy('time_start','ASC')->paginate($getLimit);
+        $data = $data->orderBy('id','DESC')->orderBy('time_start','DESC')->paginate($getLimit);
 
         return response()->json([
             'success' => 1,
