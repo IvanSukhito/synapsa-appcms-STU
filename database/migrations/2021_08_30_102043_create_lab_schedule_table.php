@@ -16,6 +16,7 @@ class CreateLabScheduleTable extends Migration
         Schema::create('lab_schedule', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('lab_id')->default(0);
+            $table->unsignedBigInteger('klinik_id')->default(0);
             $table->unsignedBigInteger('service_id')->default(0);
             $table->date('date_available')->nullable();
             $table->time('time_start')->nullable();

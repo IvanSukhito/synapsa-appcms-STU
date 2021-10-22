@@ -302,6 +302,34 @@ if ( ! function_exists('listAllMenu')) {
                 'type' => 1,
             ],
             [
+                'name' => __('general.lab_clinic'),
+                'icon' => '<i class="nav-icon fa fa-flask"></i>',
+                'title' => __('general.lab_clinic'),
+                'active' => [
+                    'admin.lab-clinic',
+                    'admin.lab-clinic-schedule.',
+                ],
+                'type' => 2,
+                'data' => [
+                    [
+                        'name' => __('general.lab_clinic'),
+                        'title' => __('general.lab_clinic'),
+                        'active' => ['admin.lab-clinic.'],
+                        'route' => 'admin.lab-clinic.index',
+                        'key' => 'lab-clinic',
+                        'type' => 1,
+                    ],
+                    [
+                        'name' => __('general.lab_clinic_schedule'),
+                        'title' => __('general.lab_clinic_schedule'),
+                        'active' => ['admin.lab-clinic-schedule.'],
+                        'route' => 'admin.lab-clinic-schedule.index',
+                        'key' => 'lab-clinic-schedule',
+                        'type' => 1,
+                    ],
+                ],
+            ],
+            [
                 'name' => __('general.doctor'),
                 'icon' => '<i class="nav-icon fa fa-user-md"></i>',
                 'title' => __('general.doctor'),
@@ -388,40 +416,13 @@ if ( ! function_exists('listAllMenu')) {
                 ],
             ],
             [
-                'name' => __('general.lab'),
-                'icon' => '<i class="nav-icon fa fa-flask"></i>',
-                'title' => __('general.lab'),
-                'active' => [
-                    'admin.lab.',
-                    'admin.lab-schedule.',
-                ],
-                'type' => 2,
-                'data' => [
-                    [
-                        'name' => __('general.lab'),
-                        'title' => __('general.lab'),
-                        'active' => ['admin.lab.'],
-                        'route' => 'admin.lab.index',
-                        'key' => 'lab',
-                        'type' => 1,
-                    ],
-                    [
-                        'name' => __('general.lab_schedule'),
-                        'title' => __('general.lab_schedule'),
-                        'active' => ['admin.lab-schedule.'],
-                        'route' => 'admin.lab-schedule.index',
-                        'key' => 'lab-schedule',
-                        'type' => 1,
-                    ],
-                ],
-            ],
-            [
                 'name' => __('general.transaction'),
                 'icon' => '<i class="nav-icon fa fa-shopping-cart"></i>',
                 'title' => __('general.transaction'),
                 'active' => [
                     'admin.transaction-lab.',
                     'admin.transaction-doctor.',
+                    'admin.transaction-product.',
                 ],
                 'type' => 2,
                 'data' => [
@@ -439,6 +440,14 @@ if ( ! function_exists('listAllMenu')) {
                         'active' => ['admin.transaction-doctor.'],
                         'route' => 'admin.transaction-doctor.index',
                         'key' => 'transaction-doctor',
+                        'type' => 1,
+                    ],
+                    [
+                        'name' => __('general.transaction_product'),
+                        'title' => __('general.transaction_product'),
+                        'active' => ['admin.transaction-product.'],
+                        'route' => 'admin.transaction-product.index',
+                        'key' => 'transaction-product',
                         'type' => 1,
                     ],
                 ],
@@ -618,6 +627,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'appointment-lab',
                      'appointment-nurse',
                      'clinic_info',
+                     'transaction-product',
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [
@@ -657,14 +667,14 @@ if ( ! function_exists('listAvailablePermission'))
                      'article',
                      'product',
                      'product-clinic',
-                     'lab',
+                     'lab-clinic',
                      'users',
                      'doctor',
                      'product-category',
                      'article-category',
                      'service',
                      'klinik',
-                     'lab-schedule',
+                     'lab-clinic-schedule',
                      'doctor-category',
                      'payment',
                      'shipping',

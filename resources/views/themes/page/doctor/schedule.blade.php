@@ -78,7 +78,7 @@
                                                             <i class="fa fa-calendar"></i>
                                                         </div>
                                                     </div>
-                                                    {{ Form::text('date_'.$list->id, $list->date_available, ['id' => 'date_'.$list->id, 'class' => 'form-control', 'required' => true, 'autocomplete'=>'off']) }}
+                                                    {{ Form::text('date_'.$list->id, $list->date_available, ['id' => 'date_'.$list->id, 'class' => 'form-control date', 'required' => true, 'autocomplete'=>'off']) }}
                                                 </div>
                                             </div>
                                         </div>
@@ -91,7 +91,7 @@
                                                             <i class="fa fa-calendar"></i>
                                                         </div>
                                                     </div>
-                                                    {{ Form::text('time_start_'.$list->id, $list->time_start, ['id' => 'time_start_'.$list->id, 'class' => 'form-control', 'required' => true, 'autocomplete'=>'off']) }}
+                                                    {{ Form::text('time_start_'.$list->id, $list->time_start, ['id' => 'time_start_'.$list->id, 'class' => 'form-control time', 'required' => true, 'autocomplete'=>'off']) }}
                                                 </div>
                                             </div>
                                         </div>
@@ -104,7 +104,7 @@
                                                             <i class="fa fa-calendar"></i>
                                                         </div>
                                                     </div>
-                                                    {{ Form::text('time_end_'.$list->id, $list->time_end, ['id' => 'time_end_'.$list->id, 'class' => 'form-control', 'required' => true, 'autocomplete'=>'off']) }}
+                                                    {{ Form::text('time_end_'.$list->id, $list->time_end, ['id' => 'time_end_'.$list->id, 'class' => 'form-control time', 'required' => true, 'autocomplete'=>'off']) }}
                                                 </div>
                                             </div>
                                         </div>
@@ -217,6 +217,14 @@
                 format: 'YYYY-MM-DD',
             });
             $('#time_start').datetimepicker({
+                format: 'HH:mm:ss',
+                stepping: 15
+            });
+
+            $('.date').datetimepicker({
+                format: 'YYYY-MM-DD',
+            });
+            $('.time').datetimepicker({
                 format: 'HH:mm:ss',
                 stepping: 15
             });

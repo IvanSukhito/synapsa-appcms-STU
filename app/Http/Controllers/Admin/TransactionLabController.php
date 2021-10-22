@@ -256,8 +256,8 @@ class TransactionLabController extends _CrudController
             $request, 'general.transaction_lab', 'transaction-lab', 'V1\Transaction', 'transaction-lab',
             $passingData
         );
-        $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.transaction-lab.list';
-        $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.transaction-lab.list_button';
+        $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.transaction-doctornlab.list';
+        $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.transaction-doctornlab.list_button';
 
         $getUsers = Users::where('status', 80)->pluck('fullname', 'id')->toArray();
         if($getUsers) {
@@ -359,9 +359,6 @@ class TransactionLabController extends _CrudController
         }
         if ($this->request->get('filter_payment_id') && $this->request->get('filter_payment_id') != 0) {
             $builder = $builder->where('payment_id', $this->request->get('filter_payment_id'));
-        }
-        if ($this->request->get('filter_shipping_id') && $this->request->get('filter_shipping_id') != 0) {
-            $builder = $builder->where('shipping_id', $this->request->get('filter_shipping_id'));
         }
         if ($this->request->get('status') && $this->request->get('status') != 0) {
             $builder = $builder->where('status', $this->request->get('status'));

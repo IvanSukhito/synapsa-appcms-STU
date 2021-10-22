@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
 
+use App\Codes\Models\Admin;
 use App\Codes\Models\V1\Lab;
 use App\Codes\Models\V1\Service;
 use App\Codes\Models\V1\Users;
@@ -11,7 +12,7 @@ use App\Codes\Models\V1\LabSchedule;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 
-class LabScheduleController extends _CrudController
+class LabClinicScheduleController extends _CrudController
 {
     public function __construct(Request $request)
     {
@@ -73,7 +74,7 @@ class LabScheduleController extends _CrudController
         ];
 
         parent::__construct(
-            $request, 'general.lab_schedule', 'lab-schedule', 'V1\LabSchedule', 'lab',
+            $request, 'general.lab_clinic_schedule', 'lab-clinic-schedule', 'V1\LabSchedule', 'lab-clinic-schedule',
             $passingData
         );
 
@@ -104,9 +105,8 @@ class LabScheduleController extends _CrudController
         $getListDate = LabSchedule::select('date_available')
             ->where('date_available', '>=', date('Y-m-d'))
             ->groupBy('date_available')
-            ->orderBy('date_available', 'ASC')
+            ->orderBy('date_available', 'DESC')
             ->get();
-
 
 
         $notFound = 1;
@@ -127,7 +127,7 @@ class LabScheduleController extends _CrudController
             $getTargetDate = $findFirstDate;
         }
 
-        $getData = LabSchedule::where('date_available', $getTargetDate)->get();
+        $getData = LabSchedule::where('date_available', $getTargetDate)->orderBy('id','DESC')->get();
 
         $data = $this->data;
         $data['parentLabel'] = $data['thisLabel'];
@@ -146,8 +146,11 @@ class LabScheduleController extends _CrudController
 
         $viewType = 'create';
 
-        $getListCollectData = collectPassingData($this->passingData, $viewType);
+        $adminId = session()->get('admin_id');
 
+        $getAdmin = Admin::where('id', $adminId)->first();
+
+        $getListCollectData = collectPassingData($this->passingData, $viewType);
 
         $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
@@ -170,12 +173,12 @@ class LabScheduleController extends _CrudController
 
         $data['lab_id'] = 0;
         $data['date_available'] = $getDate;
+        $data['klinik_id'] = $getAdmin->klinik_id;
         $data['time_start'] = $getTimeStart;
         $data['time_end'] = $getTimeEnd;
         $data['book'] = 80;
 
         $getData = $this->crud->store($data);
-
 
         if($this->request->ajax()){
             return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
@@ -193,6 +196,14 @@ class LabScheduleController extends _CrudController
         $this->callPermission();
 
         $viewType = 'edit';
+
+         $adminId = session()->get('admin_id');
+
+         $getData = Users::where('id', $adminId)->first();
+
+         if (!$getData) {
+             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+         }
 
         $getData = $this->crud->show($id);
         if (!$getData) {
@@ -221,6 +232,7 @@ class LabScheduleController extends _CrudController
         $data = $this->getCollectedData($getListCollectData, $viewType, $data, $getData);
 
         $data['lab_id'] = 0;
+        $data['klinik_id'] = $getAdmin->klinik_id;
         $data['date_available'] = $getDate;
         $data['time_start'] = $getTimeStart;
         $data['time_end'] = $getTimeEnd;

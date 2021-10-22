@@ -52,7 +52,8 @@ class LabController extends Controller
         $data = Lab::selectRaw('lab.id ,lab.name, lab_service.price, lab.image')
         ->join('lab_service', 'lab_service.lab_id','=','lab.id')
         ->where('lab_service.service_id','=', $getServiceData['getServiceId'])
-        ->where('lab.parent_id', '=', 0);
+        ->where('lab.parent_id', '=', 0)
+        ->where('lab.klinik_id', $user->klinik_id);
 
         if (strlen($s) > 0) {
             $data = $data->where('name', 'LIKE', "%$s%");
@@ -101,6 +102,7 @@ class LabController extends Controller
             lab.desc_preparation, lab.recommended_for, lab_service.price')
             ->join('lab_service', 'lab_service.lab_id','=','lab.id')
             ->where('lab_service.service_id','=', $getServiceData['getServiceId'])
+            ->where('lab.klinik_id', $user->klinik_id)
             ->where('id', $id)->first();
 
         if (!$data) {
@@ -323,6 +325,7 @@ class LabController extends Controller
         $getServiceData = $this->getService($getInterestService);
         $getLabSchedule = LabSchedule::where('service_id', $getData->service_id)
             ->where('date_available', '=', $getDate)
+            ->where('klinik_id', $user->klinik_id)
             ->get();
 
         //dd($getServiceData);
@@ -392,7 +395,7 @@ class LabController extends Controller
         }
 
         $getLabSchedule = LabSchedule::where('service_id', $getCart->service_id)->where('id', '=', $id)
-            ->where('book', '=', 80)->first();
+            ->where('book', '=', 80)->where('klinik_id', $user->klinik_id)->first();
         if (!$getLabSchedule) {
             return response()->json([
                 'success' => 0,
@@ -444,7 +447,7 @@ class LabController extends Controller
         }
 
         $getLabSchedule = LabSchedule::where('service_id', $getCart->service_id)->where('id', '=', $id)
-            ->where('book', '=', 80)->first();
+            ->where('book', '=', 80)->where('klinik_id', $user->klinik_id)->first();
         if (!$getLabSchedule) {
             return response()->json([
                 'success' => 0,
@@ -534,7 +537,7 @@ class LabController extends Controller
         }
 
         $getLabSchedule = LabSchedule::where('service_id', $getCart->service_id)->where('id', '=', $scheduleId)
-            ->where('book', '=', 80)->first();
+            ->where('book', '=', 80)->where('klinik_id', $user->klinik_id)->first();
         if (!$getLabSchedule) {
             return response()->json([
                 'success' => 0,

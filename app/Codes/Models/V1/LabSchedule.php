@@ -10,6 +10,7 @@ class LabSchedule extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'lab_id',
+        'klinik_id',
         'service_id',
         'date_available',
         'time_start',
@@ -30,6 +31,6 @@ class LabSchedule extends Model
     {
         return $this->belongsTo(Lab::class, 'lab_id', 'id');
     }
-    
+
 
 }
