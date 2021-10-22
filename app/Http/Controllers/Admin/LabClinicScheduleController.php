@@ -11,7 +11,7 @@ use App\Codes\Models\V1\LabSchedule;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 
-class LabScheduleController extends _CrudController
+class LabClinicScheduleController extends _CrudController
 {
     public function __construct(Request $request)
     {
@@ -73,7 +73,7 @@ class LabScheduleController extends _CrudController
         ];
 
         parent::__construct(
-            $request, 'general.lab_schedule', 'lab-schedule', 'V1\LabSchedule', 'lab',
+            $request, 'general.lab_clinic_schedule', 'lab-clinic-schedule', 'V1\LabSchedule', 'lab-clinic-schedule',
             $passingData
         );
 

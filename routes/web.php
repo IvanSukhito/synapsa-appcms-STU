@@ -35,8 +35,8 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                 'App\Http\Controllers\Admin\TransactionDoctorController' => 'transaction-doctor',
                 'App\Http\Controllers\Admin\TransactionProductController' => 'transaction-product',
                 'App\Http\Controllers\Admin\ProductCategoryController' => 'product-category',
-                'App\Http\Controllers\Admin\LabController' => 'lab',
-                'App\Http\Controllers\Admin\LabScheduleController' => 'lab-schedule',
+                'App\Http\Controllers\Admin\LabClinicController' => 'lab-clinic',
+                'App\Http\Controllers\Admin\LabClinicScheduleController' => 'lab-clinic-schedule',
                 'App\Http\Controllers\Admin\UsersController' => 'users',
                 'App\Http\Controllers\Admin\UsersDoctorController' => 'users-doctor',
                 'App\Http\Controllers\Admin\UsersPatientController' => 'users-patient',
@@ -63,7 +63,7 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                         $router->post($linkName . '/{id}/schedule/{scheduleId}',   $controller.'@updateSchedule')->name('admin.' . $linkName . '.updateSchedule');
                         $router->delete($linkName . '/{id}/schedule/{scheduleId}',   $controller.'@destroySchedule')->name('admin.' . $linkName . '.destroySchedule');
                         break;
-                    case 'lab-schedule':
+                    case 'lab-clinic-schedule':
                         $router->post($linkName . '/{id}/updateSchedule',   $controller.'@update')->name('admin.' . $linkName . '.updateLab');
                          break;
                     case 'appointment-nurse':

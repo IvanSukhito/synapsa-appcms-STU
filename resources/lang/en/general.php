@@ -248,9 +248,12 @@ return [
     'payment_detail' => 'Payment Detail',
     'asking_pending' => 'Asking Pending',
     'data_empty' => 'Data Empty',
+
     'driver_assign' => 'Driver Assign',
     'driver_pickup' => 'Driver Pickup',
     'lab_receive' => 'Lab Receive',
+    'lab_clinic' => 'Lab Clinic',
+    'lab_clinic_schedule' => 'Lab Clinic Schedule',
     'shipping' => 'Shipping',
     'receiver_name' => 'Reciever Name',
     'receiver_phone' => 'Reciever Phone',

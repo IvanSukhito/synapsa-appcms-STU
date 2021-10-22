@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\DataTables;
 
-class LabController extends _CrudController
+class LabClinicController extends _CrudController
 {
     public function __construct(Request $request)
     {
@@ -36,6 +36,7 @@ class LabController extends _CrudController
                 'type' => 'select2',
                 'create' => 0,
                 'edit' => 0,
+                'list' => 0,
             ],
             'name' => [
                 'validate' => [
@@ -91,7 +92,7 @@ class LabController extends _CrudController
         ];
 
         parent::__construct(
-            $request, 'general.lab', 'lab', 'V1\Lab', 'lab',
+            $request, 'general.lab_clinic', 'lab-clinic', 'V1\Lab', 'lab-clinic',
             $passingData
         );
         $getParent = Lab::get();
