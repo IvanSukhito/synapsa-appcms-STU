@@ -572,6 +572,9 @@ class AppointmentController extends Controller
             $doctorId = $getAppointment->doctor_id;
 
             $scheduleId = $this->request->get('schedule_id');
+
+            $validateDate =  strtotime(date('Y-m-d', strtotime("+7 day")));
+
             $getSchedule = DoctorSchedule::where('id', $scheduleId)
                 ->where('doctor_id', $doctorId)
                 ->where('service_id', $serviceId)->where('book', 80)
@@ -581,6 +584,14 @@ class AppointmentController extends Controller
                 return response()->json([
                     'success' => 0,
                     'message' => ['Jadwal Tidak Ditemukan'],
+                    'token' => $this->request->attributes->get('_refresh_token'),
+                ], 422);
+            }
+            //Bikin Validasi Schedule Tidak Lewat 7 Hari
+            else if (strtotime($getSchedule->date_available) > $validateDate){
+                return response()->json([
+                    'success' => 0,
+                    'message' => ['Jadwal Lewat 7 Hari Dari Hari Ini'],
                     'token' => $this->request->attributes->get('_refresh_token'),
                 ], 422);
             }

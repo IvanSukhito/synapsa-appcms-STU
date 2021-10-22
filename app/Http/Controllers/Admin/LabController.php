@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
+use App\Codes\Models\Admin;
 use App\Codes\Models\V1\Lab;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Yajra\DataTables\DataTables;
 
 class LabController extends _CrudController
 {
@@ -25,6 +27,15 @@ class LabController extends _CrudController
                 'type' => 'select2',
                 'lang' => 'general.parent',
 
+            ],
+            'klinik_id' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'type' => 'select2',
+                'create' => 0,
+                'edit' => 0,
             ],
             'name' => [
                 'validate' => [
@@ -101,6 +112,14 @@ class LabController extends _CrudController
 
         $viewType = 'create';
 
+        $adminId = session()->get('admin_id');
+
+        $getAdmin = Admin::where('id', $adminId)->first();
+
+        if(!$getAdmin){
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
         $getListCollectData = collectPassingData($this->passingData, $viewType);
 
         unset($getListCollectData['image_full']);
@@ -134,20 +153,12 @@ class LabController extends _CrudController
         }
 
 
-        $statusPublish = $this->request->get('publish_status');
-        //dd($statusPublish);
-        if($statusPublish == null){
-            $publish = 0;
-        }else{
-            $publish = 1;
-        }
-
-
         $recommend = $data['recommended_for'];
 
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
         $data['image'] = $dokumentImage;
+        $data['klinik_id'] = $getAdmin->klinik_id;
         $data['recommended_for'] = json_encode($recommend);
 
         $getData = $this->crud->store($data);
@@ -168,6 +179,14 @@ class LabController extends _CrudController
         $this->callPermission();
 
         $viewType = 'edit';
+
+        $adminId = session()->get('admin_id');
+
+        $getAdmin = Admin::where('id', $adminId)->first();
+
+        if(!$getAdmin){
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
 
@@ -202,20 +221,12 @@ class LabController extends _CrudController
             }
         }
 
-
-        $statusPublish = $this->request->get('publish_status');
-        if($statusPublish == null){
-            $publish = 0;
-        }else{
-            $publish = 1;
-        }
-
-
         $recommend = $data['recommended_for'];
 
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
         $data['image'] = $dokumentImage;
+        $data['klinik_id'] = $getAdmin->klinik_id;
         $data['recommended_for'] = json_encode($recommend);
 
         $getData = $this->crud->update($data, $id);
@@ -272,5 +283,65 @@ class LabController extends _CrudController
         $data['data'] = $getData;
 
         return view($this->listView[$data['viewType']], $data);
+    }
+
+    public function dataTable()
+    {
+        $this->callPermission();
+
+        $dataTables = new DataTables();
+
+        $adminId = session()->get('admin_id');
+
+        $getAdmin = Admin::where('id', $adminId)->first();
+
+        if(!$getAdmin){
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $builder = $this->model::query()->select('*')->where('klinik_id', $getAdmin->klinik_id);
+
+        $dataTables = $dataTables->eloquent($builder)
+            ->addColumn('action', function ($query) {
+                return view($this->listView['dataTable'], [
+                    'query' => $query,
+                    'thisRoute' => $this->route,
+                    'permission' => $this->permission,
+                    'masterId' => $this->masterId
+                ]);
+            });
+
+        $listRaw = [];
+        $listRaw[] = 'action';
+        foreach (collectPassingData($this->passingData) as $fieldName => $list) {
+            if (in_array($list['type'], ['select', 'select2', 'multiselect2'])) {
+                $dataTables = $dataTables->editColumn($fieldName, function ($query) use ($fieldName) {
+                    $getList = isset($this->data['listSet'][$fieldName]) ? $this->data['listSet'][$fieldName] : [];
+                    return isset($getList[$query->$fieldName]) ? $getList[$query->$fieldName] : $query->$fieldName;
+                });
+            }
+            else if (in_array($list['type'], ['image', 'image_preview'])) {
+                $listRaw[] = $fieldName;
+                $dataTables = $dataTables->editColumn($fieldName, function ($query) use ($fieldName, $list, $listRaw) {
+                    if ($query->{$fieldName.'_full'}) {
+                        return '<img src="' . $query->{$fieldName.'_full'}. '" class="img-responsive max-image-preview"/>';
+                    }
+                    return '<img src="' . asset($list['path'] . $query->$fieldName) . '" class="img-responsive max-image-preview"/>';
+                });
+            }
+            else if (in_array($list['type'], ['code'])) {
+                $listRaw[] = $fieldName;
+                $dataTables = $dataTables->editColumn($fieldName, function ($query) use ($fieldName, $list, $listRaw) {
+                    return '<pre>' . json_encode(json_decode($query->$fieldName, true), JSON_PRETTY_PRINT) . '</pre>';
+                });
+            }
+            else if (in_array($list['type'], ['texteditor'])) {
+                $listRaw[] = $fieldName;
+            }
+        }
+
+        return $dataTables
+            ->rawColumns($listRaw)
+            ->make(true);
     }
 }
