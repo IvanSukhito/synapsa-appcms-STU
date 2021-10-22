@@ -92,7 +92,7 @@ if ($daterange) {
                         <div class="col-md-4">
                             <!-- small box -->
 
-                            <a href="#" class="small-box bg-warning">
+                            <a href="{{ route('admin.user_clinic.index') }}" class="small-box bg-warning">
                                 <div class="inner">
                                     <h3>{!! $user->count() ?? 0 !!}</h3>
 
@@ -116,7 +116,7 @@ if ($daterange) {
                         <div class="col-md-4">
                             <!-- small box -->
 
-                            <a href="#" class="small-box bg-info">
+                            <a href="{{ route('admin.transaction-lab.index') }}" class="small-box bg-info">
                                 <div class="inner">
                                     <h3>{!! $transactionLab->count() ?? 0 !!}</h3>
 
@@ -127,7 +127,7 @@ if ($daterange) {
 
                         <div class="col-md-4">
                             <!-- small box -->
-                            <a href="#" class="small-box bg-danger">
+                            <a href="{{ route('admin.transaction-doctor.index') }}" class="small-box bg-danger">
                                 <div class="inner">
                                     <h3>{!! $transactionDoctor->count() ?? 0 !!}</h3>
 

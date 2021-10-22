@@ -43,14 +43,14 @@ class DashboardController extends Controller
                 $dateEnd = isset($dateSplit[1]) ? date('Y-m-d 23:59:59', strtotime($dateSplit[1])) : date('Y-m-d 23:59:59', strtotime($dateSplit[0]));
 
                 $data['clinic'] = Klinik::where('id', $getClinic->klinik_id)->first();
-                $data['user'] = Users::where('klinik_id', $getClinic->klinik_id)->where('patient',1)->get();
+                $data['user'] = Users::where('klinik_id', $getClinic->klinik_id)->where('patient',1)->where('status',80)->get();
                 $data['transaction'] = Transaction::where('klinik_id', $getClinic->klinik_id);
                 $data['transactionDoctor'] = Transaction::where('klinik_id', $getClinic->klinik_id)->where('type_service', 2);
                 $data['transactionLab'] = Transaction::where('klinik_id', $getClinic->klinik_id)->where('type_service', 3);
             }
             else {
                 $data['clinic'] = Klinik::where('id', $getClinic->klinik_id)->first();
-                $data['user'] = Users::where('klinik_id', $getClinic->klinik_id)->where('patient',1)->get();
+                $data['user'] = Users::where('klinik_id', $getClinic->klinik_id)->where('patient',1)->where('status',80)->get();
                 $data['transaction'] = Transaction::where('klinik_id', $getClinic->klinik_id);
                 $data['transactionDoctor'] = Transaction::where('klinik_id', $getClinic->klinik_id)->where('type_service', 2);
                 $data['transactionLab'] = Transaction::where('klinik_id', $getClinic->klinik_id)->where('type_service', 3);

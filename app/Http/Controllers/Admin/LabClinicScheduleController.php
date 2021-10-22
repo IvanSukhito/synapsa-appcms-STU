@@ -105,7 +105,7 @@ class LabClinicScheduleController extends _CrudController
         $getListDate = LabSchedule::select('date_available')
             ->where('date_available', '>=', date('Y-m-d'))
             ->groupBy('date_available')
-            ->orderBy('date_available', 'ASC')
+            ->orderBy('date_available', 'DESC')
             ->get();
 
 
@@ -127,7 +127,7 @@ class LabClinicScheduleController extends _CrudController
             $getTargetDate = $findFirstDate;
         }
 
-        $getData = LabSchedule::where('date_available', $getTargetDate)->get();
+        $getData = LabSchedule::where('date_available', $getTargetDate)->orderBy('id','DESC')->get();
 
         $data = $this->data;
         $data['parentLabel'] = $data['thisLabel'];

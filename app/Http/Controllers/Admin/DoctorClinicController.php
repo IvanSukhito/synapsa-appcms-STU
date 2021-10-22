@@ -383,7 +383,7 @@ class DoctorClinicController extends _CrudController
             $getTargetDate = $findFirstDate;
         }
 
-        $getData = DoctorSchedule::where('date_available', $getTargetDate)->where('doctor_id', $getDoctor->id)->get();
+        $getData = DoctorSchedule::where('date_available', $getTargetDate)->where('doctor_id', $getDoctor->id)->orderBy('id','DESC')->get();
 
         $data = $this->data;
         $data['parentLabel'] = $data['thisLabel'];
