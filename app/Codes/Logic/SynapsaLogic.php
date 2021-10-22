@@ -63,7 +63,13 @@ class SynapsaLogic
 
             if (isset($getData->result->ewallet_type) && in_array($getData->result->ewallet_type, ['OVO', 'DANA']) || $getData->result->status == 'REQUEST_RECEIVED') {
                 $success = 1;
-                $getInfo = $getData->result;
+                $getInfo = json_decode($payment->settings, true);
+                $getInfo['price'] = $additional['total'];
+                $getInfo['price_nice'] = number_format($additional['total'], 0, ',', '.');
+                $getInfo['business_id'] = $getData->result->business_id ?? '';
+                $getInfo['ewallet_type'] = $getData->result->ewallet_type ?? '';
+                $getInfo['phone'] = $getData->result->phone ?? '';
+                $getInfo['checkout_url'] = $getData->result->checkout_url ?? '';
 
                 $getTypeService = $additional['job']['type_service'];
                 $getType = check_list_type_transaction($getTypeService);
@@ -71,6 +77,7 @@ class SynapsaLogic
                 $getJobData = $additional['job'];
                 $getJobData['payment_refer_id'] = isset($getData->result->external_id) ? $getData->result->external_id : '';
                 $getJobData['type'] = $getType;
+                $getJobData['payment_info'] = json_encode($getInfo);
 
                 $job = SetJob::create([
                     'status' => 1,
@@ -89,6 +96,13 @@ class SynapsaLogic
 
             $success = 1;
             $getInfo = $getData->result;
+            $getInfo = json_decode($payment->settings, true);
+            $getInfo['price'] = $additional['total'];
+            $getInfo['price_nice'] = number_format($additional['total'], 0, ',', '.');
+            $getInfo['id'] = $getData->result->id;
+            $getInfo['external_id'] = $getData->result->external_id;
+            $getInfo['qr_string'] = $getData->result->qr_string;
+            $getInfo['callback_url'] = $getData->result->callback_url;
 
             $getTypeService = $additional['job']['type_service'];
             $getType = check_list_type_transaction($getTypeService);
