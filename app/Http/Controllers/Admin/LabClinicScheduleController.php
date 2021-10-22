@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
 
+use App\Codes\Models\Admin;
 use App\Codes\Models\V1\Lab;
 use App\Codes\Models\V1\Service;
 use App\Codes\Models\V1\Users;
@@ -108,7 +109,6 @@ class LabClinicScheduleController extends _CrudController
             ->get();
 
 
-
         $notFound = 1;
         $findFirstDate = '';
         $temp = [];
@@ -146,8 +146,11 @@ class LabClinicScheduleController extends _CrudController
 
         $viewType = 'create';
 
-        $getListCollectData = collectPassingData($this->passingData, $viewType);
+        $adminId = session()->get('admin_id');
 
+        $getAdmin = Admin::where('id', $adminId)->first();
+
+        $getListCollectData = collectPassingData($this->passingData, $viewType);
 
         $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
@@ -170,12 +173,12 @@ class LabClinicScheduleController extends _CrudController
 
         $data['lab_id'] = 0;
         $data['date_available'] = $getDate;
+        $data['klinik_id'] = $getAdmin->klinik_id;
         $data['time_start'] = $getTimeStart;
         $data['time_end'] = $getTimeEnd;
         $data['book'] = 80;
 
         $getData = $this->crud->store($data);
-
 
         if($this->request->ajax()){
             return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
@@ -193,6 +196,14 @@ class LabClinicScheduleController extends _CrudController
         $this->callPermission();
 
         $viewType = 'edit';
+
+         $adminId = session()->get('admin_id');
+
+         $getData = Users::where('id', $adminId)->first();
+
+         if (!$getData) {
+             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+         }
 
         $getData = $this->crud->show($id);
         if (!$getData) {
@@ -221,6 +232,7 @@ class LabClinicScheduleController extends _CrudController
         $data = $this->getCollectedData($getListCollectData, $viewType, $data, $getData);
 
         $data['lab_id'] = 0;
+        $data['klinik_id'] = $getAdmin->klinik_id;
         $data['date_available'] = $getDate;
         $data['time_start'] = $getTimeStart;
         $data['time_end'] = $getTimeEnd;
