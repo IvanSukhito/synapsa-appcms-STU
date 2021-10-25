@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
 
+use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Admin;
 use App\Codes\Models\V1\Lab;
 use App\Codes\Models\V1\Service;
@@ -92,6 +93,7 @@ class LabClinicScheduleController extends _CrudController
         $this->data['listSet']['day'] = get_list_day();
         $this->data['listSet']['book'] = get_list_availabe();
         $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.lab.schedule';
+        $this->listView['create2'] = env('ADMIN_TEMPLATE').'.page.lab.forms2';
 
     }
 
@@ -251,5 +253,31 @@ class LabClinicScheduleController extends _CrudController
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
     }
+
+    public function create2(){
+        $this->callPermission();
+
+        $adminId = session()->get('admin_id');
+        $getData = Admin::where('id', $adminId)->first();
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        if($this->request->get('download_example_import')) {
+            $getLogic = new SynapsaLogic();
+            $getLogic->downloadExampleImportLabSchedule();
+        }
+
+        $data = $this->data;
+
+        $data['thisLabel'] = __('general.lab_schedule');
+        $data['viewType'] = 'create';
+        $data['formsTitle'] = __('general.title_create', ['field' => __('general.lab_schedule')]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['data'] = $getData;
+
+        return view($this->listView['create2'], $data);
+    }
+
 
 }

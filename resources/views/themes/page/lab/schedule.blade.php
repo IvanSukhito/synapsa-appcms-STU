@@ -36,6 +36,9 @@
                            title="@lang('general.create')">
                             <i class="fa fa-plus-square"></i> @lang('general.create')
                         </a>
+                        <a href="<?php echo route('admin.' . $thisRoute . '.create2') ?>" class="mb-2 mr-2 btn btn-primary" title="@lang('general.import')">
+                            <i class="fa fa-file-excel-o"></i> @lang('general.import')
+                        </a>
                     </div>
                 @endif
 

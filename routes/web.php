@@ -64,6 +64,9 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                         break;
                     case 'lab-clinic-schedule':
                         $router->post($linkName . '/{id}/updateSchedule',   $controller.'@update')->name('admin.' . $linkName . '.updateLab');
+                        $router->get($linkName . '/create2', $controller.'@create2')->name('admin.' . $linkName . '.create2');
+                        $router->post($linkName . '/store2', $controller.'@store2')->name('admin.' . $linkName . '.store2');
+                        break;
                          break;
                     case 'appointment-lab':
                     $router->get($linkName . '/{id}/approve',   $controller.'@approve')->name('admin.' . $linkName . '.approve');

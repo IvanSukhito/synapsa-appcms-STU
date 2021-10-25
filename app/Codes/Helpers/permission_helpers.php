@@ -715,7 +715,9 @@ if ( ! function_exists('listAvailablePermission'))
         $listPermission['doctor_clinic']['edit'][] = 'admin.doctor_clinic.updateSchedule';
         $listPermission['doctor_clinic']['destroy'][] = 'admin.doctor_clinic.destroySchedule';
 
-        $listPermission['lab-schedule']['edit'][] = 'admin.lab-schedule.updateLab';
+        $listPermission['lab-clinic-schedule']['edit'][] = 'admin.lab-clinic-schedule.updateLab';
+        $listPermission['lab-clinic-schedule']['create'][] = 'admin.lab-clinic-schedule.create2';
+        $listPermission['lab-clinic-schedule']['create'][] = 'admin.lab-clinic-schedule.store2';
 
         $listPermission['appointment-lab']['edit'][] = 'admin.appointment-lab.approve';
         $listPermission['appointment-lab']['edit'][] = 'admin.appointment-lab.reject';

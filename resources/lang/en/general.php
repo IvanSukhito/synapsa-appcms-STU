@@ -370,5 +370,8 @@ return [
     'import_doctor' => 'Import Doctor',
     'example_import_doctor' => 'Example Import Doctor',
     'failed_import_doctor' => 'Terjadi Kesalahan, Import Doctor Gagal',
+    'import_lab_schedule' => 'Import Lab Schedule',
+    'example_import_lab_schedule' => 'Example Import Lab Schedule',
+    'failed_import_lab_schedule' => 'Terjadi Kesalahan, Import Jadwal Lab Gagal',
 
 ];
