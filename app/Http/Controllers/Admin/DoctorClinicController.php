@@ -569,7 +569,7 @@ class DoctorClinicController extends _CrudController
         $getFile = $this->request->file('import_doctor');
 
         if($getFile) {
-            $destinationPath = 'synapsaapps/product/example_import';
+            $destinationPath = 'synapsaapps/doctor/example_import';
 
             $getUrl = Storage::put($destinationPath, $getFile);
 
