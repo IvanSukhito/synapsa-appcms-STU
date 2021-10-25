@@ -206,7 +206,6 @@ class DoctorAppointmentController extends Controller
         $data->online_meeting = 2;
         $data->save();
 
-
         return response()->json([
             'success' => 1,
             'data' => [

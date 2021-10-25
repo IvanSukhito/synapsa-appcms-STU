@@ -34,7 +34,8 @@ class HomeController extends Controller
             $getDeviceToken = DeviceToken::firstOrCreate([
                 'token' => $getToken
             ]);
-            $getUser->getDeviceToken()->sync([$getDeviceToken->id]);
+            $getDeviceToken->getUser()->sync([$user->id]);
+//            $getUser->getDeviceToken()->sync([$getDeviceToken->id]);
         }
 
         $result = [
