@@ -325,7 +325,7 @@ class DoctorAppointmentController extends Controller
 
     }
 
-    public function cancelMeeting($id)
+    public function cancelCallMeeting($id)
     {
         $user = $this->request->attributes->get('_user');
         $getDoctor = Doctor::where('user_id', $user->id)->first();
@@ -346,7 +346,8 @@ class DoctorAppointmentController extends Controller
             ], 404);
         }
 
-        $data->status = 99;
+        $data->online_meeting = 0;
+        $data->attempted += 1;
         $data->save();
 
         return response()->json([
@@ -415,6 +416,8 @@ class DoctorAppointmentController extends Controller
        }
 
         $data->status = 2;
+        $data->online_meeting = 0;
+        $data->attempted = 0;
         $data->message = $message;
         $data->save();
 
@@ -425,8 +428,6 @@ class DoctorAppointmentController extends Controller
        ]);
 
     }
-
-
 
     public function doctorMedicine($id)
     {
