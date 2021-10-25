@@ -9,6 +9,7 @@ use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\DoctorSchedule;
 use App\Codes\Models\V1\DoctorService;
 use App\Codes\Models\V1\DoctorCategory;
+use App\Codes\Models\V1\LabSchedule;
 use App\Codes\Models\V1\Users;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\DataTables;
@@ -535,6 +536,7 @@ class DoctorClinicController extends _CrudController
 
         $data['thisLabel'] = __('general.doctor');
         $data['viewType'] = 'create';
+        $data['type'] = 'doctor';
         $data['formsTitle'] = __('general.title_create', ['field' => __('general.doctor')]);
         $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
         $data['data'] = $getData;
@@ -674,6 +676,117 @@ class DoctorClinicController extends _CrudController
             session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
             session()->flash('message_alert', 2);
             return redirect()->route($this->rootRoute.'.' . $this->route . '.show', $id);
+        }
+    }
+
+    public function createSchedule2($id){
+        $this->callPermission();
+
+        $adminId = session()->get('admin_id');
+        $getAdmin = Admin::where('id', $adminId)->first();
+        if (!$getAdmin) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        if($this->request->get('download_example_import')) {
+            $getLogic = new SynapsaLogic();
+            $getLogic->downloadExampleImportDoctorSchedule();
+        }
+
+        $data = $this->data;
+
+        $getData = $this->crud->show($id);
+
+        $data['thisLabel'] = __('general.doctor_schedule');
+        $data['type'] = 'schedule';
+        $data['viewType'] = 'create';
+        $data['formsTitle'] = __('general.title_create', ['field' => __('general.doctor_schedule')]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['data'] = $getData;
+
+        return view($this->listView['create2'], $data);
+    }
+
+    public function storeSchedule2($id){
+        $this->callPermission();
+
+        $adminId = session()->get('admin_id');
+        $getAdmin = Admin::where('id', $adminId)->first();
+        if (!$getAdmin) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $this->validate($this->request, [
+            'import_doctor_schedule' => 'required',
+        ]);
+
+        //A-N
+        //A = Nomor
+        //B = Service
+        //C = Date
+        //D = Time Start
+        //E = Time End
+
+        //Start From Row 6
+
+        $getFile = $this->request->file('import_doctor_schedule');
+
+        if($getFile) {
+
+            try {
+                $getFileName = $getFile->getClientOriginalName();
+                $ext = explode('.', $getFileName);
+                $ext = end($ext);
+                if (in_array(strtolower($ext), ['xlsx', 'xls'])) {
+                    $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($getFile);
+                    $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader($inputFileType);
+                    $data = $reader->load($getFile);
+
+                    if ($data) {
+                        $spreadsheet = $data->getActiveSheet();
+                        foreach ($spreadsheet->getRowIterator() as $key => $row) {
+                            if($key >= 6) {
+                                $getService = $spreadsheet->getCell("B" . $key)->getValue();
+                                $getDate = $spreadsheet->getCell("C" . $key)->getValue();
+                                $getTimeStart = $spreadsheet->getCell("D" . $key)->getValue();
+                                $getTimeEnd = $spreadsheet->getCell("E" . $key)->getValue();
+
+                                $klinik_id = session()->get('admin_clinic_id');
+
+                                if($klinik_id){
+                                    $saveData = [
+                                        'klinik_id' => $klinik_id,
+                                        'doctor_id' => $id,
+                                        'service_id' => $getService,
+                                        'date_available' => \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($getDate)->format('Y-m-d'),
+                                        'time_start' => \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($getTimeStart)->format('H:i:s'),
+                                        'time_end' => \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($getTimeEnd)->format('H:i:s'),
+                                        'book' => 80,
+                                    ];
+
+                                    $DoctorSchedule = DoctorSchedule::create($saveData);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch(\Exception $e) {
+                // $labSchedule->delete();
+
+                session()->flash('message', __('general.failed_import_doctor_schedule'));
+                session()->flash('message_alert', 1);
+                return redirect()->route($this->rootRoute.'.' . $this->route . '.create2');
+            }
+        }
+
+        if($this->request->ajax()){
+            return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
+        }
+        else {
+            session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
+            session()->flash('message_alert', 2);
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.schedule', $id);
         }
     }
 

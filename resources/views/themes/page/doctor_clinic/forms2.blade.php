@@ -1,7 +1,7 @@
 <?php
 switch ($viewType) {
-    case 'create': $printCard = 'card-success'; break;
-    case 'edit': $printCard = 'card-primary'; break;
+    case 'edit': $printCard = 'card-success'; break;
+    case 'create': $printCard = 'card-primary'; break;
     default: $printCard = 'card-info'; break;
 }
 if (in_array($viewType, ['show'])) {
@@ -57,8 +57,9 @@ else {
                     <h3 class="card-title">{{ $formsTitle }}</h3>
                 </div>
                 <!-- /.card-header -->
-
-                @if(in_array($viewType, ['create']))
+                @if(in_array($viewType, ['create']) && in_array($type, ['schedule']))
+                    {{ Form::open(['route' => ['admin.' . $thisRoute . '.storeschedule2', $data->{$masterId}], 'files' => true, 'id'=>'form', 'role' => 'form'])  }}
+                @elseif(in_array($viewType, ['create']) && in_array($type, ['doctor']))
                     {{ Form::open(['route' => ['admin.' . $thisRoute . '.store2'], 'files' => true, 'id'=>'form', 'role' => 'form'])  }}
                 @elseif(in_array($viewType, ['edit']))
                     {{ Form::open(['route' => ['admin.' . $thisRoute . '.update', $data->{$masterId}], 'method' => 'PUT', 'files' => true, 'id'=>'form', 'role' => 'form'])  }}
@@ -74,18 +75,24 @@ else {
                             <i class="fa fa-file-excel-o"></i><span class=""> {{ __('general.download') }}</span>
                         </a>
                     </div>
-
+                    @if(in_array($type, ['doctor']))
                     <div class="form-group">
                         <label for="import_doctor">{{ __('general.import_doctor') }} <span class="text-red">*</span></label>
                         {{ Form::file('import_doctor', ['class' => $errors->has('import_doctor') ? 'form-control dropify is-invalid' : 'form-control dropify', 'id' => 'import_doctor', 'required' => true, 'autocomplete' => 'off', 'accept' => '.xls, .xlsx']) }}
                     </div>
+                    @elseif(in_array($type, ['schedule']))
+                        <div class="form-group">
+                            <label for="import_doctor_schedule">{{ __('general.import_doctor_schedule') }} <span class="text-red">*</span></label>
+                            {{ Form::file('import_doctor_schedule', ['class' => $errors->has('import_doctor_schedule') ? 'form-control dropify is-invalid' : 'form-control dropify', 'id' => 'import_doctor_schedule', 'required' => true, 'autocomplete' => 'off', 'accept' => '.xls, .xlsx']) }}
+                        </div>
+                    @endif
                 </div>
                 <!-- /.card-body -->
 
                 <div class="card-footer">
 
                     @if(in_array($viewType, ['create']))
-                        <button type="submit" class="mb-2 mr-2 btn btn-success" title="@lang('general.save')">
+                        <button type="submit" class="mb-2 mr-2 btn btn-primary" title="@lang('general.save')">
                             <i class="fa fa-save"></i><span class=""> @lang('general.save')</span>
                         </button>
                     @elseif (in_array($viewType, ['edit']))

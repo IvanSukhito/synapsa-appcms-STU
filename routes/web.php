@@ -90,6 +90,8 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                         $router->post($linkName . '/store2', $controller.'@store2')->name('admin.' . $linkName . '.store2');
                         $router->get($linkName . '/{id}/schedule',   $controller.'@schedule')->name('admin.' . $linkName . '.schedule');
                         $router->post($linkName . '/{id}/schedule',   $controller.'@storeSchedule')->name('admin.' . $linkName . '.storeSchedule');
+                        $router->get($linkName . '/{id}/createschedule2', $controller.'@createschedule2')->name('admin.' . $linkName . '.createschedule2');
+                        $router->post($linkName . '/{id}/storeschedule2', $controller.'@storeschedule2')->name('admin.' . $linkName . '.storeschedule2');
                         $router->post($linkName . '/{id}/schedule/{scheduleId}',   $controller.'@updateSchedule')->name('admin.' . $linkName . '.updateSchedule');
                         $router->delete($linkName . '/{id}/schedule/{scheduleId}',   $controller.'@destroySchedule')->name('admin.' . $linkName . '.destroySchedule');
                         break;
