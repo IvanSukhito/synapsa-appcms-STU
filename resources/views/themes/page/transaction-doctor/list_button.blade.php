@@ -5,7 +5,7 @@
         <span class="d-none d-md-inline"> @lang('general.show')</span>
     </a>
 @endif
-@if ($permission['edit'] && in_array($query->status, [1]))
+@if ($permission['edit'] && in_array($query->status, [1, 2]))
     <a href="{{ route('admin.' . $thisRoute . '.approve', $query->{$masterId}) }}" class="mb-1 btn btn-success btn-sm"
        title="@lang('general.approve')">
         <i class="fa fa-check"></i>
@@ -17,17 +17,12 @@
         <span class="d-none d-md-inline"> @lang('general.reject')</span>
     </a>
 @endif
-@if ($permission['edit'] && in_array($query->status, [80,4]))
-    <a href="{{ route('admin.' . $thisRoute . '.uploadHasilLab', $query->{$masterId}) }}" class="mb-1 btn btn-primary btn-sm"
-       title="@lang('general.upload_hasil_lab')">
-        <i class="fa fa-file-pdf-o"></i>
-        <span class="d-none d-md-inline"> @lang('general.upload_hasil_lab')</span>
-    </a>
-@endif
+@if(in_array($query->status,[1,80,99]))
 @if ($permission['destroy'])
-    <a href="#" class="mb-1 btn btn-danger btn-sm" title="@lang('general.delete')"
+    <a href="#" class="mb-1 btn btn-danger btn-sm" title="@lang('general.void')"
        onclick="return actionData('{{ route('admin.' . $thisRoute . '.destroy', $query->{$masterId}) }}', 'delete')">
         <i class="fa fa-trash"></i>
-        <span class="d-none d-md-inline"> @lang('general.delete')</span>
+        <span class="d-none d-md-inline"> @lang('general.void')</span>
     </a>
+@endif
 @endif
