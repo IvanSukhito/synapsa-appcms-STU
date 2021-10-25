@@ -20,6 +20,7 @@ return [
     'zip_code' => 'ZIP Code',
     'nik' => 'NIK',
     'upload_ktp' => 'Upload KTP',
+    'upload_hasil_lab' => 'Upload Hasil Lab',
     'date_available' => 'Date Available',
     'time_start' => 'Time Start',
     'time_end' => 'Time End',

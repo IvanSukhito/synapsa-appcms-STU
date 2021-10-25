@@ -9,6 +9,7 @@ use App\Codes\Models\V1\DeviceToken;
 use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\Product;
 use App\Codes\Models\V1\Service;
+use App\Codes\Models\V1\Users;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -179,13 +180,13 @@ class DoctorAppointmentController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
-        else if(strtotime($data->date) != $dateNow){
-            return response()->json([
-                'success' => 0,
-                'message' => ['Meeting belum di mulai'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
+        //else if(strtotime($data->date) != $dateNow){
+        //    return response()->json([
+        //        'success' => 0,
+        //        'message' => ['Meeting belum di mulai'],
+        //        'token' => $this->request->attributes->get('_refresh_token'),
+        //    ], 422);
+        //}
 
         $getService = Service::where('id', $data->service_id)->first();
         if (!$getService) {
@@ -206,6 +207,11 @@ class DoctorAppointmentController extends Controller
         $data->online_meeting = 2;
         $data->save();
 
+        $getPatient = Users::where('id', $data->user_id)->first();
+        $getFcmTokenPatient = [];
+        if ($getPatient) {
+            $getFcmTokenPatient = $getPatient->getDeviceToken()->pluck('token')->toArray();
+        }
 
         return response()->json([
             'success' => 1,
@@ -217,7 +223,7 @@ class DoctorAppointmentController extends Controller
                 'time_end' => $data->time_end,
                 'app_id' => env('AGORA_APP_ID'),
                 'channel' => $data->video_link,
-                'fcm_token' => $user->getDeviceToken->first()->token ?? '',
+                'fcm_token' => $getFcmTokenPatient,
             ],
             'message' => ['Sukses'],
             'token' => $this->request->attributes->get('_refresh_token'),

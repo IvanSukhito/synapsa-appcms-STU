@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
+use App\Codes\Models\Admin;
 use App\Codes\Models\V1\Lab;
 use App\Codes\Models\V1\AppointmentLab;
 use App\Codes\Models\V1\Service;
+use App\Codes\Models\V1\Transaction;
 use App\Codes\Models\V1\Users;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -95,7 +97,7 @@ class AppointmentLabController extends _CrudController
         $this->data['listSet']['status'] = $status;
         $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.appointment-lab.list_button';
         $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.appointment-lab.list';
-
+        $this->listView['uploadHasilLab'] = env('ADMIN_TEMPLATE').'.page.appointment-lab.forms2';
 
     }
 
@@ -165,14 +167,85 @@ class AppointmentLabController extends _CrudController
         }
     }
 
+    public function uploadHasilLab($id){
+        $this->callPermission();
+
+        $adminId = session()->get('admin_id');
+        $getData = Admin::where('id', $adminId)->first();
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $data = $this->data;
+
+        $data['thisLabel'] = __('general.lab');
+        $data['viewType'] = 'edit';
+        $data['formsTitle'] = __('general.upload_hasil_lab', ['field' => __('general.lab')]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['data'] = $getData;
+
+        return view($this->listView['uploadHasilLab'], $data);
+    }
+
+    public function  storeHasilLab($id){
+        $this->callPermission();
+
+        $adminId = session()->get('admin_id');
+        $getAdmin = Admin::where('id', $adminId)->first();
+        if (!$getAdmin) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $data = $this->data;
+
+        $getData = AppointmentLab::where('id', $id)->where('klinik_id', $getAdmin->klinik_id)->first();
+
+        $dokument = $this->request->file('form_patient');
+
+        if ($dokument) {
+            if ($dokument->getError() != 1) {
+
+                $getFileName = $dokument->getClientOriginalName();
+                $ext = explode('.', $getFileName);
+                $ext = end($ext);
+                $destinationPath = 'synapsaapps/lab';
+                if (in_array(strtolower($ext), ['pdf', 'doc'])) {
+
+                    $dokumentPDF = Storage::putFile($destinationPath, $dokument);
+                }
+
+            }
+        }
+
+        $getData->form_patient = $dokumentPDF;
+        $getData->save();
+
+        if($this->request->ajax()){
+            return response()->json(['result' => 1, 'message' => __('general.success_upload_result_lab')]);
+        }
+        else {
+            session()->flash('message', __('general.success_upload_result_lab'));
+            session()->flash('message_alert', 2);
+            return redirect()->route('admin.' . $this->route . '.index');
+        }
+
+
+    }
+
     public function dataTable()
    {
        $this->callPermission();
        //$userId = session()->get('admin_id');
+       $adminId = session()->get('admin_id');
+
+       $getAdmin = Admin::where('id', $adminId)->first();
+
        $dataTables = new DataTables();
+
        $builder = $this->model::query()->selectRaw('appointment_lab.id, service.name as service, users.fullname as user, patient_name, patient_email, type_appointment,  time_start, time_end, total_test, appointment_lab.status, appointment_lab.created_at')
            ->leftJoin('service','service.id', '=', 'appointment_lab.service_id')
-           ->leftJoin('users','users.id', '=', 'appointment_lab.user_id');
+           ->leftJoin('users','users.id', '=', 'appointment_lab.user_id')
+           ->where('appointment_lab.klinik_id', $getAdmin->klinik_id);
 
        if ($this->request->get('status') && $this->request->get('status') != 0) {
            $builder = $builder->where('appointment_lab.status', $this->request->get('status'));

@@ -233,7 +233,8 @@ class GeneralController extends Controller
                     $getDeviceToken = DeviceToken::firstOrCreate([
                         'token' => $getToken
                     ]);
-                    $user->getDeviceToken()->sync([$getDeviceToken->id]);
+                    $getDeviceToken->getUser()->sync([$user->id]);
+//                    $user->getDeviceToken()->sync([$getDeviceToken->id]);
                 }
 
                 $getKlinik = Klinik::where('id', $user->klinik_id)->first();
