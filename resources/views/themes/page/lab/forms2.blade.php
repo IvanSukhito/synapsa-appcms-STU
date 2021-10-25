@@ -77,7 +77,7 @@ else {
 
                     <div class="form-group">
                         <label for="import_lab_schedule">{{ __('general.import_lab_schedule') }} <span class="text-red">*</span></label>
-                        {{ Form::file('import_doctor', ['class' => $errors->has('import_doctor') ? 'form-control dropify is-invalid' : 'form-control dropify', 'id' => 'import_doctor', 'required' => true, 'autocomplete' => 'off', 'accept' => '.xls, .xlsx']) }}
+                        {{ Form::file('import_lab_schedule', ['class' => $errors->has('import_lab_schedule') ? 'form-control dropify is-invalid' : 'form-control dropify', 'id' => 'import_lab_schedule', 'required' => true, 'autocomplete' => 'off', 'accept' => '.xls, .xlsx']) }}
                     </div>
                 </div>
                 <!-- /.card-body -->

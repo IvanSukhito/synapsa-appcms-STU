@@ -63,7 +63,7 @@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="row">
-                                        <div class="col-3">
+                                        <div class="col-md-3">
                                             <div class="form-group">
                                                 <div class="form-group">
                                                     <label for="service_{!! $list->id !!}">{{ __('general.service') }} <span class="text-red">*</span></label>
@@ -71,7 +71,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-3">
+                                        <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="date_{!! $list->id !!}">@lang('general.date') <span class="text-red">*</span></label>
                                                 <div class="input-group">
@@ -84,7 +84,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-2">
+                                        <div class="col-md-2">
                                             <div class="form-group">
                                                 <label for="time_start_{!! $list->id !!}">@lang('general.time_start') <span class="text-red">*</span></label>
                                                 <div class="input-group">
@@ -97,7 +97,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-2">
+                                        <div class="col-md-2">
                                             <div class="form-group">
                                                 <label for="time_end_{!! $list->id !!}">@lang('general.time_end') <span class="text-red">*</span></label>
                                                 <div class="input-group">
@@ -110,7 +110,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-2">
+                                        <div class="col-md-2">
                                             <div class="form-group">
                                                 @if ($permission['edit'])
                                                 <a href="#" class="mb-1 btn btn-primary btn-sm" title="@lang('general.update')"
