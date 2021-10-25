@@ -27,6 +27,8 @@ class AppointmentDoctor extends Model
         'doctor_prescription',
         'extra_info',
         'online_meeting',
+        'time_start_meeting',
+        'attempted',
         'status',
         'message'
     ];

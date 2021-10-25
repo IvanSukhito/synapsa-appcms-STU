@@ -351,6 +351,38 @@ class DoctorAppointmentController extends Controller
 
         return response()->json([
             'success' => 1,
+            'message' => ['Sukses Di Tutup'],
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
+
+    }
+
+    public function stopMeeting($id)
+    {
+        $user = $this->request->attributes->get('_user');
+        $getDoctor = Doctor::where('user_id', $user->id)->first();
+        if (!$getDoctor) {
+            return response()->json([
+                'success' => 1,
+                'message' => ['Hanya menu untuk dokter'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
+        $data = AppointmentDoctor::whereIn('status', [1,2])->where('doctor_id', $getDoctor->id)->where('id', $id)->first();
+        if (!$data) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+
+        $data->status = 99;
+        $data->save();
+
+        return response()->json([
+            'success' => 1,
             'message' => ['Sukses Di Batalkan'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);

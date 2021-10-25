@@ -124,6 +124,7 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
        $router->post('{id}/reschedule', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@updateSchedule'])->name('api.appointment.updateSchedule');
        $router->get('{id}/meeting', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@meeting'])->name('api.appointment.meeting');
        $router->get('{id}/cancel-meeting', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@cancelMeeting'])->name('api.appointment.cancelMeeting');
+       $router->get('{id}/stop-meeting', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@stopMeeting'])->name('api.appointment.stopMeeting');
        $router->get('{id}/cart', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@cart'])->name('api.appointment.cart');
        $router->post('{id}/cart', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@chooseCart'])->name('api.appointment.chooseCart');
        $router->get('{id}/shipping', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@shipping'])->name('api.appointment.shipping');

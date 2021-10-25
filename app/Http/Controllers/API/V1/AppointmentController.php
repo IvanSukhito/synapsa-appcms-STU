@@ -681,16 +681,13 @@ class AppointmentController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
+        $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor.user_id AS doctor_user_id, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
             ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
             ->join('users', 'users.id', '=', 'doctor.user_id')
             ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
             ->where('appointment_doctor.user_id', $user->id)
             ->where('appointment_doctor.id', $id)
             ->first();
-
-        $dateNow = strtotime(date('Y-m-d'));
-        $timeBuffer = strtotime("+5 minutes");
 
         if (!$data) {
             return response()->json([
@@ -758,6 +755,12 @@ class AppointmentController extends Controller
             ], 404);
         }
 
+        $getPatient = Users::where('id', $data->doctor_user_id)->first();
+        $getFcmTokenPatient = [];
+        if ($getPatient) {
+            $getFcmTokenPatient = $getPatient->getDeviceToken()->pluck('token')->toArray();
+        }
+
         return response()->json([
             'success' => 1,
             'data' => [
@@ -768,7 +771,7 @@ class AppointmentController extends Controller
                 'time_end' => $data->time_end,
                 'app_id' => env('AGORA_APP_ID'),
                 'channel' => $data->video_link,
-                'fcm_token' => $user->getDeviceToken->first()->token ?? ''
+                'fcm_token' => $getFcmTokenPatient
             ],
             'message' => ['Sukses'],
             'token' => $this->request->attributes->get('_refresh_token'),
