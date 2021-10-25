@@ -61,15 +61,14 @@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="row">
-                                        <div class="col-3">
+                                        <div class="col-md-3">
                                             <div class="form-group">
-                                                <div class="form-group">
-                                                    <label for="service_{!! $list->id !!}">{{ __('general.service') }} <span class="text-red">*</span></label>
-                                                    {{ Form::select('service_'.$list->id, $listSet['service_id'], $list->service_id, ['id' => 'service_'.$list->id, 'class' => 'form-control', 'required' => true]) }}
-                                                </div>
+                                                <label for="service_{!! $list->id !!}">{{ __('general.service') }} <span
+                                                        class="text-red">*</span></label>
+                                                {{ Form::select('service_'.$list->id, $listSet['service_id'], $list->service_id, ['id' => 'service_'.$list->id, 'class' => 'form-control', 'required' => true]) }}
                                             </div>
                                         </div>
-                                        <div class="col-3">
+                                        <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="date_{!! $list->id !!}">@lang('general.date') <span class="text-red">*</span></label>
                                                 <div class="input-group">
@@ -78,11 +77,11 @@
                                                             <i class="fa fa-calendar"></i>
                                                         </div>
                                                     </div>
-                                                    {{ Form::text('date_'.$list->id, $list->date_available, ['id' => 'date_'.$list->id, 'class' => 'form-control', 'required' => true, 'autocomplete'=>'off']) }}
+                                                    {{ Form::text('date_'.$list->id, $list->date_available, ['id' => 'date_'.$list->id, 'class' => 'form-control date', 'required' => true, 'autocomplete'=>'off']) }}
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-2">
+                                        <div class="col-md-2">
                                             <div class="form-group">
                                                 <label for="time_start_{!! $list->id !!}">@lang('general.time_start') <span class="text-red">*</span></label>
                                                 <div class="input-group">
@@ -91,11 +90,11 @@
                                                             <i class="fa fa-calendar"></i>
                                                         </div>
                                                     </div>
-                                                    {{ Form::text('time_start_'.$list->id, $list->time_start, ['id' => 'time_start_'.$list->id, 'class' => 'form-control', 'required' => true, 'autocomplete'=>'off']) }}
+                                                    {{ Form::text('time_start_'.$list->id, $list->time_start, ['id' => 'time_start_'.$list->id, 'class' => 'form-control time', 'required' => true, 'autocomplete'=>'off']) }}
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-2">
+                                        <div class="col-md-2">
                                             <div class="form-group">
                                                 <label for="time_end_{!! $list->id !!}">@lang('general.time_end') <span class="text-red">*</span></label>
                                                 <div class="input-group">
@@ -104,11 +103,11 @@
                                                             <i class="fa fa-calendar"></i>
                                                         </div>
                                                     </div>
-                                                    {{ Form::text('time_end_'.$list->id, $list->time_end, ['id' => 'time_end_'.$list->id, 'class' => 'form-control', 'required' => true, 'autocomplete'=>'off']) }}
+                                                    {{ Form::text('time_end_'.$list->id, $list->time_end, ['id' => 'time_end_'.$list->id, 'class' => 'form-control time', 'required' => true, 'autocomplete'=>'off']) }}
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-2">
+                                        <div class="col-md-2">
                                             <div class="form-group">
                                                 @if ($permission['edit'])
                                                 <a href="#" class="mb-1 btn btn-primary btn-sm" title="@lang('general.update')"
@@ -217,6 +216,14 @@
                 format: 'YYYY-MM-DD',
             });
             $('#time_start').datetimepicker({
+                format: 'HH:mm:ss',
+                stepping: 15
+            });
+
+            $('.date').datetimepicker({
+                format: 'YYYY-MM-DD',
+            });
+            $('.time').datetimepicker({
                 format: 'HH:mm:ss',
                 stepping: 15
             });
