@@ -166,8 +166,12 @@ class ProcessTransaction implements ShouldQueue
 
             $qty = $productQty[$key];
 
-            $list->stock = $list->stock - $qty;
-            $list->save();
+            if($list->stock_flag == 2) {
+
+                $list->stock = $list->stock - $qty;
+
+                $list->save();
+            }
         }
 
         $total = $subTotal + $shippingPrice;
@@ -293,14 +297,20 @@ class ProcessTransaction implements ShouldQueue
             ]);
         }
 
+
         $getProducts = Product::whereIn('id', $getProductIds)->get();
 
         foreach ($getProducts as $key => $list){
 
             $qty = $productQty[$key];
 
-            $list->stock = $list->stock - $qty;
-            $list->save();
+            if($list->stock_flag == 2) {
+
+                $list->stock = $list->stock - $qty;
+
+                $list->save();
+            }
+
         }
 
         $total = $subTotal + $shippingPrice;
