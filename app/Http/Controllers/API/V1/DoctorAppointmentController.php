@@ -337,7 +337,7 @@ class DoctorAppointmentController extends Controller
             ], 422);
         }
 
-        $data = AppointmentDoctor::whereIn('status', [1,2])->where('doctor_id', $getDoctor->id)->where('id', $id)->first();
+        $data = AppointmentDoctor::whereIn('status', [3])->where('doctor_id', $getDoctor->id)->where('id', $id)->first();
         if (!$data) {
             return response()->json([
                 'success' => 0,
