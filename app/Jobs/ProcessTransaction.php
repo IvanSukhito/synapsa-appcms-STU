@@ -133,15 +133,24 @@ class ProcessTransaction implements ShouldQueue
 
         $newCode = date('Ym').$getNewCode;
 
+        //dd($getUsersCartDetails);
+
         DB::beginTransaction();
 
         $totalQty = 0;
         $subTotal = 0;
         $shippingPrice = 15000;
         $transactionDetails = [];
+        $productQty = [];
+        $getProductIds = [];
         foreach ($getUsersCartDetails as $list) {
+           // dd($list->qty);
             $totalQty += $list->qty;
+
             $subTotal += ($list->qty * $list->price);
+
+            $productQty[] = $list->qty;
+            $getProductIds[] = $list->product_id;
             $transactionDetails[] = new TransactionDetails([
                 'product_id' => $list->product_id,
                 'product_name' => $list->product_name,
@@ -149,6 +158,18 @@ class ProcessTransaction implements ShouldQueue
                 'product_price' => $list->price
             ]);
         }
+
+
+        $getProducts = Product::whereIn('id', $getProductIds)->get();
+
+        foreach ($getProducts as $key => $list){
+
+            $qty = $productQty[$key];
+
+            $list->stock = $list->stock - $qty;
+            $list->save();
+        }
+
         $total = $subTotal + $shippingPrice;
 
         $getTransaction = Transaction::create([
@@ -252,9 +273,18 @@ class ProcessTransaction implements ShouldQueue
         $subTotal = 0;
         $shippingPrice = 15000;
         $transactionDetails = [];
+        $productQty = [];
+        $getProductIds = [];
         foreach ($getUsersCartDetails as $list) {
+
             $totalQty += $list->product_qty;
+
             $subTotal += ($list->product_qty * $list->price);
+
+            $productQty[] = $list->product_qty;
+
+            $getProductIds[] = $list->product_id;
+
             $transactionDetails[] = new TransactionDetails([
                 'product_id' => $list->product_id,
                 'product_name' => $list->product_name,
@@ -262,6 +292,17 @@ class ProcessTransaction implements ShouldQueue
                 'product_price' => $list->price
             ]);
         }
+
+        $getProducts = Product::whereIn('id', $getProductIds)->get();
+
+        foreach ($getProducts as $key => $list){
+
+            $qty = $productQty[$key];
+
+            $list->stock = $list->stock - $qty;
+            $list->save();
+        }
+
         $total = $subTotal + $shippingPrice;
 
         $getTransaction = Transaction::create([
