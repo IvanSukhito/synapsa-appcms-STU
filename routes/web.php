@@ -66,11 +66,16 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                     case 'lab-clinic-schedule':
                         $router->post($linkName . '/{id}/updateSchedule',   $controller.'@update')->name('admin.' . $linkName . '.updateLab');
                          break;
-                    case 'appointment-nurse':
                     case 'appointment-lab':
-                    case 'transaction-lab':
+                    $router->get($linkName . '/{id}/approve',   $controller.'@approve')->name('admin.' . $linkName . '.approve');
+                    $router->get($linkName . '/{id}/reject',   $controller.'@reject')->name('admin.' . $linkName . '.reject');
+                    $router->get($linkName . '/{id}/upload-hasil-lab', $controller.'@uploadHasilLab')->name('admin.'. $linkName . '.uploadHasilLab');
+                    $router->post($linkName . '/{id}/upload-hasil-lab', $controller.'@storeHasilLab')->name('admin.'. $linkName . '.storeHasilLab');
+                        break;
                     case 'transaction-doctor':
+                    case 'appointment-nurse':
                     case 'transaction-product':
+                    case 'transaction-lab':
                         $router->get($linkName . '/{id}/approve',   $controller.'@approve')->name('admin.' . $linkName . '.approve');
                         $router->get($linkName . '/{id}/reject',   $controller.'@reject')->name('admin.' . $linkName . '.reject');
                         break;

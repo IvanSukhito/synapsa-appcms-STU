@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
+use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Admin;
 use App\Codes\Models\V1\AppointmentLab;
 use App\Codes\Models\V1\City;
@@ -14,6 +15,7 @@ use App\Codes\Models\V1\ProductCategory;
 use App\Codes\Models\V1\Shipping;
 use App\Codes\Models\V1\SubDistrict;
 use App\Codes\Models\V1\Transaction;
+use App\Codes\Models\V1\TransactionDetails;
 use App\Codes\Models\V1\Users;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -505,8 +507,20 @@ class TransactionDoctorController extends _CrudController
             return redirect()->route('admin.' . $this->route . '.index');
         }
 
-        $getData->status = 80;
-        $getData->save();
+        $getType = $getData->type_service;
+        $getTransaction = $getData;
+
+        if ($getType == 2) {
+            $getTransaction->status = 80;
+            $getTransaction->save();
+
+            $transactionId = $getTransaction->id;
+            $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
+            if ($getDetail) {
+                $logic = new SynapsaLogic();
+                $logic->setupAppointmentDoctor($getTransaction, $getDetail, $getDetail->schedule_id);
+            }
+        }
 
         if($this->request->ajax()){
             return response()->json(['result' => 1, 'message' => __('general.success_add')]);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
+use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Admin;
 use App\Codes\Models\V1\AppointmentLab;
 use App\Codes\Models\V1\City;
@@ -14,6 +15,7 @@ use App\Codes\Models\V1\ProductCategory;
 use App\Codes\Models\V1\Shipping;
 use App\Codes\Models\V1\SubDistrict;
 use App\Codes\Models\V1\Transaction;
+use App\Codes\Models\V1\TransactionDetails;
 use App\Codes\Models\V1\Users;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -61,6 +63,7 @@ class TransactionLabController extends _CrudController
                 ],
                 'lang' => 'general.shipping',
                 'type' => 'select2',
+                'list' => 0,
             ],
             'code' => [
                 'validate' => [
@@ -194,6 +197,7 @@ class TransactionLabController extends _CrudController
                     'edit' => 'required'
                 ],
                 'lang' => 'general.receiver_name',
+                'list' => 0,
             ],
             'receiver_phone' => [
                 'validate' => [
@@ -219,14 +223,6 @@ class TransactionLabController extends _CrudController
                 'list' => 0,
                 'type' => 'select',
                 'lang' => 'general.type',
-            ],
-            'extra_info' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'list' => 0,
-                'lang' => 'general.extra_info',
             ],
             'status' => [
                 'validate' => [
@@ -256,8 +252,8 @@ class TransactionLabController extends _CrudController
             $request, 'general.transaction_lab', 'transaction-lab', 'V1\Transaction', 'transaction-lab',
             $passingData
         );
-        $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.transaction-doctornlab.list';
-        $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.transaction-doctornlab.list_button';
+        $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.transaction-lab.list';
+        $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.transaction-lab.list_button';
 
         $getUsers = Users::where('status', 80)->pluck('fullname', 'id')->toArray();
         if($getUsers) {
@@ -505,8 +501,24 @@ class TransactionLabController extends _CrudController
             return redirect()->route('admin.' . $this->route . '.index');
         }
 
-        $getData->status = 80;
-        $getData->save();
+        $getType = $getData->type_service;
+        $getTransaction = $getData;
+
+        if ($getType == 3) {
+            $getTransaction->status = 80;
+            $getTransaction->save();
+
+            $transactionId = $id;
+            $scheduleId = 0;
+            $getDetails = TransactionDetails::where('transaction_id', $transactionId)->get();
+            foreach ($getDetails as $getDetail) {
+                $scheduleId = $getDetail->schedule_id;
+            }
+            if ($getDetails) {
+                $logic = new SynapsaLogic();
+                $logic->setupAppointmentLab($getTransaction, $getDetails, $scheduleId);
+            }
+        }
 
         if($this->request->ajax()){
             return response()->json(['result' => 1, 'message' => __('general.success_add')]);
@@ -543,4 +555,5 @@ class TransactionLabController extends _CrudController
             return redirect()->route('admin.' . $this->route . '.index');
         }
     }
+
 }
