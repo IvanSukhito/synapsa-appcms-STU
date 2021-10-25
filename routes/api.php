@@ -152,7 +152,7 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
             $router->get('{id}/finish-meeting', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@finishMeeting'])->name('api.doctor.appointment.finishMeeting');
             $router->get('{id}/reschedule', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@reschedule'])->name('api.doctor.appointment.reschedule');
             $router->get('{id}/cancel-meeting', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@cancelCallMeeting'])->name('api.doctor.appointment.cancelCallMeeting');
-            $router->get('{id}/stop-meeting', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@stopMeeting'])->name('api.doctor.appointment.stopMeeting');
+//            $router->get('{id}/stop-meeting', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@stopMeeting'])->name('api.doctor.appointment.stopMeeting');
             $router->get('{id}/medicine', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@doctorMedicine'])->name('api.doctor.appointment.doctorMedicine');
             $router->post('{id}/diagnosis', ['uses' => 'App\Http\Controllers\API\V1\DoctorAppointmentController@doctorDiagnosis'])->name('api.doctor.appointment.doctorDiagnosis');
 
