@@ -761,8 +761,16 @@ class AppointmentController extends Controller
             $getFcmTokenPatient = $getPatient->getDeviceToken()->pluck('token')->toArray();
         }
 
-        $data->time_start_meeting = date('Y-m-d H:i:s');
-        $data->save();
+        if ($data->time_start_meeting == null) {
+            $data->time_start_meeting = date('Y-m-d H:i:s');
+            $data->save();
+            $dateStopMeeting = date('Y-m-d');
+            $timeStopMeeting = date('H:i:s', strtotime("+30 minutes"));
+        }
+        else {
+            $dateStopMeeting = date('Y-m-d');
+            $timeStopMeeting = date('H:i:s', strtotime($data->time_start_meeting) + (60*30));
+        }
 
         return response()->json([
             'success' => 1,
@@ -770,8 +778,8 @@ class AppointmentController extends Controller
                 'info' => $data,
                 'date' => $data->date,
                 'time_server' => date('H:i:s'),
-                'date_stop_meeting' => date('Y-m-d'),
-                'time_stop_meeting' => date('H:i:s', strtotime("+30 minutes")),
+                'date_stop_meeting' => $dateStopMeeting,
+                'time_stop_meeting' => $timeStopMeeting,
                 'time_start' => $data->time_start,
                 'time_end' => $data->time_end,
                 'app_id' => env('AGORA_APP_ID'),
