@@ -346,7 +346,7 @@ class DoctorAppointmentController extends Controller
             ], 404);
         }
 
-        $data->online_meeting = 0;
+        $data->online_meeting = 1;
         $data->attempted += 1;
         $data->save();
 
