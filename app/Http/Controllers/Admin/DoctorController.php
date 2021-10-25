@@ -290,7 +290,7 @@ class DoctorController extends _CrudController
                 DoctorService::where('doctor_id', $id)->where('service_id', $list)->update([
                     'doctor_id' => $getData->id,
                     'service_id' => $list,
-                    'price' => $price[$key]
+                    'price' => $price[$key] != null ? $price[$key] : 0
                 ]);
             }
         }

@@ -210,6 +210,11 @@ class DoctorClinicController extends _CrudController
     {
         $this->callPermission();
 
+        $this->validate($this->request, [
+            'service_id' => 'required',
+            'price' => 'required'
+        ]);
+
         $viewType = 'create';
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
@@ -240,7 +245,7 @@ class DoctorClinicController extends _CrudController
             DoctorService::create([
                 'doctor_id' => $getData->id,
                 'service_id' => $list,
-                'price' => $price[$key]
+                'price' => $price[$key] != null ? $price[$key] : 0
             ]);
         }
 
@@ -297,7 +302,7 @@ class DoctorClinicController extends _CrudController
                 DoctorService::where('doctor_id', $id)->update([
                     'doctor_id' => $getData->id,
                     'service_id' => $list,
-                    'price' => $price[$key]
+                    'price' => $price[$key] != null ? $price[$key] : 0
                 ]);
             }
         }
@@ -552,138 +557,114 @@ class DoctorClinicController extends _CrudController
 
         //A-N
         //A = Nomor
-        //B = Kategori Produk
-        //C = SKU
-        //D = Nama Produk
-        //E = Harga Produk
-        //F = Unit Produk
-        //G = Stock Produk
-        //H = Stock Flag (1 Unlimited, 2 Limited)
-        //I = Title(1)
-        //J = Desc(1)
-        //K = Title(2)
-        //L = Desc(2)
-        //M = Title(3)
-        //N = Desc(3)
+        //B = Nama Doctor
+        //C = Kategori
+        //D = Formal Education
+        //E = Non-Formal Education
+        //F = Telemed
+        //G = Homecare
+        //H = Visit
+        //I = Harga Telemed
+        //J = Harga Homecare
+        //K = Harga Visit
         //Start From Row 6
 
         $getFile = $this->request->file('import_doctor');
 
         if($getFile) {
-            $destinationPath = 'synapsaapps/doctor/example_import';
+//            $destinationPath = 'synapsaapps/doctor/example_import';
+//
+//            $getUrl = Storage::put($destinationPath, $getFile);
+//
+//            die(env('OSS_URL') . '/' . $getUrl);
 
-            $getUrl = Storage::put($destinationPath, $getFile);
+            try {
+                $getFileName = $getFile->getClientOriginalName();
+                $ext = explode('.', $getFileName);
+                $ext = end($ext);
+                if (in_array(strtolower($ext), ['xlsx', 'xls'])) {
+                    $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($getFile);
+                    $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader($inputFileType);
+                    $data = $reader->load($getFile);
 
-            die(env('OSS_URL') . '/' . $getUrl);
+                    if ($data) {
+                        $spreadsheet = $data->getActiveSheet();
+                        foreach ($spreadsheet->getRowIterator() as $key => $row) {
+                            if($key >= 6) {
+                                $namaDoctor = $spreadsheet->getCell("B" . $key)->getValue();
+                                $kategori = $spreadsheet->getCell("C" . $key)->getValue();
+                                $formalEducation = $spreadsheet->getCell("D" . $key)->getValue();
+                                $nonFormalEducation = $spreadsheet->getCell("E" . $key)->getValue();
+                                $telemed = $spreadsheet->getCell("F" . $key)->getValue();
+                                $homecare = $spreadsheet->getCell("G" . $key)->getValue();
+                                $visit = strtolower(str_replace(' ', '', $spreadsheet->getCell("H" . $key)->getValue()));
+                                $hargaTelemed = $spreadsheet->getCell("I" . $key)->getValue();
+                                $hargaHomecare = $spreadsheet->getCell("J" . $key)->getValue();
+                                $hargaVisit = $spreadsheet->getCell("K" . $key)->getValue();
 
-//            try {
-//                $getFileName = $getFile->getClientOriginalName();
-//                $ext = explode('.', $getFileName);
-//                $ext = end($ext);
-//                if (in_array(strtolower($ext), ['xlsx', 'xls'])) {
-//                    $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($getFile);
-//                    $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader($inputFileType);
-//                    $data = $reader->load($getFile);
-//
-//                    if ($data) {
-//                        $spreadsheet = $data->getActiveSheet();
-//                        foreach ($spreadsheet->getRowIterator() as $key => $row) {
-//                            if($key >= 6) {
-//                                $kategoriProduk = $spreadsheet->getCell("B" . $key)->getValue();
-//                                $sku = $spreadsheet->getCell("C" . $key)->getValue();
-//                                $namaProduk = $spreadsheet->getCell("D" . $key)->getValue();
-//                                $hargaProduk = $spreadsheet->getCell("E" . $key)->getValue();
-//                                $unitProduk = $spreadsheet->getCell("F" . $key)->getValue();
-//                                $stockProduk = $spreadsheet->getCell("G" . $key)->getValue();
-//                                $stockFlag = strtolower(str_replace(' ', '', $spreadsheet->getCell("H" . $key)->getValue()));
-//                                $title1 = $spreadsheet->getCell("I" . $key)->getValue();
-//                                $desc1 = $spreadsheet->getCell("J" . $key)->getValue();
-//                                $title2 = $spreadsheet->getCell("K" . $key)->getValue();
-//                                $desc2 = $spreadsheet->getCell("L" . $key)->getValue();
-//                                $title3 = $spreadsheet->getCell("M" . $key)->getValue();
-//                                $desc3 = $spreadsheet->getCell("N" . $key)->getValue();
-//
-//                                $kategoriCheck = ProductCategory::where('name', $kategoriProduk)->first();
-//                                if($kategoriCheck) {
-//                                    $kategoriProduk = $kategoriCheck->id;
-//                                }
-//                                else {
-//                                    if(strlen($kategoriProduk) > 0) {
-//                                        $saveCategory = [
-//                                            'name' => $kategoriProduk,
-//                                            'status' => 80
-//                                        ];
-//
-//                                        $productCategory = ProductCategory::create($saveCategory);
-//                                        $kategoriProduk = $productCategory->id;
-//                                    }
-//                                }
-//
-//                                $flag = strtolower(str_replace(' ', '', $stockFlag));
-//                                if($flag == 'unlimited') {
-//                                    $stockFlag = 1;
-//                                }
-//                                else if($flag = 'limited') {
-//                                    $stockFlag = 2;
-//                                }
-//                                else {
-//                                    $stockFlag = 0;
-//                                }
-//
-//                                $descProduct = [];
-//                                if(strlen($title1) > 0) {
-//                                    if(strlen($title2) > 0 && strlen($title3) > 0) {
-//                                        $descProduct[] = [
-//                                            'title' => [$title1, $title2, $title3],
-//                                            'desc' => [$desc1, $desc2, $desc3],
-//                                        ];
-//                                    }
-//                                    else if(strlen($title2) > 0 && strlen($title3) <= 0) {
-//                                        $descProduct[] = [
-//                                            'title' => [$title1, $title2],
-//                                            'desc' => [$desc1, $desc2],
-//                                        ];
-//                                    }
-//                                    else if(strlen($title3) > 0 && strlen($title2) <= 0) {
-//                                        $descProduct[] = [
-//                                            'title' => [$title1, $title3],
-//                                            'desc' => [$desc1, $desc3],
-//                                        ];
-//                                    }
-//                                    else {
-//                                        $descProduct[] = [
-//                                            'title' => [$title1],
-//                                            'desc' => [$desc1],
-//                                        ];
-//                                    }
-//                                }
-//
-//                                $saveData = [
-//                                    'product_category_id' => $kategoriProduk,
-//                                    'klinik_id' => $getAdmin->klinik_id,
-//                                    'sku' => $sku,
-//                                    'name' => $namaProduk,
-//                                    'price' => $hargaProduk,
-//                                    'unit' => $unitProduk,
-//                                    'stock' => $stockProduk,
-//                                    'stock_flag' => $stockFlag,
-//                                    'desc' => json_encode($descProduct),
-//                                    'status' => 80,
-//                                ];
-//
-//                                if(strlen($namaProduk) > 0) {
-//                                    Product::create($saveData);
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//            catch(\Exception $e) {
-//                session()->flash('message', __('general.failed_import_doctor'));
-//                session()->flash('message_alert', 1);
-//                return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
-//            }
+                                $kategoriCheck = DoctorCategory::where('name', $kategori)->first();
+                                if($kategoriCheck) {
+                                    $kategori = $kategoriCheck->id;
+                                }
+                                else {
+                                    if(strlen($kategori) > 0) {
+                                        $saveCategory = [
+                                            'name' => $kategori,
+                                            'status' => 80
+                                        ];
+
+                                        $doctorCategory = DoctorCategory::create($saveCategory);
+                                        $kategori = $doctorCategory->id;
+                                    }
+                                }
+
+                                $klinik_id = session()->get('admin_clinic_id');
+
+                                $nameCheck = Users::where('fullname', $namaDoctor)->where('doctor', 1)->where('klinik_id', $klinik_id)->first();
+                                if($nameCheck) {
+                                    $saveData = [
+                                        'user_id' => $nameCheck->id,
+                                        'doctor_category_id' => $kategori,
+                                        'formal_edu' => $formalEducation,
+                                        'nonformal_edu' => $nonFormalEducation,
+                                    ];
+
+                                    $doctor = Doctor::create($saveData);
+
+                                    $telemedCheck = Service::where('name', 'Telemed')->first();
+                                    $homecareCheck = Service::where('name', 'Homecare')->first();
+                                    $visitCheck = Service::where('name', 'Visit')->first();
+
+                                    $service = [];
+                                    if(intval($telemed) == 1) {
+                                        $service[$telemedCheck->id] = $hargaTelemed;
+                                    }
+                                    if(intval($homecare) == 1) {
+                                        $service[$homecareCheck->id] = $hargaHomecare;
+                                    }
+                                    if(intval($visit) == 1) {
+                                        $service[$visitCheck->id] = $hargaVisit;
+                                    }
+
+                                    foreach($service as $id => $val) {
+                                        $doctor->getService()->attach($id, ['price' => $val]);
+                                    }
+
+                                    $id = $doctor->id;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch(\Exception $e) {
+                $doctor->delete();
+                isset($doctorCategory) ?? $doctorCategory->delete();
+
+                session()->flash('message', __('general.failed_import_doctor'));
+                session()->flash('message_alert', 1);
+                return redirect()->route($this->rootRoute.'.' . $this->route . '.create2');
+            }
         }
 
         if($this->request->ajax()){
@@ -692,7 +673,7 @@ class DoctorClinicController extends _CrudController
         else {
             session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
             session()->flash('message_alert', 2);
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.show', $id);
         }
     }
 

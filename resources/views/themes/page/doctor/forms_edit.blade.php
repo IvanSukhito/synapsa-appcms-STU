@@ -129,6 +129,7 @@ else {
 
             let html = '';
             let i = 0;
+            let getServiceId = [];
             $.each(listDataService, function(index, item) {
 
                 $.each(listDoctorService, function(index2, item2){
@@ -149,12 +150,8 @@ else {
                     }
 
                     var ServiceId = item2.service_id;
-                    var getServiceId = [];
-                    var a = 0;
 
-                    for (a = 1; a <= ServiceId; a++){
-                        getServiceId.push(a)
-                    }
+                    getServiceId.push(ServiceId)
 
                     $('#service_id').val(getServiceId);
 
