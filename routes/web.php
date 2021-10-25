@@ -56,7 +56,6 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
             foreach ($listRouter as $controller => $linkName) {
 
                 switch ($linkName) {
-                    case 'doctor_clinic':
                     case 'doctor':
                         $router->get($linkName . '/{id}/schedule',   $controller.'@schedule')->name('admin.' . $linkName . '.schedule');
                         $router->post($linkName . '/{id}/schedule',   $controller.'@storeSchedule')->name('admin.' . $linkName . '.storeSchedule');
@@ -77,6 +76,15 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                     case 'product-clinic':
                         $router->get($linkName . '/create2', $controller.'@create2')->name('admin.' . $linkName . '.create2');
                         $router->post($linkName . '/store2', $controller.'@store2')->name('admin.' . $linkName . '.store2');
+                        break;
+                    case 'doctor_clinic':
+                        $router->get($linkName . '/create2', $controller.'@create2')->name('admin.' . $linkName . '.create2');
+                        $router->post($linkName . '/store2', $controller.'@store2')->name('admin.' . $linkName . '.store2');
+                        $router->get($linkName . '/{id}/schedule',   $controller.'@schedule')->name('admin.' . $linkName . '.schedule');
+                        $router->post($linkName . '/{id}/schedule',   $controller.'@storeSchedule')->name('admin.' . $linkName . '.storeSchedule');
+                        $router->post($linkName . '/{id}/schedule/{scheduleId}',   $controller.'@updateSchedule')->name('admin.' . $linkName . '.updateSchedule');
+                        $router->delete($linkName . '/{id}/schedule/{scheduleId}',   $controller.'@destroySchedule')->name('admin.' . $linkName . '.destroySchedule');
+                        break;
 
                 }
                 $router->get($linkName . '/data', $controller . '@dataTable')->name('admin.' . $linkName . '.dataTable');

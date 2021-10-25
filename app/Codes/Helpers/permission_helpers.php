@@ -735,6 +735,9 @@ if ( ! function_exists('listAvailablePermission'))
         $listPermission['product-clinic']['create'][] = 'admin.product-clinic.create2';
         $listPermission['product-clinic']['create'][] = 'admin.product-clinic.store2';
 
+        $listPermission['doctor_clinic']['create'][] = 'admin.doctor_clinic.create2';
+        $listPermission['doctor_clinic']['create'][] = 'admin.doctor_clinic.store2';
+
         return $listPermission;
     }
 }

@@ -366,5 +366,8 @@ return [
     'example_import_product' => 'Example Import Product',
     'download' => 'Download',
     'failed_import_product' => 'Terjadi Kesalahan, Import Produk Gagal',
+    'import_doctor' => 'Import Doctor',
+    'example_import_doctor' => 'Example Import Doctor',
+    'failed_import_doctor' => 'Terjadi Kesalahan, Import Doctor Gagal',
 
 ];
