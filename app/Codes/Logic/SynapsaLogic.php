@@ -345,7 +345,7 @@ class SynapsaLogic
     }
 
     public function downloadExampleImportDoctor() {
-        $file = env('OSS_URL') . '/' . '';
+        $file = env('OSS_URL') . '/' . 'synapsaapps/doctor/example_import/CLW4pZkv0SWiziQ76vVnbRmZvYg2R6EHKJSIN7hB.xlsx';
         $fileName = create_slugs('Example Import Doctor Clinic');
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');

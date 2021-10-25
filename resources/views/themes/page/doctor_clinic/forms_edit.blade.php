@@ -122,106 +122,65 @@ else {
 
         $(document).ready(function() {
            // $('#service_id').change();
-            $('#listDoctorService').change();
+           //  $('#listDoctorService').change();
             $('.multiselect2').select2({
                 tags: true
             });
 
-        });
+            $(document).ready(function() {
+                // $('#service_id').change();
+                //  $('#listDoctorService').change();
+                $('.multiselect2').select2({
+                    tags: true
+                });
+
+                let html = '';
+                let i = 0;
+                let getServiceId = [];
+                $.each(listDataService, function(index, item) {
+
+                    $.each(listDoctorService, function(index2, item2){
+                        if (parseInt(index) === parseInt(item2.service_id)) {
+                            var getService = item;
+                            var getPrice = item2.price;
+
+                            html += '<div class="form-group">' +
+                                '<label for="service">{{ __('general.service') }} ' + (i+1) + ' <span class="text-red">*</span></label>' +
+                                '<input type="text" id="service_' + i +'" name="service[' + i + ']" class="form-control" placeholder="@lang('general.service')" disabled value="' + getService + '"> ' +
+                                '</div>'+
+                                '<div class="form-group">' +
+                                '<label for="price">{{ __('general.price') }} ' + (i+1) + ' <span class="text-red">*</span></label>' +
+                                '<input type="text" id="price_' + i +'" name="price[' + i + ']" class="form-control setMoney" placeholder="@lang('general.price')" value="' + getPrice + '"> ' +
+                                '</div>';
+                            i++;
+
+                        }
+
+                        var ServiceId = item2.service_id;
+
+                        getServiceId.push(ServiceId)
+
+                        $('#service_id').val(getServiceId);
+
+                        let totalService = listDoctorService.length;
+                        $('#infoService').html('Total' + '&nbsp;' + totalService +'&nbsp;'+'Service');
 
 
-        $('#listDoctorService').on('change',function(){
+                        $('#listDoctorService').html(html);
 
-            let html = '';
-            let i = 0;
-            $.each(listDataService, function(index, item) {
-
-                $.each(listDoctorService, function(index2, item2){
-
-                    if (parseInt(index) === parseInt(item2.service_id)) {
-                        var getService = item;
-                        var getPrice = item2.price;
-
-                        console.log(i);
-                        html += '<div class="form-group">' +
-                            '<label for="service">{{ __('general.service') }} ' + (i+1) + ' <span class="text-red">*</span></label>' +
-                            '<input type="text" id="service_' + i +'" name="service[' + i + ']" class="form-control" placeholder="@lang('general.service')" disabled value="' + getService + '"> ' +
-                            '</div>'+
-                            '<div class="form-group">' +
-                            '<label for="price">{{ __('general.price') }} ' + (i+1) + ' <span class="text-red">*</span></label>' +
-                            '<input type="text" id="price_' + i +'" name="price[' + i + ']" class="form-control setMoney" placeholder="@lang('general.price')" value="' + getPrice + '"> ' +
-                            '</div>';
-                        i++;
-
-                    }
-
-                    var ServiceId = item2.service_id;
-                    var getServiceId = [];
-                    var a = 0;
-
-                    for (a = 1; a <= ServiceId; a++){
-                        getServiceId.push(a)
-                        //array.push is used to push a value inside array
-                    }
-
-                    $('#service_id').val(getServiceId);
-                    $('#service_id').attr('readonly', true);
-
-
-                    let totalService = getServiceId.length;
-                    $('#infoService').html('Total' + '&nbsp;' + totalService +'&nbsp;'+'Service');
-
-
-                    $('#listDoctorService').html(html);
-
-                    $('.setMoney').inputmask('numeric', {
-                        radixPoint: ".",
-                        groupSeparator: ",",
-                        digits: 2,
-                        autoGroup: true,
-                        prefix: '', //Space after $, this will not truncate the first character.
-                        rightAlign: false
+                        $('.setMoney').inputmask('numeric', {
+                            radixPoint: ".",
+                            groupSeparator: ",",
+                            digits: 2,
+                            autoGroup: true,
+                            prefix: '', //Space after $, this will not truncate the first character.
+                            rightAlign: false
+                        });
                     });
-
                 });
+                $('#service_id').select2('destroy').attr('readonly', true).css({'-moz-appearance': 'none','-webkit-appearance': 'none'});
             });
+
         });
-
-        $('#a').on('change',function(){
-            let html = '';
-            let i = 0;
-            $.each(listDoctorService, function(index, item){
-                var Service = item.service_id;
-                var Price = item.price;
-                var Doctor = item.doctor_id;
-
-                html += '<div class="form-group">' +
-                    //'<select id='+
-                    '<label for="service">{{ __('general.service') }} ' + (i + 1) + ' <span class="text-red">*</span></label>' +
-                    '<input type="text" id="service_' + i +'" name="service[' + i + ']" class="form-control" disabled placeholder="@lang('general.service')"  value="' + listDataService[Service] + '"> ' +
-                    '</div>'+
-                    '<div class="form-group">' +
-                    '<label for="price">{{ __('general.price') }} ' + (i + 1) + ' <span class="text-red">*</span></label>' +
-                    '<input type="text" id="price_' + i +'" name="price[' + i + ']" class="form-control setMoney" placeholder="@lang('general.price')"  value="' + Price + ' "> ' +
-                    '</div>';
-
-
-                $('#listDoctorService').html(html);
-
-                console.log(Service);
-                $('#service_id').val(Service);
-
-                $('.setMoney').inputmask('numeric', {
-                    radixPoint: ".",
-                    groupSeparator: ",",
-                    digits: 2,
-                    autoGroup: true,
-                    prefix: '', //Space after $, this will not truncate the first character.
-                    rightAlign: false
-                });
-            });
-        });
-
-
     </script>
 @stop
