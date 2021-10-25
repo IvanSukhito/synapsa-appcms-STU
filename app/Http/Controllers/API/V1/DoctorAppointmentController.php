@@ -519,9 +519,24 @@ class DoctorAppointmentController extends Controller
 
         DB::commit();
 
+        $getPatient = Users::where('id', $data->user_id)->first();
+        $getFcmTokenPatient = [];
+        if ($getPatient) {
+            $getFcmTokenPatient = $getPatient->getDeviceToken()->pluck('token')->toArray();
+        }
+
+        $getDoctor = Users::where('id', $user->id)->first();
+        $getFcmTokenDoctor = [];
+        if ($getPatient) {
+            $getFcmTokenDoctor = $getDoctor->getDeviceToken()->pluck('token')->toArray();
+        }
+
         return response()->json([
             'success' => 1,
             'data' => $data,
+            'doctor_name' => $user->fullname,
+            'fcm_token_patient' => $getFcmTokenPatient,
+            'fcm_token_doctor' => $getFcmTokenDoctor,
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
 
