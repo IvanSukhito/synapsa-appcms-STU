@@ -33,6 +33,8 @@ class CreateAppointmentDoctorTable extends Migration
             $table->longText('doctor_prescription')->nullable();
             $table->longText('extra_info')->nullable();
             $table->tinyInteger('online_meeting')->default(0);
+            $table->dateTime('time_start_meeting')->nullable();
+            $table->integer('attempted')->default(0);
             $table->tinyInteger('status')->default(1);
             $table->text('message')->nullable();
             $table->timestamps();
