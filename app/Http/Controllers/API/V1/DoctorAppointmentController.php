@@ -277,8 +277,17 @@ class DoctorAppointmentController extends Controller
         $data->online_meeting = 80;
         $data->save();
 
+        $getPatient = Users::where('id', $data->user_id)->first();
+        $getFcmTokenPatient = [];
+        if ($getPatient) {
+            $getFcmTokenPatient = $getPatient->getDeviceToken()->pluck('token')->toArray();
+        }
+
         return response()->json([
             'success' => 1,
+            'data' => [
+                'fcm_token' => $getFcmTokenPatient,
+            ],
             'message' => ['Sukses'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
