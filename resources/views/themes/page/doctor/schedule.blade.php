@@ -63,10 +63,9 @@
                                     <div class="row">
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <div class="form-group">
-                                                    <label for="service_{!! $list->id !!}">{{ __('general.service') }} <span class="text-red">*</span></label>
-                                                    {{ Form::select('service_'.$list->id, $listSet['service_id'], $list->service_id, ['id' => 'service_'.$list->id, 'class' => 'form-control', 'required' => true]) }}
-                                                </div>
+                                                    <label for="service_{!! $list->id !!}">{{ __('general.service') }}
+                                                        <span class="text-red">*</span></label>
+                                                {{ Form::select('service_'.$list->id, $listSet['service_id'], $list->service_id, ['id' => 'service_'.$list->id, 'class' => 'form-control', 'required' => true]) }}
                                             </div>
                                         </div>
                                         <div class="col-md-3">
