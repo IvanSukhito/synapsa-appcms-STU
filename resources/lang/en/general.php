@@ -10,6 +10,8 @@ return [
 
     'add' => 'Add',
     'faqs' => 'Faqs',
+    'phone' => 'Phone',
+    'mail' => 'Mail',
     'klinik' => 'Klinik',
     'clinic_info' => 'Clinic Info',
     'clinic_phone' => 'Clinic Phone',
@@ -294,6 +296,9 @@ return [
     'success_send_to_your_email' => 'Success Send to your Email: :field',
 
     'take_product_synapsa' => 'Add From Synapsa',
+    'contact' => 'Contact',
+    'customer-support' => 'Customer Support',
+    'customer_support' => 'Customer Support',
 
     'monday' => 'Monday',
     'tuesday' => 'Tuesday',

@@ -605,6 +605,14 @@ if ( ! function_exists('listAllMenu')) {
                         'type' => 1,
                     ],
                     [
+                        'name' => __('general.customer_support'),
+                        'title' => __('general.customer_support'),
+                        'active' => ['admin.customer-support.'],
+                        'route' => 'admin.customer-support.index',
+                        'key' => 'customer-support',
+                        'type' => 1
+                    ],
+                    [
                         'name' => __('general.setting'),
                         'title' => __('general.setting'),
                         'active' => ['admin.settings.'],
@@ -702,6 +710,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'shipping',
                      'doctor_clinic',
                      'user_clinic',
+                     'customer-support',
 
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [

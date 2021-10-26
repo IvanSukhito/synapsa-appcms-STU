@@ -22,6 +22,7 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
             $listRouter = [
                 'App\Http\Controllers\Admin\SettingsController' => 'settings',
                 'App\Http\Controllers\Admin\AdminController' => 'admin',
+                'App\Http\Controllers\Admin\CustomerSupportController' => 'customer-support',
                 'App\Http\Controllers\Admin\RoleController' => 'role',
                 'App\Http\Controllers\Admin\UserController' => 'user',
                 'App\Http\Controllers\Admin\ArticleController' => 'article',

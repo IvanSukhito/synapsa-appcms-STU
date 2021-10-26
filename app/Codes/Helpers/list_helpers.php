@@ -215,6 +215,16 @@ if ( ! function_exists('get_list_type_service')) {
     }
 }
 
+if ( ! function_exists('get_list_type_support')) {
+    function get_list_type_support()
+    {
+        return [
+            1 => __('general.phone'),
+            2 => __('general.mail')
+        ];
+    }
+}
+
 if ( ! function_exists('get_list_service_payment')) {
     function get_list_service_payment()
     {
