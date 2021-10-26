@@ -44,9 +44,9 @@ class DashboardController extends Controller
 
                 $data['clinic'] = Klinik::where('id', $getClinic->klinik_id)->first();
                 $data['user'] = Users::where('klinik_id', $getClinic->klinik_id)->where('patient',1)->where('status',80)->get();
-                $data['transaction'] = Transaction::where('klinik_id', $getClinic->klinik_id);
-                $data['transactionDoctor'] = Transaction::where('klinik_id', $getClinic->klinik_id)->where('type_service', 2);
-                $data['transactionLab'] = Transaction::where('klinik_id', $getClinic->klinik_id)->where('type_service', 3);
+                $data['transaction'] = Transaction::where('klinik_id', $getClinic->klinik_id)->whereBetween('created_at', [$dateStart, $dateEnd]);
+                $data['transactionDoctor'] = Transaction::where('klinik_id', $getClinic->klinik_id)->where('type_service', 2)->whereBetween('created_at', [$dateStart, $dateEnd]);
+                $data['transactionLab'] = Transaction::where('klinik_id', $getClinic->klinik_id)->where('type_service', 3)->whereBetween('created_at', [$dateStart, $dateEnd]);
             }
             else {
                 $data['clinic'] = Klinik::where('id', $getClinic->klinik_id)->first();
