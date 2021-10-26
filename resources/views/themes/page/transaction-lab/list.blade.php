@@ -94,6 +94,12 @@ if ($daterange) {
                                         @lang('general.filter')
                                     </button>
 
+                                    <a href="<?php echo route('admin.' . $thisRoute . '.index') ?>" class="mb-1 btn btn-warning btn-sm" type="submit"
+                                       title="@lang('general.reset')">
+                                        <i></i>
+                                        @lang('general.reset')
+                                    </a>
+
                                 </div>
                             </div>
                         </div>
