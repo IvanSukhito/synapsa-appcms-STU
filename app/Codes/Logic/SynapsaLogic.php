@@ -227,6 +227,7 @@ class SynapsaLogic
 
         if ($flag) {
             AppointmentDoctor::create([
+                'klinik_id' => $getTransaction->klinik_id,
                 'schedule_id' => $getSchedule->id,
                 'service_id' => $getSchedule->service_id,
                 'doctor_id' => $getSchedule->doctor_id,

@@ -9,6 +9,7 @@ class AppointmentDoctor extends Model
     protected $table = 'appointment_doctor';
     protected $primaryKey = 'id';
     protected $fillable = [
+        'klinik_id',
         'schedule_id',
         'service_id',
         'doctor_id',
