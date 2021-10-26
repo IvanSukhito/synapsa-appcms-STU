@@ -68,19 +68,29 @@ else {
                 @endif
 
                 <div class="card-body">
-                    <div class="form-group">
-                        <label for="example_import_doctor">{{ __('general.example_import_doctor') }} <span class="text-red">*</span></label><br />
-                        <a href="?download_example_import=1"
-                           class="btn btn-sm btn-primary" title="{{ __('general.download') }}" id="example_import_doctor">
-                            <i class="fa fa-file-excel-o"></i><span class=""> {{ __('general.download') }}</span>
-                        </a>
-                    </div>
+
                     @if(in_array($type, ['doctor']))
-                    <div class="form-group">
-                        <label for="import_doctor">{{ __('general.import_doctor') }} <span class="text-red">*</span></label>
-                        {{ Form::file('import_doctor', ['class' => $errors->has('import_doctor') ? 'form-control dropify is-invalid' : 'form-control dropify', 'id' => 'import_doctor', 'required' => true, 'autocomplete' => 'off', 'accept' => '.xls, .xlsx']) }}
-                    </div>
+
+                        <div class="form-group">
+                            <label for="example_import_doctor">{{ __('general.example_import_doctor') }} <span class="text-red">*</span></label><br />
+                            <a href="?download_example_import=1"
+                               class="btn btn-sm btn-primary" title="{{ __('general.download') }}" id="example_import_doctor">
+                                <i class="fa fa-file-excel-o"></i><span class=""> {{ __('general.download') }}</span>
+                            </a>
+                        </div>
+                        <div class="form-group">
+                            <label for="import_doctor">{{ __('general.import_doctor') }} <span class="text-red">*</span></label>
+                            {{ Form::file('import_doctor', ['class' => $errors->has('import_doctor') ? 'form-control dropify is-invalid' : 'form-control dropify', 'id' => 'import_doctor', 'required' => true, 'autocomplete' => 'off', 'accept' => '.xls, .xlsx']) }}
+                        </div>
                     @elseif(in_array($type, ['schedule']))
+                        <div class="form-group">
+                            <label for="example_import_doctor_schedule">{{ __('general.example_import_doctor_schedule') }} <span class="text-red">*</span></label><br />
+                            <a href="?download_example_import=1"
+                               class="btn btn-sm btn-primary" title="{{ __('general.download') }}" id="example_import_doctor_schedule">
+                                <i class="fa fa-file-excel-o"></i><span class=""> {{ __('general.download') }}</span>
+                            </a>
+                        </div>
+
                         <div class="form-group">
                             <label for="import_doctor_schedule">{{ __('general.import_doctor_schedule') }} <span class="text-red">*</span></label>
                             {{ Form::file('import_doctor_schedule', ['class' => $errors->has('import_doctor_schedule') ? 'form-control dropify is-invalid' : 'form-control dropify', 'id' => 'import_doctor_schedule', 'required' => true, 'autocomplete' => 'off', 'accept' => '.xls, .xlsx']) }}
