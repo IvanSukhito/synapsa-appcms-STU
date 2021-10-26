@@ -73,6 +73,15 @@ else {
                 <div class="card-body">
                     @include(env('ADMIN_TEMPLATE').'._component.generate_forms')
                     @if(in_array($viewType, ['show','edit']) )
+                        <div class="form-group">
+                            <label for="stock">{{ __('general.stock') }} <span class="text-red">*</span></label>
+                            <div class="input-group">
+                                {{ Form::text('stock', old('stock', isset($data->stock) ? $data->stock : null), array_merge(['class' => $errors->has('stock') ? 'form-control is-invalid' : 'form-control', 'id' => 'stock', 'required' => true, 'autocomplete' => 'off'], $addAttribute ))}}
+                            </div>
+                            <label for="unlimitedCheck">Unlimited</label>
+                            <input type="checkbox" id="unlimitedCheck" name="stock_flag" @if(in_array($viewType, ['show'])) disabled @endif>
+                        </div>
+
                     <?php $no = 0; ?>
                     @foreach($title as $key => $title)
                         <?php $no++; ?>
@@ -93,6 +102,15 @@ else {
                         </div>
                     @endif
                     @if(in_array($viewType, ['create']) )
+                        <div class="form-group">
+                            <label for="stock">{{ __('general.stock') }} <span class="text-red">*</span></label>
+                            <div class="input-group">
+                                {{ Form::text('stock', old('stock', isset($data->stock) ? $data->stock : null), ['class' => $errors->has('stock') ? 'form-control is-invalid' : 'form-control', 'id' => 'stock', 'required' => true, 'autocomplete' => 'off']) }}
+                            </div>
+                            <label for="unlimitedCheck">Unlimited</label>
+                            <input type="checkbox" id="unlimitedCheck" name="stock_flag">
+                        </div>
+
                        <div id="list_desc">
                            <div class="form-group">
                                <label for="desc">{{ __('general.desc') }}</label>
@@ -147,6 +165,7 @@ else {
     let setIndex1 = 1;
 
         $(document).ready(function() {
+            let stock = $('#stock').val();
             $('.dropify').dropify();
 
             $('.editor').each(function(i, item) {
@@ -158,6 +177,25 @@ else {
             });
             });
 
+            if(stock <= '0') {
+                $('#unlimitedCheck').prop('checked', true);
+                $('#stock').val('0');
+                $('#stock').prop('readonly', true);
+            }
+
+        });
+
+        $('#unlimitedCheck').change(function() {
+            if($('#unlimitedCheck').prop('checked') === true) {
+                $('#unlimitedCheck').val('1');
+                $('#stock').val('0');
+                $('#stock').prop('readonly', true);
+            }
+            else {
+                $('#unlimitedCheck').val('2');
+                $('#stock').val('100');
+                $('#stock').prop('readonly', false);
+            }
         });
 
         function add_desc1() {

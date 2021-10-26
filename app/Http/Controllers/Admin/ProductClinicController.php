@@ -68,6 +68,9 @@ class ProductClinicController extends _CrudController
                     'edit' => 'required'
                 ],
                 'type' => 'number',
+                'create' => 0,
+                'edit' => 0,
+                'show' => 0,
             ],
             'stock_flag' => [
                 'validate' => [
@@ -76,6 +79,9 @@ class ProductClinicController extends _CrudController
                 ],
                 'type' => 'select2',
                 'list' => 0,
+                'create' => 0,
+                'edit' => 0,
+                'show' => 0,
             ],
             'status' => [
                 'validate' => [
@@ -111,6 +117,7 @@ class ProductClinicController extends _CrudController
         //$this->listView['index'] = env('ADMIN_TEMPLATE').'.page.product.list';
         $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.product-clinic.forms';
         $this->listView['create2'] = env('ADMIN_TEMPLATE').'.page.product-clinic.forms2';
+        $this->listView['create3'] = env('ADMIN_TEMPLATE').'.page.product-clinic.forms3';
         $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.product-clinic.list';
         $this->listView['edit'] = env('ADMIN_TEMPLATE').'.page.product-clinic.forms';
         $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.product-clinic.forms';
@@ -280,6 +287,12 @@ class ProductClinicController extends _CrudController
         $desc = $this->request->get('desc');
         $title = $this->request->get('title');
 
+        if($productStockFlag != 1){
+            $productStockFlag = 2;
+        }
+        else{
+            $productStockFlag = $productStockFlag;
+        }
         $descProduct = [];
 
         $descProduct[]  =
@@ -366,13 +379,18 @@ class ProductClinicController extends _CrudController
         $dokument = $this->request->file('image_full');
         $title = $this->request->get('title');
         $desc = $this->request->get('desc');
+
+        if($productStockFlag != 1){
+            $productStockFlag = 2;
+        }
+        else{
+            $productStockFlag = $productStockFlag;
+        }
+
         $descProduct = [];
         $descProduct[]  =
         [   'title' => $title,
             'desc' => $desc   ];
-
-
-
 
         if ($dokument) {
             if ($dokument->getError() != 1) {
@@ -669,6 +687,26 @@ class ProductClinicController extends _CrudController
             session()->flash('message_alert', 2);
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
+    }
+
+    public function create3(){
+        $this->callPermission();
+
+        $adminId = session()->get('admin_id');
+        $getData = Users::where('id', $adminId)->first();
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $data = $this->data;
+
+        $data['thisLabel'] = __('general.product');
+        $data['viewType'] = 'create';
+        $data['formsTitle'] = __('general.title_create', ['field' => __('general.product') . ' ' . $getData->name]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['data'] = $getData;
+
+        return view($this->listView['create3'], $data);
     }
 
 }
