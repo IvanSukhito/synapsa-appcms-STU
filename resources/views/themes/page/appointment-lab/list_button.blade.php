@@ -17,7 +17,7 @@
         <span class="d-none d-md-inline"> @lang('general.reject')</span>
     </a>
 @endif
-@if ($permission['edit'] && in_array($query->status, [80,4]))
+@if ($permission['edit'] && in_array($query->status, [4]))
     <a href="{{ route('admin.' . $thisRoute . '.uploadHasilLab', $query->{$masterId}) }}" class="mb-1 btn btn-primary btn-sm"
        title="@lang('general.upload_hasil_lab')">
         <i class="fa fa-file-pdf-o"></i>
