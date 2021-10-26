@@ -218,6 +218,7 @@ class AppointmentLabController extends _CrudController
         }
 
         $getData->form_patient = $dokumentPDF;
+        $getData->status = 80;
         $getData->save();
 
         if($this->request->ajax()){
