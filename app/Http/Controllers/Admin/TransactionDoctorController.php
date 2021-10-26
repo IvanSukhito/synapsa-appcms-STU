@@ -39,6 +39,7 @@ class TransactionDoctorController extends _CrudController
                 ],
                 'lang' => 'general.klinik',
                 'type' => 'select2',
+                'list' => 0,
             ],
             'user_id' => [
                 'validate' => [
@@ -63,6 +64,7 @@ class TransactionDoctorController extends _CrudController
                 ],
                 'lang' => 'general.shipping',
                 'type' => 'select2',
+                'list' => 0,
             ],
             'code' => [
                 'validate' => [
@@ -196,6 +198,7 @@ class TransactionDoctorController extends _CrudController
                     'edit' => 'required'
                 ],
                 'lang' => 'general.receiver_name',
+                'list' => 0,
             ],
             'receiver_phone' => [
                 'validate' => [
@@ -258,8 +261,8 @@ class TransactionDoctorController extends _CrudController
             $request, 'general.transaction_doctor', 'transaction-doctor', 'V1\Transaction', 'transaction-doctor',
             $passingData
         );
-        $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.transaction-doctornlab.list';
-        $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.transaction-doctornlab.list_button';
+        $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.transaction-doctor.list';
+        $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.transaction-doctor.list_button';
 
         $getUsers = Users::where('status', 80)->pluck('fullname', 'id')->toArray();
         if($getUsers) {
@@ -356,9 +359,6 @@ class TransactionDoctorController extends _CrudController
 
         $builder = $this->model::query()->select('*')->where('klinik_id', $getAdmin->klinik_id)->where('type_service', 2);
 
-        if ($this->request->get('filter_klinik_id') && $this->request->get('filter_klinik_id') != 0) {
-            $builder = $builder->where('klinik_id', $this->request->get('filter_klinik_id'));
-        }
         if ($this->request->get('filter_payment_id') && $this->request->get('filter_payment_id') != 0) {
             $builder = $builder->where('payment_id', $this->request->get('filter_payment_id'));
         }

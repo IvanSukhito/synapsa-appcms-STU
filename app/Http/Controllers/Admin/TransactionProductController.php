@@ -289,8 +289,8 @@ class TransactionProductController extends _CrudController
             $request, 'general.transaction_product', 'transaction-product', 'V1\Transaction', 'transaction-product',
             $passingData
         );
-        $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.transaction.list';
-        $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.transaction.list_button';
+        $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.transaction-product.list';
+        $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.transaction-product.list_button';
 
         $getUsers = Users::where('status', 80)->pluck('fullname', 'id')->toArray();
         if($getUsers) {
@@ -392,9 +392,6 @@ class TransactionProductController extends _CrudController
 
         $builder = $this->model::query()->select('*')->where('klinik_id', $getAdmin->klinik_id)->where('type_service', 1);
 
-        if ($this->request->get('filter_klinik_id') && $this->request->get('filter_klinik_id') != 0) {
-            $builder = $builder->where('klinik_id', $this->request->get('filter_klinik_id'));
-        }
         if ($this->request->get('filter_payment_id') && $this->request->get('filter_payment_id') != 0) {
             $builder = $builder->where('payment_id', $this->request->get('filter_payment_id'));
         }
@@ -546,7 +543,7 @@ class TransactionProductController extends _CrudController
             return redirect()->route('admin.' . $this->route . '.index');
         }
 
-        $getData->status = 80;
+        $getData->status = 81;
         $getData->save();
 
         if($this->request->ajax()){
