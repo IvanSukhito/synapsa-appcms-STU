@@ -357,7 +357,7 @@ class SynapsaLogic
     }
 
     public function downloadExampleImportLabSchedule() {
-        $file = env('OSS_URL') . '/' . '';
+        $file = env('OSS_URL') . '/' . 'synapsaapps/lab-schedule/example_import/rqTH6V46UlU725sIwxslokh7G5XdUiDCXW7YIYA2.xlsx';
         $fileName = create_slugs('Example Import Lab Schedule');
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -369,7 +369,7 @@ class SynapsaLogic
     }
 
     public function downloadExampleImportDoctorSchedule() {
-        $file = env('OSS_URL') . '/' . '';
+        $file = env('OSS_URL') . '/' . 'synapsaapps/doctor-schedule/example_import/kPG7tGSa4TXQyadj1JBGgLyvIPNbDYJ2w3LQMq1F.xlsx';
         $fileName = create_slugs('Example Import Doctor Schedule');
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');

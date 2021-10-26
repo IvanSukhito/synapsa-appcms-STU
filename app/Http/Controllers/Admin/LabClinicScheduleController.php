@@ -308,11 +308,11 @@ class LabClinicScheduleController extends _CrudController
 
         if($getFile) {
 
-            $destinationPath = 'synapsaapps/lab-schedule/example_import';
-
-            $getUrl = Storage::put($destinationPath, $getFile);
-
-            die(env('OSS_URL') . '/' . $getUrl);
+//            $destinationPath = 'synapsaapps/lab-schedule/example_import';
+//
+//            $getUrl = Storage::put($destinationPath, $getFile);
+//
+//            die(env('OSS_URL') . '/' . $getUrl);
 
             try {
                 $getFileName = $getFile->getClientOriginalName();
