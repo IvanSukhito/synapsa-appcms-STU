@@ -15,5 +15,21 @@ class CustomerSupport extends Model
         'status'
     ];
 
+    protected $appends = [
+    'status_nice',
+    'type_nice',
+    ];
+
+    public function getStatusNiceAttribute()
+    {
+        $getList = get_list_active_inactive();
+        return $getList[$this->status] ?? $this->status;
+    }
+
+    public function getTypeNiceAttribute()
+    {
+        $getList = get_list_type_support();
+        return $getList[$this->type] ?? $this->type;
+    }
 
 }

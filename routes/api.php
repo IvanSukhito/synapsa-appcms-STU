@@ -42,6 +42,7 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
     Route::get('product', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getProductRujukan'])->name('api.getProduct');
     Route::get('product/{id}', ['uses' => 'App\Http\Controllers\API\V1\ProductController@getProductDetail'])->name('api.getProductDetail');
 
+    Route::get('customer-support', ['uses' => 'App\Http\Controllers\API\V1\CustomerSupportController@getCS'])->name('api.getCS');
     Route::get('faqs', ['uses' => 'App\Http\Controllers\API\V1\FaqsController@getFaqs'])->name('api.getFaqs');
     Route::get('sliders', ['uses' => 'App\Http\Controllers\API\V1\SlidersController@getSliders'])->name('api.getSliders');
 
