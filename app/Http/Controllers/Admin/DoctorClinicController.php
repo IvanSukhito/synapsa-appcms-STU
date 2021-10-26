@@ -738,6 +738,7 @@ class DoctorClinicController extends _CrudController
             $getUrl = Storage::put($destinationPath, $getFile);
 
             die(env('OSS_URL') . '/' . $getUrl);
+
             try {
                 $getFileName = $getFile->getClientOriginalName();
                 $ext = explode('.', $getFileName);
