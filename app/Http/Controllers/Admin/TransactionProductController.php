@@ -39,6 +39,7 @@ class TransactionProductController extends _CrudController
                 ],
                 'lang' => 'general.klinik',
                 'type' => 'select2',
+                'list' => 0,
             ],
             'user_id' => [
                 'validate' => [
@@ -210,6 +211,7 @@ class TransactionProductController extends _CrudController
                     'edit' => ['disabled' => true]
                 ],
                 'type' => 'number',
+                'list' => 0,
                 'lang' => 'general.total',
             ],
             'receiver_name' => [
@@ -220,6 +222,7 @@ class TransactionProductController extends _CrudController
                     'edit' => ['disabled' => true]
                 ],
                 'lang' => 'general.receiver_name',
+                'list' => 0,
             ],
             'receiver_phone' => [
                 'validate' => [
