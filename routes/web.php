@@ -47,6 +47,8 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                 'App\Http\Controllers\Admin\PaymentController' => 'payment',
                 'App\Http\Controllers\Admin\ShippingController' => 'shipping',
                 'App\Http\Controllers\Admin\AppointmentLabController' => 'appointment-lab',
+                'App\Http\Controllers\Admin\AppointmentLabHomecareController' => 'appointment-lab-homecare',
+                'App\Http\Controllers\Admin\AppointmentLabVisitController' => 'appointment-lab-visit',
                 'App\Http\Controllers\Admin\AppointmentNurseController' => 'appointment-nurse',
                 'App\Http\Controllers\Admin\ClinicInfoController' => 'clinic_info',
                 'App\Http\Controllers\Admin\DoctorClinicController' => 'doctor_clinic',
@@ -68,7 +70,8 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                         $router->post($linkName . '/store2', $controller.'@store2')->name('admin.' . $linkName . '.store2');
                         break;
                          break;
-                    case 'appointment-lab':
+                    case 'appointment-lab-homecare':
+                    case 'appointment-lab-visit':
                     $router->get($linkName . '/{id}/approve',   $controller.'@approve')->name('admin.' . $linkName . '.approve');
                     $router->get($linkName . '/{id}/reject',   $controller.'@reject')->name('admin.' . $linkName . '.reject');
                     $router->get($linkName . '/{id}/upload-hasil-lab', $controller.'@uploadHasilLab')->name('admin.'. $linkName . '.uploadHasilLab');

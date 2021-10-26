@@ -465,10 +465,30 @@ if ( ! function_exists('listAllMenu')) {
                 'name' => __('general.appointment_lab'),
                 'icon' => '<i class="nav-icon fa fa-book"></i>',
                 'title' => __('general.appointment_lab'),
-                'active' => ['admin.appointment-lab.'],
-                'route' => 'admin.appointment-lab.index',
-                'key' => 'appointment-lab',
-                'type' => 1,
+                'active' => [
+                    'admin.appointment-lab.',
+                    'admin.appointment-lab-homecare.',
+                    'admin.appointment-lab-visit.'
+                ],
+                'type' => 2,
+                'data' => [
+                    [
+                        'name' => __('general.appointment_lab_homecare'),
+                        'title' => __('general.appointment_lab_homecare'),
+                        'active' => ['admin.appointment-lab-homecare.'],
+                        'route' => 'admin.appointment-lab-homecare.index',
+                        'key' => 'appointment-lab-homecare',
+                        'type' => 1,
+                    ],
+                    [
+                        'name' => __('general.appointment_lab_visit'),
+                        'title' => __('general.appointment_lab_visit'),
+                        'active' => ['admin.appointment-lab-visit.'],
+                        'route' => 'admin.appointment-lab-visit.index',
+                        'key' => 'appointment-lab-visit',
+                        'type' => 1,
+                    ],
+                ],
             ],
             [
                 'name' => __('general.appointment_nurse'),
@@ -625,6 +645,8 @@ if ( ! function_exists('listAvailablePermission'))
                      'faqs',
                      'transaction',
                      'appointment-lab',
+                     'appointment-lab-visit',
+                     'appointment-lab-homecare',
                      'appointment-nurse',
                      'clinic_info',
                      'transaction-product',
@@ -721,10 +743,15 @@ if ( ! function_exists('listAvailablePermission'))
         $listPermission['lab-clinic-schedule']['create'][] = 'admin.lab-clinic-schedule.create2';
         $listPermission['lab-clinic-schedule']['create'][] = 'admin.lab-clinic-schedule.store2';
 
-        $listPermission['appointment-lab']['edit'][] = 'admin.appointment-lab.approve';
-        $listPermission['appointment-lab']['edit'][] = 'admin.appointment-lab.reject';
-        $listPermission['appointment-lab']['edit'][] = 'admin.appointment-lab.uploadHasilLab';
-        $listPermission['appointment-lab']['edit'][] = 'admin.appointment-lab.storeHasilLab';
+        $listPermission['appointment-lab-homecare']['edit'][] = 'admin.appointment-lab-homecare.approve';
+        $listPermission['appointment-lab-homecare']['edit'][] = 'admin.appointment-lab-homecare.reject';
+        $listPermission['appointment-lab-homecare']['edit'][] = 'admin.appointment-lab-homecare.uploadHasilLab';
+        $listPermission['appointment-lab-homecare']['edit'][] = 'admin.appointment-lab-homecare.storeHasilLab';
+
+        $listPermission['appointment-lab-visit']['edit'][] = 'admin.appointment-lab-visit.approve';
+        $listPermission['appointment-lab-visit']['edit'][] = 'admin.appointment-lab-visit.reject';
+        $listPermission['appointment-lab-visit']['edit'][] = 'admin.appointment-lab-visit.uploadHasilLab';
+        $listPermission['appointment-lab-visit']['edit'][] = 'admin.appointment-lab-visit.storeHasilLab';
 
         $listPermission['appointment-nurse']['edit'][] = 'admin.appointment-nurse.approve';
         $listPermission['appointment-nurse']['edit'][] = 'admin.appointment-nurse.reject';

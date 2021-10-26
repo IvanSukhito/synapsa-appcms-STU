@@ -159,6 +159,8 @@ return [
     'proses_pengiriman' => 'Proses Pengiriman',
     'type_appointment' => 'Type Appointment',
     'appointment_lab' => 'Appointment Lab',
+    'appointment_lab_visit' => 'Lab Visit',
+    'appointment_lab_homecare' => 'Lab Homecare',
     'appointment_nurse' => 'Appointment Nurse',
     'process' => 'Process',
     'cancel' => 'Cancel',
