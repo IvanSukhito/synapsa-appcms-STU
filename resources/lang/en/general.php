@@ -293,6 +293,8 @@ return [
     'news_and_event' => 'News & Event',
     'success_send_to_your_email' => 'Success Send to your Email: :field',
 
+    'take_product_synapsa' => 'Add From Synapsa',
+
     'monday' => 'Monday',
     'tuesday' => 'Tuesday',
     'wednesday' => 'Wednesday',
