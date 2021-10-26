@@ -171,7 +171,12 @@ class AppointmentLabVisitController extends _CrudController
         $this->callPermission();
 
         $adminId = session()->get('admin_id');
-        $getData = Admin::where('id', $adminId)->first();
+        $getAdmin = Admin::where('id', $adminId)->first();
+        if (!$getAdmin) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $getData = $this->crud->show($id);
         if (!$getData) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
@@ -188,6 +193,7 @@ class AppointmentLabVisitController extends _CrudController
     }
 
     public function  storeHasilLab($id){
+
         $this->callPermission();
 
         $adminId = session()->get('admin_id');
@@ -201,6 +207,7 @@ class AppointmentLabVisitController extends _CrudController
         $getData = AppointmentLab::where('id', $id)->where('klinik_id', $getAdmin->klinik_id)->first();
 
         $dokument = $this->request->file('form_patient');
+
 
         if ($dokument) {
             if ($dokument->getError() != 1) {
@@ -217,6 +224,7 @@ class AppointmentLabVisitController extends _CrudController
             }
         }
 
+
         $getData->form_patient = $dokumentPDF;
         $getData->status = 80;
         $getData->save();
@@ -232,6 +240,7 @@ class AppointmentLabVisitController extends _CrudController
 
 
     }
+
 
     public function dataTable()
    {
