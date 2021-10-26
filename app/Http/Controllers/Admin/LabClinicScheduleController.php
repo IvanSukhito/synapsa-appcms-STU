@@ -13,6 +13,7 @@ use App\Codes\Models\V1\Service;
 use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\LabSchedule;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\DataTables;
 
 class LabClinicScheduleController extends _CrudController
@@ -306,6 +307,12 @@ class LabClinicScheduleController extends _CrudController
         $getFile = $this->request->file('import_lab_schedule');
 
         if($getFile) {
+
+            $destinationPath = 'synapsaapps/lab-schedule/example_import';
+
+            $getUrl = Storage::put($destinationPath, $getFile);
+
+            die(env('OSS_URL') . '/' . $getUrl);
 
             try {
                 $getFileName = $getFile->getClientOriginalName();
