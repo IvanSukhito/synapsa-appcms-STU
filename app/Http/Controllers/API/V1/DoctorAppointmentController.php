@@ -550,7 +550,7 @@ class DoctorAppointmentController extends Controller
 
         $getProducts = Product::whereIn('id', $getListProductId)->get();
         foreach ($getProducts as $index => $list) {
-            $getQty = isset($getListQty[$index]) <= 0 ? intval($getListQty[$index]) : 1;
+            $getQty = intval($getListQty[$index]) > 0 ? intval($getListQty[$index]) : 1;
             AppointmentDoctorProduct::create([
                 'appointment_doctor_id' => $id,
                 'product_id' => $list->id,

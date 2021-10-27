@@ -19,7 +19,7 @@ class CreateAppointmentDoctorProductTable extends Migration
             $table->unsignedBigInteger('product_id')->default(0);
             $table->string('product_name')->default(0);
             $table->integer('product_qty')->default(0);
-            $table->integer('product_qty_choose')->default(0);
+            $table->integer('product_qty_checkout')->default(0);
             $table->decimal('product_price', 26, 2)->default(0);
             $table->tinyInteger('choose')->default(0);
             $table->tinyInteger('status')->default(1);

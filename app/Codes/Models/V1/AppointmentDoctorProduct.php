@@ -13,7 +13,7 @@ class AppointmentDoctorProduct extends Model
         'product_id',
         'product_name',
         'product_qty',
-        'product_qty_choose',
+        'product_qty_checkout',
         'product_price',
         'choose',
         'status'
