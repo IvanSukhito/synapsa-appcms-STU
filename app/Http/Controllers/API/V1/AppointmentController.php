@@ -761,15 +761,17 @@ class AppointmentController extends Controller
             $getFcmTokenPatient = $getPatient->getDeviceToken()->pluck('token')->toArray();
         }
 
+        $getTimeMeeting = intval($this->setting['time-onlint-meeting']) ?? 30;
+
         if ($data->time_start_meeting == null) {
             $data->time_start_meeting = date('Y-m-d H:i:s');
             $data->save();
             $dateStopMeeting = date('Y-m-d');
-            $timeStopMeeting = date('H:i:s', strtotime("+30 minutes"));
+            $timeStopMeeting = date('H:i:s', strtotime("+$getTimeMeeting minutes"));
         }
         else {
             $dateStopMeeting = date('Y-m-d');
-            $timeStopMeeting = date('H:i:s', strtotime($data->time_start_meeting) + (60*30));
+            $timeStopMeeting = date('H:i:s', strtotime($data->time_start_meeting) + (60*$getTimeMeeting));
         }
 
         return response()->json([

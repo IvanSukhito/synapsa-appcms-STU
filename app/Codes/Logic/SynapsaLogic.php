@@ -2,6 +2,7 @@
 
 namespace App\Codes\Logic;
 
+use App\Codes\Models\Settings;
 use App\Codes\Models\V1\AppointmentDoctor;
 use App\Codes\Models\V1\AppointmentLab;
 use App\Codes\Models\V1\AppointmentLabDetails;
@@ -15,6 +16,7 @@ use App\Codes\Models\V1\Service;
 use App\Codes\Models\V1\SetJob;
 use App\Codes\Models\V1\Users;
 use App\Jobs\ProcessTransaction;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class SynapsaLogic
@@ -331,6 +333,19 @@ class SynapsaLogic
         return true;
 
 
+    }
+
+    public function autoCompleteMeeting()
+    {
+        $setting = Cache::remember('settings', env('SESSION_LIFETIME'), function () {
+            return Settings::pluck('value', 'key')->toArray();
+        });
+        $getTimeMeeting = intval($setting['time-onlint-meeting']) ?? 30;
+        $timeFinish = date('Y-m-d H:i:s', (strtotime("now") - (60*$getTimeMeeting)));
+        AppointmentDoctor::where('time_start_meeting', '<', $timeFinish)->update([
+            'online_meeting' => 80
+        ]);
+        return 1;
     }
 
     public function downloadExampleImportProduct() {

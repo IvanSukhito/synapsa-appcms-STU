@@ -25,6 +25,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('notification:push')->everyMinute();
+        $schedule->command('auto:finishMeeting')->everyThirtyMinutes();
     }
 
     /**
