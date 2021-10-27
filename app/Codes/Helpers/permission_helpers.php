@@ -285,7 +285,7 @@ if ( ! function_exists('listAllMenu')) {
             ],
             [
                 'name' => __('general.doctor_clinic'),
-                'icon' => '<i class="nav-icon fa fa-user-plus"></i>',
+                'icon' => '<i class="nav-icon fa fa-user-md"></i>',
                 'title' => __('general.doctor_clinic'),
                 'active' => ['admin.doctor_clinic.'],
                 'route' => 'admin.doctor_clinic.index',
@@ -676,6 +676,7 @@ if ( ! function_exists('listAvailablePermission'))
         foreach ([
                      'transaction-lab',
                      'transaction-doctor',
+                     'doctor',
 
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
@@ -699,7 +700,6 @@ if ( ! function_exists('listAvailablePermission'))
                      'product-clinic',
                      'lab-clinic',
                      'users',
-                     'doctor',
                      'product-category',
                      'article-category',
                      'service',
@@ -735,11 +735,6 @@ if ( ! function_exists('listAvailablePermission'))
             ];
         }
 
-
-        $listPermission['doctor']['create'][] = 'admin.doctor.schedule';
-        $listPermission['doctor']['create'][] = 'admin.doctor.storeSchedule';
-        $listPermission['doctor']['edit'][] = 'admin.doctor.updateSchedule';
-        $listPermission['doctor']['destroy'][] = 'admin.doctor.destroySchedule';
 
         $listPermission['doctor_clinic']['create'][] = 'admin.doctor_clinic.schedule';
         $listPermission['doctor_clinic']['create'][] = 'admin.doctor_clinic.storeSchedule';

@@ -47,7 +47,8 @@ class ProductController extends _CrudController
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
-                ]
+                ],
+                'list' => 0,
             ],
             'image_full' => [
                 'validate' => [
@@ -55,6 +56,7 @@ class ProductController extends _CrudController
                     'edit' => ''
                 ],
                 'type' => 'image',
+                'list' => 0,
                 //'lang' => 'image'
             ],
             'stock' => [
@@ -63,6 +65,9 @@ class ProductController extends _CrudController
                     'edit' => 'required'
                 ],
                 'type' => 'number',
+                'create' => 0,
+                'edit' => 0,
+                'show' => 0,
             ],
             'stock_flag' => [
                 'validate' => [
@@ -70,6 +75,10 @@ class ProductController extends _CrudController
                     'edit' => 'required'
                 ],
                 'type' => 'select2',
+                'list' => 0,
+                'create' => 0,
+                'edit' => 0,
+                'show' => 0,
             ],
             'status' => [
                 'validate' => [
