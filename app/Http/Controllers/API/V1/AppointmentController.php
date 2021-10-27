@@ -841,7 +841,8 @@ class AppointmentController extends Controller
         $getDetails = Product::selectRaw('appointment_doctor_product.id, product.id as product_id, product.name, product.image,
             product.price, product.unit, appointment_doctor_product.product_qty, appointment_doctor_product.choose')
             ->join('appointment_doctor_product', 'appointment_doctor_product.product_id', '=', 'product.id')
-            ->where('appointment_doctor_product.appointment_doctor_id', '=', $id)->get();
+            ->where('appointment_doctor_product.appointment_doctor_id', '=', $id)
+            ->where('product_qty', '>', 0)->get();
 
         return response()->json([
             'success' => 1,
@@ -869,6 +870,7 @@ class AppointmentController extends Controller
 
         $validator = Validator::make($this->request->all(), [
             'cart_ids' => 'required|array',
+            'qty' => 'required|array',
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -888,22 +890,29 @@ class AppointmentController extends Controller
         }
 
         $getCartIds = $this->request->get('cart_ids');
+        $getCartQty = $this->request->get('qty');
 
         DB::beginTransaction();
 
-        $getUsersCartDetails = AppointmentDoctorProduct::selectRaw('appointment_doctor_product.id, product_id, choose')
+        $getUsersCartDetails = AppointmentDoctorProduct::selectRaw('appointment_doctor_product.id, product_id, choose, product_qty, product_qty_checkout')
             ->join('appointment_doctor', 'appointment_doctor.id', '=', 'appointment_doctor_product.appointment_doctor_id')
-            ->where('user_id', $user->id)->get();
+            ->where('user_id', $user->id)
+            ->whereIn('product_id', $getCartIds)
+            ->get();
 
         $haveProduct = 0;
         if ($getUsersCartDetails) {
-            foreach ($getUsersCartDetails as $getUsersCartDetail) {
+            foreach ($getUsersCartDetails as $index => $getUsersCartDetail) {
                 if (in_array($getUsersCartDetail->product_id, $getCartIds)) {
+                    //dd($getUsersCartDetail->choose);
                     $haveProduct = 1;
                     $getUsersCartDetail->choose = 1;
+                    $getUsersCartDetail->product_qty_checkout = intval($getCartQty[$index]) > 0 ? intval($getCartQty[$index]) : 0;
+                    $getUsersCartDetail->product_qty = $getUsersCartDetail->product_qty - $getUsersCartDetail->product_qty_checkout;
                 }
                 else {
                     $getUsersCartDetail->choose = 0;
+                    //tetep sama qty yang dipilihnya
                 }
                 $getUsersCartDetail->save();
             }
@@ -1294,7 +1303,7 @@ class AppointmentController extends Controller
 
         $total = 0;
         $getDetails = Product::selectRaw('appointment_doctor_product.id, product.id as product_id, product.name, product.image,
-            product.price, product.unit, appointment_doctor_product.product_qty, appointment_doctor_product.choose')
+            product.price, product.unit, appointment_doctor_product.product_qty, product_qty_checkout, appointment_doctor_product.choose')
             ->join('appointment_doctor_product', 'appointment_doctor_product.product_id', '=', 'product.id')
             ->where('appointment_doctor_product.appointment_doctor_id', '=', $id)->where('choose', 1)
             ->get();
