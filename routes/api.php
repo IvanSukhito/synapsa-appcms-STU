@@ -127,9 +127,10 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
        $router->get('{id}/cancel-meeting', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@cancelMeeting'])->name('api.appointment.cancelMeeting');
        $router->get('{id}/cart', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@cart'])->name('api.appointment.cart');
        $router->post('{id}/cart', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@chooseCart'])->name('api.appointment.chooseCart');
-       $router->get('{id}/shipping', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@shipping'])->name('api.appointment.shipping');
        $router->get('{id}/receiver', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@receiver'])->name('api.appointment.receiver');
+       $router->get('{id}/shipping', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@shipping'])->name('api.appointment.shipping');
        $router->get('{id}/address', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@getAddress'])->name('api.appointment.getAddress');
+       $router->post('{id}/summary', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@summary'])->name('api.appointment.Summary');
        $router->get('{id}/payment', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@payment'])->name('api.appointment.payment');
        $router->post('{id}/checkout', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@checkout'])->name('api.appointment.checkout');
 

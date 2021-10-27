@@ -946,7 +946,6 @@ class AppointmentController extends Controller
             ], 404);
         }
 
-
         if ($data) {
             $getReceiver = $user->fullname ?? '';
             $getAddress = $user->address ?? '';
@@ -962,6 +961,48 @@ class AppointmentController extends Controller
                     'phone' => $getPhone ?? '',
                 ]
             ]
+        ]);
+    }
+
+    public function updateReceiver($id)
+    {
+        $user = $this->request->attributes->get('_user');
+        $validator = Validator::make($this->request->all(), [
+            'receiver' => 'required',
+            'address' => 'required',
+            'phone' => 'required'
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => 0,
+                'message' => $validator->messages()->all(),
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
+        $receiver = $this->request->get('receiver');
+        $address = $this->request->get('address');
+        $phone = $this->request->get('phone');
+
+        $getUsersCart = UsersCart::firstOrCreate([
+            'users_id' => $user->id,
+        ]);
+
+        $getInformation = [
+            'receiver' => $receiver,
+            'address' => $address,
+            'phone' => $phone,
+        ];
+        $getUsersCart->detail_information = json_encode($getInformation);
+        $getUsersCart->save();
+
+        $getData = ['detail_information' => $getInformation];
+
+
+        return response()->json([
+            'success' => 1,
+            'message' => ['Detail Informasi Berhasil Diperbarui'],
+            'data' => $getData
         ]);
     }
 
@@ -1030,8 +1071,8 @@ class AppointmentController extends Controller
             ], 404);
         }
 
-        $getDetails = Product::selectRaw('appointment_doctor_product.id, product.id as product_id, product.name, product.image,
-            product.price, product.unit, appointment_   doctor_product.product_qty, appointment_doctor_product.choose')
+        $getDetails = Product::selectRaw('appointment_doctor_product.id, product.id, product.name, product.image,
+            product.price, product.unit, appointment_doctor_product.product_qty, appointment_doctor_product.choose')
             ->join('appointment_doctor_product', 'appointment_doctor_product.product_id', '=', 'product.id')
             ->where('appointment_doctor_product.appointment_doctor_id', '=', $id)->get();
 
@@ -1106,6 +1147,64 @@ class AppointmentController extends Controller
         ]);
 
     }
+
+    public function Summary($id)
+    {
+        $user = $this->request->attributes->get('_user');
+
+        $shippingId = intval($this->request->get('shipping_id'));
+        $receiver_name = $this->request->get('receiver_name');
+        $receiver_address = $this->request->get('receiver_address');
+        $receiver_phone = $this->request->get('receiver_phone');
+
+        $getDetails = Product::selectRaw('appointment_doctor_product.id, product.id as product_id, product.name, product.image,
+            product.price as price, product.unit, appointment_doctor_product.product_qty as qty, appointment_doctor_product.choose')
+            ->join('appointment_doctor_product', 'appointment_doctor_product.product_id', '=', 'product.id')
+            ->where('appointment_doctor_product.appointment_doctor_id', '=', $id)->get();
+
+        $subTotal = 0;
+        foreach ($getDetails as $list) {
+            $subTotal += ($list->qty * $list->price);
+        }
+
+        $getUsersCart = UsersCart::firstOrCreate([
+            'users_id' => $user->id,
+        ]);
+
+        $getDetailsInformation = json_decode($getUsersCart->detail_information, true);
+        $getDetailsShipping = json_decode($getUsersCart->detail_shipping, true);
+        $shippingId = $shippingId ?? $getDetailsShipping['shipping_id'];
+        $getShipping = Shipping::where('id', $shippingId)->first();
+        if (!$getShipping) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Pengiriman Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
+        $getShippingPrice = 15000;
+
+        return response()->json([
+            'success' => 1,
+            'data' => [
+                'cart_info' => [
+                    'name' => $receiver_name ??$getDetailsInformation['receiver'] ?? '',
+                    'address' => $receiver_address ?? $getDetailsInformation['address'] ?? '',
+                    'phone' => $receiver_phone ?? $getDetailsInformation['phone'] ?? '',
+                    'shipping_name' => $getShipping->name,
+                    'shipping_price' => $getShippingPrice,
+                    'subtotal' => $subTotal,
+                    'total' => $subTotal + $getShippingPrice
+                ],
+                'cart_details' => $getDetails
+            ],
+            'message' => ['Success'],
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
+
+    }
+
 
     public function checkout($id)
     {
