@@ -532,17 +532,25 @@ class DoctorAppointmentController extends Controller
         DB::beginTransaction();
 
         $getListProduct = $this->request->get('product_ids');
-        //dd($getListProduct);
+        $getQty = $this->request->get('qty');
+
+        $getListQty = [];
+        if($getQty) {
+            foreach ($getQty as $index => $list) {
+                $getListQty[] = $list;
+            }
+        }
+
         $getListProductId = [];
         if ($getListProduct) {
-            foreach ($getListProduct as $productId => $qty) {
-                $getListProductId[] = $qty;
+            foreach ($getListProduct as $index => $list) {
+                $getListProductId[] = $list;
             }
         }
 
         $getProducts = Product::whereIn('id', $getListProductId)->get();
-        foreach ($getProducts as $list) {
-            $getQty = isset($getListProduct[$list->id]) ? intval($getListProduct[$list->id]) : 1;
+        foreach ($getProducts as $index => $list) {
+            $getQty = isset($getListQty[$index]) <= 0 ? intval($getListQty[$index]) : 1;
             AppointmentDoctorProduct::create([
                 'appointment_doctor_id' => $id,
                 'product_id' => $list->id,
