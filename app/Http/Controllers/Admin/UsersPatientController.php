@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
+use App\Codes\Models\V1\Province;
 use App\Codes\Models\V1\City;
 use App\Codes\Models\V1\District;
 use App\Codes\Models\V1\Doctor;
@@ -32,6 +33,15 @@ class UsersPatientController extends _CrudController
                 ],
                 'lang' => 'general.klinik',
                 'type' => 'select2',
+            ],
+            'province_id' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'lang' => 'general.province',
+                'type' => 'select2',
+                'list' => 0,
             ],
             'city_id' => [
                 'validate' => [
@@ -161,6 +171,14 @@ class UsersPatientController extends _CrudController
             }
         }
 
+        $getProvince = Province::pluck('name', 'id')->toArray();
+        $listProvince = [0 => 'Kosong'];
+        if($getProvince) {
+            foreach($getProvince as $key => $value) {
+                $listProvince[$key] = $value;
+            }
+        }
+
         $getCity = City::pluck('name', 'id')->toArray();
         $listCity = [0 => 'Kosong'];
         if($getCity) {
@@ -185,6 +203,8 @@ class UsersPatientController extends _CrudController
         }
 
         $this->data['listSet']['klinik_id'] = $listKlinik;
+
+        $this->data['listSet']['province_id'] = $listProvince;
         $this->data['listSet']['city_id'] = $listCity;
         $this->data['listSet']['gender'] = get_list_gender();
         $this->data['listSet']['status'] = get_list_active_inactive();
