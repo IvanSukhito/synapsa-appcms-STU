@@ -1134,9 +1134,16 @@ class AppointmentController extends Controller
         }
 
         $getDetails = Product::selectRaw('appointment_doctor_product.id, product.id as product_id, product.name, product.image,
-            product.price, product.unit, appointment_doctor_product.product_qty, appointment_doctor_product.choose')
+            product.price as price, product.unit, product_qty_checkout as qty, appointment_doctor_product.choose')
             ->join('appointment_doctor_product', 'appointment_doctor_product.product_id', '=', 'product.id')
             ->where('appointment_doctor_product.appointment_doctor_id', '=', $id)->get();
+
+        $subTotal = 0;
+        foreach ($getDetails as $list) {
+            $subTotal += ($list->qty * $list->price);
+        }
+
+        $getShippingPrice = 15000;
 
         if ($getDetails->count() <= 0) {
             return response()->json([
@@ -1153,7 +1160,11 @@ class AppointmentController extends Controller
             'data' => [
                 'data' => $data,
                 'product' => $getDetails,
-                'payment' => $getPayment
+                'payment' => $getPayment,
+                'cart_info' => [
+                    'subtotal' => $subTotal,
+                    'total' => $subTotal + $getShippingPrice
+                ],
             ],
             'message' => ['Berhasil'],
             'token' => $this->request->attributes->get('_refresh_token'),
