@@ -1162,6 +1162,7 @@ class AppointmentController extends Controller
                 'product' => $getDetails,
                 'payment' => $getPayment,
                 'cart_info' => [
+                    'shipping_price' => $getShippingPrice,
                     'subtotal' => $subTotal,
                     'total' => $subTotal + $getShippingPrice
                 ],
