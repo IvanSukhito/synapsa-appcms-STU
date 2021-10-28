@@ -123,6 +123,12 @@ Route::get('confirm-phone', ['uses' => 'App\Http\Controllers\Website\V1\GeneralC
 
 Route::get('/', ['uses' => 'App\Http\Controllers\Website\V1\GeneralController@xendit'])->name('web.xendit');
 
+
+Route::get('/findCity', ['uses' => 'App\Http\Controllers\Admin\UsersPatientController@findCity'])->name('admin.findCity');
+Route::get('/findDistrict', ['uses' => 'App\Http\Controllers\Admin\UsersPatientController@findDistrict'])->name('admin.findDistrict');
+Route::get('/findSubDistrict', ['uses' => 'App\Http\Controllers\Admin\UsersPatientController@findSubDistrict'])->name('admin.findSubDistrict');
+
+
 //Route::get('/', function () {
 //    return view('welcome');
 //});

@@ -34,42 +34,6 @@ class UsersPatientController extends _CrudController
                 'lang' => 'general.klinik',
                 'type' => 'select2',
             ],
-            'province_id' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'lang' => 'general.province',
-                'type' => 'select2',
-                'list' => 0,
-            ],
-            'city_id' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'lang' => 'general.city',
-                'type' => 'select2',
-                'list' => 0,
-            ],
-            'district_id' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'lang' => 'general.district',
-                'type' => 'select2',
-                'list' => 0,
-            ],
-            'sub_district_id' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'lang' => 'general.sub_district',
-                'type' => 'select2',
-                'list' => 0,
-            ],
             'fullname' => [
                 'validate' => [
                     'create' => 'required',
@@ -81,7 +45,7 @@ class UsersPatientController extends _CrudController
                     'create' => 'required',
                     'edit' => 'required'
                 ],
-                'type' => 'texteditor',
+                'type' => 'textarea',
                 'list' => 0,
             ],
             'address_detail' => [
@@ -89,7 +53,7 @@ class UsersPatientController extends _CrudController
                     'create' => 'required',
                     'edit' => 'required'
                 ],
-                'type' => 'texteditor',
+                'type' => 'textarea',
                 'list' => 0,
             ],
             'zip_code' => [
@@ -164,6 +128,8 @@ class UsersPatientController extends _CrudController
             $passingData
         );
 
+        $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.users.patient.forms';
+
         $getKlinik = Klinik::where('status', 80)->pluck('name', 'id')->toArray();
         if($getKlinik) {
             foreach($getKlinik as $key => $value) {
@@ -179,13 +145,15 @@ class UsersPatientController extends _CrudController
             }
         }
 
-        $getCity = City::pluck('name', 'id')->toArray();
+        //$getCity = City::pluck('name', 'id')->toArray();
+        $getCity = City::get();
         $listCity = [0 => 'Kosong'];
         if($getCity) {
             foreach($getCity as $key => $value) {
                 $listCity[$key] = $value;
             }
         }
+        $this->data['listSet']['city_id'] = $listCity;
 
         $getDistrict = District::pluck('name', 'id')->toArray();
         $listDistrict = [0 => 'Kosong'];
@@ -205,11 +173,27 @@ class UsersPatientController extends _CrudController
         $this->data['listSet']['klinik_id'] = $listKlinik;
 
         $this->data['listSet']['province_id'] = $listProvince;
-        $this->data['listSet']['city_id'] = $listCity;
+        //$this->data['listSet']['city_id'] = $listCity;
         $this->data['listSet']['gender'] = get_list_gender();
         $this->data['listSet']['status'] = get_list_active_inactive();
         $this->data['listSet']['district_id'] = $listDistrict;
         $this->data['listSet']['sub_district_id'] = $listSubDistrict;
+    }
+
+    public function create(){
+        $this->callPermission();
+
+        $data = $this->data;
+
+        //$this->data['listSet']['city_id'] = $listCity;
+        $getProvince = Province::get();
+
+        $data['viewType'] = 'create';
+        $data['formsTitle'] = __('general.title_create', ['field' => $data['thisLabel']]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['province'] = $getProvince;
+
+        return view($this->listView[$data['viewType']], $data);
     }
 
     public function store(){
@@ -220,7 +204,7 @@ class UsersPatientController extends _CrudController
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
 
-        unset($getListCollectData['upload_ktp']);
+        unset($getListCollectData['upload_ktp_full']);
 
         $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
@@ -234,7 +218,7 @@ class UsersPatientController extends _CrudController
             }
         }
 
-        $dokument = $this->request->file('upload_ktp');
+        $dokument = $this->request->file('upload_ktp_full');
         if ($dokument) {
             if ($dokument->getError() != 1) {
 
@@ -250,9 +234,16 @@ class UsersPatientController extends _CrudController
             }
         }
 
+        //dd($dokumentImage);
+
 
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
+
+        $data['province_id'] = $this->request->get('province_id');
+        $data['city_id'] = $this->request->get('city_id');
+        $data['district_id'] = $this->request->get('district_id');
+        $data['sub_district_id'] = $this->request->get('sub_district_id');
         $data['upload_ktp'] = $dokumentImage;
         $data['password'] = bcrypt('123');
         $data['patient'] = 1;
@@ -416,4 +407,30 @@ class UsersPatientController extends _CrudController
             ->make(true);
     }
 
+    public function findCity(){
+        $s = $this->request->get('s');
+        $provinceId = intval($this->request->get('province_id'));
+
+        $getData = City::Where('province_id', 'LIKE', strip_tags($provinceId))->get();
+
+        return response()->json($getData);
+    }
+
+    public function findDistrict(){
+        $s = $this->request->get('s');
+        $cityId = intval($this->request->get('city_id'));
+
+        $getData = District::Where('city_id', 'LIKE', strip_tags($cityId))->get();
+
+        return response()->json($getData);
+    }
+
+    public function findSubDistrict(){
+        $s = $this->request->get('s');
+        $districtId = intval($this->request->get('district_id'));
+
+        $getData = SubDistrict::Where('district_id', 'LIKE', strip_tags($districtId))->get();
+
+        return response()->json($getData);
+    }
 }

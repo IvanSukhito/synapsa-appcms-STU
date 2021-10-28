@@ -15,6 +15,7 @@ return [
     'klinik' => 'Klinik',
     'clinic_info' => 'Clinic Info',
     'clinic_phone' => 'Clinic Phone',
+    'province' => 'Province',
     'district' => 'District',
     'sub_district' => 'Sub District',
     'fullname' => 'Full Name',
