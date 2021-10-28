@@ -1171,7 +1171,7 @@ class AppointmentController extends Controller
         $receiver_phone = $this->request->get('receiver_phone');
 
         $getDetails = Product::selectRaw('appointment_doctor_product.id, product.id as product_id, product.name, product.image,
-            product.price as price, product.unit, appointment_doctor_product.product_qty as qty, product_qty_checkout as qty_checkout, appointment_doctor_product.choose')
+            product.price as price, product.unit, product_qty_checkout as qty, appointment_doctor_product.choose')
             ->join('appointment_doctor_product', 'appointment_doctor_product.product_id', '=', 'product.id')
             ->where('appointment_doctor_product.appointment_doctor_id', '=', $id)->get();
 
