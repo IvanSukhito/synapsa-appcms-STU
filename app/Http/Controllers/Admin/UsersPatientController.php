@@ -52,6 +52,7 @@ class UsersPatientController extends _CrudController
                 ],
                 'type' => 'texteditor',
                 'list' => 0,
+                'create' => 0,
             ],
             'address_detail' => [
                 'validate' => [
@@ -60,6 +61,7 @@ class UsersPatientController extends _CrudController
                 ],
                 'type' => 'texteditor',
                 'list' => 0,
+                'create' => 0,
             ],
             'zip_code' => [
                 'validate' => [
@@ -67,6 +69,7 @@ class UsersPatientController extends _CrudController
                     'edit' => 'required'
                 ],
                 'list' => 0,
+                'create' => 0,
             ],
             'dob' => [
                 'validate' => [
@@ -226,11 +229,13 @@ class UsersPatientController extends _CrudController
 
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
-
         $data['province_id'] = $this->request->get('province_id');
         $data['city_id'] = $this->request->get('city_id');
         $data['district_id'] = $this->request->get('district_id');
         $data['sub_district_id'] = $this->request->get('sub_district_id');
+        $data['zip_code'] = $this->request->get('zip_code');
+        $data['address'] = $this->request->get('address');
+        $data['address_detail'] = $this->request->get('address_detail');
         $data['upload_ktp'] = $dokumentImage;
         $data['password'] = bcrypt('123');
         $data['patient'] = 1;
@@ -319,6 +324,10 @@ class UsersPatientController extends _CrudController
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
         $data['upload_ktp'] = $dokumentImage;
+        $data['zip_code'] = $this->request->get('zip_code');
+        $data['address'] = $this->request->get('address');
+        $data['address_detail'] = $this->request->get('address_detail');
+
 
         $getData = $this->crud->update($data, $id);
 
