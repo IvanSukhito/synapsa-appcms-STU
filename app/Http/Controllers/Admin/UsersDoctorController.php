@@ -6,6 +6,7 @@ use App\Codes\Logic\_CrudController;
 use App\Codes\Models\V1\City;
 use App\Codes\Models\V1\District;
 use App\Codes\Models\V1\Doctor;
+use App\Codes\Models\V1\Province;
 use App\Codes\Models\V1\SubDistrict;
 use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\Klinik;
@@ -30,33 +31,6 @@ class UsersDoctorController extends _CrudController
                 ],
                 'lang' => 'general.klinik',
                 'type' => 'select2',
-            ],
-            'city_id' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'lang' => 'general.city',
-                'type' => 'select2',
-                'list' => 0,
-            ],
-            'district_id' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'lang' => 'general.district',
-                'type' => 'select2',
-                'list' => 0,
-            ],
-            'sub_district_id' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'lang' => 'general.sub_district',
-                'type' => 'select2',
-                'list' => 0,
             ],
             'fullname' => [
                 'validate' => [
@@ -188,6 +162,23 @@ class UsersDoctorController extends _CrudController
         $this->data['listSet']['status'] = get_list_active_inactive();
         $this->data['listSet']['district_id'] = $listDistrict;
         $this->data['listSet']['sub_district_id'] = $listSubDistrict;
+        $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.users.doctor.forms';
+    }
+
+    public function create(){
+        $this->callPermission();
+
+        $data = $this->data;
+
+        //$this->data['listSet']['city_id'] = $listCity;
+        $getProvince = Province::get();
+
+        $data['viewType'] = 'create';
+        $data['formsTitle'] = __('general.title_create', ['field' => $data['thisLabel']]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['province'] = $getProvince;
+
+        return view($this->listView[$data['viewType']], $data);
     }
 
     public function store(){

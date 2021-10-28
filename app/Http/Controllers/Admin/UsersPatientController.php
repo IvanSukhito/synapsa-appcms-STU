@@ -40,12 +40,17 @@ class UsersPatientController extends _CrudController
                     'edit' => 'required'
                 ]
             ],
+            'city_id' => [
+                'create' => 0,
+                'edit' => 0,
+                'list' => 0,
+            ],
             'address' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
                 ],
-                'type' => 'textarea',
+                'type' => 'texteditor',
                 'list' => 0,
             ],
             'address_detail' => [
@@ -53,7 +58,7 @@ class UsersPatientController extends _CrudController
                     'create' => 'required',
                     'edit' => 'required'
                 ],
-                'type' => 'textarea',
+                'type' => 'texteditor',
                 'list' => 0,
             ],
             'zip_code' => [
@@ -145,16 +150,6 @@ class UsersPatientController extends _CrudController
             }
         }
 
-        //$getCity = City::pluck('name', 'id')->toArray();
-        $getCity = City::get();
-        $listCity = [0 => 'Kosong'];
-        if($getCity) {
-            foreach($getCity as $key => $value) {
-                $listCity[$key] = $value;
-            }
-        }
-        $this->data['listSet']['city_id'] = $listCity;
-
         $getDistrict = District::pluck('name', 'id')->toArray();
         $listDistrict = [0 => 'Kosong'];
         if($getDistrict) {
@@ -171,13 +166,8 @@ class UsersPatientController extends _CrudController
         }
 
         $this->data['listSet']['klinik_id'] = $listKlinik;
-
-        $this->data['listSet']['province_id'] = $listProvince;
-        //$this->data['listSet']['city_id'] = $listCity;
         $this->data['listSet']['gender'] = get_list_gender();
         $this->data['listSet']['status'] = get_list_active_inactive();
-        $this->data['listSet']['district_id'] = $listDistrict;
-        $this->data['listSet']['sub_district_id'] = $listSubDistrict;
     }
 
     public function create(){
@@ -233,9 +223,6 @@ class UsersPatientController extends _CrudController
 
             }
         }
-
-        //dd($dokumentImage);
-
 
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
