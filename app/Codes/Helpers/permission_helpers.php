@@ -390,7 +390,7 @@ if ( ! function_exists('listAllMenu')) {
             ],
             [
                 'name' => __('general.product'),
-                'icon' => '<i class="nav-icon fa fa-product-hunt"></i>',
+                'icon' => '<i class="nav-icon fa fa-tags"></i>',
                 'title' => __('general.product'),
                 'active' => [
                     'admin.product.',
