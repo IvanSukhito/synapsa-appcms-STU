@@ -898,7 +898,9 @@ class AppointmentController extends Controller
             ->join('appointment_doctor', 'appointment_doctor.id', '=', 'appointment_doctor_product.appointment_doctor_id')
             ->where('user_id', $user->id)
             ->whereIn('product_id', $getCartIds)
+            ->where('appointment_doctor_product.appointment_doctor_id', $data->id)
             ->get();
+
 
         $haveProduct = 0;
         if ($getUsersCartDetails) {
