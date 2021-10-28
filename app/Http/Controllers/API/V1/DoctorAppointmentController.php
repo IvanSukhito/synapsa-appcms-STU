@@ -276,6 +276,7 @@ class DoctorAppointmentController extends Controller
         }
 
         $data->online_meeting = 80;
+        $data->status = 80;
         $data->save();
 
         $getPatient = Users::where('id', $data->user_id)->first();
