@@ -1177,7 +1177,7 @@ class AppointmentController extends Controller
 
         $subTotal = 0;
         foreach ($getDetails as $list) {
-            $subTotal += ($list->qty_checkout * $list->price);
+            $subTotal += ($list->qty * $list->price);
         }
 
         $getUsersCart = UsersCart::firstOrCreate([
