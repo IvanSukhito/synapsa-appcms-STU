@@ -13,6 +13,8 @@ return [
     'phone' => 'Phone',
     'mail' => 'Mail',
     'klinik' => 'Klinik',
+    'banner' => 'Banner',
+    'target' => 'Url',
     'clinic_info' => 'Clinic Info',
     'clinic_phone' => 'Clinic Phone',
     'province' => 'Province',

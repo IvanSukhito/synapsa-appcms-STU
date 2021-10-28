@@ -26,6 +26,7 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                 'App\Http\Controllers\Admin\RoleController' => 'role',
                 'App\Http\Controllers\Admin\UserController' => 'user',
                 'App\Http\Controllers\Admin\ArticleController' => 'article',
+                'App\Http\Controllers\Admin\BannerPageController' => 'banner',
                 'App\Http\Controllers\Admin\ArticleCategoryController' => 'article-category',
                 'App\Http\Controllers\Admin\FaqsController' => 'faqs',
                 'App\Http\Controllers\Admin\KlinikController' => 'klinik',
@@ -123,11 +124,10 @@ Route::get('confirm-phone', ['uses' => 'App\Http\Controllers\Website\V1\GeneralC
 
 Route::get('/', ['uses' => 'App\Http\Controllers\Website\V1\GeneralController@xendit'])->name('web.xendit');
 
-
-Route::get('/findCity', ['uses' => 'App\Http\Controllers\Admin\UsersPatientController@findCity'])->name('admin.findCity');
-Route::get('/findDistrict', ['uses' => 'App\Http\Controllers\Admin\UsersPatientController@findDistrict'])->name('admin.findDistrict');
-Route::get('/findSubDistrict', ['uses' => 'App\Http\Controllers\Admin\UsersPatientController@findSubDistrict'])->name('admin.findSubDistrict');
-
+//UsersPatient
+Route::get('/findCity', ['uses' => 'App\Http\Controllers\Admin\GeneralController@findCity'])->name('admin.findCity');
+Route::get('/findDistrict', ['uses' => 'App\Http\Controllers\Admin\GeneralController@findDistrict'])->name('admin.findDistrict');
+Route::get('/findSubDistrict', ['uses' => 'App\Http\Controllers\Admin\GeneralController@findSubDistrict'])->name('admin.findSubDistrict');
 
 //Route::get('/', function () {
 //    return view('welcome');

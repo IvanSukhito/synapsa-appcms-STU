@@ -359,6 +359,15 @@ if ( ! function_exists('listAllMenu')) {
                 ],
             ],
             [
+                'name' => __('general.banner'),
+                'icon' => '<i class="nav-icon fa fa-image"></i>',
+                'title' => __('general.banner'),
+                'active' => ['admin.banner.'],
+                'route' => 'admin.banner.index',
+                'key' => 'banner',
+                'type' => 1,
+            ],
+            [
                 'name' => __('general.service'),
                 'icon' => '<i class="nav-icon fa fa-wrench"></i>',
                 'title' => __('general.service'),
@@ -711,6 +720,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'doctor_clinic',
                      'user_clinic',
                      'customer-support',
+                     'banner',
 
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [

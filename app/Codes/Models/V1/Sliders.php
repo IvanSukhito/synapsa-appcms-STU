@@ -12,8 +12,10 @@ class Sliders extends Model
         'title',
         'image',
         'target',
+        'time_start',
+        'time_end',
         'orders',
-        'status'
+        'status',
     ];
 
     protected $appends = [
@@ -23,10 +25,11 @@ class Sliders extends Model
 
     public function getImageFullAttribute()
     {
+        if (strlen($this->image) > 0) {
+            return env('OSS_URL').'/'.$this->image;
+        }
         return asset('assets/cms/images/no-img.png');
-//        return strlen($this->image) > 0 ? asset('synapsaapps/sliders/'.$this->image) : asset('assets/cms/images/no-img.png');
     }
-
 
 
 }

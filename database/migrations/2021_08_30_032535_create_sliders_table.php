@@ -18,6 +18,8 @@ class CreateSlidersTable extends Migration
             $table->string('title')->nullable();
             $table->text('image')->nullable();
             $table->text('target')->nullable();
+            $table->datetime('time_start')->nullable();
+            $table->datetime('time_end')->nullable();
             $table->integer('orders')->default(1);
             $table->tinyInteger('status')->default(0);
             $table->timestamps();
