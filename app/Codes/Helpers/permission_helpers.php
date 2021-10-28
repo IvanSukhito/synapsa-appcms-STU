@@ -369,7 +369,7 @@ if ( ! function_exists('listAllMenu')) {
             ],
             [
                 'name' => __('general.service'),
-                'icon' => '<i class="nav-icon fa fa-wrench"></i>',
+                'icon' => '<i class="nav-icon fa fa-medkit"></i>',
                 'title' => __('general.service'),
                 'active' => [
                     'admin.service.',
