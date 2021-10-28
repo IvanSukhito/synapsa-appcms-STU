@@ -286,9 +286,11 @@ class DoctorAppointmentController extends Controller
 
         return response()->json([
             'success' => 1,
-            'data' => [
+            'data' => $data,
+            'token' => [
                 'fcm_token' => $getFcmTokenPatient,
             ],
+
             'message' => ['Sukses'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
