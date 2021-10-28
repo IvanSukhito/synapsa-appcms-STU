@@ -69,37 +69,44 @@ else {
                 <div class="card-body">
                     @include(env('ADMIN_TEMPLATE').'._component.generate_forms')
                     @if(in_array($viewType, ['create']))
-
-                        <div class="form-group">
-                            <label for="province_id">{{ __('general.province') }} <span class="text-red">*</span></label>
-                            <select name="province_id" id="province_id" class="form-control input-lg select2" required>
-                                <option value="#" readonly="readonly">Select</option>
-                                @foreach($province as $listProvince)
-                                    <option value="{{$listProvince->id}}">{{$listProvince->name}}</option>
-                                @endforeach
-                            </select>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="province_id">{{ __('general.province') }} <span class="text-red">*</span></label>
+                                    <select name="province_id" id="province_id" class="form-control input-lg select2" required>
+                                        <option value="#" readonly="readonly">Select</option>
+                                        @foreach($province as $listProvince)
+                                            <option value="{{$listProvince->id}}">{{$listProvince->name}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="city_id">{{ __('general.city') }} <span class="text-red">*</span></label>
+                                    <select name="city_id" id="city_id" class="form-control select2 city"required>
+                                        <option value="">Select</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
-
-
-                        <div class="form-group">
-                            <label for="city_id">{{ __('general.city') }} <span class="text-red">*</span></label>
-                            <select name="city_id" id="city_id" class="form-control select2 city"required>
-                                <option value="">Select</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="district_id">{{ __('general.district') }} <span class="text-red">*</span></label>
-                            <select name="district_id" id="district_id" class="form-control select2 district"required>
-                                <option value="">Select</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="sub_district_id">{{ __('general.sub_district') }} <span class="text-red">*</span></label>
-                            <select name="sub_district_id" id="sub_district_id" class="form-control select2 sub_district"required>
-                                <option value="">Select</option>
-                            </select>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="district_id">{{ __('general.district') }} <span class="text-red">*</span></label>
+                                    <select name="district_id" id="district_id" class="form-control select2 district"required>
+                                        <option value="">Select</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="sub_district_id">{{ __('general.sub_district') }} <span class="text-red">*</span></label>
+                                    <select name="sub_district_id" id="sub_district_id" class="form-control select2 sub_district"required>
+                                        <option value="">Select</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
 
                     @endif
@@ -182,7 +189,7 @@ else {
                     data: { city_id :CityId},
                     success : function (data){
 
-                        op+='<option value="0" selected disabled>chose city</option>';
+                        op+='<option value="0" selected disabled>chose district</option>';
                         for(var i=0;i<data.length;i++){
                             op+='<option value="'+data[i].id+'">'+data[i].name+'</option>';
                         }
@@ -209,7 +216,7 @@ else {
                     data: { district_id :DistrictId},
                     success : function (data){
 
-                        op+='<option value="0" selected disabled>chose city</option>';
+                        op+='<option value="0" selected disabled>chose sub district</option>';
                         for(var i=0;i<data.length;i++){
                             op+='<option value="'+data[i].id+'">'+data[i].name+'</option>';
                         }
