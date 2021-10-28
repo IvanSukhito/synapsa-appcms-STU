@@ -126,7 +126,6 @@ class BannerPageController extends _CrudController
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
         $data['image'] = $dokumentImage;
-        $data['target'] = create_slugs($this->request->get('target'));
         $getData = $this->crud->store($data);
 
         $id = $getData->id;
@@ -211,8 +210,6 @@ class BannerPageController extends _CrudController
         }
 
         $data['image'] = $dokumentImage;
-        $data['target'] = create_slugs($this->request->get('target'));
-
         $getData = $this->crud->update($data, $id);
 
         $id = $getData->id;
