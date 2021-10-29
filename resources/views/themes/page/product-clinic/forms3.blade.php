@@ -54,7 +54,7 @@ else {
         <div class="container-fluid">
             <div class="card {!! $printCard !!}">
                 <div class="card-header">
-                    <h3 class="card-title">{{ $formsTitle }}</h3>
+                    <h3 class="card-title">{{ __('general.search_product_from_synapsa') }} </h3>
                 </div>
                 <!-- /.card-header -->
 

@@ -99,6 +99,7 @@ return [
     'product-category' => 'Product Category',
     'article-category' => 'Article Category',
     'search_product' => 'Search Product',
+    'search_product_from_synapsa' => 'Search Product From Synapsa',
     'apply' => 'Apply',
     'image' => 'Image',
     'image_full' => 'Image',
