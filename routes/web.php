@@ -71,7 +71,6 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                         $router->get($linkName . '/create2', $controller.'@create2')->name('admin.' . $linkName . '.create2');
                         $router->post($linkName . '/store2', $controller.'@store2')->name('admin.' . $linkName . '.store2');
                         break;
-                         break;
                     case 'appointment-lab-homecare':
                     case 'appointment-lab-visit':
                     $router->get($linkName . '/{id}/approve',   $controller.'@approve')->name('admin.' . $linkName . '.approve');
@@ -86,13 +85,16 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                         $router->get($linkName . '/{id}/approve',   $controller.'@approve')->name('admin.' . $linkName . '.approve');
                         $router->get($linkName . '/{id}/reject',   $controller.'@reject')->name('admin.' . $linkName . '.reject');
                         break;
+                    case 'product':
+                        $router->get($linkName . '/create2', $controller.'@create2')->name('admin.' . $linkName . '.create2');
+                        $router->post($linkName . '/store2', $controller.'@store2')->name('admin.' . $linkName . '.store2');
+                        break;
                     case 'product-clinic':
                         $router->get($linkName . '/create2', $controller.'@create2')->name('admin.' . $linkName . '.create2');
                         $router->post($linkName . '/store2', $controller.'@store2')->name('admin.' . $linkName . '.store2');
                         $router->get($linkName . '/get-product-synapsa', $controller.'@getProductSynapsa')->name('admin.' . $linkName . '.getProductSynapsa');
                         $router->get($linkName . '/create3', $controller.'@create3')->name('admin.' . $linkName . '.create3');
                         $router->post($linkName . '/{id}/store3', $controller.'@store3')->name('admin.' . $linkName . '.store3');
-
                         break;
                     case 'doctor_clinic':
                         $router->get($linkName . '/create2', $controller.'@create2')->name('admin.' . $linkName . '.create2');
