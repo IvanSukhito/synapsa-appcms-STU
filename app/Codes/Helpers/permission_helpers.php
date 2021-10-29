@@ -777,7 +777,7 @@ if ( ! function_exists('listAvailablePermission'))
         $listPermission['transaction-lab']['edit'][] = 'admin.transaction-lab.reject';
 
         $listPermission['transaction-product']['edit'][] = 'admin.transaction-product.approve';
-        //$listPermission['transaction-product']['edit'][] = 'admin.transaction-product.reject';
+        $listPermission['transaction-product']['edit'][] = 'admin.transaction-product.reject';
 
         $listPermission['transaction-doctor']['edit'][] = 'admin.transaction-doctor.approve';
         $listPermission['transaction-doctor']['edit'][] = 'admin.transaction-doctor.reject';
