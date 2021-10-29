@@ -7,8 +7,11 @@ use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Admin;
 use App\Codes\Models\Role;
 use App\Codes\Models\V1\Klinik;
+use App\Codes\Models\V1\Product;
+use App\Codes\Models\V1\ProductCategory;
 use App\Codes\Models\V1\Users;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class KlinikController extends _CrudController
 {
@@ -267,6 +270,108 @@ class KlinikController extends _CrudController
         $data['data'] = $getData;
 
         return view($this->listView['create2'], $data);
+    }
+
+    public function store2(){
+        $this->callPermission();
+
+        $adminId = session()->get('admin_id');
+        $getAdmin = Admin::where('id', $adminId)->first();
+        if (!$getAdmin) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $this->validate($this->request, [
+            'import_clinic' => 'required',
+        ]);
+
+        $getFile = $this->request->file('import_clinic');
+
+        if($getFile) {
+
+            try {
+                $getFileName = $getFile->getClientOriginalName();
+                $ext = explode('.', $getFileName);
+                $ext = end($ext);
+                if (in_array(strtolower($ext), ['xlsx', 'xls'])) {
+                    $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($getFile);
+                    $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader($inputFileType);
+                    $data = $reader->load($getFile);
+
+                    if ($data) {
+                        $spreadsheet = $data->getActiveSheet();
+                        foreach ($spreadsheet->getRowIterator() as $key => $row) {
+
+                            if($key >= 6) {
+                                $getClinicName = $spreadsheet->getCell("B" . $key)->getValue();
+                                $getClinicAddress = $spreadsheet->getCell("C" . $key)->getValue();
+                                $getClinicPhone = $spreadsheet->getCell("D" . $key)->getValue();
+                                $getClinicEmail = $spreadsheet->getCell("E" . $key)->getValue();
+                                $getScheduleMonday = $spreadsheet->getCell("F" . $key)->getValue();
+                                $getScheduleTuesday = $spreadsheet->getCell("G" . $key)->getValue();
+                                $getScheduleWednesday =  $spreadsheet->getCell("H" . $key)->getValue();
+                                $getScheduleThursday = $spreadsheet->getCell("I" . $key)->getValue();
+                                $getScheduleFriday = $spreadsheet->getCell("J" . $key)->getValue();
+                                $getScheduleSaturday = $spreadsheet->getCell("K" . $key)->getValue();
+                                $getScheduleSunday = $spreadsheet->getCell("L" . $key)->getValue();
+
+                                //dd($getClinicEmail);
+
+                                $saveData = [
+                                    'name' => $getClinicName,
+                                    'address' => $getClinicAddress,
+                                    'no_telp' => $getClinicPhone,
+                                    'email' => $getClinicEmail,
+                                    'monday' => $getScheduleMonday,
+                                    'tuesday' => $getScheduleTuesday,
+                                    'wednesday' => $getScheduleWednesday,
+                                    'thursday' => $getScheduleThursday,
+                                    'friday' => $getScheduleFriday,
+                                    'saturday' => $getScheduleSaturday,
+                                    'sunday' => $getScheduleSunday,
+                                    'status' => 80,
+                                ];
+
+                                $role_clinic = Role::where('name', 'Clinic')->first();
+
+                                if(strlen($getClinicName) > 0) {
+                                    $clinic = Klinik::create($saveData);
+                                }
+                                if($clinic){
+
+                                    $saveAdmin = [
+                                        'role_id' => $role_clinic->id,
+                                        'klinik_id'=> $clinic->id,
+                                        'name' => $clinic->name,
+                                        'username' => strtolower(str_replace(' ', '', $clinic->name)),
+                                        'password' => bcrypt(strtolower(str_replace(' ', '', $clinic->name))),
+                                        'status' => 80
+                                    ];
+
+                                    Admin::create($saveAdmin);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch(\Exception $e) {
+                $clinic->delete();
+
+                session()->flash('message', __('general.failed_import_clinic'));
+                session()->flash('message_alert', 1);
+                return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+            }
+        }
+
+        if($this->request->ajax()){
+            return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
+        }
+        else {
+            session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
+            session()->flash('message_alert', 2);
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
     }
 
 
