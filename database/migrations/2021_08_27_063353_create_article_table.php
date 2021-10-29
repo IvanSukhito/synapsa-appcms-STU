@@ -20,8 +20,8 @@ class CreateArticleTable extends Migration
             $table->string('slugs')->nullable();
             $table->text('thumbnail_img')->nullable();
             $table->text('image')->nullable();
-            $table->text('content')->nullable();
-            $table->string('preview')->nullable();
+            $table->longtext('content')->nullable();
+            $table->longtext('preview')->nullable();
             $table->tinyInteger('publish_status')->default(1);
             $table->date('publish_date')->nullable();
             $table->string('created_by')->nullable();

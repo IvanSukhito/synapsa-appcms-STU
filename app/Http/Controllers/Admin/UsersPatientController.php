@@ -244,8 +244,6 @@ class UsersPatientController extends _CrudController
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
 
-        unset($getListCollectData['upload_ktp_full']);
-
         $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
         {
@@ -257,6 +255,9 @@ class UsersPatientController extends _CrudController
                 $data[$key] = $this->request->get($key);
             }
         }
+
+        unset($getListCollectData['upload_ktp_full']);
+
 
         $dokument = $this->request->file('upload_ktp_full');
         if ($dokument) {
