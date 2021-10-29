@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
+use App\Codes\Models\Admin;
 use Illuminate\Http\Request;
 
 class ClinicInfoController extends _CrudController
@@ -85,8 +86,10 @@ class ClinicInfoController extends _CrudController
 
     public function index()
     {
-        $adminClinicId = session()->get('admin_id');
+        $adminClinicId = session()->get('admin_clinic_id');
 
+
+        //dd($adminClinicId);
         $getData = $this->crud->show($adminClinicId);
         if (!$getData) {
             return redirect()->route('admin');
@@ -195,8 +198,6 @@ class ClinicInfoController extends _CrudController
     public function show($id)
     {
         $this->callPermission();
-
-        $id = session()->get('admin_id');
 
         $viewType = 'show';
 
