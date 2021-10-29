@@ -40,11 +40,11 @@
                            title="@lang('general.import')">
                             <i class="fa fa-file-excel-o"></i> @lang('general.import')
                         </a>
-                        <a href="<?php echo route('admin.' . $thisRoute . '.getProductSynapsa') ?>" class="mb-2 mr-2 btn btn-primary"
+                        <a href="<?php echo route('admin.' . $thisRoute . '.getProductSynapsa') ?>" class="mb-2 mr-2 btn btn-info"
                            title="@lang('general.take_product_synapsa')">
-                            <i class="fa fa-file-excel-o"></i> @lang('general.take_product_synapsa')
+                            <i class="fa fa-folder-open"></i> @lang('general.take_product_synapsa')
                         </a>
-                    </div>
+                      </div>
                 @endif
                 <!-- /.card-header -->
                 <div class="card-body">

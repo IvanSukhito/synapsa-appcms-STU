@@ -137,6 +137,8 @@ class UsersPatientController extends _CrudController
         );
 
         $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.users.patient.forms';
+        $this->listView['edit'] = env('ADMIN_TEMPLATE').'.page.users.patient.forms';
+        $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.users.patient.forms';
 
         $getKlinik = Klinik::where('status', 80)->pluck('name', 'id')->toArray();
         if($getKlinik) {
@@ -185,6 +187,56 @@ class UsersPatientController extends _CrudController
         $data['formsTitle'] = __('general.title_create', ['field' => $data['thisLabel']]);
         $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
         $data['province'] = $getProvince;
+
+        return view($this->listView[$data['viewType']], $data);
+    }
+
+    public function edit($id)
+    {
+        $this->callPermission();
+
+        $getData = $this->crud->show($id);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $data = $this->data;
+        $getProvince = Province::get();
+
+        $data['viewType'] = 'edit';
+        $data['formsTitle'] = __('general.title_edit', ['field' => $data['thisLabel']]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['data'] = $getData;
+        $data['province'] = $getProvince;
+
+
+        return view($this->listView[$data['viewType']], $data);
+    }
+    public function show($id)
+    {
+        $this->callPermission();
+
+        $getData = $this->crud->show($id);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $data = $this->data;
+
+        $getProvince = Province::where('id', $getData->province_id)->first();
+        $getCity = City::where('id',$getData->city_id)->first();
+        $getDistrict = District::where('id', $getData->district_id)->first();
+        $getSubDistrict = SubDistrict::where('id', $getData->sub_district_id)->first();
+
+
+        $data['viewType'] = 'show';
+        $data['formsTitle'] = __('general.title_show', ['field' => $data['thisLabel']]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['data'] = $getData;
+        $data['province'] = $getProvince;
+        $data['city'] = $getCity;
+        $data['district'] = $getDistrict;
+        $data['subDistrict'] = $getSubDistrict;
 
         return view($this->listView[$data['viewType']], $data);
     }
@@ -324,10 +376,13 @@ class UsersPatientController extends _CrudController
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
         $data['upload_ktp'] = $dokumentImage;
+        $data['province_id'] = $this->request->get('province_id');
+        $data['city_id'] = $this->request->get('city_id');
+        $data['district_id'] = $this->request->get('district_id');
+        $data['sub_district_id'] = $this->request->get('sub_district_id');
         $data['zip_code'] = $this->request->get('zip_code');
         $data['address'] = $this->request->get('address');
         $data['address_detail'] = $this->request->get('address_detail');
-
 
         $getData = $this->crud->update($data, $id);
 
