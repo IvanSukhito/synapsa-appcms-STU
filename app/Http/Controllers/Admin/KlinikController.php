@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
+use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Admin;
 use App\Codes\Models\Role;
 use App\Codes\Models\V1\Klinik;
+use App\Codes\Models\V1\Users;
 use Illuminate\Http\Request;
 
 class KlinikController extends _CrudController
@@ -97,7 +99,9 @@ class KlinikController extends _CrudController
 
         $this->data['listSet']['status'] = get_list_active_inactive();
         $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.clinic.forms';
+        $this->listView['create2'] = env('ADMIN_TEMPLATE').'.page.clinic.forms2';
         $this->listView['edit'] = env('ADMIN_TEMPLATE').'.page.clinic.forms';
+        $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.clinic.list';
 
 
     }
@@ -238,6 +242,32 @@ class KlinikController extends _CrudController
         }
     }
 
+    public function create2(){
+        $this->callPermission();
+
+        $adminId = session()->get('admin_id');
+        $getAdmin = Admin::where('id', $adminId)->first();
+        if (!$getAdmin) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        if($this->request->get('download_example_import')) {
+            $getLogic = new SynapsaLogic();
+            $getLogic->downloadExampleImportClinic();
+        }
+
+        $data = $this->data;
+
+        $getData = $this->data;
+
+        $data['thisLabel'] = __('general.clinic');
+        $data['viewType'] = 'create';
+        $data['formsTitle'] = __('general.title_create', ['field' => __('general.clinic')]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['data'] = $getData;
+
+        return view($this->listView['create2'], $data);
+    }
 
 
 }

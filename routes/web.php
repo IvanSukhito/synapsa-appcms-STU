@@ -89,6 +89,10 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                         $router->get($linkName . '/create2', $controller.'@create2')->name('admin.' . $linkName . '.create2');
                         $router->post($linkName . '/store2', $controller.'@store2')->name('admin.' . $linkName . '.store2');
                         break;
+                    case 'klinik':
+                        $router->get($linkName . '/create2', $controller.'@create2')->name('admin.' . $linkName . '.create2');
+                        $router->post($linkName . '/store2', $controller.'@store2')->name('admin.' . $linkName . '.store2');
+                        break;
                     case 'product-clinic':
                         $router->get($linkName . '/create2', $controller.'@create2')->name('admin.' . $linkName . '.create2');
                         $router->post($linkName . '/store2', $controller.'@store2')->name('admin.' . $linkName . '.store2');

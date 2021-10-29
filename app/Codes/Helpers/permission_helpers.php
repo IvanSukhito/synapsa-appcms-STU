@@ -785,6 +785,9 @@ if ( ! function_exists('listAvailablePermission'))
         $listPermission['product']['create'][] = 'admin.product.create2';
         $listPermission['product']['create'][] = 'admin.product.store2';
 
+        $listPermission['klinik']['create'][] = 'admin.klinik.create2';
+        $listPermission['klinik']['create'][] = 'admin.klinik.store2';
+
         $listPermission['product-clinic']['create'][] = 'admin.product-clinic.create2';
         $listPermission['product-clinic']['create'][] = 'admin.product-clinic.store2';
         $listPermission['product-clinic']['create'][] = 'admin.product-clinic.getProductSynapsa';

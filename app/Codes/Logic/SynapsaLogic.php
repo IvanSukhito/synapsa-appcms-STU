@@ -395,4 +395,16 @@ class SynapsaLogic
         readfile($file);
         exit;
     }
+
+    public function downloadExampleImportClinic() {
+        $file = env('OSS_URL') . '/' . '';
+        $fileName = create_slugs('Example Import Doctor Clinic');
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="'.$fileName.'.xlsx"');
+        header('Cache-Control: max-age=0');
+        header('Cache-Control: max-age=1');
+        readfile($file);
+        exit;
+    }
 }
