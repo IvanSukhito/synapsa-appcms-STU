@@ -24,7 +24,12 @@ class ShippingController extends _CrudController
                     'edit' => 'required'
                 ],
            ],
-
+            'price' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+            ],
             'icon_full' => [
                 'validate' => [
                     'create' => 'required',

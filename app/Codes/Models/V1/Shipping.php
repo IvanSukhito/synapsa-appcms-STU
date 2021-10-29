@@ -10,6 +10,7 @@ class Shipping extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'name',
+        'price',
         'icon',
         'orders',
         'settings',

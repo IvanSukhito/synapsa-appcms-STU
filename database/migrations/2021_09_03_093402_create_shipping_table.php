@@ -16,6 +16,7 @@ class CreateShippingTable extends Migration
         Schema::create('shipping', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
+            $table->decimal('price', 26, 2)->nullable();
             $table->text('icon')->nullable();
             $table->longtext('settings')->nullable();
             $table->integer('orders')->default(1);
