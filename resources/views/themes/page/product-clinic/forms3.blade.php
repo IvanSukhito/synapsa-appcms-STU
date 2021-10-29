@@ -59,7 +59,7 @@ else {
                 <!-- /.card-header -->
 
                 @if(in_array($viewType, ['create']))
-                    {{ Form::open(['route' => ['admin.' . $thisRoute . '.store2'], 'files' => true, 'id'=>'form', 'role' => 'form'])  }}
+                    {{ Form::open(['route' => ['admin.' . $thisRoute . '.create3'], 'method' => 'GET', 'files' => true, 'id'=>'form', 'role' => 'form'])  }}
                 @elseif(in_array($viewType, ['edit']))
                     {{ Form::open(['route' => ['admin.' . $thisRoute . '.update', $data->{$masterId}], 'method' => 'PUT', 'files' => true, 'id'=>'form', 'role' => 'form'])  }}
                 @else
@@ -67,7 +67,27 @@ else {
                 @endif
 
                 <div class="card-body">
-                    <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="category_product">{{ __('general.product-category') }} <span class="text-red">*</span></label>
+                                <select name="category" id="category" class="form-control input-lg select2" required>
+                                    <option value="#" readonly="readonly">Category Product</option>
+                                    @foreach($category as $list)
+                                        <option value="{{$list->id}}">{{$list->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label for="product">{{ __('general.product') }} <span class="text-red">*</span></label>
+                                <select name="product" id="product" class="form-control select2 product" required>
+                                    <option value="">Product</option>
+                                </select>
+                            </div>
+                        </div>
+
 
                     </div>
                 </div>
@@ -76,8 +96,8 @@ else {
                 <div class="card-footer">
 
                     @if(in_array($viewType, ['create']))
-                        <button type="submit" class="mb-2 mr-2 btn btn-primary" title="@lang('general.save')">
-                            <i class="fa fa-save"></i><span class=""> @lang('general.save')</span>
+                        <button type="button" name="apply" id="apply" class="mb-2 mr-2 btn btn-primary" title="@lang('general.apply')" data-link="{{ route('admin.' . $thisRoute . '.create3') }}">
+                            <i class="fa fa-save"></i><span class=""> @lang('general.apply')</span>
                         </button>
                     @elseif (in_array($viewType, ['edit']))
                         <button type="submit" class="mb-2 mr-2 btn btn-primary" title="@lang('general.update')">
@@ -109,7 +129,48 @@ else {
     @include(env('ADMIN_TEMPLATE').'._component.generate_forms_script')
     <script>
         $(document).ready(function() {
-            $('.dropify').dropify();
+            $('#category').change(function() {
+
+                let category = $('#category').val();
+
+                var div= $('#product').parent();
+                var op="";
+
+                $.ajax({
+                    type: 'GET',
+                    url: "{{ route('admin.findProductSynapsa') }}",
+                    data: { category :category},
+                    success : function (data){
+
+                        op+='<option value="0" selected disabled>Chose Product</option>';
+                        for(var i=0;i<data.length;i++){
+                            op+='<option value="'+data[i].id+'">'+data[i].name+'</option>';
+                        }
+
+                        div.find('#product').html(" ");
+                        div.find('#product').append(op);
+
+                    },
+                    error: function (){
+
+                    }
+                })
+            });
+
+                $('#apply').click(function (){
+                    var getLink = $(this).data('link');
+                    var getValue = $('#product').val();
+                    var url = getLink + '?id=' + getValue;
+                    console.log(url);
+                    window.location.href=url;
+                });
+
         });
-     </script>
+
+        function changeURL(curr) {
+            let getLink = $(curr).data('link');
+            let getValue = $(curr).val();
+            window.location = getLink + '?date=' + getValue;
+        }
+    </script>
 @stop

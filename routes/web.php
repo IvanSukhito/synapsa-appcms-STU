@@ -89,8 +89,9 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                     case 'product-clinic':
                         $router->get($linkName . '/create2', $controller.'@create2')->name('admin.' . $linkName . '.create2');
                         $router->post($linkName . '/store2', $controller.'@store2')->name('admin.' . $linkName . '.store2');
+                        $router->get($linkName . '/get-product-synapsa', $controller.'@getProductSynapsa')->name('admin.' . $linkName . '.getProductSynapsa');
                         $router->get($linkName . '/create3', $controller.'@create3')->name('admin.' . $linkName . '.create3');
-                        $router->post($linkName . '/store3', $controller.'@store3')->name('admin.' . $linkName . '.store3');
+                        $router->post($linkName . '/{id}/store3', $controller.'@store3')->name('admin.' . $linkName . '.store3');
 
                         break;
                     case 'doctor_clinic':
@@ -128,6 +129,7 @@ Route::get('/', ['uses' => 'App\Http\Controllers\Website\V1\GeneralController@xe
 Route::get('/findCity', ['uses' => 'App\Http\Controllers\Admin\GeneralController@findCity'])->name('admin.findCity');
 Route::get('/findDistrict', ['uses' => 'App\Http\Controllers\Admin\GeneralController@findDistrict'])->name('admin.findDistrict');
 Route::get('/findSubDistrict', ['uses' => 'App\Http\Controllers\Admin\GeneralController@findSubDistrict'])->name('admin.findSubDistrict');
+Route::get('/findProductSynapsa', ['uses' => 'App\Http\Controllers\Admin\GeneralController@findProductSynapsa'])->name('admin.findProductSynapsa');
 
 //Route::get('/', function () {
 //    return view('welcome');

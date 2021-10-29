@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Codes\Models\V1\City;
 use App\Codes\Models\V1\District;
+use App\Codes\Models\V1\Product;
 use App\Codes\Models\V1\SubDistrict;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -47,6 +48,16 @@ class GeneralController extends Controller
         $getData = SubDistrict::Where('district_id', 'LIKE', strip_tags($districtId))->get();
 
         return response()->json($getData);
+    }
+    public function findProductSynapsa(){
+        $category = intval($this->request->get('category'));
+
+        if($category){
+            $getProduct = Product::Where('product_category_id', 'LIKE', strip_tags($category))->where('klinik_id', 0)->get();
+        }
+
+
+        return response()->json($getProduct);
     }
 
 

@@ -98,6 +98,8 @@ return [
     'anak-anak' => 'Anak-anak',
     'product-category' => 'Product Category',
     'article-category' => 'Article Category',
+    'search_product' => 'Search Product',
+    'apply' => 'Apply',
     'image' => 'Image',
     'image_full' => 'Image',
     'instagram' => 'Instagram',

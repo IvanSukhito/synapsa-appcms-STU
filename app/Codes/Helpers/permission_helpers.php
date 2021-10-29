@@ -777,14 +777,16 @@ if ( ! function_exists('listAvailablePermission'))
         $listPermission['transaction-lab']['edit'][] = 'admin.transaction-lab.reject';
 
         $listPermission['transaction-product']['edit'][] = 'admin.transaction-product.approve';
-        $listPermission['transaction-product']['edit'][] = 'admin.transaction-product.reject';
+        //$listPermission['transaction-product']['edit'][] = 'admin.transaction-product.reject';
 
         $listPermission['transaction-doctor']['edit'][] = 'admin.transaction-doctor.approve';
         $listPermission['transaction-doctor']['edit'][] = 'admin.transaction-doctor.reject';
 
         $listPermission['product-clinic']['create'][] = 'admin.product-clinic.create2';
         $listPermission['product-clinic']['create'][] = 'admin.product-clinic.store2';
+        $listPermission['product-clinic']['create'][] = 'admin.product-clinic.getProductSynapsa';
         $listPermission['product-clinic']['create'][] = 'admin.product-clinic.create3';
+        $listPermission['product-clinic']['create'][] = 'admin.product-clinic.create4';
         $listPermission['product-clinic']['create'][] = 'admin.product-clinic.store3';
 
         $listPermission['doctor_clinic']['create'][] = 'admin.doctor_clinic.create2';
