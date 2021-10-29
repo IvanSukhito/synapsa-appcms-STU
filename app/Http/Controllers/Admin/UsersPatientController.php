@@ -40,11 +40,6 @@ class UsersPatientController extends _CrudController
                     'edit' => 'required'
                 ]
             ],
-            'city_id' => [
-                'create' => 0,
-                'edit' => 0,
-                'list' => 0,
-            ],
             'address' => [
                 'validate' => [
                     'create' => 'required',
