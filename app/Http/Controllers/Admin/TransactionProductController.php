@@ -129,41 +129,29 @@ class TransactionProductController extends _CrudController
                 'list' => 0,
                 'lang' => 'general.shipping_address',
             ],
-            'shipping_province_id' => [
-                'validate' => [
-                    'create' => 'required',
-                ],
-                'edit' => 0,
-                'list' => 0,
-                'type' => 'select2',
-                'lang' => 'general.shipping_province_id',
+            'shipping_province' => [
+                    'list' => 0,
+                    'extra' => [
+                        'edit' => ['disabled' => true]
+                    ],
             ],
-            'shipping_city_id' => [
-                'validate' => [
-                    'create' => 'required',
-                ],
-                'edit' => 0,
+            'shipping_city' => [
                 'list' => 0,
-                'type' => 'select2',
-                'lang' => 'general.shipping_city_id',
+                'extra' => [
+                    'edit' => ['disabled' => true]
+                ],
             ],
-            'shipping_district_id' => [
-                'validate' => [
-                    'create' => 'required',
-                ],
-                'edit' => 0,
+            'shipping_district' => [
                 'list' => 0,
-                'type' => 'select2',
-                'lang' => 'general.shipping_district_id',
+                'extra' => [
+                    'edit' => ['disabled' => true]
+                ],
             ],
-            'shipping_subdistrict_id' => [
-                'validate' => [
-                    'create' => 'required',
-                ],
-                'edit' => 0,
+            'shipping_subddistrict' => [
                 'list' => 0,
-                'type' => 'select2',
-                'lang' => 'general.shipping_subdistrict_id',
+                'extra' => [
+                    'edit' => ['disabled' => true]
+                ],
             ],
             'shipping_zipcode' => [
                 'validate' => [
@@ -245,23 +233,6 @@ class TransactionProductController extends _CrudController
                 'list' => 0,
                 'lang' => 'general.receiver_address',
             ],
-            'type' => [
-                'validate' => [
-                    'create' => 'required',
-                ],
-                'edit' => 0,
-                'list' => 0,
-                'type' => 'select',
-                'lang' => 'general.type',
-            ],
-//            'extra_info' => [
-//                'validate' => [
-//                    'create' => 'required',
-//                    'edit' => 'required'
-//                ],
-//                'list' => 0,
-//                'lang' => 'general.extra_info',
-//            ],
             'status' => [
                 'validate' => [
                     'create' => 'required',
@@ -320,35 +291,6 @@ class TransactionProductController extends _CrudController
             }
         }
 
-        $getShippingProvince = Province::pluck('name', 'id')->toArray();
-        if($getShippingProvince) {
-            foreach($getShippingProvince as $key => $value) {
-                $listShippingProvince[$key] = $value;
-            }
-        }
-
-        $getShippingCity = City::pluck('name', 'id')->toArray();
-        if($getShippingCity) {
-            foreach($getShippingCity as $key => $value) {
-                $listShippingCity[$key] = $value;
-            }
-        }
-
-        $getShippingDistrict = District::pluck('name', 'id')->toArray();
-        if($getShippingDistrict) {
-            foreach($getShippingDistrict as $key => $value) {
-                $listShippingDistrict[$key] = $value;
-            }
-        }
-
-        $getShippingSubdistrict = SubDistrict::pluck('name', 'id')->toArray();
-        if($getShippingSubdistrict) {
-            foreach($getShippingSubdistrict as $key => $value) {
-                $listShippingSubdistrict[$key] = $value;
-            }
-        }
-
-
         $klinik_id = [0 => 'All'];
         foreach(Klinik::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
             $klinik_id[$key] = $val;
@@ -382,12 +324,40 @@ class TransactionProductController extends _CrudController
         $this->data['listSet']['filter_shipping_id'] = $shipping_id;
         $this->data['listSet']['payment_id'] = $listPayment;
         $this->data['listSet']['shipping_id'] = $listShipping;
-        $this->data['listSet']['shipping_province_id'] = $listShippingProvince;
-        $this->data['listSet']['shipping_city_id'] = $listShippingCity;
-        $this->data['listSet']['shipping_district_id'] = $listShippingDistrict;
-        $this->data['listSet']['shipping_subdistrict_id'] = $listShippingSubdistrict;
-        $this->data['listSet']['type'] = get_list_type_transaction();
 
+
+    }
+    public function show($id)
+    {
+        $this->callPermission();
+
+        $adminId = session()->get('admin_id');
+
+        $getAdmin = Admin::where('id', $adminId)->first();
+
+        $getData = $this->crud->show($id);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $getTransaction = Transaction::selectRaw('transaction.*, province.name as shipping_province, city.name as shipping_city, district.name as shipping_district, sub_district.name as shipping_subdistrict')
+            ->join('province','province.id','=','transaction.shipping_province_id','LEFT')
+            ->join('city','city.id','=','transaction.shipping_city_id','LEFT')
+            ->join('district','district.id','=','transaction.shipping_district_id','LEFT')
+            ->join('sub_district','sub_district.id','=','transaction.shipping_subdistrict_id','LEFT')
+            ->where('klinik_id', $getAdmin->klinik_id)
+            ->where('type_service', 1)
+            ->where('transaction.id', $getData->id)
+            ->first();
+
+        $data = $this->data;
+
+        $data['viewType'] = 'show';
+        $data['formsTitle'] = __('general.title_show', ['field' => $data['thisLabel']]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['data'] = $getTransaction;
+
+        return view($this->listView[$data['viewType']], $data);
     }
     public function dataTable()
     {
@@ -399,7 +369,13 @@ class TransactionProductController extends _CrudController
 
         $getAdmin = Admin::where('id', $adminId)->first();
 
-        $builder = $this->model::query()->select('*')->where('klinik_id', $getAdmin->klinik_id)->where('type_service', 1);
+        $builder = $this->model::query()->select('transaction.*')
+            ->join('province','province.id','=','transaction.shipping_province_id','LEFT')
+            ->join('city','city.id','=','transaction.shipping_city_id','LEFT')
+            ->join('district','district.id','=','transaction.shipping_district_id','LEFT')
+            ->join('sub_district','sub_district.id','=','transaction.shipping_subdistrict_id','LEFT')
+            ->where('klinik_id', $getAdmin->klinik_id)
+            ->where('type_service', 1);
 
         if ($this->request->get('filter_payment_id') && $this->request->get('filter_payment_id') != 0) {
             $builder = $builder->where('payment_id', $this->request->get('filter_payment_id'));
