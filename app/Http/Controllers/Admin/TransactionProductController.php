@@ -147,7 +147,7 @@ class TransactionProductController extends _CrudController
                     'edit' => ['disabled' => true]
                 ],
             ],
-            'shipping_subddistrict' => [
+            'shipping_subdistrict' => [
                 'list' => 0,
                 'extra' => [
                     'edit' => ['disabled' => true]
