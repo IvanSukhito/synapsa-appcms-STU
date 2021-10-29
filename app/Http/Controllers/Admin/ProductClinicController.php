@@ -709,7 +709,7 @@ class ProductClinicController extends _CrudController
 
         $data['thisLabel'] = __('general.product');
         $data['viewType'] = 'create';
-        $data['formsTitle'] = __('general.title_create', ['field' => __('general.product')]);
+        $data['formsTitle'] = __('general.search_product_from_synapsa');
         //$data['passing'] = collectPassingData($this->passingData, $data['viewType']);
         $data['data'] = $getData;
         $data['category'] = $getCategory;
