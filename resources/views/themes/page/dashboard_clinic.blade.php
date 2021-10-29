@@ -95,53 +95,77 @@ if ($daterange) {
                 <div class="col-md-12">
                     <div class="row">
 
-                        <div class="col-md-4">
-                            <!-- small box -->
+                        <div class="col-12 col-sm-6 col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-primary elevation-1"><i class="fa fa-tags"></i></span>
 
-                            <a href="{{ route('admin.user_clinic.index') }}" class="small-box bg-warning">
-                                <div class="inner">
-                                    <h3>{!! $user->count() ?? 0 !!}</h3>
-
-                                    <p>Pasien Terdaftar</p>
+                                <div class="info-box-content">
+                                    <a href="{{ route('admin.transaction-product.index') }}" style="color:black;">
+                                    <span class="info-box-text">Transaksi Product</span>
+                                    <span class="info-box-number">
+                                    {!! $transactionProduct->count() ?? 0 !!}
+                                    </span>
+                                    </a>
                                 </div>
-                            </a>
+                                <!-- /.info-box-content -->
+                            </div>
+                            <!-- /.info-box -->
                         </div>
 
-                        <div class="col-md-4">
-                            <!-- small box -->
+                        <div class="col-12 col-sm-6 col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-danger elevation-1"><i class="fa fa-user-md"></i></span>
 
-                            <a href="#" class="small-box bg-primary">
-                                <div class="inner">
-                                    <h3>{!! $transaction->count() ?? 0 !!}</h3>
-
-                                    <p>Ringkasan Transaksi</p>
+                                <div class="info-box-content">
+                                    <a href="{{ route('admin.transaction-doctor.index') }}" style="color:black;">
+                                    <span class="info-box-text">Transaksi Dokter</span>
+                                    <span class="info-box-number">
+                                    {!! $transactionDoctor->count() ?? 0 !!}
+                                    </span>
+                                    </a>
                                 </div>
-                            </a>
+                                <!-- /.info-box-content -->
+                            </div>
+                            <!-- /.info-box -->
                         </div>
 
-                        <div class="col-md-4">
-                            <!-- small box -->
+                        <div class="col-12 col-sm-6 col-md-3">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-success elevation-1"><i class="fa fa-flask"></i></span>
 
-                            <a href="{{ route('admin.transaction-lab.index') }}" class="small-box bg-info">
-                                <div class="inner">
-                                    <h3>{!! $transactionLab->count() ?? 0 !!}</h3>
-
-                                    <p>Lab Transaksi</p>
+                                <div class="info-box-content">
+                                    <a href="{{ route('admin.transaction-lab.index') }}" style="color:black;">
+                                    <span class="info-box-text">Transaksi Lab</span>
+                                    <span class="info-box-number">
+                                    {!! $transactionLab->count() ?? 0 !!}
+                                    </span>
+                                    </a>
                                 </div>
-                            </a>
+                                <!-- /.info-box-content -->
+                            </div>
+                            <!-- /.info-box -->
                         </div>
 
-                        <div class="col-md-4">
-                            <!-- small box -->
-                            <a href="{{ route('admin.transaction-doctor.index') }}" class="small-box bg-danger">
-                                <div class="inner">
-                                    <h3>{!! $transactionDoctor->count() ?? 0 !!}</h3>
+                        <div class="col-12 col-sm-6 col-md-3">
+                            <div class="info-box">
 
-                                    <p>Dokter Transaksi</p>
+                               <span class="info-box-icon bg-warning elevation-1"><i class="fa fa-users"></i></span>
+
+                                <div class="info-box-content">
+                                    <a href="{{ route('admin.user_clinic.index') }}" style="color:black;">
+                                    <span class="info-box-text">Pasien Terdaftar</span>
+                                    <span class="info-box-number">
+                                    {!! $transactionLab->count() ?? 0 !!}
+                                    </span>
+                                    </a>
                                 </div>
-                            </a>
+                                <!-- /.info-box-content -->
+                            </div>
+                            <!-- /.info-box -->
                         </div>
+
                     </div>
+
                 </div>
             </div>
         </div>
@@ -165,6 +189,15 @@ if ($daterange) {
                 "format": "YYYY-MM-DD",
                 "separator": " | "
             }
+        });
+
+        $(document).ready(function() {
+
+            $('#patient').click(function (){
+                let patient = $(this).val();
+                console.log(patient);
+            });
+
         });
     </script>
 @stop

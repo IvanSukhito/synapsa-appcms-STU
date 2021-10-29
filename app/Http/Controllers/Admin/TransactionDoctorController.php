@@ -12,6 +12,7 @@ use App\Codes\Models\V1\Klinik;
 use App\Codes\Models\V1\Lab;
 use App\Codes\Models\V1\Payment;
 use App\Codes\Models\V1\ProductCategory;
+use App\Codes\Models\V1\Province;
 use App\Codes\Models\V1\Shipping;
 use App\Codes\Models\V1\SubDistrict;
 use App\Codes\Models\V1\Transaction;
@@ -57,15 +58,6 @@ class TransactionDoctorController extends _CrudController
                 'lang' => 'general.payment_id',
                 'type' => 'select2',
             ],
-            'shipping_id' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'lang' => 'general.shipping',
-                'type' => 'select2',
-                'list' => 0,
-            ],
             'code' => [
                 'validate' => [
                     'create' => 'required',
@@ -88,101 +80,6 @@ class TransactionDoctorController extends _CrudController
                 ],
                 'list' => 0,
                 'lang' => 'general.payment_detail',
-            ],
-            'shipping_name' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'list' => 0,
-                'lang' => 'general.shipping_name',
-            ],
-            'shipping_address_name' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'list' => 0,
-                'lang' => 'general.shipping_address_name',
-            ],
-            'shipping_address' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'list' => 0,
-                'lang' => 'general.shipping_address',
-            ],
-            'shipping_province_id' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'list' => 0,
-                'type' => 'select2',
-                'lang' => 'general.shipping_city_id',
-            ],
-            'shipping_city_id' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'list' => 0,
-                'type' => 'select2',
-                'lang' => 'general.shipping_city_id',
-            ],
-            'shipping_district_id' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'list' => 0,
-                'type' => 'select2',
-                'lang' => 'general.shipping_district_id',
-            ],
-            'shipping_subdistrict_id' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'list' => 0,
-                'type' => 'select2',
-                'lang' => 'general.shipping_subdistrict_id',
-            ],
-            'shipping_zipcode' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'list' => 0,
-                'lang' => 'general.shipping_zipcode',
-            ],
-            'shipping_price' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'list' => 0,
-                'type' => 'number',
-                'lang' => 'general.shipping_price',
-            ],
-            'total_qty' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'list' => 0,
-                'type' => 'number',
-                'lang' => 'general.total_qty',
-            ],
-            'subtotal' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'list' => 0,
-                'type' => 'number',
-                'lang' => 'general.subtotal',
             ],
             'total' => [
                 'validate' => [
@@ -215,23 +112,6 @@ class TransactionDoctorController extends _CrudController
                 ],
                 'list' => 0,
                 'lang' => 'general.receiver_address',
-            ],
-            'type' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'list' => 0,
-                'type' => 'select',
-                'lang' => 'general.type',
-            ],
-            'extra_info' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'list' => 0,
-                'lang' => 'general.extra_info',
             ],
             'status' => [
                 'validate' => [
@@ -284,34 +164,6 @@ class TransactionDoctorController extends _CrudController
                 $listPayment[$key] = $value;
             }
         }
-        $getShipping = Shipping::where('status', 80)->pluck('name', 'id')->toArray();
-        if($getShipping) {
-            foreach($getShipping as $key => $value) {
-                $listShipping[$key] = $value;
-            }
-        }
-
-        $getShippingCity = City::pluck('name', 'id')->toArray();
-        if($getShippingCity) {
-            foreach($getShippingCity as $key => $value) {
-                $listShippingCity[$key] = $value;
-            }
-        }
-
-        $getShippingDistrict = District::pluck('name', 'id')->toArray();
-        if($getShippingDistrict) {
-            foreach($getShippingDistrict as $key => $value) {
-                $listShippingDistrict[$key] = $value;
-            }
-        }
-
-        $getShippingSubdistrict = SubDistrict::pluck('name', 'id')->toArray();
-        if($getShippingSubdistrict) {
-            foreach($getShippingSubdistrict as $key => $value) {
-                $listShippingSubdistrict[$key] = $value;
-            }
-        }
-
 
         $klinik_id = [0 => 'All'];
         foreach(Klinik::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
@@ -339,12 +191,8 @@ class TransactionDoctorController extends _CrudController
         $this->data['listSet']['filter_payment_id'] = $payment_id;
         $this->data['listSet']['filter_shipping_id'] = $shipping_id;
         $this->data['listSet']['payment_id'] = $listPayment;
-        $this->data['listSet']['shipping_id'] = $listShipping;
-        $this->data['listSet']['shipping_city_id'] = $listShippingCity;
-        $this->data['listSet']['shipping_district_id'] = $listShippingDistrict;
-        $this->data['listSet']['shipping_subdistrict_id'] = $listShippingSubdistrict;
+
         $this->data['listSet']['status'] = get_list_transaction();
-        $this->data['listSet']['type'] = get_list_type_transaction();
 
     }
     public function dataTable()

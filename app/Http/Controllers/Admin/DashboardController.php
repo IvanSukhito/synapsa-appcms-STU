@@ -47,6 +47,8 @@ class DashboardController extends Controller
                 $data['transaction'] = Transaction::where('klinik_id', $getClinic->klinik_id)->whereBetween('created_at', [$dateStart, $dateEnd]);
                 $data['transactionDoctor'] = Transaction::where('klinik_id', $getClinic->klinik_id)->where('type_service', 2)->whereBetween('created_at', [$dateStart, $dateEnd]);
                 $data['transactionLab'] = Transaction::where('klinik_id', $getClinic->klinik_id)->where('type_service', 3)->whereBetween('created_at', [$dateStart, $dateEnd]);
+                $data['transactionProduct'] = Transaction::where('klinik_id', $getClinic->klinik_id)->where('type_service', 1)->whereBetween('created_at', [$dateStart, $dateEnd]);
+
             }
             else {
                 $data['clinic'] = Klinik::where('id', $getClinic->klinik_id)->first();
@@ -54,6 +56,7 @@ class DashboardController extends Controller
                 $data['transaction'] = Transaction::where('klinik_id', $getClinic->klinik_id);
                 $data['transactionDoctor'] = Transaction::where('klinik_id', $getClinic->klinik_id)->where('type_service', 2);
                 $data['transactionLab'] = Transaction::where('klinik_id', $getClinic->klinik_id)->where('type_service', 3);
+                $data['transactionProduct'] = Transaction::where('klinik_id', $getClinic->klinik_id)->where('type_service', 1);
             }
 
 

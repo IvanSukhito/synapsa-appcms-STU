@@ -17,6 +17,13 @@
         <span class="d-none d-md-inline"> @lang('general.reject')</span>
     </a>
 @endif
+@if ($permission['edit'] && in_array($query->status, [81, 82]))
+    <a href="{{ route('admin.' . $thisRoute . '.edit', $query->{$masterId}) }}" class="mb-1 btn btn-primary btn-sm"
+       title="@lang('general.edit')">
+        <i class="fa fa-pencil-square-o"></i>
+        <span class="d-none d-md-inline"> @lang('general.edit')</span>
+    </a>
+@endif
 @if(in_array($query->status,[1,80,99]))
     @if ($permission['destroy'])
         <a href="#" class="mb-1 btn btn-danger btn-sm" title="@lang('general.void')"

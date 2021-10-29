@@ -11,6 +11,7 @@ use App\Codes\Models\V1\Klinik;
 use App\Codes\Models\V1\Lab;
 use App\Codes\Models\V1\Payment;
 use App\Codes\Models\V1\ProductCategory;
+use App\Codes\Models\V1\Province;
 use App\Codes\Models\V1\Shipping;
 use App\Codes\Models\V1\SubDistrict;
 use App\Codes\Models\V1\Transaction;
@@ -135,7 +136,7 @@ class TransactionProductController extends _CrudController
                 'edit' => 0,
                 'list' => 0,
                 'type' => 'select2',
-                'lang' => 'general.shipping_city_id',
+                'lang' => 'general.shipping_province_id',
             ],
             'shipping_city_id' => [
                 'validate' => [
@@ -319,6 +320,13 @@ class TransactionProductController extends _CrudController
             }
         }
 
+        $getShippingProvince = Province::pluck('name', 'id')->toArray();
+        if($getShippingProvince) {
+            foreach($getShippingProvince as $key => $value) {
+                $listShippingProvince[$key] = $value;
+            }
+        }
+
         $getShippingCity = City::pluck('name', 'id')->toArray();
         if($getShippingCity) {
             foreach($getShippingCity as $key => $value) {
@@ -374,6 +382,7 @@ class TransactionProductController extends _CrudController
         $this->data['listSet']['filter_shipping_id'] = $shipping_id;
         $this->data['listSet']['payment_id'] = $listPayment;
         $this->data['listSet']['shipping_id'] = $listShipping;
+        $this->data['listSet']['shipping_province_id'] = $listShippingProvince;
         $this->data['listSet']['shipping_city_id'] = $listShippingCity;
         $this->data['listSet']['shipping_district_id'] = $listShippingDistrict;
         $this->data['listSet']['shipping_subdistrict_id'] = $listShippingSubdistrict;
