@@ -116,7 +116,7 @@ else {
                             <i class="fa fa-pencil"></i><span class=""> {{ __('general.edit') }}</span>
                         </a>
                     @endif
-                    <a href="<?php echo route('admin.' . $thisRoute . '.create3') ?>" class="mb-2 mr-2 btn btn-warning"
+                    <a href="<?php echo route('admin.' . $thisRoute . '.getProductSynapsa') ?>" class="mb-2 mr-2 btn btn-warning"
                        title="{{ __('general.back') }}">
                         <i class="fa fa-arrow-circle-o-left"></i><span class=""> {{ __('general.back') }}</span>
                     </a>
