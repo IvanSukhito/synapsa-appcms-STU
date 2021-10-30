@@ -600,6 +600,8 @@ if ( ! function_exists('listAllMenu')) {
                 'title' => __('general.setting'),
                 'active' => [
                     'admin.settings.',
+                    'admin.payment.',
+                    'admin.shipping.',
                     'admin.admin.',
                     'admin.role.',
                     'admin.faqs.',

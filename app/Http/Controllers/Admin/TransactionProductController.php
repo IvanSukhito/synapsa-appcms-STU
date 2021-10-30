@@ -15,6 +15,7 @@ use App\Codes\Models\V1\Province;
 use App\Codes\Models\V1\Shipping;
 use App\Codes\Models\V1\SubDistrict;
 use App\Codes\Models\V1\Transaction;
+use App\Codes\Models\V1\TransactionDetails;
 use App\Codes\Models\V1\Users;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -262,6 +263,7 @@ class TransactionProductController extends _CrudController
             $passingData
         );
         $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.transaction-product.list';
+        $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.transaction-product.forms';
         $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.transaction-product.list_button';
 
         $getUsers = Users::where('status', 80)->pluck('fullname', 'id')->toArray();
@@ -350,12 +352,19 @@ class TransactionProductController extends _CrudController
             ->where('transaction.id', $getData->id)
             ->first();
 
+        $getTransactionDetails =   TransactionDetails::selectRaw('transaction_details.*, code, klinik.name as klinik')
+            ->join('transaction','transaction.id','=','transaction_details.transaction_id','left')
+            ->join('klinik','klinik.id','=','transaction.klinik_id','left')
+            ->where('transaction_details.transaction_id', $getData->id)
+            ->get();
+
         $data = $this->data;
 
         $data['viewType'] = 'show';
         $data['formsTitle'] = __('general.title_show', ['field' => $data['thisLabel']]);
         $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
         $data['data'] = $getTransaction;
+        $data['transaction'] = $getTransactionDetails;
 
         return view($this->listView[$data['viewType']], $data);
     }

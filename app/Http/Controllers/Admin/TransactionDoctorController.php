@@ -142,6 +142,7 @@ class TransactionDoctorController extends _CrudController
             $passingData
         );
         $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.transaction-doctor.list';
+        $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.transaction-doctor.forms';
         $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.transaction-doctor.list_button';
 
         $getUsers = Users::where('status', 80)->pluck('fullname', 'id')->toArray();
@@ -415,5 +416,31 @@ class TransactionDoctorController extends _CrudController
         $data['type'] = 'clinic';
 
         return view($this->listView['index'], $data);
+    }
+    public function show($id)
+    {
+        $this->callPermission();
+
+        $getData = $this->crud->show($id);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $data = $this->data;
+
+        $getTransaction =   TransactionDetails::selectRaw('transaction_details.*, type_service_name, category_service_name, code, klinik.name as klinik')
+            ->join('transaction','transaction.id','=','transaction_details.transaction_id','left')
+            ->join('klinik','klinik.id','=','transaction.klinik_id','left')
+            ->where('transaction_details.transaction_id', $getData->id)
+            ->get();
+
+
+        $data['viewType'] = 'show';
+        $data['formsTitle'] = __('general.title_show', ['field' => $data['thisLabel']]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['data'] = $getData;
+        $data['transaction'] = $getTransaction;
+
+        return view($this->listView[$data['viewType']], $data);
     }
 }
