@@ -537,24 +537,6 @@ if ( ! function_exists('listAllMenu')) {
                 'type' => 1,
             ],
             [
-                'name' => __('general.payment'),
-                'icon' => '<i class="nav-icon fa fa-credit-card"></i>',
-                'title' => __('general.payment'),
-                'active' => ['admin.payment.'],
-                'route' => 'admin.payment.index',
-                'key' => 'payment',
-                'type' => 1,
-            ],
-            [
-                'name' => __('general.shipping'),
-                'icon' => '<i class="nav-icon fa fa-shopping-cart"></i>',
-                'title' => __('general.shipping'),
-                'active' => ['admin.shipping.'],
-                'route' => 'admin.shipping.index',
-                'key' => 'shipping',
-                'type' => 1,
-            ],
-            [
                 'name' => __('general.users'),
                 'icon' => '<i class="nav-icon fa fa-user"></i>',
                 'title' => __('general.users'),
@@ -625,6 +607,22 @@ if ( ! function_exists('listAllMenu')) {
                 ],
                 'type' => 2,
                 'data' => [
+                    [
+                        'name' => __('general.payment'),
+                        'title' => __('general.payment'),
+                        'active' => ['admin.payment.'],
+                        'route' => 'admin.payment.index',
+                        'key' => 'payment',
+                        'type' => 1,
+                    ],
+                    [
+                        'name' => __('general.shipping'),
+                        'title' => __('general.shipping'),
+                        'active' => ['admin.shipping.'],
+                        'route' => 'admin.shipping.index',
+                        'key' => 'shipping',
+                        'type' => 1,
+                    ],
                     [
                         'name' => __('general.faqs'),
                         'title' => __('general.faqs'),
