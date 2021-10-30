@@ -405,4 +405,15 @@ class TransactionDoctorController extends _CrudController
             return redirect()->route('admin.' . $this->route . '.index');
         }
     }
+    public function index()
+    {
+        $this->callPermission();
+
+        $data = $this->data;
+
+        $data['passing'] = collectPassingData($this->passingData);
+        $data['type'] = 'clinic';
+
+        return view($this->listView['index'], $data);
+    }
 }

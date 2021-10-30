@@ -240,7 +240,16 @@ return [
     'city' => 'City',
     'browser' => 'Browser',
     'ip_address' => 'IP Address',
+    'transaction_admin' => 'Transaction Admin',
+    'transaction_lab_admin' => 'Transaction Lab',
+    'transaction_doctor_admin' => 'Transaction Doctor',
+    'transaction_product_admin' => 'Transaction Product',
 
+
+    'shipping_province' => 'Shipping Province',
+    'shipping_city' => 'Shipping City',
+    'shipping_district' => 'Shipping District',
+    'shipping_subdistrict' => 'Shipping Sub District',
     'question_count' => 'Question Count',
     'question_id' => 'Question ID',
     'hint_image' => 'Hint Image',

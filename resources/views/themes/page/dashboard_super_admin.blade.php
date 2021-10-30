@@ -145,21 +145,21 @@ if ($daterange) {
                                     <tr>
                                         <td>
                                             @if($listTransaction == 'Pending')
-                                                <a href="{{ route('admin.transaction-product.index') }}?status={{ $key }}"><span class="badge badge-warning">{{ $listTransaction }}</span></a></td>
+                                                <a href="{{ route('admin.transaction-product-admin.index') }}?status={{ $key }}"><span class="badge badge-warning">{{ $listTransaction }}</span></a></td>
                                             @elseif($listTransaction == 'Payment Pending')
-                                                <a href="{{ route('admin.transaction-product.index') }}?status={{ $key }}"><span class="badge badge-info">{{ $listTransaction }}</span></a></td>
+                                                <a href="{{ route('admin.transaction-product-admin.index') }}?status={{ $key }}"><span class="badge badge-info">{{ $listTransaction }}</span></a></td>
                                             @elseif($listTransaction == 'Payment Received')
-                                                <a href="{{ route('admin.transaction-product.index') }}?status={{ $key }}"><span class="badge badge-primary">{{ $listTransaction }}</span></a></td>
+                                                <a href="{{ route('admin.transaction-product-admin.index') }}?status={{ $key }}"><span class="badge badge-primary">{{ $listTransaction }}</span></a></td>
                                             @elseif($listTransaction == 'Complete')
-                                            <a href="{{ route('admin.transaction-product.index') }}?status={{ $key }}"><span class="badge badge-success">{{ $listTransaction }}</span></a></td>
+                                            <a href="{{ route('admin.transaction-product-admin.index') }}?status={{ $key }}"><span class="badge badge-success">{{ $listTransaction }}</span></a></td>
                                             @elseif($listTransaction == 'Proses')
-                                            <a href="{{ route('admin.transaction-product.index') }}?status={{ $key }}"><span class="badge badge-light">{{ $listTransaction }}</span></a></td>
+                                            <a href="{{ route('admin.transaction-product-admin.index') }}?status={{ $key }}"><span class="badge badge-light">{{ $listTransaction }}</span></a></td>
                                             @elseif($listTransaction == 'Proses Pengiriman')
-                                            <a href="{{ route('admin.transaction-product.index') }}?status={{ $key }}"><span class="badge badge-dark">{{ $listTransaction }}</span></a></td>
+                                            <a href="{{ route('admin.transaction-product-admin.index') }}?status={{ $key }}"><span class="badge badge-dark">{{ $listTransaction }}</span></a></td>
                                             @elseif($listTransaction == 'Void')
-                                            <a href="{{ route('admin.transaction-product.index') }}?status={{ $key }}"><span class="badge badge-dark">{{ $listTransaction }}</span></a></td>
+                                            <a href="{{ route('admin.transaction-product-admin.index') }}?status={{ $key }}"><span class="badge badge-dark">{{ $listTransaction }}</span></a></td>
                                             @else
-                                            <a href="{{ route('admin.transaction-product.index') }}?status={{ $key }}"><span class="badge badge-danger">{{ $listTransaction }}</span></a></td>
+                                            <a href="{{ route('admin.transaction-product-admin.index') }}?status={{ $key }}"><span class="badge badge-danger">{{ $listTransaction }}</span></a></td>
                                         @endif
                                         <td>
                                             <a href="#"><b> {{$transactionProduct->where('status', $key)->count()}}</b> </a>
@@ -173,7 +173,7 @@ if ($daterange) {
                         </div>
                         <!-- /.card-body -->
                         <div class="card-footer clearfix">
-                            <a href="{{ route('admin.transaction-product.index') }}" class="btn btn-sm btn-outline-primary float-right">View All</a>
+                            <a href="{{ route('admin.transaction-product-admin.index') }}" class="btn btn-sm btn-outline-primary float-right">View All</a>
                         </div>
                         <!-- /.card-footer -->
                     </div>

@@ -462,13 +462,41 @@ if ( ! function_exists('listAllMenu')) {
                 ],
             ],
             [
-                'name' => __('general.transaction'),
-                'icon' => '<i class="nav-icon fa fa-handshake-o"></i>',
-                'title' => __('general.transaction'),
-                'active' => ['admin.transaction.'],
-                'route' => 'admin.transaction.index',
-                'key' => 'transaction',
-                'type' => 1,
+                'name' => __('general.transaction_admin'),
+                'icon' => '<i class="nav-icon fa fa-shopping-cart"></i>',
+                'title' => __('general.transaction_admin'),
+                'active' => [
+                    'admin.transaction-lab-admin.',
+                    'admin.transaction-doctor-admin.',
+                    'admin.transaction-product-admin.',
+                ],
+                'type' => 2,
+                'data' => [
+                    [
+                        'name' => __('general.transaction_lab_admin'),
+                        'title' => __('general.transaction_lab_admin'),
+                        'active' => ['admin.transaction-lab-admin.'],
+                        'route' => 'admin.transaction-lab-admin.index',
+                        'key' => 'transaction-lab-admin',
+                        'type' => 1,
+                    ],
+                    [
+                        'name' => __('general.transaction_doctor_admin'),
+                        'title' => __('general.transaction_doctor_admin'),
+                        'active' => ['admin.transaction-doctor-admin.'],
+                        'route' => 'admin.transaction-doctor-admin.index',
+                        'key' => 'transaction-doctor-admin',
+                        'type' => 1,
+                    ],
+                    [
+                        'name' => __('general.transaction_product_admin'),
+                        'title' => __('general.transaction_product_admin'),
+                        'active' => ['admin.transaction-product-admin.'],
+                        'route' => 'admin.transaction-product-admin.index',
+                        'key' => 'transaction-product-admin',
+                        'type' => 1,
+                    ],
+                ],
             ],
             [
                 'name' => __('general.appointment_lab'),
@@ -685,6 +713,9 @@ if ( ! function_exists('listAvailablePermission'))
         foreach ([
                      'transaction-lab',
                      'transaction-doctor',
+                     'transaction-lab-admin',
+                     'transaction-product-admin',
+                     'transaction-doctor-admin',
                      'doctor',
 
                  ] as $keyPermission) {
