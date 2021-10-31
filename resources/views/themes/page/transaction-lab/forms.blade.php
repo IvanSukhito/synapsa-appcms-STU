@@ -69,9 +69,11 @@ else {
                 <div class="card-body">
                     @include(env('ADMIN_TEMPLATE').'._component.generate_forms')
                     @if(in_array($viewType, ['show']))
-                        <div class="row">
+
                             <div class="card-body">
+
                                 <table class="table table-bordered table-striped" id="data1">
+
                                     <thead>
                                     <tr>
                                         <th>@lang('general.id')</th>
@@ -97,7 +99,6 @@ else {
                                     @endforeach
                                     </tbody>
                                 </table>
-                            </div>
                         </div>
                     @endif
                 </div>
@@ -138,4 +139,15 @@ else {
 @section('script-bottom')
     @parent
     @include(env('ADMIN_TEMPLATE').'._component.generate_forms_script')
+    <script>
+        let table;
+        table = jQuery('#data1').DataTable({
+            autoWidth: false,
+            scrollX: true,
+            rowReorder: {
+                selector: 'td:nth-child(2)'
+            },
+            responsive: true
+        });
+    </script>
 @stop
