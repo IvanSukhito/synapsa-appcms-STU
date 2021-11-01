@@ -52,17 +52,6 @@ class PaymentController extends _CrudController
                 ],
                 'type' => 'number',
             ],
-            'settings' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'type' => 'textarea',
-                'list' => 0,
-                'edit' => 0,
-                'create' => 0,
-                'show' => 0,
-            ],
             'status' => [
                 'validate' => [
                     'create' => 'required',
@@ -92,6 +81,57 @@ class PaymentController extends _CrudController
         $this->data['listSet']['service'] = get_list_service_payment();
 
     }
+
+    public function edit($id){
+        $this->callPermission();
+
+        $getData = $this->crud->show($id);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $data = $this->data;
+
+        $listSettings = json_decode($getData->settings, true);
+        if ($listSettings == null) {
+            $listSettings = [];
+        }
+
+        $data['thisLabel'] = __('general.product');
+        $data['viewType'] = 'edit';
+        $data['formsTitle'] = __('general.title_edit', ['field' => __('general.product') . ' ' . $getData->name]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['listSettings'] = $listSettings;
+        $data['data'] = $getData;
+
+        return view($this->listView[$data['viewType']], $data);
+    }
+
+    public function show($id){
+        $this->callPermission();
+
+        $getData = $this->crud->show($id);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $data = $this->data;
+
+        $listSettings = json_decode($getData->settings, true);
+        if ($listSettings == null) {
+            $listSettings = [];
+        }
+
+        $data['thisLabel'] = __('general.product');
+        $data['viewType'] = 'show';
+        $data['formsTitle'] = __('general.title_show', ['field' => __('general.product') . ' ' . $getData->name]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['listSettings'] = $listSettings;
+        $data['data'] = $getData;
+
+        return view($this->listView[$data['viewType']], $data);
+    }
+
     public function store()
     {
         $this->callPermission();
@@ -114,16 +154,22 @@ class PaymentController extends _CrudController
             }
         }
 
-        $desc = $this->request->get('desc');
         $title = $this->request->get('title');
+        $desc = $this->request->get('desc');
 
         $settings = [];
-        $settings[]  = [
-            'title' => $title,
-            'description' => $desc
-        ];
+        foreach ($title as $index => $val) {
+            if (strlen($val) > 0) {
+                $getDesc = $desc[$index] ?? '';
+                $settings[] = [
+                    'title' => $val,
+                    'description' => $getDesc
+                ];
+            }
+        }
 
         $dokument = $this->request->file('icon_img_full');
+        $dokumentImage = '';
         if ($dokument) {
             if ($dokument->getError() != 1) {
 
@@ -158,31 +204,6 @@ class PaymentController extends _CrudController
         }
     }
 
-    public function edit($id){
-        $this->callPermission();
-
-        $getData = $this->crud->show($id);
-        if (!$getData) {
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
-        }
-
-        $data = $this->data;
-
-        $listSettings = json_decode($getData->settings, true);
-        if ($listSettings == null) {
-            $listSettings = [];
-        }
-
-        $data['thisLabel'] = __('general.product');
-        $data['viewType'] = 'edit';
-        $data['formsTitle'] = __('general.title_edit', ['field' => __('general.product') . ' ' . $getData->name]);
-        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
-        $data['listSettings'] = $listSettings;
-        $data['data'] = $getData;
-
-        return view($this->listView[$data['viewType']], $data);
-    }
-
     public function update($id){
         $this->callPermission();
 
@@ -214,11 +235,13 @@ class PaymentController extends _CrudController
 
         $settings = [];
         foreach ($title as $index => $val) {
-            $getDesc = $desc[$index] ?? '';
-            $settings[] = [
-                'title' => $val,
-                'description' => $getDesc
-            ];
+            if (strlen($val) > 0) {
+                $getDesc = $desc[$index] ?? '';
+                $settings[] = [
+                    'title' => $val,
+                    'description' => $getDesc
+                ];
+            }
         }
 
         $dokument = $this->request->file('icon_img_full');
@@ -257,31 +280,6 @@ class PaymentController extends _CrudController
             session()->flash('message_alert', 2);
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
-    }
-
-    public function show($id){
-        $this->callPermission();
-
-        $getData = $this->crud->show($id);
-        if (!$getData) {
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
-        }
-
-        $data = $this->data;
-
-        $listSettings = json_decode($getData->settings, true);
-        if ($listSettings == null) {
-            $listSettings = [];
-        }
-
-        $data['thisLabel'] = __('general.product');
-        $data['viewType'] = 'show';
-        $data['formsTitle'] = __('general.title_show', ['field' => __('general.product') . ' ' . $getData->name]);
-        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
-        $data['listSettings'] = $listSettings;
-        $data['data'] = $getData;
-
-        return view($this->listView[$data['viewType']], $data);
     }
 
 }
