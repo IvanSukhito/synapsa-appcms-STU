@@ -281,6 +281,8 @@ class UsersPatientController extends _CrudController
 
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
+        unset($data['upload_ktp_full']);
+
         $data['province_id'] = $this->request->get('province_id');
         $data['city_id'] = $this->request->get('city_id');
         $data['district_id'] = $this->request->get('district_id');
