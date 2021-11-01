@@ -35,10 +35,11 @@ class SynapsaLogic
             $getData = (object)$this->sendPayment($payment, $additional);
             if ($getData->result->status == 'PENDING') {
                 $success = 1;
-                $getInfo = json_decode($payment->settings, true);
+                $getInfoVa = json_decode($payment->settings, true);
                 $getInfo['price'] = $additional['total'];
                 $getInfo['price_nice'] = number_format($additional['total'], 0, ',', '.');
                 $getInfo['va_user'] = $getData->result->account_number;
+                $getInfo['va_info'] = $getInfoVa;
 
                 $getTypeService = $additional['job']['type_service'];
                 $getType = check_list_type_transaction($getTypeService);
@@ -65,13 +66,15 @@ class SynapsaLogic
 
             if (isset($getData->result->ewallet_type) && in_array($getData->result->ewallet_type, ['OVO', 'DANA']) || $getData->result->status == 'REQUEST_RECEIVED') {
                 $success = 1;
-                $getInfo = json_decode($payment->settings, true);
+                $getInfoWallet = json_decode($payment->settings, true);
                 $getInfo['price'] = $additional['total'];
                 $getInfo['price_nice'] = number_format($additional['total'], 0, ',', '.');
                 $getInfo['business_id'] = $getData->result->business_id ?? '';
                 $getInfo['ewallet_type'] = $getData->result->ewallet_type ?? '';
                 $getInfo['phone'] = $getData->result->phone ?? '';
                 $getInfo['checkout_url'] = $getData->result->checkout_url ?? '';
+                $getInfo['ewallet_info'] = $getInfoWallet;
+                $getInfo['ewallet_return'] = $getData->result;
 
                 $getTypeService = $additional['job']['type_service'];
                 $getType = check_list_type_transaction($getTypeService);
@@ -97,14 +100,16 @@ class SynapsaLogic
             $getData = (object)$this->sendPayment($payment, $additional);
 
             $success = 1;
-            $getInfo = $getData->result;
-            $getInfo = json_decode($payment->settings, true);
+            $getResultQris = $getData->result;
+            $getInfoQris = json_decode($payment->settings, true);
             $getInfo['price'] = $additional['total'];
             $getInfo['price_nice'] = number_format($additional['total'], 0, ',', '.');
             $getInfo['id'] = $getData->result->id;
             $getInfo['external_id'] = $getData->result->external_id;
             $getInfo['qr_string'] = $getData->result->qr_string;
             $getInfo['callback_url'] = $getData->result->callback_url;
+            $getInfo['qris_info'] = $getInfoQris;
+            $getInfo['qris_result'] = $getResultQris;
 
             $getTypeService = $additional['job']['type_service'];
             $getType = check_list_type_transaction($getTypeService);
