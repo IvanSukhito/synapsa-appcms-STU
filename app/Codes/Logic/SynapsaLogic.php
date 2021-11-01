@@ -38,6 +38,9 @@ class SynapsaLogic
                 $getInfoVa = json_decode($payment->settings, true);
                 $getInfo['price'] = $additional['total'];
                 $getInfo['price_nice'] = number_format($additional['total'], 0, ',', '.');
+                $getInfo['va_number'] = $getData->result->account_number;
+                $getInfo['va_name'] = $payment->name;
+                $getInfo['va_payment_image'] = $payment->icon_img_full;
                 $getInfo['va_user'] = $getData->result->account_number;
                 $getInfo['va_info'] = $getInfoVa;
 
