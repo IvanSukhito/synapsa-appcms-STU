@@ -195,7 +195,7 @@ if ($daterange) {
 
                         <div class="info-box-content">
                             <span class="info-box-text">Transaction Doctor</span>
-                            <span class="info-box-number">{{ $transactionProduct->count() }}</span>
+                            <span class="info-box-number">{{ $transactionDoctor->count() }}</span>
                         </div>
                         <!-- /.info-box-content -->
                     </div>
