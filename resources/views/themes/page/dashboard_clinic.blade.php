@@ -41,17 +41,17 @@ if ($daterange) {
                                     <tr>
                                         <td style="width:15%">Nama</td>
                                         <td style="width:1%">:</td>
-                                        <th>{{ $clinic->name }}</th>
+                                        <th>{{ $clinic->name ?? '' }}</th>
                                     </tr>
                                     <tr>
                                         <td style="width:15%">Address</td>
                                         <td style="width:1%">:</td>
-                                        <th>{{ $clinic->address }}</th>
+                                        <th>{{ $clinic->address ?? '' }}</th>
                                     </tr>
                                     <tr>
                                         <td style="width:15%">Nomor Telepon</td>
                                         <td style="width:1%">:</td>
-                                        <th>{{ $clinic->no_telp }}</th>
+                                        <th>{{ $clinic->no_telp ?? '' }}</th>
                                     </tr>
                                 </table>
                             </div>
