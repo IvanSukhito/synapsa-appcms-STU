@@ -287,6 +287,10 @@ class AppointmentController extends Controller
                 ], 404);
             }
 
+            if (strlen($data->form_patient) > 0) {
+                $data->form_patient = env('OSS_URL').'/'.$data->form_patient;
+            }
+
             $getDetails = $data->getAppointmentLabDetails()->selectRaw('appointment_lab_details.*,
                     lab.image, CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full')
                     ->join('lab','lab.id','=','appointment_lab_details.lab_id')
