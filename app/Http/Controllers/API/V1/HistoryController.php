@@ -82,6 +82,7 @@ class HistoryController extends Controller
             'data' => [
                 'data' => $getData['data'],
                 'service' => $getData['service'] ?? [],
+                'default_image' => $getData['default_image'] ?? '',
                 'active' => [
                     'doctor' => $getDoctor,
                     'product' => $getProduct,
@@ -257,7 +258,8 @@ class HistoryController extends Controller
             transaction.type_service, transaction.type_service_name, transaction.user_id, transaction.status')->paginate($getLimit);
 
         return [
-            'data' => $getData
+            'data' => $getData,
+            'default_image' => asset('assets/cms/images/no-img.png')
         ];
 
     }
@@ -322,7 +324,8 @@ class HistoryController extends Controller
 
         return [
             'data' => $getData,
-            'service' => $getService
+            'service' => $getService,
+            'default_image' => asset('assets/cms/images/no-img.png')
         ];
 
     }
@@ -388,7 +391,8 @@ class HistoryController extends Controller
 
         return [
             'data' => $getData,
-            'service' => $getService
+            'service' => $getService,
+            'default_image' => asset('assets/cms/images/no-img.png')
         ];
 
     }
@@ -408,7 +412,8 @@ class HistoryController extends Controller
                     ->paginate($getLimit);
 
         return [
-            'data' => $getData
+            'data' => $getData,
+            'default_image' => asset('assets/cms/images/no-img.png')
         ];
 
     }

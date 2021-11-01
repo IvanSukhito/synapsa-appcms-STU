@@ -72,38 +72,52 @@ else {
 
                 <div class="card-body">
                     @include(env('ADMIN_TEMPLATE').'._component.generate_forms')
-                    @if(in_array($viewType, ['show','edit']) )
-                    <?php $no = 0; ?>
-                    @foreach($title as $key => $title)
-                        <?php $no++; ?>
-                        <b>Title - {!! $no !!}</b>
-                        {{ Form::text('title', $title, array_merge(['id' => 'title','name'=>'title[]', 'class' => 'form-control', 'placeholder' => __('general.title')], $addAttribute)) }}
-                        <br>
-                        <b>Desc - {!! $no !!}</b>
-                        <br>
-                        {{ Form::textarea('desc', $desc[$key], array_merge(['id' => 'desc', 'name'=>'desc[]', 'class' => 'ckeditor', 'placeholder' => __('general.desc')], $addAttribute)) }}
-                        <br>
-                    @endforeach
-                    @endif
-                    @if(in_array($viewType, ['edit']))
-                        <div id="list_desc">
-                            <div class="form-group">
-                                <a href="#" onclick="return add_desc1()" class="btn btn-warning">Tambah</a>
+
+                    <div class="form-group">
+                        <h5>{{ __('general.step') }}</h5>
+                        <hr/>
+                    </div>
+                    <div id="list_desc">
+                    @if(in_array($viewType, ['create']) )
+                       <div>
+                           <div class="form-group">
+                               <label for="title_0">{{ __('general.title') }} 1</label>
+                               {{ Form::text('title[0]', old('title'), ['id' => 'title_0', 'name'=>'title[]', 'class' => 'form-control', 'placeholder' => __('general.title').' 1']) }}
+                           </div>
+                           <div class="form-group">
+                               <label for="desc_0">{{ __('general.desc') }} 1</label>
+                               {{ Form::textarea('desc[0]', old('desc'), ['id' => 'desc_0', 'name'=>'desc[]', 'class' => 'form-control editor']) }}
+                           </div>
+                           <hr/>
+                       </div>
+                    @else
+                        @foreach($listSettings as $index => $list)
+                            <div>
+                                <div class="form-group">
+                                    <label for="title_{{$index}}">{{ __('general.title') }} {{$index+1}}</label>
+                                    {{ Form::text('title['.$index.']', $list['title'], ['id' => 'title_'.$index, 'name'=>'title['.$index.']',
+                                    'class' => 'form-control', 'placeholder' => __('general.title').' '.($index+1), 'disabled' => $viewType == 'show' ? true : false]) }}
+                                </div>
+                                <div class="form-group">
+                                    <label for="desc_{{$index}}">{{ __('general.desc') }} {{$index+1}}</label>
+                                    {{ Form::textarea('desc['.$index.']', $list['description'], ['id' => 'desc_'.$index, 'name'=>'desc['.$index.']',
+                                    'class' => 'form-control editor', 'disabled' => $viewType == 'show' ? true : false]) }}
+                                </div>
+                                @if($index > 0 && $viewType != 'show')
+                                    <div class="p-2">
+                                        <a href="#" data-id="{{$index}}" class="text-danger" onclick="return remove_desc(this)"><i class="nav-icon fa fa-trash"> {!! __('general.delete') !!}</i></a>
+                                    </div>
+                                @endif
+                                <hr/>
                             </div>
+                        @endforeach
+                    @endif
+                    </div>
+                    @if(in_array($viewType, ['create', 'edit']))
+                        <div class="form-group">
+                            <a href="#" onclick="return add_desc()" class="btn btn-warning">Tambah</a>
                         </div>
                     @endif
-                    @if(in_array($viewType, ['create']) )
-                       <div id="list_desc">
-                           <div class="form-group">
-                               <label for="desc">{{ __('general.settings') }}</label>
-                               {{ Form::text('title', old('title'), ['id' => 'title', 'name'=>'title[]', 'class' => 'form-control', 'placeholder' => __('general.title')]) }}
-                               <br>
-                               {{ Form::textarea('desc', old('desc'), ['id' => 'desc', 'name'=>'desc[]', 'class' => 'editor', 'placeholder' => __('general.desc')]) }}
-                               <br>
-                               <a href="#" onclick="return add_desc1()" class="btn btn-warning">Tambah</a>
-                           </div>
-                       </div>
-                      @endif
                 </div>
                 <!-- /.card-body -->
 
@@ -142,55 +156,58 @@ else {
     @parent
     @include(env('ADMIN_TEMPLATE').'._component.generate_forms_script')
     <!--<script src="{{ asset('/assets/cms/js/ckeditor/ckeditor.js') }}"></script>-->
-    <script>
+    <script type="text/javascript">
+        'use strict';
 
-    let setIndex1 = 1;
+        let setIndex1 = parseInt('{{ isset($listSettings) ? count($listSettings) : 0 }}');
 
         $(document).ready(function() {
             $('.dropify').dropify();
 
             $('.editor').each(function(i, item) {
-            CKEDITOR.replace(item.id, {
-                autoParagraph: true,
-                allowedContent: true,
-                extraAllowedContent: '*(*);*{*};*[*]{*};div(class);span(class);h5[*]',
-                extraPlugins: 'justify,format,colorbutton,font,smiley'
-            });
+                CKEDITOR.replace(item.id, {
+                    autoParagraph: true,
+                    allowedContent: true,
+                    extraAllowedContent: '*(*);*{*};*[*]{*};div(class);span(class);h5[*]',
+                    extraPlugins: 'justify,format,colorbutton,font,smiley'
+                });
             });
 
         });
 
-        function add_desc1() {
-        let html = '<div class="form-group">' +
-        '<input type="text" id="title_' + setIndex1 +'" name="title[]" class="form-control" placeholder="Title"> ' +
-        '<br>'+
-        '<textarea id="desc_' + setIndex1 +'" name="desc[]" class="editor"> ' +
-        '</textarea>' +
-        '<div class="p-2">' +
-        '<a href="#" onclick="return remove_other(this)" style="color:red;">&nbsp;<i class="nav-icon fa fa-trash">{!! __('general.delete') !!}</i></a>' +
-        '</div>' +
-        '</div>';
+        function add_desc() {
+            setIndex1++;
+            let setNumber = setIndex1 + 1;
+            let html = '<div><div class="form-group">' +
+                '<label for="title_' + setIndex1 + '">{{ __('general.title') }} ' + setNumber + '</label>' +
+                '<input type="text" id="title_' + setIndex1 + '" name="title['+setIndex1+']" class="form-control" placeholder="Title '+setNumber+'"> ' +
+                '</div><div class="form-group">' +
+                '<label for="desc_' + setIndex1 + '">{{ __('general.desc') }} ' + setNumber + '</label>' +
+                '<textarea id="desc_' + setIndex1 + '" name="desc['+setIndex1+']" class="form-control editor"> ' +
+                '</textarea>' +
+                '</div>' +
+                '<div class="p-2">' +
+                '<a href="#" data-id="' + setIndex1 +'" class="text-danger" onclick="return remove_desc(this)"><i class="nav-icon fa fa-trash"> {!! __('general.delete') !!}</i></a>' +
+                '</div>' +
+                '</div><hr/></div>';
 
             $('#list_desc').append(html);
-            $('#desc_' + setIndex1).each(function(i, item) {
-            CKEDITOR.replace(item.id, {
+
+            CKEDITOR.replace('desc_' + setIndex1, {
                 autoParagraph: true,
                 allowedContent: true,
                 extraAllowedContent: '*(*);*{*};*[*]{*};div(class);span(class);h5[*]',
                 extraPlugins: 'justify,format,colorbutton,font,smiley'
             });
-            });
-
-            setIndex1++;
 
             return false;
 
-            }
-            function remove_other(curr) {
+        }
+
+        function remove_desc(curr) {
             $(curr).parent().parent().remove();
             return false;
-            }
-
+        }
 
      </script>
 @stop

@@ -168,35 +168,9 @@ class PaymentController extends _CrudController
 
         $data = $this->data;
 
-        $getSettings = json_decode($getData->settings, true);
-
-        if($getSettings) {
-            if(isset($getSettings['va_info'])) {
-                $title = [];
-                $desc = [];
-                foreach ($getSettings['va_info'] as $index => $listSettings) {
-                    $title[] = $listSettings['title'];
-                    $desc[] = $listSettings['description'];
-                }
-
-                $listSettings = ['title' => $title, 'desc' => $desc];
-            }
-            else {
-                $temp = [];
-                foreach($getSettings as $index => $listSettings) {
-                    $temp = $listSettings;
-                }
-
-                $listSettings = $temp;
-            }
-        }
-        else {
-            $title = [];
-            $desc = [];
-            $listSettings = [
-                $title[] = 'title' => [''],
-                $desc[] = 'desc' => [''],
-            ];
+        $listSettings = json_decode($getData->settings, true);
+        if ($listSettings == null) {
+            $listSettings = [];
         }
 
         $data['thisLabel'] = __('general.product');
@@ -235,16 +209,20 @@ class PaymentController extends _CrudController
             }
         }
 
-        $desc = $this->request->get('desc');
         $title = $this->request->get('title');
+        $desc = $this->request->get('desc');
 
         $settings = [];
-        $settings[]  = [
-            'title' => $title,
-            'description' => $desc
-        ];
+        foreach ($title as $index => $val) {
+            $getDesc = $desc[$index] ?? '';
+            $settings[] = [
+                'title' => $val,
+                'description' => $getDesc
+            ];
+        }
 
         $dokument = $this->request->file('icon_img_full');
+        $dokumentImage = '';
         if ($dokument) {
             if ($dokument->getError() != 1) {
 
@@ -253,10 +231,8 @@ class PaymentController extends _CrudController
                 $ext = end($ext);
                 $destinationPath = 'synapsaapps/payment';
                 if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
-
                     $dokumentImage = Storage::putFile($destinationPath, $dokument);
                 }
-
             }
         }
         else {
@@ -293,37 +269,10 @@ class PaymentController extends _CrudController
 
         $data = $this->data;
 
-        $getSettings = json_decode($getData->settings, true);
-
-        if($getSettings) {
-            if(isset($getSettings['va_info'])) {
-                $title = [];
-                $desc = [];
-                foreach ($getSettings['va_info'] as $index => $listSettings) {
-                    $title[] = $listSettings['title'];
-                    $desc[] = $listSettings['description'];
-                }
-
-                $listSettings = ['title' => $title, 'desc' => $desc];
-            }
-            else {
-                $temp = [];
-                foreach($getSettings as $index => $listSettings) {
-                    $temp = $listSettings;
-                }
-
-                $listSettings = $temp;
-            }
+        $listSettings = json_decode($getData->settings, true);
+        if ($listSettings == null) {
+            $listSettings = [];
         }
-        else {
-            $title = [];
-            $desc = [];
-            $listSettings = [
-                $title[] = 'title' => [''],
-                $desc[] = 'desc' => [''],
-            ];
-        }
-
 
         $data['thisLabel'] = __('general.product');
         $data['viewType'] = 'show';
