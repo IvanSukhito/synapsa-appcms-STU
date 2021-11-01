@@ -101,7 +101,6 @@ class ClinicInfoController extends _CrudController
     public function edit($id)
     {
         $this->callPermission();
-        $id = session()->get('admin_id');
 
         $getData = $this->crud->show($id);
         if (!$getData) {
