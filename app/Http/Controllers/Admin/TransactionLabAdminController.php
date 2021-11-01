@@ -120,54 +120,21 @@ class TransactionLabAdminController extends _CrudController
 
         $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.transaction-lab.list_button';
 
-        $getUsers = Users::where('status', 80)->pluck('fullname', 'id')->toArray();
-        if($getUsers) {
-            foreach($getUsers as $key => $value) {
-                $listUsers[$key] = $value;
-            }
-        }
-
-        $getKlinik = Klinik::where('status', 80)->pluck('name', 'id')->toArray();
-        if($getKlinik) {
-            foreach($getKlinik as $key => $value) {
-                $listKlinik[$key] = $value;
-            }
-        }
-
-        $getPayment = Payment::where('status', 80)->pluck('name', 'id')->toArray();
-        if($getPayment) {
-            foreach($getPayment as $key => $value) {
-                $listPayment[$key] = $value;
-            }
-        }
-
-        $klinik_id = [0 => 'All'];
-        foreach(Klinik::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
-            $klinik_id[$key] = $val;
-        }
-        $payment_id = [0 => 'All'];
-        foreach(Payment::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
-            $payment_id[$key] = $val;
-        }
-        $shipping_id = [0 => 'All'];
-        foreach(Shipping::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
-            $shipping_id[$key] = $val;
-        }
-        $status = [0 => 'All'];
-        foreach(get_list_transaction() as $key => $val) {
-            $status[$key] = $val;
-        }
-
-
+        $listUsers = array_merge([0 => '-'], Users::where('status', 80)->pluck('fullname', 'id')->toArray());
+        $listKlinik = array_merge([0 => '-'], Klinik::where('status', 80)->pluck('name', 'id')->toArray());
+        $listPayment = array_merge([0 => '-'], Payment::where('status', 80)->pluck('name', 'id')->toArray());
+        $klinik_id = $listKlinik;
+        $payment_id = $listPayment;
+        $shipping_id = array_merge([0 => '-'], Payment::where('status', 80)->pluck('name', 'id')->toArray());
+        $status = array_merge([0 => '-'], get_list_transaction());
 
         $this->data['listSet']['user_id'] = $listUsers;
         $this->data['listSet']['klinik_id'] = $listKlinik;
         $this->data['listSet']['filter_klinik_id'] = $klinik_id;
-        $this->data['listSet']['status'] = $status;
         $this->data['listSet']['filter_payment_id'] = $payment_id;
         $this->data['listSet']['filter_shipping_id'] = $shipping_id;
         $this->data['listSet']['payment_id'] = $listPayment;
-        $this->data['listSet']['status'] = get_list_transaction();
+        $this->data['listSet']['status'] = $status;
         $this->data['listSet']['type'] = get_list_type_transaction();
 
     }
