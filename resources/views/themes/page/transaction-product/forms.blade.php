@@ -1,8 +1,4 @@
 <?php
-//$title = isset($listSettings['title']) ? $listSettings['title'] : null;
-//$desc = isset($listSettings['desc']) ? $listSettings['desc'] : null;
-//
-
 switch ($viewType) {
     case 'create': $printCard = 'card-success'; break;
     case 'edit': $printCard = 'card-primary'; break;
@@ -72,38 +68,36 @@ else {
 
                 <div class="card-body">
                     @include(env('ADMIN_TEMPLATE').'._component.generate_forms')
-{{--                    @if(in_array($viewType, ['show','edit']) )--}}
-{{--                    <?php $no = 0; ?>--}}
-{{--                    @foreach($title as $key => $title)--}}
-{{--                        <?php $no++; ?>--}}
-{{--                        <b>Title - {!! $no !!}</b>--}}
-{{--                        {{ Form::text('title', $title, array_merge(['id' => 'title','name'=>'title[]', 'class' => 'form-control', 'placeholder' => __('general.title')], $addAttribute)) }}--}}
-{{--                        <br>--}}
-{{--                        <b>Desc - {!! $no !!}</b>--}}
-{{--                        <br>--}}
-{{--                        {{ Form::textarea('desc', $desc[$key], array_merge(['id' => 'desc', 'name'=>'desc[]', 'class' => 'ckeditor', 'placeholder' => __('general.desc')], $addAttribute)) }}--}}
-{{--                        <br>--}}
-{{--                    @endforeach--}}
-{{--                    @endif--}}
-{{--                    @if(in_array($viewType, ['edit']))--}}
-{{--                        <div id="list_desc">--}}
-{{--                            <div class="form-group">--}}
-{{--                                <a href="#" onclick="return add_desc1()" class="btn btn-warning">Tambah</a>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
-{{--                    @endif--}}
-{{--                    @if(in_array($viewType, ['create']) )--}}
-{{--                       <div id="list_desc">--}}
-{{--                           <div class="form-group">--}}
-{{--                               <label for="desc">{{ __('general.settings') }}</label>--}}
-{{--                               {{ Form::text('title', old('title'), ['id' => 'title', 'name'=>'title[]', 'class' => 'form-control', 'placeholder' => __('general.title')]) }}--}}
-{{--                               <br>--}}
-{{--                               {{ Form::textarea('desc', old('desc'), ['id' => 'desc', 'name'=>'desc[]', 'class' => 'editor', 'placeholder' => __('general.desc')]) }}--}}
-{{--                               <br>--}}
-{{--                               <a href="#" onclick="return add_desc1()" class="btn btn-warning">Tambah</a>--}}
-{{--                           </div>--}}
-{{--                       </div>--}}
-{{--                      @endif--}}
+                    @if(in_array($viewType, ['show']))
+                            <div class="card-body">
+                                <table class="table table-bordered table-striped" id="data1">
+                                    <thead>
+                                    <tr>
+                                        <th>@lang('general.id')</th>
+                                        <th>@lang('general.code')</th>
+                                        <th>@lang('general.klinik')</th>
+                                        <th>@lang('general.product_name')</th>
+                                        <th>@lang('general.product_qty')</th>
+                                        <th>@lang('general.product_price')</th>
+                                        <th>@lang('general.subtotal')</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @foreach($transaction as $list)
+                                        <tr>
+                                            <td>{{ $list->transaction_id }}</td>
+                                            <td>{{ $list->code }}</td>
+                                            <td>{{ $list->klinik }}</td>
+                                            <td>{{ $list->product_name }}</td>
+                                            <td>{{ $list->product_qty }}</td>
+                                            <td>{{ 'Rp'.' '.$list->product_price }}</td>
+                                            <td><?php echo('Rp'.' '.$list->product_price * $list->product_qty)?></td>
+                                        </tr>
+                                    @endforeach
+                                    </tbody>
+                                </table>
+                        </div>
+                    @endif
                 </div>
                 <!-- /.card-body -->
 
@@ -141,56 +135,15 @@ else {
 @section('script-bottom')
     @parent
     @include(env('ADMIN_TEMPLATE').'._component.generate_forms_script')
-    <!--<script src="{{ asset('/assets/cms/js/ckeditor/ckeditor.js') }}"></script>-->
     <script>
-
-    let setIndex1 = 1;
-
-        $(document).ready(function() {
-            $('.dropify').dropify();
-
-            $('.editor').each(function(i, item) {
-            CKEDITOR.replace(item.id, {
-                autoParagraph: true,
-                allowedContent: true,
-                extraAllowedContent: '*(*);*{*};*[*]{*};div(class);span(class);h5[*]',
-                extraPlugins: 'justify,format,colorbutton,font,smiley'
-            });
-            });
-
+        let table;
+        table = jQuery('#data1').DataTable({
+            autoWidth: false,
+            scrollX: true,
+            rowReorder: {
+                selector: 'td:nth-child(2)'
+            },
+            responsive: true
         });
-
-        function add_desc1() {
-        let html = '<div class="form-group">' +
-        '<input type="text" id="title_' + setIndex1 +'" name="title[]" class="form-control" placeholder="Title"> ' +
-        '<br>'+
-        '<textarea id="desc_' + setIndex1 +'" name="desc[]" class="editor"> ' +
-        '</textarea>' +
-        '<div class="p-2">' +
-        '<a href="#" onclick="return remove_other(this)" style="color:red;">&nbsp;<i class="nav-icon fa fa-trash">{!! __('general.delete') !!}</i></a>' +
-        '</div>' +
-        '</div>';
-
-            $('#list_desc').append(html);
-            $('#desc_' + setIndex1).each(function(i, item) {
-            CKEDITOR.replace(item.id, {
-                autoParagraph: true,
-                allowedContent: true,
-                extraAllowedContent: '*(*);*{*};*[*]{*};div(class);span(class);h5[*]',
-                extraPlugins: 'justify,format,colorbutton,font,smiley'
-            });
-            });
-
-            setIndex1++;
-
-            return false;
-
-            }
-            function remove_other(curr) {
-            $(curr).parent().parent().remove();
-            return false;
-            }
-
-
-     </script>
+    </script>
 @stop

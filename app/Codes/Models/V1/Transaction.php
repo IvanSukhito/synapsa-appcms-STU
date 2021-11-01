@@ -104,6 +104,6 @@ class Transaction extends Model
     public function getCreatedAtAttribute()
     {
         return \Carbon\Carbon::parse($this->attributes['created_at'])
-            ->format('H:i:s Y-m-d ');
+            ->format('Y-m-d H:i:s ');
     }
 }

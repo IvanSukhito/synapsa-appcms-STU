@@ -194,8 +194,6 @@ class UsersDoctorController extends _CrudController
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
 
-        unset($getListCollectData['upload_ktp_full']);
-
         $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
         {
@@ -207,6 +205,8 @@ class UsersDoctorController extends _CrudController
                 $data[$key] = $this->request->get($key);
             }
         }
+
+        unset($getListCollectData['upload_ktp_full']);
 
         $dokument = $this->request->file('upload_ktp_full');
         if ($dokument) {
@@ -224,6 +224,8 @@ class UsersDoctorController extends _CrudController
 
 
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
+
+        unset($data['upload_ktp_full']);
 
         $data['province_id'] = $this->request->get('province_id');
         $data['city_id'] = $this->request->get('city_id');
@@ -373,6 +375,7 @@ class UsersDoctorController extends _CrudController
         $data = $this->data;
 
         $getProvince = Province::where('id', $getData->province_id)->first();
+
         $getCity = City::where('id',$getData->city_id)->first();
         $getDistrict = District::where('id', $getData->district_id)->first();
         $getSubDistrict = SubDistrict::where('id', $getData->sub_district_id)->first();

@@ -9,7 +9,7 @@ use App\Codes\Models\V1\District;
 use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\SubDistrict;
 use App\Codes\Models\V1\Users;
-use App\Codes\MOdels\V1\UsersAddress;
+use App\Codes\Models\V1\UsersAddress;
 use App\Codes\Models\V1\Klinik;
 use Illuminate\Database\Eloquent\Model;
 use Yajra\DataTables\DataTables;
@@ -48,6 +48,8 @@ class UsersPatientController extends _CrudController
                 'type' => 'texteditor',
                 'list' => 0,
                 'create' => 0,
+                'show' => 0,
+                'edit' => 0,
             ],
             'address_detail' => [
                 'validate' => [
@@ -57,6 +59,8 @@ class UsersPatientController extends _CrudController
                 'type' => 'texteditor',
                 'list' => 0,
                 'create' => 0,
+                'show' => 0,
+                'edit' => 0,
             ],
             'zip_code' => [
                 'validate' => [
@@ -244,8 +248,6 @@ class UsersPatientController extends _CrudController
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
 
-        unset($getListCollectData['upload_ktp_full']);
-
         $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
         {
@@ -257,6 +259,9 @@ class UsersPatientController extends _CrudController
                 $data[$key] = $this->request->get($key);
             }
         }
+
+        unset($getListCollectData['upload_ktp_full']);
+
 
         $dokument = $this->request->file('upload_ktp_full');
         if ($dokument) {
@@ -275,6 +280,8 @@ class UsersPatientController extends _CrudController
         }
 
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
+
+        unset($data['upload_ktp_full']);
 
         $data['province_id'] = $this->request->get('province_id');
         $data['city_id'] = $this->request->get('city_id');

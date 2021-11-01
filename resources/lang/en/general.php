@@ -40,6 +40,8 @@ return [
     'meeting' => 'Meeting',
     'pic_clinic' => 'PIC Klinik',
     'product_clinic' => 'Product Clinic',
+    'product_name' => 'Product Name',
+    'product_qty' => 'Product Qty',
     'clinic' => 'Clinic',
     'preview' => 'Preview',
     'unavailable' => 'Unavailable',
@@ -135,6 +137,8 @@ return [
     'nominal' => 'Nominal',
     'status' => 'Status',
     'status_appointment' => 'Status Appointment',
+    'type_service' => 'Type Service',
+    'category_service_name' => 'Category Service',
     'waiting' => 'Waiting',
     'confirm' => 'Confirm',
     'void' => 'Void',
@@ -240,7 +244,16 @@ return [
     'city' => 'City',
     'browser' => 'Browser',
     'ip_address' => 'IP Address',
+    'transaction_admin' => 'Transaction Admin',
+    'transaction_lab_admin' => 'Transaction Lab',
+    'transaction_doctor_admin' => 'Transaction Doctor',
+    'transaction_product_admin' => 'Transaction Product',
 
+
+    'shipping_province' => 'Shipping Province',
+    'shipping_city' => 'Shipping City',
+    'shipping_district' => 'Shipping District',
+    'shipping_subdistrict' => 'Shipping Sub District',
     'question_count' => 'Question Count',
     'question_id' => 'Question ID',
     'hint_image' => 'Hint Image',
@@ -394,5 +407,7 @@ return [
     'import_doctor_schedule' => 'Import Doctor Schedule',
     'example_import_doctor_schedule' => 'Example Import Doctor Schedule',
     'failed_import_doctor_schedule' => 'Terjadi Kesalahan, Import Jadwal Dokter Gagal',
-
+    'import_clinic' => 'Import Clinic',
+    'example_import_clinic' => 'Example Import Clinic',
+    'failed_import_clinic' => 'Terjadi Kesalahan, Import Clinic Gagal',
 ];

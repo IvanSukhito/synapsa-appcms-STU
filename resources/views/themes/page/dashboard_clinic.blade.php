@@ -155,7 +155,7 @@ if ($daterange) {
                                     <a href="{{ route('admin.user_clinic.index') }}" style="color:black;">
                                     <span class="info-box-text">Pasien Terdaftar</span>
                                     <span class="info-box-number">
-                                    {!! $transactionLab->count() ?? 0 !!}
+                                    {!! $user->count() ?? 0 !!}
                                     </span>
                                     </a>
                                 </div>

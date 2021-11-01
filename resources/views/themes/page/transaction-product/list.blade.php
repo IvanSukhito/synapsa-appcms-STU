@@ -9,6 +9,9 @@ $params = [];
 if ($payment_id) {
     $params['filter_payment_id'] = $payment_id;
 }
+if ($klinik_id) {
+    $params['filter_klinik_id'] = $klinik_id;
+}
 if ($shipping_id) {
     $params['filter_shipping_id'] = $shipping_id;
 }
@@ -62,14 +65,20 @@ if ($daterange) {
                     <form method="get">
                         <div class="card-header">
                             <div class="row">
+                                @if(in_array($type, ['admin']))
+                                    <div class="col-md-3">
+                                        <label for="filter_klinik_id">{{ __('general.klinik') }}</label>
+                                        {{ Form::select('filter_klinik_id', $listSet['filter_klinik_id'], old('filter_klinik_id', $klinik_id), ['class' => 'form-control select2', 'autocomplete' => 'off']) }}
+                                    </div>
+                                @endif
 
                                 <div class="col-md-3">
-                                    <label for="filter_klinik_id">{{ __('general.payment') }}</label>
+                                    <label for="filter_shipping_id">{{ __('general.payment') }}</label>
                                     {{ Form::select('filter_payment_id', $listSet['filter_payment_id'], old('filter_payment_id', $payment_id), ['class' => 'form-control select2', 'autocomplete' => 'off']) }}
                                 </div>
 
                                 <div class="col-md-3">
-                                    <label for="filter_klinik_id">{{ __('general.shipping') }}</label>
+                                    <label for="filter_shipping_id">{{ __('general.shipping') }}</label>
                                     {{ Form::select('filter_shipping_id', $listSet['filter_shipping_id'], old('filter_shipping_id', $shipping_id), ['class' => 'form-control select2', 'autocomplete' => 'off']) }}
                                 </div>
 

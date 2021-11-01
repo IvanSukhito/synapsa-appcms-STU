@@ -55,6 +55,9 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                 'App\Http\Controllers\Admin\ClinicInfoController' => 'clinic_info',
                 'App\Http\Controllers\Admin\DoctorClinicController' => 'doctor_clinic',
                 'App\Http\Controllers\Admin\UsersClinicController' => 'user_clinic',
+                'App\Http\Controllers\Admin\TransactionLabAdminController' => 'transaction-lab-admin',
+                'App\Http\Controllers\Admin\TransactionDoctorAdminController' => 'transaction-doctor-admin',
+                'App\Http\Controllers\Admin\TransactionProductAdminController' => 'transaction-product-admin',
             ];
 
             foreach ($listRouter as $controller => $linkName) {
@@ -85,6 +88,7 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                         $router->get($linkName . '/{id}/approve',   $controller.'@approve')->name('admin.' . $linkName . '.approve');
                         $router->get($linkName . '/{id}/reject',   $controller.'@reject')->name('admin.' . $linkName . '.reject');
                         break;
+                    case 'klinik':
                     case 'product':
                         $router->get($linkName . '/create2', $controller.'@create2')->name('admin.' . $linkName . '.create2');
                         $router->post($linkName . '/store2', $controller.'@store2')->name('admin.' . $linkName . '.store2');

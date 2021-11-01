@@ -22,7 +22,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\DataTables;
 
-class TransactionProductController extends _CrudController
+class TransactionProductAdminController extends _CrudController
 {
     public function __construct(Request $request)
     {
@@ -41,7 +41,6 @@ class TransactionProductController extends _CrudController
                 ],
                 'lang' => 'general.klinik',
                 'type' => 'select2',
-                'list' => 0,
             ],
             'user_id' => [
                 'validate' => [
@@ -259,7 +258,7 @@ class TransactionProductController extends _CrudController
         ];
 
         parent::__construct(
-            $request, 'general.transaction_product', 'transaction-product', 'V1\Transaction', 'transaction-product',
+            $request, 'general.transaction_product_admin', 'transaction-product-admin', 'V1\Transaction', 'transaction-product-admin',
             $passingData
         );
         $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.transaction-product.list';
@@ -347,18 +346,17 @@ class TransactionProductController extends _CrudController
             ->join('city','city.id','=','transaction.shipping_city_id','LEFT')
             ->join('district','district.id','=','transaction.shipping_district_id','LEFT')
             ->join('sub_district','sub_district.id','=','transaction.shipping_subdistrict_id','LEFT')
-            ->where('klinik_id', $getAdmin->klinik_id)
             ->where('type_service', 1)
             ->where('transaction.id', $getData->id)
             ->first();
+
+        $data = $this->data;
 
         $getTransactionDetails =   TransactionDetails::selectRaw('transaction_details.*, code, klinik.name as klinik')
             ->join('transaction','transaction.id','=','transaction_details.transaction_id','left')
             ->join('klinik','klinik.id','=','transaction.klinik_id','left')
             ->where('transaction_details.transaction_id', $getData->id)
             ->get();
-
-        $data = $this->data;
 
         $data['viewType'] = 'show';
         $data['formsTitle'] = __('general.title_show', ['field' => $data['thisLabel']]);
@@ -379,15 +377,13 @@ class TransactionProductController extends _CrudController
         $getAdmin = Admin::where('id', $adminId)->first();
 
         $builder = $this->model::query()->select('transaction.*')
-            ->join('province','province.id','=','transaction.shipping_province_id','LEFT')
-            ->join('city','city.id','=','transaction.shipping_city_id','LEFT')
-            ->join('district','district.id','=','transaction.shipping_district_id','LEFT')
-            ->join('sub_district','sub_district.id','=','transaction.shipping_subdistrict_id','LEFT')
-            ->where('klinik_id', $getAdmin->klinik_id)
             ->where('type_service', 1);
 
         if ($this->request->get('filter_payment_id') && $this->request->get('filter_payment_id') != 0) {
             $builder = $builder->where('payment_id', $this->request->get('filter_payment_id'));
+        }
+        if ($this->request->get('filter_klinik_id') && $this->request->get('filter_klinik_id') != 0) {
+            $builder = $builder->where('klinik_id', $this->request->get('filter_klinik_id'));
         }
         if ($this->request->get('filter_shipping_id') && $this->request->get('filter_shipping_id') != 0) {
             $builder = $builder->where('shipping_id', $this->request->get('filter_shipping_id'));
@@ -446,135 +442,6 @@ class TransactionProductController extends _CrudController
             ->make(true);
     }
 
-    public function store()
-    {
-        $this->callPermission();
-
-        $viewType = 'create';
-
-        $getListCollectData = collectPassingData($this->passingData, $viewType);
-        $validate = $this->setValidateData($getListCollectData, $viewType);
-        if (count($validate) > 0)
-        {
-            $data = $this->validate($this->request, $validate);
-        }
-        else {
-            $data = [];
-            foreach ($getListCollectData as $key => $val) {
-                $data[$key] = $this->request->get($key);
-            }
-        }
-
-        $data = $this->getCollectedData($getListCollectData, $viewType, $data);
-
-        $getShippingCity = $this->request->get('shipping_city_id');
-        $getShippingName = City::where('id', $getShippingCity)->first();
-
-        $getShippingDistrict = $this->request->get('shipping_district_id');
-        $getShippingDistrictName = District::where('id', $getShippingDistrict)->first();
-
-        $getShippingSubdistrict = $this->request->get('shipping_subdistrict_id');
-        $getShippingSubdistrictName = SubDistrict::where('id', $getShippingSubdistrict)->first();
-
-        $data['shipping_city_name'] = $getShippingName ? $getShippingName->name : '';
-        $data['shipping_district_name'] = $getShippingDistrictName ? $getShippingDistrictName->name : '';
-        $data['shipping_subdistrict_name'] = $getShippingSubdistrictName ? $getShippingSubdistrictName->name : '';
-
-        $getData = $this->crud->store($data);
-
-        $id = $getData->id;
-
-        if($this->request->ajax()){
-            return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
-        }
-        else {
-            session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
-            session()->flash('message_alert', 2);
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.show', $id);
-        }
-    }
-
-    public function destroy($id){
-        $this->callPermission();
-
-        $getData = $this->crud->show($id);
-        if (!$getData) {
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
-        }
-
-        foreach ($this->passingData as $fieldName => $fieldValue) {
-            if (in_array($fieldValue['type'], ['image', 'video', 'file'])) {
-                $destinationPath = $fieldValue['path'];
-                if (strlen($getData->$fieldName) > 0 && is_file($destinationPath.$getData->$fieldName)) {
-                    unlink($destinationPath.$getData->$fieldName);
-                }
-            }
-        }
-
-        $getData->status = 90;
-        $getData->save();
-
-        if($this->request->ajax()){
-            return response()->json(['result' => 1, 'message' => __('general.success_delete_', ['field' => $this->data['thisLabel']])]);
-        }
-        else {
-            session()->flash('message', __('general.success_delete_', ['field' => $this->data['thisLabel']]));
-            session()->flash('message_alert', 2);
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
-        }
-    }
-
-    public function approve($id){
-
-        $this->callPermission();
-
-
-        $getData = Transaction::where('id', $id)->first();
-
-        if(!$getData){
-            session()->flash('message', __('general.data_not_found'));
-            session()->flash('message_alert', 1);
-            return redirect()->route('admin.' . $this->route . '.index');
-        }
-
-        $getData->status = 81;
-        $getData->save();
-
-        if($this->request->ajax()){
-            return response()->json(['result' => 1, 'message' => __('general.success_add')]);
-        }
-        else {
-            session()->flash('message', __('general.success_approve_', ['field' => $this->data['thisLabel']]));
-            session()->flash('message_alert', 2);
-            return redirect()->route('admin.' . $this->route . '.index');
-        }
-    }
-
-    public function reject($id){
-
-        $this->callPermission();
-
-
-        $getData = Transaction::where('id', $id)->first();
-
-        if(!$getData){
-            session()->flash('message', __('general.data_not_found'));
-            session()->flash('message_alert', 1);
-            return redirect()->route('admin.' . $this->route . '.index');
-        }
-
-        $getData->status = 99;
-        $getData->save();
-
-        if($this->request->ajax()){
-            return response()->json(['result' => 1, 'message' => __('general.success_reject')]);
-        }
-        else {
-            session()->flash('message', __('general.success_reject_', ['field' => $this->data['thisLabel']]));
-            session()->flash('message_alert', 2);
-            return redirect()->route('admin.' . $this->route . '.index');
-        }
-    }
     public function index()
     {
         $this->callPermission();
@@ -582,7 +449,7 @@ class TransactionProductController extends _CrudController
         $data = $this->data;
 
         $data['passing'] = collectPassingData($this->passingData);
-        $data['type'] = 'clinic';
+        $data['type'] = 'admin';
 
         return view($this->listView['index'], $data);
     }
