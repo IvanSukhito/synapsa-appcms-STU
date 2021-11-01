@@ -9,7 +9,7 @@ use App\Codes\Models\V1\District;
 use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\SubDistrict;
 use App\Codes\Models\V1\Users;
-use App\Codes\MOdels\V1\UsersAddress;
+use App\Codes\Models\V1\UsersAddress;
 use App\Codes\Models\V1\Klinik;
 use Illuminate\Database\Eloquent\Model;
 use Yajra\DataTables\DataTables;
