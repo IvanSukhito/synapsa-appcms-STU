@@ -48,6 +48,7 @@ class UsersPatientController extends _CrudController
                 'type' => 'texteditor',
                 'list' => 0,
                 'create' => 0,
+                'show' => 0,
             ],
             'address_detail' => [
                 'validate' => [
@@ -57,6 +58,7 @@ class UsersPatientController extends _CrudController
                 'type' => 'texteditor',
                 'list' => 0,
                 'create' => 0,
+                'show' => 0,
             ],
             'zip_code' => [
                 'validate' => [
