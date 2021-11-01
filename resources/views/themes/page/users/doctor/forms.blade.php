@@ -136,7 +136,9 @@ else {
                                 <div class="form-group">
                                     <label for="province_id">{{ __('general.province') }} <span class="text-red">*</span></label>
                                     <select name="province_id" id="province_id" class="form-control input-lg select2" disabled>
+                                            @if(isset($province))
                                             <option value="{{$province->id}}"  selected disabled>{{$province->name}}</option>
+                                            @endif
                                     </select>
                                 </div>
                             </div>
@@ -144,7 +146,9 @@ else {
                                 <div class="form-group">
                                     <label for="city_id">{{ __('general.city') }} <span class="text-red">*</span></label>
                                     <select name="city_id" id="city_id" class="form-control select2 city"disabled>
+                                        @if(isset($city))
                                         <option value="{{$city->id}}">{{$city->name}}</option>
+                                        @endif
                                     </select>
                                 </div>
                             </div>
@@ -153,7 +157,9 @@ else {
                                 <div class="form-group">
                                     <label for="district_id">{{ __('general.district') }} <span class="text-red">*</span></label>
                                     <select name="district_id" id="district_id" class="form-control select2 district" disabled>
+                                        @if(isset($district))
                                         <option value="{{$district->id}}">{{$district->name}}</option>
+                                        @endif
                                     </select>
                                 </div>
                             </div>
@@ -161,7 +167,10 @@ else {
                                 <div class="form-group">
                                     <label for="sub_district_id">{{ __('general.sub_district') }} <span class="text-red">*</span></label>
                                     <select name="sub_district_id" id="sub_district_id" class="form-control select2 sub_district" disabled>
+                                        @if(isset($subDistrict))
                                         <option value="{{$subDistrict->id}}">{{$subDistrict->name}}</option>
+                                        @endif
+
                                     </select>
                                 </div>
                             </div>

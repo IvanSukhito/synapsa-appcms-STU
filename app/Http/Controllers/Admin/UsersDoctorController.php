@@ -375,6 +375,7 @@ class UsersDoctorController extends _CrudController
         $data = $this->data;
 
         $getProvince = Province::where('id', $getData->province_id)->first();
+
         $getCity = City::where('id',$getData->city_id)->first();
         $getDistrict = District::where('id', $getData->district_id)->first();
         $getSubDistrict = SubDistrict::where('id', $getData->sub_district_id)->first();
