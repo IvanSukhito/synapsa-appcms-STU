@@ -285,6 +285,13 @@ class ProductController extends _CrudController
         $desc = $this->request->get('desc');
         $title = $this->request->get('title');
 
+        if($productStockFlag != 1){
+            $productStockFlag = 2;
+        }
+        else{
+            $productStockFlag = $productStockFlag;
+        }
+
         $descProduct = [];
 
         $descProduct[]  =
@@ -371,6 +378,14 @@ class ProductController extends _CrudController
         $title = $this->request->get('title');
         $desc = $this->request->get('desc');
         $descProduct = [];
+
+        if($productStockFlag != 1){
+            $productStockFlag = 2;
+        }
+        else{
+            $productStockFlag = $productStockFlag;
+        }
+
         $descProduct[]  =
         [   'title' => $title,
             'desc' => $desc   ];
