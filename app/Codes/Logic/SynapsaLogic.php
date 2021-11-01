@@ -76,6 +76,8 @@ class SynapsaLogic
                 $getInfo['ewallet_type'] = $getData->result->ewallet_type ?? '';
                 $getInfo['phone'] = $getData->result->phone ?? '';
                 $getInfo['checkout_url'] = $getData->result->checkout_url ?? '';
+                $getInfo['ewallet_name'] = $payment->name;
+                $getInfo['ewallet_payment_image'] = $payment->icon_img_full;
                 $getInfo['ewallet_info'] = $getInfoWallet;
                 $getInfo['ewallet_return'] = $getData->result;
 
@@ -111,6 +113,8 @@ class SynapsaLogic
             $getInfo['external_id'] = $getData->result->external_id;
             $getInfo['qr_string'] = $getData->result->qr_string;
             $getInfo['callback_url'] = $getData->result->callback_url;
+            $getInfo['qris_name'] = $payment->name;
+            $getInfo['qris_payment_image'] = $payment->icon_img_full;
             $getInfo['qris_info'] = $getInfoQris;
             $getInfo['qris_result'] = $getResultQris;
 
