@@ -215,14 +215,14 @@ class ShippingController extends _CrudController
             }
         }
 
-        $desc = $this->request->get('desc');
-        $title = $this->request->get('title');
-
-        $settings = [];
-        $settings[]  = [
-            'title' => $title,
-            'desc' => $desc
-        ];
+//        $desc = $this->request->get('desc');
+//        $title = $this->request->get('title');
+//
+//        $settings = [];
+//        $settings[]  = [
+//            'title' => $title,
+//            'desc' => $desc
+//        ];
 
         $dokument = $this->request->file('icon_full');
         if ($dokument) {
@@ -245,7 +245,7 @@ class ShippingController extends _CrudController
         $data = $this->getCollectedData($getListCollectData, $viewType, $data, $getData);
 
         $data['icon'] = $dokumentImage;
-        $data['settings'] = json_encode($settings);
+        //$data['settings'] = json_encode($settings);
 
         $getData = $this->crud->update($data, $id);
 
@@ -271,30 +271,30 @@ class ShippingController extends _CrudController
 
         $data = $this->data;
 
-        $getSettings = json_decode($getData->settings, true);
-
-        if($getSettings) {
-            $temp = [];
-            foreach ($getSettings as $index => $listSettings) {
-                $temp = $listSettings;
-            }
-
-            $listSettings = $temp;
-        }
-        else {
-            $title = [];
-            $desc = [];
-            $listSettings = [
-                $title[] = 'title' => [''],
-                $desc[] = 'desc' => [''],
-            ];
-        }
+//        $getSettings = json_decode($getData->settings, true);
+//
+//        if($getSettings) {
+//            $temp = [];
+//            foreach ($getSettings as $index => $listSettings) {
+//                $temp = $listSettings;
+//            }
+//
+//            $listSettings = $temp;
+//        }
+//        else {
+//            $title = [];
+//            $desc = [];
+//            $listSettings = [
+//                $title[] = 'title' => [''],
+//                $desc[] = 'desc' => [''],
+//            ];
+//        }
 
         $data['thisLabel'] = __('general.product');
         $data['viewType'] = 'show';
         $data['formsTitle'] = __('general.title_show', ['field' => __('general.product') . ' ' . $getData->name]);
         $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
-        $data['listSettings'] = $listSettings;
+        //$data['listSettings'] = $listSettings;
         $data['data'] = $getData;
 
         return view($this->listView[$data['viewType']], $data);

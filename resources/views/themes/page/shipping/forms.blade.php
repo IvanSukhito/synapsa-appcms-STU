@@ -1,7 +1,7 @@
 <?php
-$title = isset($listSettings['title']) ? $listSettings['title'] : null;
-$desc = isset($listSettings['desc']) ? $listSettings['desc'] : null;
-
+//$title = isset($listSettings['title']) ? $listSettings['title'] : null;
+//$desc = isset($listSettings['desc']) ? $listSettings['desc'] : null;
+//
 
 switch ($viewType) {
     case 'create': $printCard = 'card-success'; break;
@@ -72,38 +72,38 @@ else {
 
                 <div class="card-body">
                     @include(env('ADMIN_TEMPLATE').'._component.generate_forms')
-                    @if(in_array($viewType, ['show','edit']) )
-                    <?php $no = 0; ?>
-                    @foreach($title as $key => $title)
-                        <?php $no++; ?>
-                        <b>Title - {!! $no !!}</b>
-                        {{ Form::text('title', $title, array_merge(['id' => 'title','name'=>'title[]', 'class' => 'form-control', 'placeholder' => __('general.title')], $addAttribute)) }}
-                        <br>
-                        <b>Desc - {!! $no !!}</b>
-                        <br>
-                        {{ Form::textarea('desc', $desc[$key], array_merge(['id' => 'desc', 'name'=>'desc[]', 'class' => 'ckeditor', 'placeholder' => __('general.desc')], $addAttribute)) }}
-                        <br>
-                    @endforeach
-                    @endif
-                    @if(in_array($viewType, ['edit']))
-                        <div id="list_desc">
-                            <div class="form-group">
-                                <a href="#" onclick="return add_desc1()" class="btn btn-warning">Tambah</a>
-                            </div>
-                        </div>
-                    @endif
-                    @if(in_array($viewType, ['create']) )
-                       <div id="list_desc">
-                           <div class="form-group">
-                               <label for="desc">{{ __('general.settings') }}</label>
-                               {{ Form::text('title', old('title'), ['id' => 'title', 'name'=>'title[]', 'class' => 'form-control', 'placeholder' => __('general.title')]) }}
-                               <br>
-                               {{ Form::textarea('desc', old('desc'), ['id' => 'desc', 'name'=>'desc[]', 'class' => 'editor', 'placeholder' => __('general.desc')]) }}
-                               <br>
-                               <a href="#" onclick="return add_desc1()" class="btn btn-warning">Tambah</a>
-                           </div>
-                       </div>
-                      @endif
+{{--                    @if(in_array($viewType, ['show','edit']) )--}}
+{{--                    <?php $no = 0; ?>--}}
+{{--                    @foreach($title as $key => $title)--}}
+{{--                        <?php $no++; ?>--}}
+{{--                        <b>Title - {!! $no !!}</b>--}}
+{{--                        {{ Form::text('title', $title, array_merge(['id' => 'title','name'=>'title[]', 'class' => 'form-control', 'placeholder' => __('general.title')], $addAttribute)) }}--}}
+{{--                        <br>--}}
+{{--                        <b>Desc - {!! $no !!}</b>--}}
+{{--                        <br>--}}
+{{--                        {{ Form::textarea('desc', $desc[$key], array_merge(['id' => 'desc', 'name'=>'desc[]', 'class' => 'ckeditor', 'placeholder' => __('general.desc')], $addAttribute)) }}--}}
+{{--                        <br>--}}
+{{--                    @endforeach--}}
+{{--                    @endif--}}
+{{--                    @if(in_array($viewType, ['edit']))--}}
+{{--                        <div id="list_desc">--}}
+{{--                            <div class="form-group">--}}
+{{--                                <a href="#" onclick="return add_desc1()" class="btn btn-warning">Tambah</a>--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
+{{--                    @endif--}}
+{{--                    @if(in_array($viewType, ['create']) )--}}
+{{--                       <div id="list_desc">--}}
+{{--                           <div class="form-group">--}}
+{{--                               <label for="desc">{{ __('general.settings') }}</label>--}}
+{{--                               {{ Form::text('title', old('title'), ['id' => 'title', 'name'=>'title[]', 'class' => 'form-control', 'placeholder' => __('general.title')]) }}--}}
+{{--                               <br>--}}
+{{--                               {{ Form::textarea('desc', old('desc'), ['id' => 'desc', 'name'=>'desc[]', 'class' => 'editor', 'placeholder' => __('general.desc')]) }}--}}
+{{--                               <br>--}}
+{{--                               <a href="#" onclick="return add_desc1()" class="btn btn-warning">Tambah</a>--}}
+{{--                           </div>--}}
+{{--                       </div>--}}
+{{--                      @endif--}}
                 </div>
                 <!-- /.card-body -->
 
