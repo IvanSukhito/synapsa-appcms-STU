@@ -96,6 +96,7 @@ class DoctorAppointmentController extends Controller
         return response()->json([
             'success' => 1,
             'data' => $data,
+            'default_image' => asset('assets/cms/images/no-img.png'),
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
 
@@ -288,10 +289,7 @@ class DoctorAppointmentController extends Controller
         return response()->json([
             'success' => 1,
             'data' => $data,
-            'token' => [
-                'fcm_token' => $getFcmTokenPatient,
-            ],
-
+            'fcm_token' => $getFcmTokenPatient,
             'message' => ['Sukses'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);

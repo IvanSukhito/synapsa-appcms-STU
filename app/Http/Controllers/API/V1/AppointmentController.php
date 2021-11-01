@@ -212,6 +212,7 @@ class AppointmentController extends Controller
         return response()->json([
             'success' => 1,
             'data' => $data,
+            'default_image' => asset('assets/cms/images/no-img.png'),
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
 
