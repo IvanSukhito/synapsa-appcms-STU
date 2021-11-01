@@ -45,15 +45,15 @@ class LabController extends Controller
             $getLimit = $this->limit;
         }
 
-        $getInterestService = $serviceId > 0 ? $serviceId : $user->interest_service_id;
+        $getInterestService = $serviceId;
 
         $getServiceData = $this->getService($getInterestService);
 
-        $data = Lab::selectRaw('lab.id ,lab.name, lab_service.price, lab.image')
-        ->join('lab_service', 'lab_service.lab_id','=','lab.id')
-        ->where('lab_service.service_id','=', $getServiceData['getServiceId'])
-        ->where('lab.parent_id', '=', 0)
-        ->where('lab.klinik_id', $user->klinik_id);
+        $data = Lab::selectRaw('lab.id ,lab.name, lab_service.price, lab.image, klinik_id')
+            ->join('lab_service', 'lab_service.lab_id','=','lab.id')
+            ->where('lab_service.service_id','=', $getServiceData['getServiceId'])
+            ->where('lab.parent_id', '=', 0)
+            ->where('lab.klinik_id', '=', $user->klinik_id);
 
         if (strlen($s) > 0) {
             $data = $data->where('name', 'LIKE', "%$s%");
@@ -652,7 +652,7 @@ class LabController extends Controller
 
     }
 
-    private function getService($getInterestService) {
+    private function getService($getInterestService = 0) {
 
         $getServiceLab = isset($this->setting['service-lab']) ? json_decode($this->setting['service-lab'], true) : [];
         if (count($getServiceLab) > 0) {

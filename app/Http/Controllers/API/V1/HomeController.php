@@ -94,6 +94,7 @@ class HomeController extends Controller
             'success' => 1,
             'data' => [
                 'user' => [
+                    'user_id' => $user->id,
                     'klinik_id' => $user->klinik_id,
                     'klinik_name' => $getKlinik ? $getKlinik->name : '',
                     'fullname' => $user->fullname,
