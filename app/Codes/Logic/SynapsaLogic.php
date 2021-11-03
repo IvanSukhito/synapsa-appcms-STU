@@ -51,6 +51,7 @@ class SynapsaLogic
                 $getJobData['payment_refer_id'] = $getData->result->external_id;
                 $getJobData['type'] = $getType;
                 $getJobData['payment_info'] = json_encode($getInfo);
+                $getJobData['additional'] = json_encode($additional);
 
                 $job = SetJob::create([
                     'status' => 1,
@@ -88,6 +89,7 @@ class SynapsaLogic
                 $getJobData['payment_refer_id'] = isset($getData->result->external_id) ? $getData->result->external_id : '';
                 $getJobData['type'] = $getType;
                 $getJobData['payment_info'] = json_encode($getInfo);
+                $getJobData['additional'] = json_encode($additional);
 
                 $job = SetJob::create([
                     'status' => 1,
@@ -124,6 +126,7 @@ class SynapsaLogic
             $getJobData = $additional['job'];
             $getJobData['payment_refer_id'] = isset($getData->result->external_id) ? $getData->result->external_id : '';
             $getJobData['type'] = $getType;
+            $getJobData['additional'] = json_encode($additional);
 
             $job = SetJob::create([
                 'status' => 1,
@@ -302,6 +305,11 @@ class SynapsaLogic
             'success' => 0,
             'message' => $message
         ];
+
+    }
+
+    public function reCreatePayment($params)
+    {
 
     }
 

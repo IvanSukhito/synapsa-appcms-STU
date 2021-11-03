@@ -43,6 +43,7 @@ class Transaction extends Model
         'type_service',
         'type_service_name',
         'extra_info',
+        'send_info',
         'payment_info',
         'status'
     ];

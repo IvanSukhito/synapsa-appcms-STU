@@ -49,6 +49,7 @@ class CreateTransactionTable extends Migration
             $table->tinyInteger('type_service')->default(0);
             $table->string('type_service_name')->nullable();
             $table->text('extra_info')->nullable();
+            $table->text('send_info')->nullable();
             $table->longText('payment_info')->nullable();
             $table->tinyInteger('status')->default(0);
             $table->timestamps();

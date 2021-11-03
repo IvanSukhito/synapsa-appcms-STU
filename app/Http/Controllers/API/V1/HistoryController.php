@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\API\V1;
 
+use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Settings;
+use App\Codes\Models\V1\LogServiceTransaction;
+use App\Codes\Models\V1\Payment;
 use App\Codes\Models\V1\Product;
 use App\Codes\Models\V1\Service;
 use App\Codes\Models\V1\UsersAddress;
@@ -248,7 +251,22 @@ class HistoryController extends Controller
 
         if ($getData->status == 2) {
 
+            $getLogServiceTransaction = LogServiceTransaction::where('transaction_refer_id', $getData->payment_refer_id)->first();
+            if ($getLogServiceTransaction) {
+                $getParams = json_decode($getLogServiceTransaction->params, true);
+                $getExternalId = $getParams['external_id'] ?? '';
+                if (strlen($getExternalId) > 3) {
+                    $getExternalId = explode('-', $getExternalId);
+                    $getCode = end($getExternalId);
+                }
+                else {
+                    $getCode = str_pad(($getData->id), 6, '0', STR_PAD_LEFT).rand(100,199);
+                }
+                $newLogic = new SynapsaLogic();
+                $getPayment = Payment::where('id', $getData->payment_id)->first();
+                $newLogic->createPayment($getPayment, $getPayment);
 
+            }
 
             return response()->json([
                 'success' => 1,

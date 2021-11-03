@@ -64,32 +64,33 @@ class ProcessTransaction implements ShouldQueue
             $getNewCode = $getParams['code'] ?? '';
             $getDetailsInfo =  $getParams['detail_info'] ?? '';
             $getShippingId = isset($getParams['shipping_id']) ? intval($getParams['shipping_id']) : 0;
+            $additional = isset($getParams['additional']) ? $getParams['additional'] : '';
             if ($getType == 1) {
-                $this->transactionProduct($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getPaymentInfo);
+                $this->transactionProduct($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getPaymentInfo, $additional);
             }
             else if ($getType == 2) {
                 $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
                 $getDoctorInfo = isset($getParams['doctor_info']) ? $getParams['doctor_info'] : [];
-                $this->transactionDoctor($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getDoctorInfo, $getPaymentInfo);
+                $this->transactionDoctor($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getDoctorInfo, $getPaymentInfo, $additional);
             }
             else if ($getType == 3) {
                 $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
                 $getLabInfo = isset($getParams['lab_info']) ? $getParams['lab_info'] : [];
-                $this->transactionLab($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getLabInfo, $getPaymentInfo);
+                $this->transactionLab($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getLabInfo, $getPaymentInfo, $additional);
             }
             else if ($getType == 4){
                 $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
                 $getNurseInfo = isset($getParams['nurse_info']) ? $getParams['nurse_info'] : [];
-                $this->transactionNurse($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getNurseInfo, $getPaymentInfo, $getDetailsInfo);
+                $this->transactionNurse($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getNurseInfo, $getPaymentInfo, $getDetailsInfo, $additional);
             }
             else if ($getType == 5) {
                 $getAppointmentDoctorId = isset($getParams['appointment_doctor_id']) ? intval($getParams['appointment_doctor_id']) : 0;
-                $this->transactionProductKlinik($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getShippingId, $getPaymentInfo, $getDetailsInfo, $getAppointmentDoctorId);
+                $this->transactionProductKlinik($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getShippingId, $getPaymentInfo, $getDetailsInfo, $getAppointmentDoctorId, $additional);
             }
         }
     }
 
-    private function transactionProduct($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getPaymentInfo)
+    private function transactionProduct($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getPaymentInfo, $additional)
     {
         $getUser = Users::where('id', $getUserId)->first();
         $getUsersAddress = UsersAddress::where('user_id', $getUserId)->first();
@@ -201,6 +202,7 @@ class ProcessTransaction implements ShouldQueue
             'shipping_subdistrict_id' => $getUsersAddress->sub_district_id ?? 0,
             'shipping_subdistrict_name' => $getUsersAddress->sub_district_name ?? '',
             'shipping_zipcode' => $getUsersAddress->zip_code ?? '',
+            'send_info' => $additional,
             'payment_info' => $getPaymentInfo,
             'category_service_id' => 0,
             'category_service_name' => '',
@@ -231,7 +233,7 @@ class ProcessTransaction implements ShouldQueue
 
     }
 
-    private function transactionProductKlinik($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getShippingId, $getPaymentInfo, $getDetailsInfo, $getAppointmentDoctorId)
+    private function transactionProductKlinik($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getShippingId, $getPaymentInfo, $getDetailsInfo, $getAppointmentDoctorId, $additional)
     {
         $getUser = Users::where('id', $getUserId)->first();
         $getUsersAddress = UsersAddress::where('user_id', $getUserId)->first();
@@ -340,6 +342,7 @@ class ProcessTransaction implements ShouldQueue
             'shipping_subdistrict_id' => $getUsersAddress->sub_district_id ?? 0,
             'shipping_subdistrict_name' => $getUsersAddress->sub_district_name ?? '',
             'shipping_zipcode' => $getUsersAddress->zip_code ?? '',
+            'send_info' => $additional,
             'payment_info' => $getPaymentInfo,
             'category_service_id' => 0,
             'category_service_name' => '',
@@ -370,7 +373,7 @@ class ProcessTransaction implements ShouldQueue
 
     }
 
-    private function transactionDoctor($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getDoctorInfo, $getPaymentInfo)
+    private function transactionDoctor($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getDoctorInfo, $getPaymentInfo, $additional)
     {
         $getDoctorSchedule = DoctorSchedule::where('id', $getScheduleId)->first();
         if (!$getDoctorSchedule) {
@@ -425,6 +428,7 @@ class ProcessTransaction implements ShouldQueue
             'subtotal' => $subTotal,
             'total' => $total,
             'extra_info' => json_encode($extraInfo),
+            'send_info' => $additional,
             'payment_info' => $getPaymentInfo,
             'status' => 2
         ]);
@@ -454,7 +458,7 @@ class ProcessTransaction implements ShouldQueue
 
     }
 
-    private function transactionLab($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getLabInfo, $getPaymentInfo)
+    private function transactionLab($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getLabInfo, $getPaymentInfo, $additional)
     {
         $getLabSchedule = LabSchedule::where('id', $getScheduleId)->first();
         if (!$getLabSchedule) {
@@ -515,6 +519,7 @@ class ProcessTransaction implements ShouldQueue
             'subtotal' => $total,
             'total' => $total,
             'extra_info' => json_encode($extraInfo),
+            'send_info' => $additional,
             'status' => 2
         ]);
 
@@ -544,7 +549,7 @@ class ProcessTransaction implements ShouldQueue
         $this->getJob->save();
     }
 
-    private function transactionNurse($getNewCode, $getPaymentReferId, $getTypeService,$getServiceId,  $getType, $getUserId, $getPaymentId, $getScheduleId, $getNurseInfo, $getPaymentInfo, $getDetailsInfo)
+    private function transactionNurse($getNewCode, $getPaymentReferId, $getTypeService,$getServiceId,  $getType, $getUserId, $getPaymentId, $getScheduleId, $getNurseInfo, $getPaymentInfo, $getDetailsInfo, $additional)
     {
         $getUser = Users::where('id', $getUserId)->first();
         $getUsersAddress = UsersAddress::where('user_id', $getUserId)->first();
@@ -598,6 +603,7 @@ class ProcessTransaction implements ShouldQueue
             'subtotal' => $total,
             'total' => $total,
             'extra_info' => json_encode($extraInfo),
+            'send_info' => $additional,
             'status' => 2
         ]);
 
