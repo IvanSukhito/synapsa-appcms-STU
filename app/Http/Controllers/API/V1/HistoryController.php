@@ -265,6 +265,7 @@ class HistoryController extends Controller
                 $getInfo = isset($getResult['info']) ? $getResult['info'] : '';
 
                 $getData->payment_refer_id = $getResult['prefer_id'] ?? '';
+                $getData->send_info = json_encode($getAdditional);
                 $getData->payment_info = json_encode($getInfo);
                 $getData->save();
 
