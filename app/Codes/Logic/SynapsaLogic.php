@@ -28,6 +28,7 @@ class SynapsaLogic
     public function createPayment($payment, $additional, $flag = 0)
     {
         $transactionId = 0;
+        $preferId = 0;
         $success = 0;
         $message = 'OK';
         $getInfo = [];
@@ -43,6 +44,7 @@ class SynapsaLogic
                 $getInfo['va_payment_image'] = $payment->icon_img_full;
                 $getInfo['va_user'] = $getData->result->account_number;
                 $getInfo['va_info'] = $getInfoVa;
+                $preferId = isset($getData->result->external_id) ? $getData->result->external_id : '';
 
                 if ($flag == 0) {
                     $getTypeService = $additional['job']['type_service'];
@@ -84,6 +86,7 @@ class SynapsaLogic
                 $getInfo['ewallet_payment_image'] = $payment->icon_img_full;
                 $getInfo['ewallet_info'] = $getInfoWallet;
                 $getInfo['ewallet_return'] = $getData->result;
+                $preferId = isset($getData->result->external_id) ? $getData->result->external_id : '';
 
                 if ($flag == 0) {
                     $getTypeService = $additional['job']['type_service'];
@@ -124,6 +127,7 @@ class SynapsaLogic
             $getInfo['qris_payment_image'] = $payment->icon_img_full;
             $getInfo['qris_info'] = $getInfoQris;
             $getInfo['qris_result'] = $getResultQris;
+            $preferId = isset($getData->result->external_id) ? $getData->result->external_id : '';
 
             if ($flag == 0) {
                 $getTypeService = $additional['job']['type_service'];
@@ -151,6 +155,7 @@ class SynapsaLogic
             'success' => $success,
             'info' => $getInfo,
             'transaction_id' => $transactionId,
+            'prefer_id' => $preferId,
             'message' => $message
         ];
     }
