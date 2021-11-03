@@ -25,7 +25,7 @@ class SynapsaLogic
     {
     }
 
-    public function createPayment($payment, $additional)
+    public function createPayment($payment, $additional, $flag = 0)
     {
         $transactionId = 0;
         $success = 0;
@@ -44,21 +44,24 @@ class SynapsaLogic
                 $getInfo['va_user'] = $getData->result->account_number;
                 $getInfo['va_info'] = $getInfoVa;
 
-                $getTypeService = $additional['job']['type_service'];
-                $getType = check_list_type_transaction($getTypeService);
+                if ($flag == 0) {
+                    $getTypeService = $additional['job']['type_service'];
+                    $getType = check_list_type_transaction($getTypeService);
 
-                $getJobData = $additional['job'];
-                $getJobData['payment_refer_id'] = $getData->result->external_id;
-                $getJobData['type'] = $getType;
-                $getJobData['payment_info'] = json_encode($getInfo);
-                $getJobData['additional'] = json_encode($additional);
+                    $getJobData = $additional['job'];
+                    $getJobData['payment_refer_id'] = $getData->result->external_id;
+                    $getJobData['type'] = $getType;
+                    $getJobData['payment_info'] = json_encode($getInfo);
+                    $getJobData['additional'] = json_encode($additional);
 
-                $job = SetJob::create([
-                    'status' => 1,
-                    'params' => json_encode($getJobData)
-                ]);
+                    $job = SetJob::create([
+                        'status' => 1,
+                        'params' => json_encode($getJobData)
+                    ]);
 
-                dispatch((new ProcessTransaction($job->id))->onQueue('high'));
+                    dispatch((new ProcessTransaction($job->id))->onQueue('high'));
+
+                }
 
             }
             else {
@@ -82,21 +85,23 @@ class SynapsaLogic
                 $getInfo['ewallet_info'] = $getInfoWallet;
                 $getInfo['ewallet_return'] = $getData->result;
 
-                $getTypeService = $additional['job']['type_service'];
-                $getType = check_list_type_transaction($getTypeService);
+                if ($flag == 0) {
+                    $getTypeService = $additional['job']['type_service'];
+                    $getType = check_list_type_transaction($getTypeService);
 
-                $getJobData = $additional['job'];
-                $getJobData['payment_refer_id'] = isset($getData->result->external_id) ? $getData->result->external_id : '';
-                $getJobData['type'] = $getType;
-                $getJobData['payment_info'] = json_encode($getInfo);
-                $getJobData['additional'] = json_encode($additional);
+                    $getJobData = $additional['job'];
+                    $getJobData['payment_refer_id'] = isset($getData->result->external_id) ? $getData->result->external_id : '';
+                    $getJobData['type'] = $getType;
+                    $getJobData['payment_info'] = json_encode($getInfo);
+                    $getJobData['additional'] = json_encode($additional);
 
-                $job = SetJob::create([
-                    'status' => 1,
-                    'params' => json_encode($getJobData)
-                ]);
+                    $job = SetJob::create([
+                        'status' => 1,
+                        'params' => json_encode($getJobData)
+                    ]);
 
-                dispatch((new ProcessTransaction($job->id))->onQueue('high'));
+                    dispatch((new ProcessTransaction($job->id))->onQueue('high'));
+                }
 
             }
             else {
@@ -120,20 +125,22 @@ class SynapsaLogic
             $getInfo['qris_info'] = $getInfoQris;
             $getInfo['qris_result'] = $getResultQris;
 
-            $getTypeService = $additional['job']['type_service'];
-            $getType = check_list_type_transaction($getTypeService);
+            if ($flag == 0) {
+                $getTypeService = $additional['job']['type_service'];
+                $getType = check_list_type_transaction($getTypeService);
 
-            $getJobData = $additional['job'];
-            $getJobData['payment_refer_id'] = isset($getData->result->external_id) ? $getData->result->external_id : '';
-            $getJobData['type'] = $getType;
-            $getJobData['additional'] = json_encode($additional);
+                $getJobData = $additional['job'];
+                $getJobData['payment_refer_id'] = isset($getData->result->external_id) ? $getData->result->external_id : '';
+                $getJobData['type'] = $getType;
+                $getJobData['additional'] = json_encode($additional);
 
-            $job = SetJob::create([
-                'status' => 1,
-                'params' => json_encode($getJobData)
-            ]);
+                $job = SetJob::create([
+                    'status' => 1,
+                    'params' => json_encode($getJobData)
+                ]);
 
-            dispatch((new ProcessTransaction($job->id))->onQueue('high'));
+                dispatch((new ProcessTransaction($job->id))->onQueue('high'));
+            }
 
         }
         else {
@@ -305,11 +312,6 @@ class SynapsaLogic
             'success' => 0,
             'message' => $message
         ];
-
-    }
-
-    public function reCreatePayment($params)
-    {
 
     }
 

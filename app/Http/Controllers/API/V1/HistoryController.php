@@ -251,22 +251,16 @@ class HistoryController extends Controller
 
         if ($getData->status == 2) {
 
-            $getLogServiceTransaction = LogServiceTransaction::where('transaction_refer_id', $getData->payment_refer_id)->first();
-            if ($getLogServiceTransaction) {
-                $getParams = json_decode($getLogServiceTransaction->params, true);
-                $getExternalId = $getParams['external_id'] ?? '';
-                if (strlen($getExternalId) > 3) {
-                    $getExternalId = explode('-', $getExternalId);
-                    $getCode = end($getExternalId);
-                }
-                else {
-                    $getCode = str_pad(($getData->id), 6, '0', STR_PAD_LEFT).rand(100,199);
-                }
-                $newLogic = new SynapsaLogic();
-                $getPayment = Payment::where('id', $getData->payment_id)->first();
-                $newLogic->createPayment($getPayment, $getPayment);
+            $getCode = str_pad(($getData->id), 6, '0', STR_PAD_LEFT).rand(100,199);
 
-            }
+            $getAdditional = json_decode($getData->send_info, true);
+            $getAdditional['code'] = $getCode;
+            $getAdditional['job']['code'] = $getCode;
+
+            $newLogic = new SynapsaLogic();
+            $getPayment = Payment::where('id', $getData->payment_id)->first();
+            $getResult = $newLogic->createPayment($getPayment, $getAdditional, 1);
+            dd($getResult);
 
             return response()->json([
                 'success' => 1,
