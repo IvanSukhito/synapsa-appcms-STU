@@ -113,6 +113,7 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
 
        $router->get('/', ['uses' => 'App\Http\Controllers\API\V1\HistoryController@index'])->name('api.transaction.index');
        $router->get('detail/{id}', ['uses' => 'App\Http\Controllers\API\V1\HistoryController@detail'])->name('api.transaction.detail');
+       $router->get('repayment/{id}', ['uses' => 'App\Http\Controllers\API\V1\HistoryController@repayment'])->name('api.transaction.repayment');
 
    });
 

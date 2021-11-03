@@ -231,6 +231,44 @@ class HistoryController extends Controller
 
     }
 
+    public function repayment($id)
+    {
+        $user = $this->request->attributes->get('_user');
+
+        $getData = Transaction::where('id', $id)
+            ->where('user_id',$user->id)
+            ->first();
+        if (!$getData) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Riwayat Transakti Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+
+        if ($getData->status == 2) {
+
+
+
+            return response()->json([
+                'success' => 1,
+                'data' => [
+                    'data' => $getData,
+                ],
+                'message' => ['Berhasil'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ]);
+
+        }
+
+        return response()->json([
+            'success' => 0,
+            'message' => ['Riwayat Transakti Tidak Ditemukan'],
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ], 404);
+
+    }
+
     private function getListProduct($userId, $getLimit, $s)
     {
         $result = Transaction::selectRaw('transaction.id, transaction.created_at,

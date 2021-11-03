@@ -175,6 +175,7 @@ class SynapsaLogic
 
             $xendit = new XenditLogic();
             $result = false;
+            $params = [];
             switch ($payment->type_payment) {
                 case 'va_bca':
                 case 'va_bri':
@@ -184,25 +185,106 @@ class SynapsaLogic
                 case 'va_mandiri':
                 case 'va_permata':
                     $getTypePayment = strtoupper(substr($payment->type_payment, 3));
-                    $result = $xendit->createVA($getCode, $getTypePayment, $getTotal, $getName);
+                    $params = [
+                        'external_id' => "va-fix-".$getCode,
+                        'bank_code' => $getTypePayment,
+                        'name' => $getName,
+                        'expected_amount' => $getTotal,
+                        'is_closed' => true,
+                        'is_single_use' => true
+                    ];
+                    $result = $xendit->createVA($params);
                     break;
-                case 'ew_ovo': $result = $xendit->createEWalletOVO($getCode, $getTotal, $getPhone);
+                case 'ew_ovo':
+                    $params = [
+                        'external_id' => 'ew-'.$getCode,
+                        'currency' => 'IDR',
+                        'amount' => $getTotal,
+                        'phone' => $getPhone,
+                        'checkout_method' => 'ONE_TIME_PAYMENT',
+                        'channel_code' => 'OVO',
+                        'ewallet_type' => 'OVO',
+                        'channel_properties' => [
+                            'mobile_number' => $getPhone,
+                            'success_redirect_url' => route('api.postTransactionResult'),
+                        ],
+                        'metadata' => [
+                            'branch_code' => 'tree_branch'
+                        ]
+                    ];
+                    $result = $xendit->createEWalletOVO($params);
                     break;
-                case 'ew_dana': $result = $xendit->createEWalletDANA($getCode, $getTotal, $getPhone);
+                case 'ew_dana':
+                    $params = [
+                        'external_id' => 'ew-'.$getCode,
+                        'currency' => 'IDR',
+                        'amount' => $getTotal,
+                        'phone' => $getPhone,
+                        'checkout_method' => 'ONE_TIME_PAYMENT',
+                        'channel_code' => 'DANA',
+                        'ewallet_type' => 'DANA',
+                        'callback_url' => route('api.postTransactionResult'),
+                        'redirect_url' => route('api.postTransactionResult'),
+                        'channel_properties' => [
+                            'success_redirect_url' => route('api.postTransactionResult'),
+                        ],
+                        'metadata' => [
+                            'branch_code' => 'tree_branch'
+                        ]
+                    ];
+                    $result = $xendit->createEWalletDANA($params);
                     break;
-                case 'ew_linkaja': $result = $xendit->createEWalletLINKAJA($getCode, $getTotal, $getPhone);
+                case 'ew_linkaja':
+
+                    $items = [
+                        [
+                            'name' => 'Item 1',
+                            'quantity' => 1,
+                            'price' => $getTotal
+                        ]
+                    ];
+                    $params = [
+                        'external_id' => 'ew-'.$getCode,
+                        'currency' => 'IDR',
+                        'amount' => $getTotal,
+                        'phone' => $getPhone,
+                        'checkout_method' => 'ONE_TIME_PAYMENT',
+                        'channel_code' => 'LINKAJA',
+                        'ewallet_type' => 'LINKAJA',
+                        'items' => $items,
+                        'callback_url' => route('api.postTransactionResult'),
+                        'redirect_url' => route('api.postTransactionResult'),
+                        'channel_properties' => [
+                            'success_redirect_url' => route('api.postTransactionResult'),
+                        ],
+                        'metadata' => [
+                            'branch_code' => 'tree_branch'
+                        ]
+                    ];
+                    $result = $xendit->createEWalletLINKAJA($params);
                     break;
-                case 'qr_qris': $result = $xendit->createQrQris($getCode, $getTotal, $getPhone);
+                case 'qr_qris':
+                    $params = [
+                        'external_id' => 'qr-'.$getCode,
+                        'type' => 'DYNAMIC',
+                        'amount' => $getTotal,
+                        'currency' => 'IDR',
+                        // 'callback_url' => 'https://synapsa.kelolain.id/transaction-result',
+                        'callback_url' => route('api.postTransactionResult'),
+                        'phone' => $getPhone
+                    ];
+                    $result = $xendit->createQrQris($params);
                     break;
             }
 
             if ($result) {
                 $getTypePayment = strtoupper(substr($payment->type_payment, 3));
                 $getLogId = LogServiceTransaction::create([
-                    'transaction_refer_id' => isset($result->external_id) ? $result->external_id : '',
+                    'transaction_refer_id' => isset($result['external_id']) ? $result['external_id'] : '',
                     'service' => 'xendit',
                     'type_payment' => $getTypePayment,
                     'type_transaction' => 'create',
+                    'params' => json_encode($params),
                     'results' => json_encode($result)
                 ]);
 

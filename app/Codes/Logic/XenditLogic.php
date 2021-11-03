@@ -40,17 +40,8 @@ class XenditLogic
 
     }
 
-    public function createVA($transactionId, $codeBank, $amount, $name)
+    public function createVA($params)
     {
-        $params = [
-            'external_id' => "va-fix-".$transactionId,
-            'bank_code' => $codeBank,
-            'name' => $name,
-            'expected_amount' => $amount,
-            'is_closed' => true,
-            'is_single_use' => true
-        ];
-
         try {
             Xendit::setApiKey($this->XENDIT_SECRET_KEY);
             $result = VirtualAccounts::create($params);
@@ -103,25 +94,8 @@ class XenditLogic
         return $result;
     }
 
-    public function createEWalletOVO($transactionId, $amount, $phone)
+    public function createEWalletOVO($params)
     {
-        $params = [
-            'external_id' => 'ew-'.$transactionId,
-            'currency' => 'IDR',
-            'amount' => $amount,
-            'phone' => $phone,
-            'checkout_method' => 'ONE_TIME_PAYMENT',
-            'channel_code' => 'OVO',
-            'ewallet_type' => 'OVO',
-            'channel_properties' => [
-                'mobile_number' => $phone,
-                'success_redirect_url' => route('api.postTransactionResult'),
-            ],
-            'metadata' => [
-                'branch_code' => 'tree_branch'
-            ]
-        ];
-
 //        $ch = curl_init();
 //        curl_setopt( $ch,CURLOPT_URL, $this->XENDIT_URL.'/ewallets/charges' );
 //        curl_setopt( $ch,CURLOPT_POST, true );
@@ -138,75 +112,18 @@ class XenditLogic
         return $this->createEWallet($params);
     }
 
-    public function createEWalletDANA($transactionId, $amount, $phone)
+    public function createEWalletDANA($params)
     {
-        $params = [
-            'external_id' => 'ew-'.$transactionId,
-            'currency' => 'IDR',
-            'amount' => $amount,
-            'phone' => $phone,
-            'checkout_method' => 'ONE_TIME_PAYMENT',
-            'channel_code' => 'DANA',
-            'ewallet_type' => 'DANA',
-            'callback_url' => route('api.postTransactionResult'),
-            'redirect_url' => route('api.postTransactionResult'),
-            'channel_properties' => [
-                'success_redirect_url' => route('api.postTransactionResult'),
-            ],
-            'metadata' => [
-                'branch_code' => 'tree_branch'
-            ]
-        ];
-
         return $this->createEWallet($params);
     }
 
-    public function createEWalletLINKAJA($transactionId, $amount, $phone, $items = [])
+    public function createEWalletLINKAJA($params)
     {
-        if (count($items) < 0) {
-            $items = [
-                [
-                    'name' => 'Item 1',
-                    'quantity' => 1,
-                    'price' => $amount
-                ]
-            ];
-        }
-
-        $params = [
-            'external_id' => 'ew-'.$transactionId,
-            'currency' => 'IDR',
-            'amount' => $amount,
-            'phone' => $phone,
-            'checkout_method' => 'ONE_TIME_PAYMENT',
-            'channel_code' => 'LINKAJA',
-            'ewallet_type' => 'LINKAJA',
-            'items' => $items,
-            'callback_url' => route('api.postTransactionResult'),
-            'redirect_url' => route('api.postTransactionResult'),
-            'channel_properties' => [
-                'success_redirect_url' => route('api.postTransactionResult'),
-            ],
-            'metadata' => [
-                'branch_code' => 'tree_branch'
-            ]
-        ];
-
         return $this->createEWallet($params);
     }
 
-    public function createQrQris($transactionId, $amount, $phone)
+    public function createQrQris($params)
     {
-        $params = [
-            'external_id' => 'qr-'.$transactionId,
-            'type' => 'DYNAMIC',
-            'amount' => $amount,
-            'currency' => 'IDR',
-//            'callback_url' => 'https://synapsa.kelolain.id/transaction-result',
-            'callback_url' => route('api.postTransactionResult'),
-            'phone' => $phone
-        ];
-
         Xendit::setApiKey($this->XENDIT_SECRET_KEY);
         return QRCode::create($params);
     }

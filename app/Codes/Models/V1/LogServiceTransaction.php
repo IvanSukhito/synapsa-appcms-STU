@@ -15,6 +15,7 @@ class LogServiceTransaction extends Model
         'service',
         'type_payment',
         'type_transaction',
+        'params',
         'results'
     ];
 

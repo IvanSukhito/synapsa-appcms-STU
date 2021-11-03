@@ -21,6 +21,7 @@ class CreateLogServiceTransactionTable extends Migration
             $table->string('service')->nullable();
             $table->string('type_payment')->nullable();
             $table->string('type_transaction')->nullable();
+            $table->longText('params')->nullable();
             $table->longText('results')->nullable();
             $table->timestamps();
         });
