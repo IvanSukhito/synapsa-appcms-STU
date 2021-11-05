@@ -9,6 +9,8 @@ class AppointmentNurse extends Model
     protected $table = 'appointment_nurse';
     protected $primaryKey = 'id';
     protected $fillable = [
+        'transaction_id',
+        'klinik_id',
         'schedule_id',
         'service_id',
         'user_id',
