@@ -72,7 +72,7 @@ class SynapsaLogic
         }
         else if ($payment->service == 'xendit' && in_array($payment->type_payment, ['ew_ovo', 'ew_dana', 'ew_linkaja'])) {
             $getData = (object)$this->sendPayment($payment, $additional);
-            var_dump($getData);
+            var_dump($getData, $additional);
 
             if (isset($getData->result->ewallet_type) && in_array($getData->result->ewallet_type, ['OVO', 'DANA']) || $getData->result->status == 'REQUEST_RECEIVED') {
                 $success = 1;
