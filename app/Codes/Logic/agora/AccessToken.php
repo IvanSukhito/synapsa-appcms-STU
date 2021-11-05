@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Codes\Logic\agora;
+
 class Message
 {
     public $salt;
@@ -9,7 +11,7 @@ class Message
     {
         $this->salt = rand(0, 100000);
 
-        $date = new DateTime("now", new DateTimeZone('UTC'));
+        $date = new \DateTime("now", new \DateTimeZone('Asia/Jakarta'));
         $this->ts = $date->getTimestamp() + 24 * 3600;
 
         $this->privileges = array();
