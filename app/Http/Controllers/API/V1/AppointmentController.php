@@ -766,7 +766,7 @@ class AppointmentController extends Controller
             $getFcmTokenPatient = $getPatient->getDeviceToken()->pluck('token')->toArray();
         }
 
-        $getTimeMeeting = intval($this->setting['time-onlint-meeting']) ?? 30;
+        $getTimeMeeting = intval($this->setting['time-online-meeting']) ?? 30;
 
         if ($data->time_start_meeting == null) {
             $data->time_start_meeting = date('Y-m-d H:i:s');
