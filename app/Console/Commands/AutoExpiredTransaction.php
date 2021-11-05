@@ -7,14 +7,14 @@ use App\Codes\Logic\SynapsaLogic;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
-class AutoFinishMeeting extends Command
+class AutoExpiredTransaction extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'auto:finishMeeting';
+    protected $signature = 'auto:expiredTransaction';
 
     /**
      * The console command description.
@@ -39,7 +39,7 @@ class AutoFinishMeeting extends Command
     public function handle(): void
     {
         $logic = new SynapsaLogic();
-        $logic->autoCompleteMeeting();
+        $logic->autoExpiredTransaction();
     }
 
 }

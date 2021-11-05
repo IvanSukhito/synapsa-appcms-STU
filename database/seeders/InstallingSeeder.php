@@ -85,6 +85,22 @@ class InstallingSeeder extends Seeder
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
+        DB::table('setting')->insertGetId([
+            'name' => 'Time Online Meeting (Minute)',
+            'key' =>  'time-online-meeting',
+            'value' => '30',
+            'type' => 'number',
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
+        DB::table('setting')->insertGetId([
+            'name' => 'Time Expired Transaction (Day)',
+            'key' =>  'time-expired-transaction',
+            'value' => '1',
+            'type' => 'number',
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
 
     }
 }

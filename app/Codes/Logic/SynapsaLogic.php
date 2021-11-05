@@ -14,6 +14,7 @@ use App\Codes\Models\V1\LabSchedule;
 use App\Codes\Models\V1\LogServiceTransaction;
 use App\Codes\Models\V1\Service;
 use App\Codes\Models\V1\SetJob;
+use App\Codes\Models\V1\Transaction;
 use App\Codes\Models\V1\Users;
 use App\Jobs\ProcessTransaction;
 use Illuminate\Support\Facades\Cache;
@@ -466,10 +467,23 @@ class SynapsaLogic
         $setting = Cache::remember('settings', env('SESSION_LIFETIME'), function () {
             return Settings::pluck('value', 'key')->toArray();
         });
-        $getTimeMeeting = intval($setting['time-onlint-meeting']) ?? 30;
+        $getTimeMeeting = intval($setting['time-online-meeting']) ?? 30;
         $timeFinish = date('Y-m-d H:i:s', (strtotime("now") - (60*$getTimeMeeting)));
         AppointmentDoctor::where('time_start_meeting', '<', $timeFinish)->update([
             'online_meeting' => 80
+        ]);
+        return 1;
+    }
+
+    public function autoExpiredTransaction()
+    {
+        $setting = Cache::remember('settings', env('SESSION_LIFETIME'), function () {
+            return Settings::pluck('value', 'key')->toArray();
+        });
+        $getExpiredTransaction = intval($setting['time-expired-transaction']) ?? 1;
+        $timeFinish = date('Y-m-d H:i:s', strtotime("-$getExpiredTransaction day"));
+        Transaction::where('status', 2)->where('created_at', '<', $timeFinish)->update([
+            'status' => 99
         ]);
         return 1;
     }
