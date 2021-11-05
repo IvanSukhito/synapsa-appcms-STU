@@ -26,7 +26,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('notification:push')->everyMinute();
         $schedule->command('auto:finishMeeting')->everyThirtyMinutes();
-        $schedule->command('auto:expiredTransaction')->everyTwoHours();
+        $schedule->command('auto:expiredTransaction')->hourly();
     }
 
     /**
