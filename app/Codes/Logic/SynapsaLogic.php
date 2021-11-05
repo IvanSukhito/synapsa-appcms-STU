@@ -351,6 +351,7 @@ class SynapsaLogic
 
         if ($flag) {
             AppointmentDoctor::create([
+                'transaction_id' => $getTransaction->id,
                 'klinik_id' => $getTransaction->klinik_id,
                 'schedule_id' => $getSchedule->id,
                 'service_id' => $getSchedule->service_id,
@@ -394,6 +395,7 @@ class SynapsaLogic
             DB::beginTransaction();
 
             $getAppointmentLab = AppointmentLab::create([
+                'transaction_id' => $getTransaction->id,
                 'klinik_id' => $getTransaction->klinik_id,
                 'schedule_id' => $getSchedule->id,
                 'service_id' => $getSchedule->service_id,
@@ -437,6 +439,8 @@ class SynapsaLogic
             DB::beginTransaction();
 
             $getAppointmentNurse = AppointmentNurse::create([
+                'transaction_id' => $getTransaction->id,
+                'klinik_id' => $getTransaction->klinik_id,
                 'schedule_id' => $getNurse->id,
                 'service_id' => 0,
                 'user_id' => $getTransaction->user_id,
