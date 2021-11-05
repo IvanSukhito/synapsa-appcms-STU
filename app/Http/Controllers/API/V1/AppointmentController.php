@@ -779,6 +779,12 @@ class AppointmentController extends Controller
             $timeStopMeeting = date('H:i:s', strtotime($data->time_start_meeting) + (60*$getTimeMeeting));
         }
 
+        $getVideo = json_decode($data->video_link, true);
+        $agoraId = $getVideo['id'] ?? '';
+        $agoraChannel = $getVideo['channel'] ?? '';
+        $agoraUid = $getVideo['uid'] ?? '';
+        $agoraToken = $getVideo['token'] ?? '';
+
         return response()->json([
             'success' => 1,
             'data' => [
@@ -789,8 +795,10 @@ class AppointmentController extends Controller
                 'time_stop_meeting' => $timeStopMeeting,
                 'time_start' => $data->time_start,
                 'time_end' => $data->time_end,
-                'app_id' => env('AGORA_APP_ID'),
-                'channel' => $data->video_link,
+                'video_app_id' => $agoraId,
+                'video_channel' => $agoraChannel,
+                'video_uid' => $agoraUid,
+                'video_token' => $agoraToken,
                 'fcm_token' => $getFcmTokenPatient
             ],
             'message' => ['Sukses'],

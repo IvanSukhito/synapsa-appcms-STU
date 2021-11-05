@@ -28,7 +28,7 @@ class CreateAppointmentDoctorTable extends Migration
             $table->string('patient_name')->nullable();
             $table->string('patient_email')->nullable();
             $table->string('doctor_name')->nullable();
-            $table->string('video_link')->nullable();
+            $table->longText('video_link')->nullable();
             $table->longText('form_patient')->nullable();
             $table->text('diagnosis')->nullable();
             $table->text('treatment')->nullable();

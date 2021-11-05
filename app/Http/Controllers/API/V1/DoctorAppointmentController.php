@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API\V1;
 
+use App\Codes\Logic\agoraLogic;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\AppointmentDoctor;
 use App\Codes\Models\V1\AppointmentDoctorProduct;
@@ -207,6 +208,27 @@ class DoctorAppointmentController extends Controller
         }
 
         $data->online_meeting = 2;
+        if (strlen($data->video_link) <= 10) {
+            $agoraLogic = new agoraLogic();
+            $agoraChannel = $data->doctor_id.$data->user_id.'tele'.md5($data->date.$data->time_start .$data->time_end.$data->doctor_id.$data->user_id.rand(0,100));
+            $agoraUid = ($data->doctor_id*1000000) . ($data->user_id * 1000000);
+            $agoraToken = $agoraLogic->createRtcToken($agoraChannel, $agoraUid);
+            $agoraId = $agoraLogic->getAppId();
+            $data->video_link = json_encode([
+                'id' => $agoraId,
+                'channel' => $agoraChannel,
+                'uid' => $agoraUid,
+                'token' => $agoraToken
+            ]);
+        }
+        else {
+            $getVideo = json_decode($data->video_link, true);
+            $agoraId = $getVideo['id'] ?? '';
+            $agoraChannel = $getVideo['channel'] ?? '';
+            $agoraUid = $getVideo['uid'] ?? '';
+            $agoraToken = $getVideo['token'] ?? '';
+        }
+
         $data->save();
 
         $getPatient = Users::where('id', $data->user_id)->first();
@@ -223,8 +245,10 @@ class DoctorAppointmentController extends Controller
                 'time_server' => date('H:i:s'),
                 'time_start' => $data->time_start,
                 'time_end' => $data->time_end,
-                'app_id' => env('AGORA_APP_ID'),
-                'channel' => $data->video_link,
+                'video_app_id' => $agoraId,
+                'video_channel' => $agoraChannel,
+                'video_uid' => $agoraUid,
+                'video_token' => $agoraToken,
                 'fcm_token' => $getFcmTokenPatient,
             ],
             'message' => ['Sukses'],
@@ -318,7 +342,7 @@ class DoctorAppointmentController extends Controller
 
         $getService = Service::where('id', $data->service_id)->first();
         if ($getService && $getService->type == 1) {
-            $data->video_link = $data->doctor_id.$data->user_id.'tele'.md5($data->date.$data->time_start .$data->time_end.$data->doctor_id.$data->user_id.rand(0,100));
+            $data->video_link = '';
             $data->online_meeting = 1;
             $data->status = 3;
         }
