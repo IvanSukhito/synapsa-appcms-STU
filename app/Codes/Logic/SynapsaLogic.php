@@ -34,59 +34,108 @@ class SynapsaLogic
         $getInfo = [];
         if ($payment->service == 'xendit' && substr($payment->type_payment, 0, 3) == 'va_') {
             $getData = (object)$this->sendPayment($payment, $additional);
-            if ($getData->result->status == 'PENDING') {
-                $success = 1;
-                $getInfoVa = json_decode($payment->settings, true);
-                $getInfo['price'] = $additional['total'];
-                $getInfo['price_nice'] = number_format($additional['total'], 0, ',', '.');
-                $getInfo['va_number'] = $getData->result->account_number;
-                $getInfo['va_name'] = $payment->name;
-                $getInfo['va_payment_image'] = $payment->icon_img_full;
-                $getInfo['va_user'] = $getData->result->account_number;
-                $getInfo['va_info'] = $getInfoVa;
-                $preferId = isset($getData->result->external_id) ? $getData->result->external_id : '';
+            if ($getData->success == 1) {
+                if ($getData->result->status == 'PENDING') {
+                    $success = 1;
+                    $getInfoVa = json_decode($payment->settings, true);
+                    $getInfo['price'] = $additional['total'];
+                    $getInfo['price_nice'] = number_format($additional['total'], 0, ',', '.');
+                    $getInfo['va_number'] = $getData->result->account_number;
+                    $getInfo['va_name'] = $payment->name;
+                    $getInfo['va_payment_image'] = $payment->icon_img_full;
+                    $getInfo['va_user'] = $getData->result->account_number;
+                    $getInfo['va_info'] = $getInfoVa;
+                    $preferId = isset($getData->result->external_id) ? $getData->result->external_id : '';
 
-                if ($flag == 0) {
-                    $getTypeService = $additional['job']['type_service'];
-                    $getType = check_list_type_transaction($getTypeService);
+                    if ($flag == 0) {
+                        $getTypeService = $additional['job']['type_service'];
+                        $getType = check_list_type_transaction($getTypeService);
 
-                    $getJobData = $additional['job'];
-                    $getJobData['payment_refer_id'] = $getData->result->external_id;
-                    $getJobData['type'] = $getType;
-                    $getJobData['payment_info'] = json_encode($getInfo);
-                    $getJobData['additional'] = json_encode($additional);
+                        $getJobData = $additional['job'];
+                        $getJobData['payment_refer_id'] = $getData->result->external_id;
+                        $getJobData['type'] = $getType;
+                        $getJobData['payment_info'] = json_encode($getInfo);
+                        $getJobData['additional'] = json_encode($additional);
 
-                    $job = SetJob::create([
-                        'status' => 1,
-                        'params' => json_encode($getJobData)
-                    ]);
+                        $job = SetJob::create([
+                            'status' => 1,
+                            'params' => json_encode($getJobData)
+                        ]);
 
-                    dispatch((new ProcessTransaction($job->id))->onQueue('high'));
+                        dispatch((new ProcessTransaction($job->id))->onQueue('high'));
 
+                    }
+
+                } else {
+                    $message = $getData->result->message;
                 }
-
             }
             else {
-                $message = $getData->result->message;
+                $message = $getData->message;
             }
         }
         else if ($payment->service == 'xendit' && in_array($payment->type_payment, ['ew_ovo', 'ew_dana', 'ew_linkaja'])) {
             $getData = (object)$this->sendPayment($payment, $additional);
-            var_dump($getData, $additional);
+            if ($getData->success == 1) {
+                if (isset($getData->result->ewallet_type) && in_array($getData->result->ewallet_type, ['OVO', 'DANA']) || $getData->result->status == 'REQUEST_RECEIVED') {
+                    $success = 1;
+                    $getInfoWallet = json_decode($payment->settings, true);
+                    $getInfo['price'] = $additional['total'];
+                    $getInfo['price_nice'] = number_format($additional['total'], 0, ',', '.');
+                    $getInfo['business_id'] = $getData->result->business_id ?? '';
+                    $getInfo['ewallet_type'] = $getData->result->ewallet_type ?? '';
+                    $getInfo['phone'] = $getData->result->phone ?? '';
+                    $getInfo['checkout_url'] = $getData->result->checkout_url ?? '';
+                    $getInfo['ewallet_name'] = $payment->name;
+                    $getInfo['ewallet_payment_image'] = $payment->icon_img_full;
+                    $getInfo['ewallet_info'] = $getInfoWallet;
+                    $getInfo['ewallet_return'] = $getData->result;
+                    $preferId = isset($getData->result->external_id) ? $getData->result->external_id : '';
 
-            if (isset($getData->result->ewallet_type) && in_array($getData->result->ewallet_type, ['OVO', 'DANA']) || $getData->result->status == 'REQUEST_RECEIVED') {
+                    if ($flag == 0) {
+                        $getTypeService = $additional['job']['type_service'];
+                        $getType = check_list_type_transaction($getTypeService);
+
+                        $getJobData = $additional['job'];
+                        $getJobData['payment_refer_id'] = isset($getData->result->external_id) ? $getData->result->external_id : '';
+                        $getJobData['type'] = $getType;
+                        $getJobData['payment_info'] = json_encode($getInfo);
+                        $getJobData['additional'] = json_encode($additional);
+
+                        $job = SetJob::create([
+                            'status' => 1,
+                            'params' => json_encode($getJobData)
+                        ]);
+
+                        dispatch((new ProcessTransaction($job->id))->onQueue('high'));
+                    }
+
+                }
+                else {
+                    $message = $getData->result->message;
+                }
+            }
+            else {
+                $message = $getData->message;
+            }
+        }
+        else if ($payment->service == 'xendit' && in_array($payment->type_payment, ['qr_qris'])) {
+            $getData = (object)$this->sendPayment($payment, $additional);
+
+            if ($getData->success == 1) {
                 $success = 1;
-                $getInfoWallet = json_decode($payment->settings, true);
+                $getResultQris = $getData->result;
+                $getInfoQris = json_decode($payment->settings, true);
                 $getInfo['price'] = $additional['total'];
                 $getInfo['price_nice'] = number_format($additional['total'], 0, ',', '.');
-                $getInfo['business_id'] = $getData->result->business_id ?? '';
-                $getInfo['ewallet_type'] = $getData->result->ewallet_type ?? '';
-                $getInfo['phone'] = $getData->result->phone ?? '';
-                $getInfo['checkout_url'] = $getData->result->checkout_url ?? '';
-                $getInfo['ewallet_name'] = $payment->name;
-                $getInfo['ewallet_payment_image'] = $payment->icon_img_full;
-                $getInfo['ewallet_info'] = $getInfoWallet;
-                $getInfo['ewallet_return'] = $getData->result;
+                $getInfo['id'] = $getData->result->id;
+                $getInfo['external_id'] = $getData->result->external_id;
+                $getInfo['qr_string'] = $getData->result->qr_string;
+                $getInfo['callback_url'] = $getData->result->callback_url;
+                $getInfo['qris_name'] = $payment->name;
+                $getInfo['qris_payment_image'] = $payment->icon_img_full;
+                $getInfo['qris_info'] = $getInfoQris;
+                $getInfo['qris_result'] = $getResultQris;
                 $preferId = isset($getData->result->external_id) ? $getData->result->external_id : '';
 
                 if ($flag == 0) {
@@ -96,7 +145,6 @@ class SynapsaLogic
                     $getJobData = $additional['job'];
                     $getJobData['payment_refer_id'] = isset($getData->result->external_id) ? $getData->result->external_id : '';
                     $getJobData['type'] = $getType;
-                    $getJobData['payment_info'] = json_encode($getInfo);
                     $getJobData['additional'] = json_encode($additional);
 
                     $job = SetJob::create([
@@ -106,45 +154,9 @@ class SynapsaLogic
 
                     dispatch((new ProcessTransaction($job->id))->onQueue('high'));
                 }
-
             }
             else {
-                $message = $getData->result->message;
-            }
-        }
-        else if ($payment->service == 'xendit' && in_array($payment->type_payment, ['qr_qris'])) {
-            $getData = (object)$this->sendPayment($payment, $additional);
-
-            $success = 1;
-            $getResultQris = $getData->result;
-            $getInfoQris = json_decode($payment->settings, true);
-            $getInfo['price'] = $additional['total'];
-            $getInfo['price_nice'] = number_format($additional['total'], 0, ',', '.');
-            $getInfo['id'] = $getData->result->id;
-            $getInfo['external_id'] = $getData->result->external_id;
-            $getInfo['qr_string'] = $getData->result->qr_string;
-            $getInfo['callback_url'] = $getData->result->callback_url;
-            $getInfo['qris_name'] = $payment->name;
-            $getInfo['qris_payment_image'] = $payment->icon_img_full;
-            $getInfo['qris_info'] = $getInfoQris;
-            $getInfo['qris_result'] = $getResultQris;
-            $preferId = isset($getData->result->external_id) ? $getData->result->external_id : '';
-
-            if ($flag == 0) {
-                $getTypeService = $additional['job']['type_service'];
-                $getType = check_list_type_transaction($getTypeService);
-
-                $getJobData = $additional['job'];
-                $getJobData['payment_refer_id'] = isset($getData->result->external_id) ? $getData->result->external_id : '';
-                $getJobData['type'] = $getType;
-                $getJobData['additional'] = json_encode($additional);
-
-                $job = SetJob::create([
-                    'status' => 1,
-                    'params' => json_encode($getJobData)
-                ]);
-
-                dispatch((new ProcessTransaction($job->id))->onQueue('high'));
+                $message = $getData->message;
             }
 
         }
