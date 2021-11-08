@@ -209,6 +209,7 @@ class DoctorAppointmentController extends Controller
         }
 
         $data->online_meeting = 2;
+        $data->time_start_meeting = null;
         $agoraLogic = new agoraLogic();
         if (strlen($data->video_link) <= 10) {
             $agoraChannel = $user->id.$data->user_id.'tele'.md5($data->date.$data->time_start .$data->time_end.$data->doctor_id.$data->user_id.rand(0,100));
