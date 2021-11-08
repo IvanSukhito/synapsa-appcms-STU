@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Ramsey\Uuid\Uuid;
 
 class DoctorAppointmentController extends Controller
 {
@@ -208,25 +209,42 @@ class DoctorAppointmentController extends Controller
         }
 
         $data->online_meeting = 2;
+        $agoraLogic = new agoraLogic();
         if (strlen($data->video_link) <= 10) {
-            $agoraLogic = new agoraLogic();
-            $agoraChannel = $data->doctor_id.$data->user_id.'tele'.md5($data->date.$data->time_start .$data->time_end.$data->doctor_id.$data->user_id.rand(0,100));
-            $agoraUid = ($data->doctor_id*1000000) . ($data->user_id * 1000000);
-            $agoraToken = $agoraLogic->createRtcToken($agoraChannel, $agoraUid);
+            $agoraChannel = $user->id.$data->user_id.'tele'.md5($data->date.$data->time_start .$data->time_end.$data->doctor_id.$data->user_id.rand(0,100));
+            $agoraUidDokter = Uuid::uuid4();
+            $agoraUidPasien = Uuid::uuid4();
+            $agoraTokenDokter = $agoraLogic->createRtcToken($agoraChannel, $agoraUidDokter);
+            $agoraTokenPasien = $agoraLogic->createRtcToken($agoraChannel, $agoraUidPasien);
             $agoraId = $agoraLogic->getAppId();
             $data->video_link = json_encode([
                 'id' => $agoraId,
                 'channel' => $agoraChannel,
-                'uid' => $agoraUid,
-                'token' => $agoraToken
+                'uid_dokter' => $agoraUidDokter,
+                'uid_pasien' => $agoraUidPasien,
+                'token_dokter' => $agoraTokenDokter,
+                'token_pasien' => $agoraTokenPasien
             ]);
         }
         else {
             $getVideo = json_decode($data->video_link, true);
             $agoraId = $getVideo['id'] ?? '';
             $agoraChannel = $getVideo['channel'] ?? '';
-            $agoraUid = $getVideo['uid'] ?? '';
-            $agoraToken = $getVideo['token'] ?? '';
+            $agoraUidDokter = $getVideo['uid_dokter'] ?? '';
+            $agoraUidPasien = $getVideo['uid_pasien'] ?? '';
+
+            $agoraTokenDokter = $agoraLogic->createRtcToken($agoraChannel, $agoraUidDokter);
+            $agoraTokenPasien = $agoraLogic->createRtcToken($agoraChannel, $agoraUidPasien);
+
+            $data->video_link = json_encode([
+                'id' => $agoraId,
+                'channel' => $agoraChannel,
+                'uid_dokter' => $agoraUidDokter,
+                'uid_pasien' => $agoraUidPasien,
+                'token_dokter' => $agoraTokenDokter,
+                'token_pasien' => $agoraTokenPasien
+            ]);
+
         }
 
         $data->save();
@@ -247,8 +265,8 @@ class DoctorAppointmentController extends Controller
                 'time_end' => $data->time_end,
                 'video_app_id' => $agoraId,
                 'video_channel' => $agoraChannel,
-                'video_uid' => $agoraUid,
-                'video_token' => $agoraToken,
+                'video_uid' => $agoraUidDokter,
+                'video_token' => $agoraTokenDokter,
                 'fcm_token' => $getFcmTokenPatient,
             ],
             'message' => ['Sukses'],

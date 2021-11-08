@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Ramsey\Uuid\Uuid;
 
 Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function () use ($router) {
 
@@ -137,6 +138,6 @@ Route::get('/findDistrict', ['uses' => 'App\Http\Controllers\Admin\GeneralContro
 Route::get('/findSubDistrict', ['uses' => 'App\Http\Controllers\Admin\GeneralController@findSubDistrict'])->name('admin.findSubDistrict');
 Route::get('/findProductSynapsa', ['uses' => 'App\Http\Controllers\Admin\GeneralController@findProductSynapsa'])->name('admin.findProductSynapsa');
 
-//Route::get('/', function () {
+//Route::get('test', function () {
 //    return view('welcome');
 //});

@@ -782,8 +782,8 @@ class AppointmentController extends Controller
         $getVideo = json_decode($data->video_link, true);
         $agoraId = $getVideo['id'] ?? '';
         $agoraChannel = $getVideo['channel'] ?? '';
-        $agoraUid = $getVideo['uid'] ?? '';
-        $agoraToken = $getVideo['token'] ?? '';
+        $agoraUid = $getVideo['uid_pasien'] ?? '';
+        $agoraToken = $getVideo['token_pasien'] ?? '';
 
         return response()->json([
             'success' => 1,
