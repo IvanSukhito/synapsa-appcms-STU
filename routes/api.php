@@ -121,6 +121,7 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
 
        $router->get('/', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@index'])->name('api.appointment.index');
        $router->get('{id}', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@detail'])->name('api.appointment.detail');
+       $router->get('{id}/download/{filename}', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@download'])->name('api.appointment.download');
        $router->post('{id}', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@fillForm'])->name('api.appointment.fillForm');
        $router->get('{id}/reschedule', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@reschedule'])->name('api.appointment.reschedule');
        $router->post('{id}/reschedule', ['uses' => 'App\Http\Controllers\API\V1\AppointmentController@updateSchedule'])->name('api.appointment.updateSchedule');

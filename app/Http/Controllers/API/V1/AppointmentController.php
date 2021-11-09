@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API\V1;
 
+use App\Codes\Logic\generateLogic;
 use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\AppointmentDoctor;
@@ -336,6 +337,19 @@ class AppointmentController extends Controller
             'message' => ['Type Janji Temu Tidak Ditemukan'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ], 404);
+
+    }
+
+    public function download($id, $filename)
+    {
+        $data = AppointmentDoctor::where('id', $id)->first();
+        if ($data && $data->status == 80) {
+            $generateLogic = new generateLogic();
+            $generateLogic->generatePdfDiagnosa($data, $filename);
+            exit;
+        }
+
+        return '';
 
     }
 
