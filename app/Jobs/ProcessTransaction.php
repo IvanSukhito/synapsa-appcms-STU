@@ -259,17 +259,12 @@ class ProcessTransaction implements ShouldQueue
         $getShippingPrice = 15000;
 
         $total = 0;
-        $getUsersCartDetails = Product::selectRaw('appointment_doctor_product.id, product.id as product_id, product.name, product.image,
+        $getUsersCartDetails = AppointmentDoctorProduct::selectRaw('appointment_doctor_product.id, product.id as product_id, product.name, product.image,
             product.price, product.unit, appointment_doctor_product.product_qty as product_qty, product_qty_checkout, appointment_doctor_product.choose')
-            ->join('appointment_doctor_product', 'appointment_doctor_product.product_id', '=', 'product.id')
-            ->where('appointment_doctor_product.appointment_doctor_id', '=', $getAppointmentDoctorId)->where('choose', 1)
+            ->join('product', 'appointment_doctor_product.product_id', '=', 'product.id')
+            ->where('appointment_doctor_product.appointment_doctor_id', '=', $getAppointmentDoctorId)
+            ->where('choose', '=', 1)
             ->get();
-
-        foreach ($getUsersCartDetails as $list) {
-            $total += $list->price;
-        }
-
-        $total += $getShippingPrice;
 
         $newCode = date('Ym').$getNewCode;
 
@@ -283,12 +278,14 @@ class ProcessTransaction implements ShouldQueue
         $getProductIds = [];
         foreach ($getUsersCartDetails as $list) {
 
+            $list->product_qty -= $list->product_qty_checkout;
+            $list->save();
+
             $totalQty += $list->product_qty_checkout;
 
             $subTotal += ($list->product_qty_checkout * $list->price);
 
             $productQty[] = $list->product_qty_checkout;
-
             $getProductIds[] = $list->product_id;
 
             $transactionDetails[] = new TransactionDetails([
