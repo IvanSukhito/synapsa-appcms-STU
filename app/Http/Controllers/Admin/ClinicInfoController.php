@@ -32,15 +32,15 @@ class ClinicInfoController extends _CrudController
             ],
             'no_telp' => [
                 'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
+                    'create' => 'required|numeric',
+                    'edit' => 'required|numeric'
                 ],
                 'lang' => 'general.phone'
             ],
             'email' => [
                 'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
+                    'create' => 'required|email',
+                    'edit' => 'required|email'
                 ],
                 'lang' => 'general.email'
             ],
@@ -120,7 +120,6 @@ class ClinicInfoController extends _CrudController
     public function update($id)
     {
         $this->callPermission();
-        $id = session()->get('admin_id');
 
         $viewType = 'edit';
 
