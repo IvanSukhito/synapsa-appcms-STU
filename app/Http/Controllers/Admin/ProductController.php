@@ -288,7 +288,7 @@ class ProductController extends _CrudController
             }
         }
 
-        $productStock = $this->request->get('stock');
+        $productStock = 999;
         $productStockFlag = $this->request->file('stock_flag');
         $dokument = $this->request->file('image_full');
         $desc = $this->request->get('desc');
@@ -296,6 +296,7 @@ class ProductController extends _CrudController
 
         if($productStockFlag != 1){
             $productStockFlag = 2;
+            $productStock = $this->request->get('stock');
         }
 
         $descProduct = [];
@@ -304,6 +305,7 @@ class ProductController extends _CrudController
         ['title' => $title,
          'desc' => $desc];
 
+        $dokumentImage = '';
         if ($dokument) {
             if ($dokument->getError() != 1) {
 
@@ -386,7 +388,7 @@ class ProductController extends _CrudController
         $productUnit = $data['unit'];
         $productStatus = $data['status'];
         $productType = $data['type'];
-        $productStock = $this->request->get('stock');
+        $productStock = 999;
         $productStockFlag = $this->request->file('stock_flag');
         $desc = $this->request->get('desc');
         $title = $this->request->get('title');
@@ -397,6 +399,7 @@ class ProductController extends _CrudController
 
         if($productStockFlag != 1){
             $productStockFlag = 2;
+            $productStock = $this->request->get('stock');
         }
 
         $descProduct[]  =
