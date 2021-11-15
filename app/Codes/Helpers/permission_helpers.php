@@ -394,6 +394,7 @@ if ( ! function_exists('listAllMenu')) {
                 'title' => __('general.product'),
                 'active' => [
                     'admin.product.',
+                    'admin.product-clinic.',
                     'admin.product-category.',
                 ],
                 'type' => 2,

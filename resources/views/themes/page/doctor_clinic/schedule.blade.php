@@ -68,7 +68,7 @@
                                             <div class="form-group">
                                                 <label for="service_{!! $list->id !!}">{{ __('general.service') }} <span
                                                         class="text-red">*</span></label>
-                                                {{ Form::select('service_'.$list->id, $listSet['service_id'], $list->service_id, ['id' => 'service_'.$list->id, 'class' => 'form-control', 'required' => true]) }}
+                                                {{ Form::select('service_'.$list->id, $listSet['service'], $list->service_id, ['id' => 'service_'.$list->id, 'class' => 'form-control', 'required' => true]) }}
                                             </div>
                                         </div>
                                         <div class="col-md-3">

@@ -395,10 +395,22 @@ class DoctorClinicController extends _CrudController
 
         $getData = DoctorSchedule::where('date_available', $getTargetDate)->where('doctor_id', $getDoctor->id)->orderBy('id','DESC')->get();
 
+        $getDoctorService = DoctorService::where('doctor_id', $id)->get()->toArray();
+
+        $service_id = [];
+        foreach($getDoctorService as $index => $val){
+            $service_id[] = $val['service_id'];
+        }
+
+        $service = [];
+        foreach(Service::where('status', 80)->whereIn('id', $service_id)->pluck('name', 'id')->toArray() as $key => $val) {
+            $service[$key] = $val;
+        };
+
         $data = $this->data;
         $data['parentLabel'] = $data['thisLabel'];
         $data['thisLabel'] = __('general.doctor_schedule');
-        $data['listSet']['service'] = $this->data['listSet']['service_id'];
+        $data['listSet']['service'] = $service;
         $data['getDoctor'] = $getDoctor;
         $data['getListDate'] = $getListDate;
         $data['getTargetDate'] = $getTargetDate;
