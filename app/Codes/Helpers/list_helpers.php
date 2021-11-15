@@ -323,3 +323,14 @@ if ( ! function_exists('get_list_show_hide')) {
     }
 }
 
+
+if ( ! function_exists('get_list_product_flag')) {
+    function get_list_type_product()
+    {
+        return [
+            0 => __('general.normal'),
+            1 => __('general.obat_keras')
+        ];
+    }
+}
+

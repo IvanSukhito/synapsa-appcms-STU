@@ -55,7 +55,6 @@ class ProductController extends _CrudController
             'image_full' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => ''
                 ],
                 'type' => 'image',
                 'list' => 0,
@@ -82,6 +81,13 @@ class ProductController extends _CrudController
                 'edit' => 0,
                 'show' => 0,
             ],
+            'type' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'type' => 'select',
+            ],
             'status' => [
                 'validate' => [
                     'create' => 'required',
@@ -89,7 +95,6 @@ class ProductController extends _CrudController
                 ],
                 'type' => 'select2',
             ],
-
             'action' => [
                 'create' => 0,
                 'edit' => 0,
@@ -113,6 +118,7 @@ class ProductController extends _CrudController
         $this->data['listSet']['product_category_id'] = $listCategory;
         $this->data['listSet']['status'] = get_list_active_inactive();
         $this->data['listSet']['stock_flag'] = get_list_stock_flag();
+        $this->data['listSet']['type'] = get_list_type_product();
         //$this->listView['index'] = env('ADMIN_TEMPLATE').'.page.product.list';
         $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.product.forms';
         $this->listView['create2'] = env('ADMIN_TEMPLATE').'.page.product.forms2';
@@ -263,9 +269,17 @@ class ProductController extends _CrudController
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
         $validate = $this->setValidateData($getListCollectData, $viewType);
-        if (count($validate) > 0)
-        {
-            $data = $this->validate($this->request, $validate);
+        if (count($validate) > 0) {
+            $request = $this->request;
+
+            if(in_array(null, $this->request->get('title'))) {
+                unset($request['title']);
+            }
+            if(in_array(null, $this->request->get('desc'))) {
+                unset($request['desc']);
+            }
+
+            $data = $this->validate($request, $validate);
         }
         else {
             $data = [];
@@ -274,13 +288,8 @@ class ProductController extends _CrudController
             }
         }
 
-        $productCategoryId = $this->request->get('product_category_id');
-        $productName = $this->request->get('name');
-        $productPrice = clear_money_format($this->request->get('price'));
-        $productUnit = $this->request->get('unit');
         $productStock = $this->request->get('stock');
-        $productStockFlag = $this->request->get('stock_flag');
-        $productStatus = $this->request->get('status');
+        $productStockFlag = $this->request->file('stock_flag');
         $dokument = $this->request->file('image_full');
         $desc = $this->request->get('desc');
         $title = $this->request->get('title');
@@ -288,15 +297,13 @@ class ProductController extends _CrudController
         if($productStockFlag != 1){
             $productStockFlag = 2;
         }
-        else{
-            $productStockFlag = $productStockFlag;
-        }
 
         $descProduct = [];
 
         $descProduct[]  =
         ['title' => $title,
          'desc' => $desc];
+
         if ($dokument) {
             if ($dokument->getError() != 1) {
 
@@ -313,12 +320,13 @@ class ProductController extends _CrudController
         }
 
         $product = new Product();
-        $product->product_category_id = $productCategoryId;
-        $product->name = $productName;
-        $product->price = $productPrice;
-        $product->unit = $productUnit;
+        $product->product_category_id = $data['product_category_id'];
+        $product->name = $data['name'];
+        $product->price = clear_money_format($data['price']);
+        $product->unit = $data['unit'];
         $product->stock = $productStock;
-        $product->status = $productStatus;
+        $product->status = $data['status'];
+        $product->type = $data['type'];
         $product->desc = json_encode($descProduct);
         $product->image = $dokumentImage;
         $product->stock_flag = $productStockFlag;
@@ -354,7 +362,16 @@ class ProductController extends _CrudController
         $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
         {
-            $data = $this->validate($this->request, $validate);
+            $request = $this->request;
+
+            if(in_array(null, $this->request->get('title'))) {
+                unset($request['title']);
+            }
+            if(in_array(null, $this->request->get('desc'))) {
+                unset($request['desc']);
+            }
+
+            $data = $this->validate($request, $validate);
         }
         else {
             $data = [];
@@ -363,61 +380,51 @@ class ProductController extends _CrudController
             }
         }
 
-
-        $productCategoryId = $this->request->get('product_category_id');
-        $productName = $this->request->get('name');
-        $productPrice = clear_money_format($this->request->get('price'));
-        $productUnit = $this->request->get('unit');
+        $productCategoryId = $data['product_category_id'];
+        $productName = $data['name'];
+        $productPrice = clear_money_format($data['price']);
+        $productUnit = $data['unit'];
+        $productStatus = $data['status'];
+        $productType = $data['type'];
         $productStock = $this->request->get('stock');
-        $productStockFlag = $this->request->get('stock_flag');
-        $productStatus = $this->request->get('status');
-        $productInformation = $this->request->get('information');
-        $productIndication = $this->request->get('indication');
-        $productDosis = $this->request->get('dosis');
-        $dokument = $this->request->file('image_full');
-        $title = $this->request->get('title');
+        $productStockFlag = $this->request->file('stock_flag');
         $desc = $this->request->get('desc');
+        $title = $this->request->get('title');
+//        $productInformation = $this->request->get('information');
+//        $productIndication = $this->request->get('indication');
+//        $productDosis = $this->request->get('dosis');
         $descProduct = [];
 
         if($productStockFlag != 1){
             $productStockFlag = 2;
-        }
-        else{
-            $productStockFlag = $productStockFlag;
         }
 
         $descProduct[]  =
         [   'title' => $title,
             'desc' => $desc   ];
 
+        $dokumentImage = $getData->image;
 
-
-
+        $dokument = $this->request->file('image_full');
         if ($dokument) {
             if ($dokument->getError() != 1) {
-
                 $getFileName = $dokument->getClientOriginalName();
                 $ext = explode('.', $getFileName);
                 $ext = end($ext);
                 $destinationPath = 'synapsaapps/product';
                 if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
-
                     $dokumentImage = Storage::putFile($destinationPath, $dokument);
                 }
-
             }
-        }else{
-
-            $dokumentImage= $getData->image;
-
         }
 
-        $product = Product::where('id',$id)->update([
+        Product::where('id',$id)->update([
             'product_category_id' => $productCategoryId,
             'name' => $productName,
             'price' => $productPrice,
             'unit' => $productUnit,
             'stock' => $productStock,
+            'type' => $productType,
             'status' => $productStatus,
             'desc' => json_encode($descProduct),
             'image' => $dokumentImage,
@@ -426,7 +433,7 @@ class ProductController extends _CrudController
 
 
         if($this->request->ajax()){
-            return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
+            return response()->json(['result' => 1, 'message' => __('general.success_edit_', ['field' => $this->data['thisLabel']])]);
         }
         else {
             session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));

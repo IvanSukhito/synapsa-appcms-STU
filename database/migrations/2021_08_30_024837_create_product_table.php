@@ -25,6 +25,7 @@ class CreateProductTable extends Migration
             $table->longText('desc')->nullable();
             $table->integer('stock')->default(0);
             $table->tinyInteger('stock_flag')->default(0);
+            $table->tinyInteger('type')->default(0);
             $table->tinyInteger('status')->default(1);
             $table->tinyInteger('top')->default(0);
             $table->timestamps();
