@@ -10,6 +10,7 @@ use App\Codes\Models\V1\DoctorSchedule;
 use App\Codes\Models\V1\DoctorService;
 use App\Codes\Models\V1\DoctorCategory;
 use App\Codes\Models\V1\LabSchedule;
+use App\Codes\Models\V1\Province;
 use App\Codes\Models\V1\Users;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\DataTables;
@@ -29,10 +30,9 @@ class DoctorClinicController extends _CrudController
                 'show' => 0
             ],
             'user_id' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
+                'create' => 0,
+                'edit' => 0,
+                'show' => 0,
                 'lang' => 'general.name',
                 'type' => 'select2',
             ],
@@ -76,6 +76,92 @@ class DoctorClinicController extends _CrudController
                 'lang' => 'Aksi',
             ]
         ];
+        $this->passingUser = generatePassingData([
+            'fullname' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ]
+            ],
+            'address' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'type' => 'texteditor',
+                'list' => 0,
+                'create' => 0,
+            ],
+            'address_detail' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'type' => 'texteditor',
+                'list' => 0,
+                'create' => 0,
+            ],
+            'zip_code' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'list' => 0,
+                'create' => 0,
+            ],
+            'dob' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'type' => 'datepicker',
+                'list' => 0,
+            ],
+            'gender' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'type' => 'select',
+                'list' => 0
+            ],
+            'nik' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'list' => 0,
+            ],
+            'upload_ktp_full' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'type' => 'image',
+                'lang' => 'ktp',
+                'list' => 0,
+            ],
+            'phone' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+            ],
+            'email' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'type' => 'email',
+            ],
+            'status' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'type' => 'select',
+            ]
+        ]);
 
 
         parent::__construct(
@@ -119,8 +205,28 @@ class DoctorClinicController extends _CrudController
         $this->data['listSet']['user_id'] = $listUsers;
         $this->data['listSet']['service_id'] = $service_id;
         $this->data['listSet']['doctor_category_id'] = $listDoctorCategory;
+        $this->data['listSet']['gender'] = get_list_gender();
+        $this->data['listSet']['status'] = get_list_active_inactive();
         $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.doctor_clinic.list_button';
 
+    }
+
+    public function create()
+    {
+        $this->callPermission();
+
+        $data = $this->data;
+        $getProvince = Province::get();
+
+
+        $data['viewType'] = 'create';
+        $data['formsTitle'] = __('general.title_create', ['field' => $data['thisLabel']]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['passing1'] = collectPassingData($this->passingUser, $data['viewType']);
+        $data['province'] = $getProvince;
+
+
+        return view($this->listView[$data['viewType']], $data);
     }
 
     public function dataTable()
@@ -219,9 +325,51 @@ class DoctorClinicController extends _CrudController
         $viewType = 'create';
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
+        $getListCollectData2 = collectPassingData($this->passingUser, $viewType);
 
         unset($getListCollectData['service_id']);
 
+        //validate data1
+        $validate = $this->setValidateData($getListCollectData2, $viewType);
+        if (count($validate) > 0)
+        {
+            $data2 = $this->validate($this->request, $validate);
+        }
+
+        unset($data2['upload_ktp_full']);
+
+        $dokument = $this->request->file('upload_ktp_full');
+        if ($dokument) {
+            if ($dokument->getError() != 1) {
+
+                $getFileName = $dokument->getClientOriginalName();
+                $ext = explode('.', $getFileName);
+                $ext = end($ext);
+                $destinationPath = 'synapsaapps/users';
+                if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
+                    $dokumentImage = Storage::putFile($destinationPath, $dokument);
+                }
+            }
+        }
+
+        $data2['klinik_id'] = session()->get('admin_clinic_id');
+        $data2['province_id'] = $this->request->get('province_id');
+        $data2['city_id'] = $this->request->get('city_id');
+        $data2['district_id'] = $this->request->get('district_id');
+        $data2['sub_district_id'] = $this->request->get('sub_district_id');
+        $data2['zip_code'] = $this->request->get('zip_code');
+        $data2['address'] = $this->request->get('address');
+        $data2['address_detail'] = $this->request->get('address_detail');
+        $data2['upload_ktp'] = $dokumentImage;
+        $data2['password'] = bcrypt('123');
+        $data2['doctor'] = 1;
+
+        //dd($data2);
+        if($data2){
+            $user = Users::create($data2);
+        }
+
+        //validate dataServive
         $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
         {
@@ -236,8 +384,9 @@ class DoctorClinicController extends _CrudController
 
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
-        $getData = $this->crud->store($data);
+        $data['user_id'] = $user->id;
 
+        $getData = $this->crud->store($data);
         $serviceId = $this->request->get('service_id');
         $price = clear_money_format($this->request->get('price'));
 

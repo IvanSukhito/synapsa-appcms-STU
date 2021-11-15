@@ -253,6 +253,8 @@ class ProductController extends _CrudController
     public function store(){
         $this->callPermission();
 
+        //dd($this->request);
+
         $adminId = session()->get('admin_id');
         $getData = Users::where('id', $adminId)->first();
         if (!$getData) {

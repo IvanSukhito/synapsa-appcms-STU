@@ -120,7 +120,6 @@ class ClinicInfoController extends _CrudController
     public function update($id)
     {
         $this->callPermission();
-        $id = session()->get('admin_id');
 
         $viewType = 'edit';
 

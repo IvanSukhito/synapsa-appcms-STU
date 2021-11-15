@@ -11,6 +11,7 @@ class Users extends Model implements JWTSubject
     protected $primaryKey = 'id';
     protected $fillable = [
         'klinik_id',
+        'province_id',
         'city_id',
         'district_id',
         'sub_district_id',
@@ -33,7 +34,8 @@ class Users extends Model implements JWTSubject
         'doctor',
         'nurse',
         'verification_phone',
-        'verification_email'
+        'verification_email',
+        'status'
     ];
 
     protected $hidden = ['password'];
