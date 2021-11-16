@@ -152,9 +152,9 @@ else {
             });
             });
 
-            if(stock <= '0') {
+            if(stock <= '0' || stock === '999') {
                 $('#unlimitedCheck').prop('checked', true);
-                $('#stock').val('0');
+                $('#stock').val('Unlimited');
                 $('#stock').prop('readonly', true);
             }
 
@@ -163,7 +163,7 @@ else {
         $('#unlimitedCheck').change(function() {
             if($('#unlimitedCheck').prop('checked') === true) {
                 $('#unlimitedCheck').val('1');
-                $('#stock').val('0');
+                $('#stock').val('Unlimited');
                 $('#stock').prop('readonly', true);
             }
             else {
