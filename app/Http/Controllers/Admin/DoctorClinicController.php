@@ -958,7 +958,7 @@ class DoctorClinicController extends _CrudController
 
         if($this->request->get('download_example_import')) {
             $getLogic = new SynapsaLogic();
-            $getLogic->downloadExampleImportDoctorSchedule();
+            $getLogic->downloadExampleImportDoctorClinicSchedule();
         }
 
         $data = $this->data;

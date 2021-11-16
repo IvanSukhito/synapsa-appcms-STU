@@ -512,6 +512,17 @@ class SynapsaLogic
         exit;
     }
 
+    public function downloadExampleImportDoctor() {
+        $file = env('OSS_URL') . '/' . 'synapsaapps/doctor/example_import/7dQ5GOyQhnYnODwj1TaPeY5u3hpCs142emXKLzH8.xlsx';
+        $fileName = create_slugs('Example Import Doctor Clinic');
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="'.$fileName.'.xlsx"');
+        header('Cache-Control: max-age=0');
+        header('Cache-Control: max-age=1');
+        readfile($file);
+        exit;
+    }
     public function downloadExampleImportLabSchedule() {
         $file = env('OSS_URL') . '/' . 'synapsaapps/lab-schedule/example_import/rqTH6V46UlU725sIwxslokh7G5XdUiDCXW7YIYA2.xlsx';
         $fileName = create_slugs('Example Import Lab Schedule');
@@ -525,6 +536,18 @@ class SynapsaLogic
     }
 
     public function downloadExampleImportDoctorSchedule() {
+        $file = env('OSS_URL') . '/' . 'synapsaapps/doctor-schedule/example_import/hvhhdk8v9YonKkZKiBbp5v2okaOf9fxT2VeygitQ.xlsx';
+        $fileName = create_slugs('Example Import Doctor Schedule');
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="'.$fileName.'.xlsx"');
+        header('Cache-Control: max-age=0');
+        header('Cache-Control: max-age=1');
+        readfile($file);
+        exit;
+    }
+
+    public function downloadExampleImportDoctorClinicSchedule() {
         $file = env('OSS_URL') . '/' . 'synapsaapps/doctor-schedule/example_import/kPG7tGSa4TXQyadj1JBGgLyvIPNbDYJ2w3LQMq1F.xlsx';
         $fileName = create_slugs('Example Import Doctor Schedule');
 
