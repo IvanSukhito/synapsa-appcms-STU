@@ -766,7 +766,7 @@ class DoctorClinicController extends _CrudController
 
         if($this->request->get('download_example_import')) {
             $getLogic = new SynapsaLogic();
-            $getLogic->downloadExampleImportDoctor();
+            $getLogic->downloadExampleImportDoctorClinic();
         }
 
         $data = $this->data;
@@ -816,7 +816,7 @@ class DoctorClinicController extends _CrudController
         $getFile = $this->request->file('import_doctor');
 
         if($getFile) {
-//            $destinationPath = 'synapsaapps/doctor/example_import';
+//            $destinationPath = 'synapsaapps/doctor-clinic/example_import';
 //
 //            $getUrl = Storage::put($destinationPath, $getFile);
 //

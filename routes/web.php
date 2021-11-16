@@ -41,7 +41,6 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                 'App\Http\Controllers\Admin\LabClinicController' => 'lab-clinic',
                 'App\Http\Controllers\Admin\LabClinicScheduleController' => 'lab-clinic-schedule',
                 'App\Http\Controllers\Admin\UsersController' => 'users',
-                'App\Http\Controllers\Admin\UsersDoctorController' => 'users-doctor',
                 'App\Http\Controllers\Admin\UsersPatientController' => 'users-patient',
                 'App\Http\Controllers\Admin\DoctorController' => 'doctor',
                 'App\Http\Controllers\Admin\DoctorScheduleController' => 'doctor-schedule',
