@@ -362,10 +362,29 @@ if ( ! function_exists('listAllMenu')) {
                 'name' => __('general.lab'),
                 'icon' => '<i class="nav-icon fa fa-flask"></i>',
                 'title' => __('general.lab'),
-                'active' => ['admin.lab.'],
-                'route' => 'admin.lab.index',
-                'key' => 'lab',
-                'type' => 1,
+                'active' => [
+                    'admin.lab',
+                    'admin.lab-schedule.',
+                ],
+                'type' => 2,
+                'data' => [
+                    [
+                        'name' => __('general.lab'),
+                        'title' => __('general.lab'),
+                        'active' => ['admin.lab.'],
+                        'route' => 'admin.lab.index',
+                        'key' => 'lab',
+                        'type' => 1,
+                    ],
+                    [
+                        'name' => __('general.lab_schedule'),
+                        'title' => __('general.lab_schedule'),
+                        'active' => ['admin.lab-schedule.'],
+                        'route' => 'admin.lab-schedule.index',
+                        'key' => 'lab-schedule',
+                        'type' => 1,
+                    ],
+                ],
             ],
             [
                 'name' => __('general.banner'),
@@ -756,6 +775,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'service',
                      'klinik',
                      'lab-clinic-schedule',
+                     'lab-schedule',
                      'doctor-category',
                      'payment',
                      'shipping',
@@ -798,6 +818,10 @@ if ( ! function_exists('listAvailablePermission'))
         $listPermission['lab-clinic-schedule']['edit'][] = 'admin.lab-clinic-schedule.updateLab';
         $listPermission['lab-clinic-schedule']['create'][] = 'admin.lab-clinic-schedule.create2';
         $listPermission['lab-clinic-schedule']['create'][] = 'admin.lab-clinic-schedule.store2';
+
+        $listPermission['lab-schedule']['edit'][] = 'admin.lab-schedule.updateLab';
+        $listPermission['lab-schedule']['create'][] = 'admin.lab-schedule.create2';
+        $listPermission['lab-schedule']['create'][] = 'admin.lab-schedule.store2';
 
         $listPermission['appointment-lab-homecare']['edit'][] = 'admin.appointment-lab-homecare.approve';
         $listPermission['appointment-lab-homecare']['edit'][] = 'admin.appointment-lab-homecare.reject';
