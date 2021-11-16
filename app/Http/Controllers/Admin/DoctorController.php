@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
+use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Admin;
 use App\Codes\Models\V1\City;
 use App\Codes\Models\V1\District;
@@ -206,6 +207,8 @@ class DoctorController extends _CrudController
         $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.doctor.forms';
         $this->listView['edit'] = env('ADMIN_TEMPLATE').'.page.doctor.forms_edit';
         $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.doctor.forms';
+        $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.doctor.list';
+        $this->listView['create2'] = env('ADMIN_TEMPLATE').'.page.doctor.forms2';
 
         $this->listView['schedule'] = env('ADMIN_TEMPLATE').'.page.doctor.schedule';
 
@@ -326,6 +329,28 @@ class DoctorController extends _CrudController
         $data['doctorService'] = $getDoctorService;
 
         return view($this->listView[$data['viewType']], $data);
+    }
+
+    public function create2(){
+        $this->callPermission();
+
+        if($this->request->get('download_example_import')) {
+            $getLogic = new SynapsaLogic();
+            $getLogic->downloadExampleImportDoctor();
+        }
+
+        $data = $this->data;
+
+        $getData = $this->data;
+
+        $data['thisLabel'] = __('general.doctor');
+        $data['viewType'] = 'create';
+        $data['type'] = 'doctor';
+        $data['formsTitle'] = __('general.title_create', ['field' => __('general.doctor')]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['data'] = $getData;
+
+        return view($this->listView['create2'], $data);
     }
 
     public function store()
@@ -753,6 +778,296 @@ class DoctorController extends _CrudController
         }
         else {
             session()->flash('message', __('general.success_delete_', ['field' => $this->data['thisLabel']]));
+            session()->flash('message_alert', 2);
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.schedule', $id);
+        }
+    }
+
+    public function store2(){
+        $this->callPermission();
+
+        $adminId = session()->get('admin_id');
+        $getAdmin = Admin::where('id', $adminId)->first();
+        if (!$getAdmin) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $this->validate($this->request, [
+            'import_doctor' => 'required',
+        ]);
+
+        //A-N
+        //A = Nomor
+        //B = Nama Klinik
+        //C = Nama Doctor
+        //D = DOB
+        //E = Gender
+        //F = NIK
+        //G = Phone
+        //H = EMAIL
+        //I = Kategori
+        //J = Formal Education
+        //K = Non-Formal Education
+        //L = Telemed
+        //M = Homecare
+        //N = Visit
+        //O = Harga Telemed
+        //P = Harga Homecare
+        //Q = Harga Visit
+        //Start From Row 6
+
+        $getFile = $this->request->file('import_doctor');
+
+        if($getFile) {
+//            $destinationPath = 'synapsaapps/doctor/example_import';
+//
+//            $getUrl = Storage::put($destinationPath, $getFile);
+//
+//            die(env('OSS_URL') . '/' . $getUrl);
+
+            try {
+                $getFileName = $getFile->getClientOriginalName();
+                $ext = explode('.', $getFileName);
+                $ext = end($ext);
+                if (in_array(strtolower($ext), ['xlsx', 'xls'])) {
+                    $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($getFile);
+                    $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader($inputFileType);
+                    $data = $reader->load($getFile);
+
+                    if ($data) {
+                        $spreadsheet = $data->getActiveSheet();
+                        foreach ($spreadsheet->getRowIterator() as $key => $row) {
+                            if($key >= 6) {
+                                $klinikName = $spreadsheet->getCell("B". $key)->getValue();
+                                $fullname = $spreadsheet->getCell("C" . $key)->getValue();
+                                $dob = $spreadsheet->getCell("D". $key)->getValue();
+                                $gender = $spreadsheet->getCell("E". $key)->getValue();
+                                $nik = $spreadsheet->getCell("F". $key)->getValue();
+                                $phone = $spreadsheet->getCell("G". $key)->getValue();
+                                $email = $spreadsheet->getCell("H". $key)->getValue();
+                                $kategori = strtolower(str_replace('','', $spreadsheet->getCell("I" . $key)->getValue()));
+                                $formalEducation = $spreadsheet->getCell("J" . $key)->getValue();
+                                $nonFormalEducation = $spreadsheet->getCell("K" . $key)->getValue();
+                                $telemed = $spreadsheet->getCell("L" . $key)->getValue();
+                                $homecare = $spreadsheet->getCell("M" . $key)->getValue();
+                                $visit = $spreadsheet->getCell("N" . $key)->getValue();
+                                $hargaTelemed = $spreadsheet->getCell("O" . $key)->getValue();
+                                $hargaHomecare = $spreadsheet->getCell("P" . $key)->getValue();
+                                $hargaVisit = $spreadsheet->getCell("Q" . $key)->getValue();
+
+                                $kategoriCheck = DoctorCategory::where('name', $kategori)->first();
+                                if($kategoriCheck) {
+                                    $kategori = $kategoriCheck->id;
+                                }
+                                else {
+                                    if(strlen($kategori) > 0) {
+                                        $saveCategory = [
+                                            'name' => $kategori,
+                                            'status' => 80
+                                        ];
+
+                                        $doctorCategory = DoctorCategory::create($saveCategory);
+                                        $kategori = $doctorCategory->id;
+                                    }
+                                }
+
+                                $getKlinik = Klinik::Where('name', 'LIKE', strip_tags($klinikName))->first();
+
+                                if($gender == 'Pria'){
+                                    $gender = 1;
+                                }
+                                else{
+                                    $gender = 2;
+                                }
+
+                                $saveDataUser = [
+                                    'fullname' => $fullname,
+                                    'dob' => \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($dob)->format('Y-m-d'),
+                                    'gender' => $gender,
+                                    'klinik_id' => $getKlinik->id,
+                                    'nik' => $nik,
+                                    'phone' => $phone,
+                                    'email' => $email,
+                                    'doctor' => 1,
+                                    'password' => bcrypt('123'),
+                                ];
+
+                                $user = Users::create($saveDataUser);
+
+                                if($user) {
+                                    $saveData = [
+                                        'user_id' => $user->id,
+                                        'doctor_category_id' => $kategori,
+                                        'formal_edu' => $formalEducation,
+                                        'nonformal_edu' => $nonFormalEducation,
+                                    ];
+
+                                    $doctor = Doctor::create($saveData);
+
+                                    $telemedCheck = Service::where('name', 'Telemed')->first();
+                                    $homecareCheck = Service::where('name', 'Homecare')->first();
+                                    $visitCheck = Service::where('name', 'Visit')->first();
+
+                                    $service = [];
+                                    if(intval($telemed) == 1) {
+                                        $service[$telemedCheck->id] = $hargaTelemed;
+                                    }
+                                    if(intval($homecare) == 1) {
+                                        $service[$homecareCheck->id] = $hargaHomecare;
+                                    }
+                                    if(intval($visit) == 1) {
+                                        $service[$visitCheck->id] = $hargaVisit;
+                                    }
+
+                                    foreach($service as $id => $val) {
+                                        $doctor->getService()->attach($id, ['price' => $val]);
+                                    }
+
+                                    $id = $doctor->id;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch(\Exception $e) {
+                //dd($e);
+                isset($doctor) ?? $doctor->delete();
+                isset($doctorCategory) ?? $doctorCategory->delete();
+
+                session()->flash('message', __('general.failed_import_doctor'));
+                session()->flash('message_alert', 1);
+                return redirect()->route($this->rootRoute.'.' . $this->route . '.create2');
+            }
+        }
+
+        if($this->request->ajax()){
+            return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
+        }
+        else {
+            session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
+            session()->flash('message_alert', 2);
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.show', $id);
+        }
+    }
+
+    public function createSchedule2($id){
+        $this->callPermission();
+
+        $adminId = session()->get('admin_id');
+        $getAdmin = Admin::where('id', $adminId)->first();
+        if (!$getAdmin) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        if($this->request->get('download_example_import')) {
+            $getLogic = new SynapsaLogic();
+            $getLogic->downloadExampleImportDoctorSchedule();
+        }
+
+        $data = $this->data;
+
+        $getData = $this->crud->show($id);
+
+        $data['thisLabel'] = __('general.doctor_schedule');
+        $data['type'] = 'schedule';
+        $data['viewType'] = 'create';
+        $data['formsTitle'] = __('general.title_create', ['field' => __('general.doctor_schedule')]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['data'] = $getData;
+
+        return view($this->listView['create2'], $data);
+    }
+
+    public function storeSchedule2($id){
+        $this->callPermission();
+
+        $adminId = session()->get('admin_id');
+        $getAdmin = Admin::where('id', $adminId)->first();
+        if (!$getAdmin) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $this->validate($this->request, [
+            'import_doctor_schedule' => 'required',
+        ]);
+
+        //A-N
+        //A = Nomor
+        //B = Service
+        //C = Date
+        //D = Time Start
+        //E = Time End
+
+        //Start From Row 6
+
+        $getFile = $this->request->file('import_doctor_schedule');
+
+        if($getFile) {
+
+            $destinationPath = 'synapsaapps/doctor-schedule/example_import';
+
+            $getUrl = Storage::put($destinationPath, $getFile);
+
+            die(env('OSS_URL') . '/' . $getUrl);
+
+            try {
+                $getFileName = $getFile->getClientOriginalName();
+                $ext = explode('.', $getFileName);
+                $ext = end($ext);
+                if (in_array(strtolower($ext), ['xlsx', 'xls'])) {
+                    $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($getFile);
+                    $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader($inputFileType);
+                    $data = $reader->load($getFile);
+
+                    if ($data) {
+                        $spreadsheet = $data->getActiveSheet();
+                        foreach ($spreadsheet->getRowIterator() as $key => $row) {
+                            if($key >= 6) {
+                                $getService = $spreadsheet->getCell("B" . $key)->getValue();
+                                $getDate = $spreadsheet->getCell("C" . $key)->getValue();
+                                $getTimeStart = $spreadsheet->getCell("D" . $key)->getValue();
+                                $getTimeEnd = $spreadsheet->getCell("E" . $key)->getValue();
+
+                                $getUser = Users::selectRaw('*')
+                                            ->leftJoin('doctor', 'doctor.user_id', '=', 'users.id')
+                                            ->where('doctor.id', $id)
+                                            ->first();
+
+
+                                if($getUser){
+                                    $saveData = [
+                                        'klinik_id' => $getUser->klinik_id,
+                                        'doctor_id' => $id,
+                                        'service_id' => $getService,
+                                        'date_available' => \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($getDate)->format('Y-m-d'),
+                                        'time_start' => \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($getTimeStart)->format('H:i:s'),
+                                        'time_end' => \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($getTimeEnd)->format('H:i:s'),
+                                        'book' => 80,
+                                    ];
+
+                                    $DoctorSchedule = DoctorSchedule::create($saveData);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch(\Exception $e) {
+                //dd($e);
+                // $labSchedule->delete();
+
+                session()->flash('message', __('general.failed_import_doctor_schedule'));
+                session()->flash('message_alert', 1);
+                return redirect()->route($this->rootRoute.'.' . $this->route . '.create2');
+            }
+        }
+
+        if($this->request->ajax()){
+            return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
+        }
+        else {
+            session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
             session()->flash('message_alert', 2);
             return redirect()->route($this->rootRoute.'.' . $this->route . '.schedule', $id);
         }
