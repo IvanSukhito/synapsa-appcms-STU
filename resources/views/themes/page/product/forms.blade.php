@@ -76,10 +76,10 @@ else {
                         <div class="form-group">
                             <label for="stock">{{ __('general.stock') }} <span class="text-red">*</span></label>
                             <div class="input-group">
-                                {{ Form::text('stock', old('stock', isset($data->stock) ? $data->stock : null), array_merge(['class' => $errors->has('stock') ? 'form-control is-invalid' : 'form-control', 'id' => 'stock', 'required' => true, 'autocomplete' => 'off'], $addAttribute ))}}
+                                {{ Form::text('stock', old('stock', isset($data->stock) ? $data->stock : null), array_merge(['class' => $errors->has('stock') ? 'form-control is-invalid' : 'form-control', 'id' => 'stock', 'required' => true, 'autocomplete' => 'off', isset($data->stock_flag) && $data->stock_flag == 1 ? 'readonly' : ''], $addAttribute ))}}
                             </div>
                             <label for="unlimitedCheck">Unlimited</label>
-                            <input type="checkbox" id="unlimitedCheck" name="stock_flag" @if(in_array($viewType, ['show'])) disabled @endif>
+                            <input type="checkbox" id="unlimitedCheck" name="stock_flag" @if(in_array($viewType, ['show'])) disabled @endif @if(isset($data->stock_flag) && $data->stock_flag == 1) checked @endif>
                         </div>
 
                     <?php $no = 0; ?>
@@ -188,16 +188,15 @@ else {
 
             if(stock <= '0') {
                 $('#unlimitedCheck').prop('checked', true);
-                $('#stock').val('0');
+                $('#stock').val('999');
                 $('#stock').prop('readonly', true);
             }
-
         });
 
         $('#unlimitedCheck').change(function() {
             if($('#unlimitedCheck').prop('checked') === true) {
                 $('#unlimitedCheck').val('1');
-                $('#stock').val('0');
+                $('#stock').val('999');
                 $('#stock').prop('readonly', true);
             }
             else {

@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Codes\Logic\_CrudController;
 use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Admin;
+use App\Codes\Models\V1\Klinik;
 use App\Codes\Models\V1\Product;
-use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\ProductCategory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -29,6 +29,14 @@ class ProductController extends _CrudController
                     'edit' => 'required'
                 ],
                 'lang' => 'general.product-category',
+                'type' => 'select2',
+            ],
+            'klinik_id' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'lang' => 'general.klinik',
                 'type' => 'select2',
             ],
             'name' => [
@@ -108,6 +116,7 @@ class ProductController extends _CrudController
             $passingData
         );
 
+        $listCategory = [];
         $getCategory = ProductCategory::where('status', 80)->pluck('name', 'id')->toArray();
         if($getCategory) {
             foreach($getCategory as $key => $value) {
@@ -115,6 +124,12 @@ class ProductController extends _CrudController
             }
         }
 
+        $klinik_id = [0 => 'Empty'];
+        foreach(Klinik::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
+            $klinik_id[$key] = $val;
+        }
+
+        $this->data['listSet']['klinik_id'] = $klinik_id;
         $this->data['listSet']['product_category_id'] = $listCategory;
         $this->data['listSet']['status'] = get_list_active_inactive();
         $this->data['listSet']['stock_flag'] = get_list_stock_flag();
@@ -131,7 +146,7 @@ class ProductController extends _CrudController
         $this->callPermission();
 
         $adminId = session()->get('admin_id');
-        $getData = Users::where('id', $adminId)->first();
+        $getData = Admin::where('id', $adminId)->first();
         if (!$getData) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
@@ -142,7 +157,6 @@ class ProductController extends _CrudController
         $data['viewType'] = 'create';
         $data['formsTitle'] = __('general.title_create', ['field' => __('general.product') . ' ' . $getData->name]);
         $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
-        $data['data'] = $getData;
 
         return view($this->listView[$data['viewType']], $data);
     }
@@ -151,11 +165,10 @@ class ProductController extends _CrudController
         $this->callPermission();
 
         $adminId = session()->get('admin_id');
-        $getUsers = Users::where('id', $adminId)->first();
-        if (!$getUsers) {
+        $getAdmin = Admin::where('id', $adminId)->first();
+        if (!$getAdmin) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
-
 
         $getData = $this->crud->show($id);
         //dd($getData);
@@ -205,11 +218,10 @@ class ProductController extends _CrudController
         $this->callPermission();
 
         $adminId = session()->get('admin_id');
-        $getUsers = Users::where('id', $adminId)->first();
-        if (!$getUsers) {
+        $getAdmin = Admin::where('id', $adminId)->first();
+        if (!$getAdmin) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
-
 
         $getData = $this->crud->show($id);
         if (!$getData) {
@@ -262,7 +274,7 @@ class ProductController extends _CrudController
         //dd($this->request);
 
         $adminId = session()->get('admin_id');
-        $getData = Users::where('id', $adminId)->first();
+        $getData = Admin::where('id', $adminId)->first();
         if (!$getData) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
@@ -290,15 +302,14 @@ class ProductController extends _CrudController
             }
         }
 
-        $productStock = 999;
-        $productStockFlag = $this->request->file('stock_flag');
+        $productStock = $this->request->get('stock');
+        $productStockFlag = $this->request->get('stock_flag');
         $dokument = $this->request->file('image_full');
         $desc = $this->request->get('desc');
         $title = $this->request->get('title');
 
         if($productStockFlag != 1){
             $productStockFlag = 2;
-            $productStock = $this->request->get('stock');
         }
 
         $descProduct = [];
@@ -325,6 +336,7 @@ class ProductController extends _CrudController
 
         $product = new Product();
         $product->product_category_id = $data['product_category_id'];
+        $product->klinik_id = $data['klinik_id'];
         $product->name = $data['name'];
         $product->price = clear_money_format($data['price']);
         $product->unit = $data['unit'];
@@ -342,7 +354,7 @@ class ProductController extends _CrudController
         else {
             session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
             session()->flash('message_alert', 2);
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.show', $product->id);
         }
     }
 
@@ -350,7 +362,7 @@ class ProductController extends _CrudController
         $this->callPermission();
 
         $adminId = session()->get('admin_id');
-        $getUser = Users::where('id', $adminId)->first();
+        $getUser = Admin::where('id', $adminId)->first();
         if (!$getUser) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
@@ -384,14 +396,15 @@ class ProductController extends _CrudController
             }
         }
 
+        $klinikId = $data['klinik_id'];
         $productCategoryId = $data['product_category_id'];
         $productName = $data['name'];
         $productPrice = clear_money_format($data['price']);
         $productUnit = $data['unit'];
         $productStatus = $data['status'];
         $productType = $data['type'];
-        $productStock = 999;
-        $productStockFlag = $this->request->file('stock_flag');
+        $productStock = $this->request->get('stock');
+        $productStockFlag = $this->request->get('stock_flag');
         $desc = $this->request->get('desc');
         $title = $this->request->get('title');
 //        $productInformation = $this->request->get('information');
@@ -401,7 +414,6 @@ class ProductController extends _CrudController
 
         if($productStockFlag != 1){
             $productStockFlag = 2;
-            $productStock = $this->request->get('stock');
         }
 
         $descProduct[]  =
@@ -425,6 +437,7 @@ class ProductController extends _CrudController
 
         Product::where('id',$id)->update([
             'product_category_id' => $productCategoryId,
+            'klinik_id' => $klinikId,
             'name' => $productName,
             'price' => $productPrice,
             'unit' => $productUnit,
@@ -441,9 +454,9 @@ class ProductController extends _CrudController
             return response()->json(['result' => 1, 'message' => __('general.success_edit_', ['field' => $this->data['thisLabel']])]);
         }
         else {
-            session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
+            session()->flash('message', __('general.success_edit_', ['field' => $this->data['thisLabel']]));
             session()->flash('message_alert', 2);
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.show', $id);
         }
     }
     public function create2(){
