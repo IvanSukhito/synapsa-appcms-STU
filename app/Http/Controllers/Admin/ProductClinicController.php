@@ -294,15 +294,18 @@ class ProductClinicController extends _CrudController
             }
         }
 
-        $productStock = 999;
-        $productStockFlag = $this->request->file('stock_flag');
+        //$productStock = 999;
+        $productStockFlag = $this->request->get('stock_flag');
         $dokument = $this->request->file('image_full');
         $desc = $this->request->get('desc');
         $title = $this->request->get('title');
 
-        if($productStockFlag != 1){
+        if($productStockFlag == null){
             $productStockFlag = 2;
             $productStock = $this->request->get('stock');
+        }else{
+            $productStockFlag = 1;
+            $productStock = 999;
         }
 
         $descProduct = [];
@@ -395,18 +398,20 @@ class ProductClinicController extends _CrudController
         $productUnit = $data['unit'];
         $productStatus = $data['status'];
         $productType = $data['type'];
-        $productStock = 999;
         $productStockFlag = $this->request->get('stock_flag');
         $desc = $this->request->get('desc');
         $title = $this->request->get('title');
-//        $productInformation = $this->request->get('information');
-//        $productIndication = $this->request->get('indication');
-//        $productDosis = $this->request->get('dosis');
 
-        if($productStockFlag != 1){
+
+        if($productStockFlag == null){
             $productStockFlag = 2;
             $productStock = $this->request->get('stock');
+        }else{
+            $productStockFlag = 1;
+            $productStock = 999;
         }
+
+
 
         $descProduct = [];
         $descProduct[]  =
@@ -834,12 +839,14 @@ class ProductClinicController extends _CrudController
         $desc = $this->request->get('desc');
         $title = $this->request->get('title');
 
-        if($productStockFlag != 1){
+        if($productStockFlag == null){
             $productStockFlag = 2;
+            $productStock = $this->request->get('stock');
+        }else{
+            $productStockFlag = 1;
+            $productStock = 999;
         }
-        else{
-            $productStockFlag = $productStockFlag;
-        }
+
         $descProduct = [];
 
         $descProduct[]  = ['title' => $title,
