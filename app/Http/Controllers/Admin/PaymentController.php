@@ -96,6 +96,11 @@ class PaymentController extends _CrudController
         if ($listSettings == null) {
             $listSettings = [];
         }
+        else {
+            if(isset($listSettings['va_info'])) {
+                $listSettings = $listSettings['va_info'];
+            }
+        }
 
         $data['thisLabel'] = __('general.product');
         $data['viewType'] = 'edit';
@@ -120,6 +125,11 @@ class PaymentController extends _CrudController
         $listSettings = json_decode($getData->settings, true);
         if ($listSettings == null) {
             $listSettings = [];
+        }
+        else {
+            if(isset($listSettings['va_info'])) {
+                $listSettings = $listSettings['va_info'];
+            }
         }
 
         $data['thisLabel'] = __('general.product');

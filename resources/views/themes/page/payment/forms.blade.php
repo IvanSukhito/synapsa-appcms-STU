@@ -176,7 +176,6 @@ else {
         });
 
         function add_desc() {
-            setIndex1++;
             let setNumber = setIndex1 + 1;
             let html = '<div><div class="form-group">' +
                 '<label for="title_' + setIndex1 + '">{{ __('general.title') }} ' + setNumber + '</label>' +
