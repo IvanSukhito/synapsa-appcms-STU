@@ -315,6 +315,9 @@ class DoctorClinicController extends _CrudController
         $data['province'] = $getProvince;
         $data['data'] = $getData;
         $data['dataUser'] = $getDataUser;
+        $data['cityId'] = City::where('id', $getDataUser->city_id)->first();
+        $data['districtId'] = District::where('id', $getDataUser->district_id)->first();
+        $data['subDistrictId'] = SubDistrict::where('id', $getDataUser->sub_district_id)->first();
         $data['doctorService'] = $getDoctorService;
 
         return view($this->listView[$data['viewType']], $data);
