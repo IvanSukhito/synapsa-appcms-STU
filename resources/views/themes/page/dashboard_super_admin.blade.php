@@ -98,7 +98,7 @@ if ($daterange) {
                                 <span class="info-box-icon bg-success elevation-1"><i class="fa fa-user-md"></i></span>
 
                                 <div class="info-box-content">
-                                    <a href="{{ route('admin.users-doctor.index') }}" style="color:black;">
+                                    <a href="{{ route('admin.doctor.index') }}" style="color:black;">
                                         <span class="info-box-text">Doctor Resgitered</span>
                                         <span class="info-box-number">
                                     {!! $userDoctor->count() ?? 0 !!}

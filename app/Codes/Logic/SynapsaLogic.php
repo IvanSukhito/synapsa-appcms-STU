@@ -500,8 +500,8 @@ class SynapsaLogic
         exit;
     }
 
-    public function downloadExampleImportDoctor() {
-        $file = env('OSS_URL') . '/' . 'synapsaapps/doctor/example_import/AnGmjgTK8JkZGBJG0MkNmuvEB5KbAFhmiyMkNfLY.xlsx';
+    public function downloadExampleImportDoctorClinic() {
+        $file = env('OSS_URL') . '/' . 'synapsaapps/doctor-clinic/example_import/DhHi3aQeirksGxP5tekhiccI4A4HZviaibflu7Lq.xlsx';
         $fileName = create_slugs('Example Import Doctor Clinic');
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');

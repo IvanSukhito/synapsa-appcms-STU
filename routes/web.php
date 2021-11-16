@@ -41,7 +41,6 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                 'App\Http\Controllers\Admin\LabClinicController' => 'lab-clinic',
                 'App\Http\Controllers\Admin\LabClinicScheduleController' => 'lab-clinic-schedule',
                 'App\Http\Controllers\Admin\UsersController' => 'users',
-                'App\Http\Controllers\Admin\UsersDoctorController' => 'users-doctor',
                 'App\Http\Controllers\Admin\UsersPatientController' => 'users-patient',
                 'App\Http\Controllers\Admin\DoctorController' => 'doctor',
                 'App\Http\Controllers\Admin\DoctorScheduleController' => 'doctor-schedule',
@@ -66,12 +65,6 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
             foreach ($listRouter as $controller => $linkName) {
 
                 switch ($linkName) {
-                    case 'doctor':
-                        $router->get($linkName . '/{id}/schedule',   $controller.'@schedule')->name('admin.' . $linkName . '.schedule');
-                        $router->post($linkName . '/{id}/schedule',   $controller.'@storeSchedule')->name('admin.' . $linkName . '.storeSchedule');
-                        $router->post($linkName . '/{id}/schedule/{scheduleId}',   $controller.'@updateSchedule')->name('admin.' . $linkName . '.updateSchedule');
-                        $router->delete($linkName . '/{id}/schedule/{scheduleId}',   $controller.'@destroySchedule')->name('admin.' . $linkName . '.destroySchedule');
-                        break;
                     case 'lab-clinic-schedule':
                     case 'lab-schedule':
                         $router->post($linkName . '/{id}/updateSchedule',   $controller.'@update')->name('admin.' . $linkName . '.updateLab');
@@ -105,6 +98,7 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                         $router->post($linkName . '/{id}/store3', $controller.'@store3')->name('admin.' . $linkName . '.store3');
                         break;
                     case 'doctor_clinic':
+                    case 'doctor':
                         $router->get($linkName . '/create2', $controller.'@create2')->name('admin.' . $linkName . '.create2');
                         $router->post($linkName . '/store2', $controller.'@store2')->name('admin.' . $linkName . '.store2');
                         $router->get($linkName . '/{id}/schedule',   $controller.'@schedule')->name('admin.' . $linkName . '.schedule');
