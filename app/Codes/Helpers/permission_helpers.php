@@ -726,7 +726,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'transaction-lab-admin',
                      'transaction-product-admin',
                      'transaction-doctor-admin',
-                     'doctor',
+
 
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
@@ -760,6 +760,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'payment',
                      'shipping',
                      'doctor_clinic',
+                     'doctor',
                      'user_clinic',
                      'customer-support',
                      'banner',
@@ -794,6 +795,14 @@ if ( ! function_exists('listAvailablePermission'))
         $listPermission['doctor_clinic']['create'][] = 'admin.doctor_clinic.storeschedule2';
         $listPermission['doctor_clinic']['edit'][] = 'admin.doctor_clinic.updateSchedule';
         $listPermission['doctor_clinic']['destroy'][] = 'admin.doctor_clinic.destroySchedule';
+
+
+        $listPermission['doctor']['create'][] = 'admin.doctor.schedule';
+        $listPermission['doctor']['create'][] = 'admin.doctor.storeSchedule';
+        $listPermission['doctor']['create'][] = 'admin.doctor.createschedule2';
+        $listPermission['doctor']['create'][] = 'admin.doctor.storeschedule2';
+        $listPermission['doctor']['edit'][] = 'admin.doctor.updateSchedule';
+        $listPermission['doctor']['destroy'][] = 'admin.doctor.destroySchedule';
 
         $listPermission['lab-clinic-schedule']['edit'][] = 'admin.lab-clinic-schedule.updateLab';
         $listPermission['lab-clinic-schedule']['create'][] = 'admin.lab-clinic-schedule.create2';
