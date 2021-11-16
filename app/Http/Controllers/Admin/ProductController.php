@@ -518,11 +518,11 @@ class ProductController extends _CrudController
         $getFile = $this->request->file('import_product');
 
         if($getFile) {
-//            $destinationPath = 'synapsaapps/product/example_import';
-//
-//            $getUrl = Storage::put($destinationPath, $getFile);
-//
-//            die(env('OSS_URL') . '/' . $getUrl);
+            $destinationPath = 'synapsaapps/product/example_import';
+
+            $getUrl = Storage::put($destinationPath, $getFile);
+
+            die(env('OSS_URL') . '/' . $getUrl);
 
             try {
                 $getFileName = $getFile->getClientOriginalName();
