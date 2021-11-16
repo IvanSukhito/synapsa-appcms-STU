@@ -91,7 +91,6 @@ return [
     'id' => 'Id',
     'name' => 'Name',
     'email' => 'Email',
-    'phone' => 'Phone',
     'schedule' => 'Schedule',
     'lab_schedule' => 'Lab Schedule',
     'pria' => 'Pria',
@@ -168,7 +167,7 @@ return [
     'all' => 'All',
     'filter' => 'Filter',
     'owner' => 'Owner',
-    'type' => 'type',
+    'type' => 'Type',
     'type_payment' => 'Type Payment',
     'proses' => 'Proses',
     'proses_pengiriman' => 'Proses Pengiriman',
@@ -410,4 +409,6 @@ return [
     'import_clinic' => 'Import Clinic',
     'example_import_clinic' => 'Example Import Clinic',
     'failed_import_clinic' => 'Terjadi Kesalahan, Import Clinic Gagal',
+    'normal' => 'Normal',
+    'obat_keras' => 'Obat Keras',
 ];

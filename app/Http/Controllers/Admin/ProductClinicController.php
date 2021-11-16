@@ -85,6 +85,13 @@ class ProductClinicController extends _CrudController
                 'edit' => 0,
                 'show' => 0,
             ],
+            'type' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'type' => 'select',
+            ],
             'status' => [
                 'validate' => [
                     'create' => 'required',
@@ -92,7 +99,6 @@ class ProductClinicController extends _CrudController
                 ],
                 'type' => 'select2',
             ],
-
             'action' => [
                 'create' => 0,
                 'edit' => 0,
@@ -116,6 +122,7 @@ class ProductClinicController extends _CrudController
         $this->data['listSet']['product_category_id'] = $listCategory;
         $this->data['listSet']['status'] = get_list_active_inactive();
         $this->data['listSet']['stock_flag'] = get_list_stock_flag();
+        $this->data['listSet']['type'] = get_list_type_product();
         //$this->listView['index'] = env('ADMIN_TEMPLATE').'.page.product.list';
         $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.product-clinic.forms';
         $this->listView['create2'] = env('ADMIN_TEMPLATE').'.page.product-clinic.forms2';
@@ -268,9 +275,17 @@ class ProductClinicController extends _CrudController
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
         $validate = $this->setValidateData($getListCollectData, $viewType);
-        if (count($validate) > 0)
-        {
-            $data = $this->validate($this->request, $validate);
+        if (count($validate) > 0) {
+            $request = $this->request;
+
+            if(in_array(null, $this->request->get('title'))) {
+                unset($request['title']);
+            }
+            if(in_array(null, $this->request->get('desc'))) {
+                unset($request['desc']);
+            }
+
+            $data = $this->validate($request, $validate);
         }
         else {
             $data = [];
@@ -279,28 +294,24 @@ class ProductClinicController extends _CrudController
             }
         }
 
-        $productCategoryId = $this->request->get('product_category_id');
-        $productName = $this->request->get('name');
-        $productPrice = clear_money_format($this->request->get('price'));
-        $productUnit = $this->request->get('unit');
-        $productStock = $this->request->get('stock');
-        $productStockFlag = $this->request->get('stock_flag');
-        $productStatus = $this->request->get('status');
+        $productStock = 999;
+        $productStockFlag = $this->request->file('stock_flag');
         $dokument = $this->request->file('image_full');
         $desc = $this->request->get('desc');
         $title = $this->request->get('title');
 
         if($productStockFlag != 1){
             $productStockFlag = 2;
+            $productStock = $this->request->get('stock');
         }
-        else{
-            $productStockFlag = $productStockFlag;
-        }
+
         $descProduct = [];
 
         $descProduct[]  =
         ['title' => $title,
          'desc' => $desc];
+
+        $dokumentImage = '';
         if ($dokument) {
             if ($dokument->getError() != 1) {
 
@@ -318,12 +329,13 @@ class ProductClinicController extends _CrudController
 
         $product = new Product();
         $product->klinik_id = $getData->klinik_id;
-        $product->product_category_id = $productCategoryId;
-        $product->name = $productName;
-        $product->price = $productPrice;
-        $product->unit = $productUnit;
+        $product->product_category_id = $data['product_category_id'];
+        $product->name = $data['name'];
+        $product->price = clear_money_format($data['price']);
+        $product->unit = $data['unit'];
         $product->stock = $productStock;
-        $product->status = $productStatus;
+        $product->status = $data['status'];
+        $product->type = $data['type'];
         $product->desc = json_encode($descProduct);
         $product->image = $dokumentImage;
         $product->stock_flag = $productStockFlag;
@@ -359,7 +371,16 @@ class ProductClinicController extends _CrudController
         $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
         {
-            $data = $this->validate($this->request, $validate);
+            $request = $this->request;
+
+            if(in_array(null, $this->request->get('title'))) {
+                unset($request['title']);
+            }
+            if(in_array(null, $this->request->get('desc'))) {
+                unset($request['desc']);
+            }
+
+            $data = $this->validate($request, $validate);
         }
         else {
             $data = [];
@@ -368,26 +389,23 @@ class ProductClinicController extends _CrudController
             }
         }
 
-
-        $productCategoryId = $this->request->get('product_category_id');
-        $productName = $this->request->get('name');
-        $productPrice = clear_money_format($this->request->get('price'));
-        $productUnit = $this->request->get('unit');
-        $productStock = $this->request->get('stock');
+        $productCategoryId = $data['product_category_id'];
+        $productName = $data['name'];
+        $productPrice = clear_money_format($data['price']);
+        $productUnit = $data['unit'];
+        $productStatus = $data['status'];
+        $productType = $data['type'];
+        $productStock = 999;
         $productStockFlag = $this->request->get('stock_flag');
-        $productStatus = $this->request->get('status');
-        $productInformation = $this->request->get('information');
-        $productIndication = $this->request->get('indication');
-        $productDosis = $this->request->get('dosis');
-        $dokument = $this->request->file('image_full');
-        $title = $this->request->get('title');
         $desc = $this->request->get('desc');
+        $title = $this->request->get('title');
+//        $productInformation = $this->request->get('information');
+//        $productIndication = $this->request->get('indication');
+//        $productDosis = $this->request->get('dosis');
 
         if($productStockFlag != 1){
             $productStockFlag = 2;
-        }
-        else{
-            $productStockFlag = $productStockFlag;
+            $productStock = $this->request->get('stock');
         }
 
         $descProduct = [];
@@ -395,6 +413,9 @@ class ProductClinicController extends _CrudController
         [   'title' => $title,
             'desc' => $desc   ];
 
+        $dokumentImage = $getData->image;
+
+        $dokument = $this->request->file('image_full');
         if ($dokument) {
             if ($dokument->getError() != 1) {
 
@@ -408,10 +429,6 @@ class ProductClinicController extends _CrudController
                 }
 
             }
-        }else{
-
-            $dokumentImage= $getData->image;
-
         }
 
         $product = Product::where('id',$id)->update([
@@ -421,6 +438,7 @@ class ProductClinicController extends _CrudController
             'price' => $productPrice,
             'unit' => $productUnit,
             'stock' => $productStock,
+            'type' => $productType,
             'status' => $productStatus,
             'desc' => json_encode($descProduct),
             'image' => $dokumentImage,

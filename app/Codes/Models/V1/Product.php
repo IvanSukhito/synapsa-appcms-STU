@@ -19,6 +19,7 @@ class Product extends Model
         'desc',
         'stock',
         'stock_flag',
+        'type',
         'status',
         'top'
     ];
