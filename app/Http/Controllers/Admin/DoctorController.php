@@ -1005,11 +1005,6 @@ class DoctorController extends _CrudController
 
         if($getFile) {
 
-            $destinationPath = 'synapsaapps/doctor-schedule/example_import';
-
-            $getUrl = Storage::put($destinationPath, $getFile);
-
-            die(env('OSS_URL') . '/' . $getUrl);
 
             try {
                 $getFileName = $getFile->getClientOriginalName();
