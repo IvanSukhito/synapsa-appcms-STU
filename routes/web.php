@@ -59,12 +59,14 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                 'App\Http\Controllers\Admin\TransactionDoctorAdminController' => 'transaction-doctor-admin',
                 'App\Http\Controllers\Admin\TransactionProductAdminController' => 'transaction-product-admin',
                 'App\Http\Controllers\Admin\LabController' => 'lab',
+                'App\Http\Controllers\Admin\LabScheduleController' => 'lab-schedule',
             ];
 
             foreach ($listRouter as $controller => $linkName) {
 
                 switch ($linkName) {
                     case 'lab-clinic-schedule':
+                    case 'lab-schedule':
                         $router->post($linkName . '/{id}/updateSchedule',   $controller.'@update')->name('admin.' . $linkName . '.updateLab');
                         $router->get($linkName . '/create2', $controller.'@create2')->name('admin.' . $linkName . '.create2');
                         $router->post($linkName . '/store2', $controller.'@store2')->name('admin.' . $linkName . '.store2');

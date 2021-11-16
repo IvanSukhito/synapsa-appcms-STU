@@ -82,17 +82,25 @@ else {
                             <input type="checkbox" id="unlimitedCheck" name="stock_flag" @if(in_array($viewType, ['show'])) disabled @endif>
                         </div>
 
-                    <?php $no = 0; ?>
-                    @foreach($title as $key => $title)
-                        <?php $no++; ?>
-                        <b>Title - {!! $no !!}</b>
-                        {{ Form::text('title', $title, array_merge(['id' => 'title','name'=>'title[]', 'class' => 'form-control', 'placeholder' => __('general.title')], $addAttribute)) }}
-                        <br>
-                        <b>Desc - {!! $no !!}</b>
-                        <br>
-                        {{ Form::textarea('desc', $desc[$key], array_merge(['id' => 'desc', 'name'=>'desc[]', 'class' => 'ckeditor', 'placeholder' => __('general.desc')], $addAttribute)) }}
-                        <br>
-                    @endforeach
+                        <?php $no = 0; ?>
+                        @if($title && $desc)
+                            @foreach($title as $key => $title)
+                                <?php $no++; ?>
+                                <b>Title - {!! $no !!}</b>
+                                {{ Form::text('title', $title, array_merge(['id' => 'title','name'=>'title[]', 'class' => 'form-control', 'placeholder' => __('general.title')], $addAttribute)) }}
+                                <br>
+                                <b>Desc - {!! $no !!}</b>
+                                <br>
+                                {{ Form::textarea('desc', $desc[$key], array_merge(['id' => 'desc', 'name'=>'desc[]', 'class' => 'ckeditor', 'placeholder' => __('general.desc')], $addAttribute)) }}
+                                <br>
+                            @endforeach
+                        @else
+                            <label for="desc">{{ __('general.desc') }}</label>
+                            {{ Form::text('title', old('title'), array_merge(['id' => 'title', 'name'=>'title[]', 'class' => 'form-control', 'placeholder' => __('general.title')], $addAttribute)) }}
+                            <br>
+                            {{ Form::textarea('desc', old('desc'), array_merge(['id' => 'desc', 'name'=>'desc[]', 'class' => 'ckeditor', 'placeholder' => __('general.desc')], $addAttribute)) }}
+                            <br>
+                        @endif
                     @endif
                     @if(in_array($viewType, ['edit']))
                         <div id="list_desc">

@@ -44,7 +44,6 @@
 
                 <!-- /.card-header -->
                 <div class="card-header">
-
                     <div id="list-day">
                         {{ Form::select('list_date', $getListDate, $getTargetDate, ['id' => 'list_date',
                             'class' => 'form-control', 'onchange' => 'changeDate(this)', 'data-link' => route('admin.' . $thisRoute . '.index')
@@ -56,26 +55,17 @@
                     <h3 class="card-title">{{ __('general.title_home', ['field' => $thisLabel]) }}: {{ date('d-F-Y', strtotime($getTargetDate)) }}</h3>
                 </div>
                 <div class="card-body">
-
                     <div id="list_schedule">
                         @foreach($getData as $list)
                             <div class="card">
                                 <div class="card-body">
                                     <div class="col-lg-12">
                                         <div class="row">
-                                            <div class="col-md-2">
+                                            <div class="col-md-3">
                                                 <div class="form-group">
                                                     <div class="form-group">
                                                         <label for="service_{!! $list->id !!}">{{ __('general.service') }} <span class="text-red">*</span></label>
                                                         {{ Form::select('service_'.$list->id, $listSet['service_id'], $list->service_id, ['id' => 'service_'.$list->id, 'class' => 'form-control', 'required' => true]) }}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <div class="form-group">
-                                                    <div class="form-group">
-                                                        <label for="klinik_{!! $list->id !!}">{{ __('general.klinik') }} <span class="text-red">*</span></label>
-                                                        {{ Form::select('klinik_'.$list->id, $listSet['klinik_id'], $list->klinik_id, ['id' => 'klinik_'.$list->id, 'class' => 'form-control', 'required' => true]) }}
                                                     </div>
                                                 </div>
                                             </div>
@@ -118,7 +108,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-1">
+                                            <div class="col-md-2">
                                                 <div class="form-group">
                                                     @if ($permission['edit'])
                                                     <a href="#" class="mb-1 btn btn-primary btn-sm" title="@lang('general.update')"
@@ -168,12 +158,6 @@
                             <div class="form-group">
                                 <label for="service">{{ __('general.service') }} <span class="text-red">*</span></label>
                                 {{ Form::select('service', $listSet['service'], old('service'), ['id' => 'service', 'class' => 'form-control', 'required' => true]) }}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="form-group">
-                                <label for="service">{{ __('general.klinik') }} <span class="text-red">*</span></label>
-                                {{ Form::select('klinik', $listSet['klinik_id'], old('klinik'), ['id' => 'klinik', 'class' => 'form-control', 'required' => true]) }}
                             </div>
                         </div>
                         <div class="form-group">

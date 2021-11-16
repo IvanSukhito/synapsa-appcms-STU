@@ -17,7 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\DataTables;
 
-class LabClinicScheduleController extends _CrudController
+class LabScheduleController extends _CrudController
 {
     public function __construct(Request $request)
     {
@@ -28,11 +28,17 @@ class LabClinicScheduleController extends _CrudController
                 'show' => 0
             ],
             'lab_id' => [
-
                 'type' => 'select2',
                 'create' => 0,
                 'edit' => 0,
                 'list' => 0,
+            ],
+            'klinik_id' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'type' => 'select2',
             ],
             'service_id' => [
                 'validate' => [
@@ -79,7 +85,7 @@ class LabClinicScheduleController extends _CrudController
         ];
 
         parent::__construct(
-            $request, 'general.lab_clinic_schedule', 'lab-clinic-schedule', 'V1\LabSchedule', 'lab-clinic-schedule',
+            $request, 'general.lab_schedule', 'lab-schedule', 'V1\LabSchedule', 'lab-schedule',
             $passingData
         );
 
@@ -91,7 +97,6 @@ class LabClinicScheduleController extends _CrudController
             }
         }
 
-
         $klinik_id = [0 => 'Empty'];
         foreach(Klinik::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
             $klinik_id[$key] = $val;
@@ -101,7 +106,7 @@ class LabClinicScheduleController extends _CrudController
         $this->data['listSet']['service_id'] = $listService;
         $this->data['listSet']['day'] = get_list_day();
         $this->data['listSet']['book'] = get_list_availabe();
-        $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.lab_clinic.schedule';
+        $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.lab.schedule';
         $this->listView['create2'] = env('ADMIN_TEMPLATE').'.page.lab.forms2';
 
     }
@@ -110,15 +115,10 @@ class LabClinicScheduleController extends _CrudController
     {
         $this->callPermission();
 
-        $adminId = session()->get('admin_id');
-
-        $getAdmin = Admin::where('id', $adminId)->first();
-
         $getTargetDate = strtotime($this->request->get('date')) > 0 ? date('Y-m-d', strtotime($this->request->get('date'))) : date('Y-m-d');
 
         $getListDate = LabSchedule::select('date_available')
             ->where('date_available', '>=', date('Y-m-d'))
-            ->where('klinik_id', $getAdmin->klinik_id)
             ->groupBy('date_available')
             ->orderBy('date_available', 'DESC')
             ->get();
@@ -141,9 +141,7 @@ class LabClinicScheduleController extends _CrudController
             $getTargetDate = $findFirstDate;
         }
 
-        $getData = LabSchedule::where('date_available', $getTargetDate)
-            ->where('klinik_id', $getAdmin->klinik_id)
-            ->orderBy('id','DESC')->get();
+        $getData = LabSchedule::where('date_available', $getTargetDate)->orderBy('id','DESC')->get();
 
         $data = $this->data;
         $data['parentLabel'] = $data['thisLabel'];
@@ -162,10 +160,6 @@ class LabClinicScheduleController extends _CrudController
 
         $viewType = 'create';
 
-        $adminId = session()->get('admin_id');
-
-        $getAdmin = Admin::where('id', $adminId)->first();
-
         $getListCollectData = collectPassingData($this->passingData, $viewType);
 
         $validate = $this->setValidateData($getListCollectData, $viewType);
@@ -180,7 +174,6 @@ class LabClinicScheduleController extends _CrudController
             }
         }
 
-        $getServiceId = intval($data['service_id']);
         $getDate = strtotime($data['date_available']) > 0 ? date('Y-m-d', strtotime($data['date_available'])) : date('Y-m-d', strtotime("+1 day"));
         $getTimeStart = strtotime($data['time_start']) > 0 ? date('H:i:00', strtotime($data['time_start'])) : date('H:i:00');
         $getTimeEnd = strtotime($data['time_end']) > 0 ? date('H:i:00', strtotime($data['time_end'])) : date('H:i:00');
@@ -189,7 +182,6 @@ class LabClinicScheduleController extends _CrudController
 
         $data['lab_id'] = 0;
         $data['date_available'] = $getDate;
-        $data['klinik_id'] = $getAdmin->klinik_id;
         $data['time_start'] = $getTimeStart;
         $data['time_end'] = $getTimeEnd;
         $data['book'] = 80;
@@ -228,7 +220,8 @@ class LabClinicScheduleController extends _CrudController
         $validate = $this->setValidateData($getListCollectData, $viewType, $id);
         if (count($validate) > 0) {
             $data = $this->validate($this->request, $validate);
-        } else {
+        }
+        else {
             $data = [];
             foreach ($getListCollectData as $key => $val) {
                 $data[$key] = $this->request->get($key);
@@ -248,8 +241,6 @@ class LabClinicScheduleController extends _CrudController
         $data['book'] = 80;
 
         $getData = $this->crud->update($data, $id);
-
-        $id = $getData->id;
 
         if ($this->request->ajax()) {
             return response()->json(['result' => 1, 'message' => __('general.success_edit_', ['field' => $this->data['thisLabel']])]);
