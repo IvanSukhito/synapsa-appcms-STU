@@ -794,15 +794,20 @@ class DoctorClinicController extends _CrudController
         //A-N
         //A = Nomor
         //B = Nama Doctor
-        //C = Kategori
-        //D = Formal Education
-        //E = Non-Formal Education
-        //F = Telemed
-        //G = Homecare
-        //H = Visit
-        //I = Harga Telemed
-        //J = Harga Homecare
-        //K = Harga Visit
+        //C = DOB
+        //D = Gender
+        //E = NIK
+        //F = Phone
+        //G = EMAIL
+        //H = Kategori
+        //I = Formal Education
+        //J = Non-Formal Education
+        //K = Telemed
+        //L = Homecare
+        //M = Visit
+        //N = Harga Telemed
+        //O = Harga Homecare
+        //P = Harga Visit
         //Start From Row 6
 
         $getFile = $this->request->file('import_doctor');
@@ -827,16 +832,21 @@ class DoctorClinicController extends _CrudController
                         $spreadsheet = $data->getActiveSheet();
                         foreach ($spreadsheet->getRowIterator() as $key => $row) {
                             if($key >= 6) {
-                                $namaDoctor = $spreadsheet->getCell("B" . $key)->getValue();
-                                $kategori = $spreadsheet->getCell("C" . $key)->getValue();
-                                $formalEducation = $spreadsheet->getCell("D" . $key)->getValue();
-                                $nonFormalEducation = $spreadsheet->getCell("E" . $key)->getValue();
-                                $telemed = $spreadsheet->getCell("F" . $key)->getValue();
-                                $homecare = $spreadsheet->getCell("G" . $key)->getValue();
-                                $visit = strtolower(str_replace(' ', '', $spreadsheet->getCell("H" . $key)->getValue()));
-                                $hargaTelemed = $spreadsheet->getCell("I" . $key)->getValue();
-                                $hargaHomecare = $spreadsheet->getCell("J" . $key)->getValue();
-                                $hargaVisit = $spreadsheet->getCell("K" . $key)->getValue();
+                                $fullname = $spreadsheet->getCell("B" . $key)->getValue();
+                                $dob = $spreadsheet->getCell("C". $key)->getValue();
+                                $gender = $spreadsheet->getCell("D". $key)->getValue();
+                                $nik = $spreadsheet->getCell("E". $key)->getValue();
+                                $phone = $spreadsheet->getCell("F". $key)->getValue();
+                                $email = $spreadsheet->getCell("G". $key)->getValue();
+                                $kategori = strtolower(str_replace('','', $spreadsheet->getCell("H" . $key)->getValue()));
+                                $formalEducation = $spreadsheet->getCell("I" . $key)->getValue();
+                                $nonFormalEducation = $spreadsheet->getCell("J" . $key)->getValue();
+                                $telemed = $spreadsheet->getCell("K" . $key)->getValue();
+                                $homecare = $spreadsheet->getCell("L" . $key)->getValue();
+                                $visit = $spreadsheet->getCell("M" . $key)->getValue();
+                                $hargaTelemed = $spreadsheet->getCell("N" . $key)->getValue();
+                                $hargaHomecare = $spreadsheet->getCell("O" . $key)->getValue();
+                                $hargaVisit = $spreadsheet->getCell("P" . $key)->getValue();
 
                                 $kategoriCheck = DoctorCategory::where('name', $kategori)->first();
                                 if($kategoriCheck) {
@@ -856,10 +866,30 @@ class DoctorClinicController extends _CrudController
 
                                 $klinik_id = session()->get('admin_clinic_id');
 
-                                $nameCheck = Users::where('fullname', $namaDoctor)->where('doctor', 1)->where('klinik_id', $klinik_id)->first();
-                                if($nameCheck) {
+                                if($gender == 'Pria'){
+                                    $gender = 1;
+                                }
+                                else{
+                                    $gender = 2;
+                                }
+
+                                $saveDataUser = [
+                                    'fullname' => $fullname,
+                                    'dob' => \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($dob)->format('Y-m-d'),
+                                    'gender' => $gender,
+                                    'klinik_id' => $klinik_id,
+                                    'nik' => $nik,
+                                    'phone' => $phone,
+                                    'email' => $email,
+                                    'doctor' => 1,
+                                    'password' => bcrypt('123'),
+                                ];
+
+                                $user = Users::create($saveDataUser);
+
+                                if($user) {
                                     $saveData = [
-                                        'user_id' => $nameCheck->id,
+                                        'user_id' => $user->id,
                                         'doctor_category_id' => $kategori,
                                         'formal_edu' => $formalEducation,
                                         'nonformal_edu' => $nonFormalEducation,
@@ -894,7 +924,8 @@ class DoctorClinicController extends _CrudController
                 }
             }
             catch(\Exception $e) {
-                $doctor->delete();
+                dd($e);
+                isset($doctor) ?? $doctor->delete();
                 isset($doctorCategory) ?? $doctorCategory->delete();
 
                 session()->flash('message', __('general.failed_import_doctor'));

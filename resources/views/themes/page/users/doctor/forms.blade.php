@@ -231,7 +231,102 @@ else {
     </section>
 
 @stop
+<script>
+    $(document).ready(function() {
 
+        $('.editor').each(function(i, item) {
+            CKEDITOR.replace(item.id, {
+                autoParagraph: true,
+                allowedContent: true,
+                extraAllowedContent: '*(*);*{*};*[*]{*};div(class);span(class);h5[*]',
+                extraPlugins: 'justify,format,colorbutton,font,smiley'
+            });
+        });
+
+        $('#province_id').change(function() {
+
+            let ProvinceId = $('#province_id').val();
+            var div= $('#city_id').parent();
+            var op="";
+
+            $.ajax({
+                type: 'GET',
+                url: "{{ route('admin.findCity') }}",
+                data: { province_id :ProvinceId},
+                success : function (data){
+
+                    op+='<option value="0" selected disabled>chose city</option>';
+                    for(var i=0;i<data.length;i++){
+                        op+='<option value="'+data[i].id+'">'+data[i].name+'</option>';
+                    }
+
+                    div.find('#city_id').html(" ");
+                    div.find('#city_id').append(op);
+
+                },
+                error: function (){
+
+                }
+            })
+        });
+
+        $('#city_id').change(function() {
+
+            let CityId = $('#city_id').val();
+            var div= $('#district_id').parent();
+            var op="";
+
+            $.ajax({
+                type: 'GET',
+                url: "{{ route('admin.findDistrict') }}",
+                data: { city_id :CityId},
+                success : function (data){
+
+                    op+='<option value="0" selected disabled>chose district</option>';
+                    for(var i=0;i<data.length;i++){
+                        op+='<option value="'+data[i].id+'">'+data[i].name+'</option>';
+                    }
+
+                    div.find('#district_id').html(" ");
+                    div.find('#district_id').append(op);
+
+                },
+                error: function (){
+
+                }
+            })
+        });
+
+        $('#district_id').change(function() {
+
+            let DistrictId = $('#district_id').val();
+            var div= $('#sub_district_id').parent();
+            var op="";
+
+            $.ajax({
+                type: 'GET',
+                url: "{{ route('admin.findSubDistrict') }}",
+                data: { district_id :DistrictId},
+                success : function (data){
+
+                    op+='<option value="0" selected disabled>chose sub district</option>';
+                    for(var i=0;i<data.length;i++){
+                        op+='<option value="'+data[i].id+'">'+data[i].name+'</option>';
+                    }
+
+                    div.find('#sub_district_id').html(" ");
+                    div.find('#sub_district_id').append(op);
+
+                },
+                error: function (){
+
+                }
+            })
+        });
+
+
+    });
+</script>
 @section('script-bottom')
     @parent
     @include(env('ADMIN_TEMPLATE').'._component.generate_forms_script')
