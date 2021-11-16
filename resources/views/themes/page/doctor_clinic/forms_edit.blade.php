@@ -67,7 +67,7 @@ else {
                 </div>
                 <div class="card-body">
                     @include(env('ADMIN_TEMPLATE').'.page.doctor_clinic.generate_forms_2')
-                    @if(in_array($viewType, ['create','edit']))
+                    @if(in_array($viewType, ['edit']))
                         <div class="row">
                             <div class="col-md-3">
                                 <div class="form-group">
