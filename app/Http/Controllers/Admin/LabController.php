@@ -4,12 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
 use App\Codes\Models\Admin;
+use App\Codes\Models\V1\Klinik;
 use App\Codes\Models\V1\Lab;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\DataTables;
 
-class LabClinicController extends _CrudController
+class LabController extends _CrudController
 {
     public function __construct(Request $request)
     {
@@ -28,6 +29,14 @@ class LabClinicController extends _CrudController
                 'lang' => 'general.parent',
 
             ],
+            'klinik_id' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'type' => 'select2',
+                'lang' => 'general.klinik'
+            ],
             'name' => [
                 'validate' => [
                     'create' => 'required',
@@ -37,7 +46,6 @@ class LabClinicController extends _CrudController
             'image_full' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
                 'type' => 'image',
             ],
@@ -82,9 +90,10 @@ class LabClinicController extends _CrudController
         ];
 
         parent::__construct(
-            $request, 'general.lab_clinic', 'lab-clinic', 'V1\Lab', 'lab-clinic',
+            $request, 'general.lab', 'lab', 'V1\Lab', 'lab',
             $passingData
         );
+
         $getParent = Lab::get();
         $listParent = [0 => 'Tidak memiliki Parent'];
         if($getParent) {
@@ -93,7 +102,13 @@ class LabClinicController extends _CrudController
             }
         }
 
+        $klinik_id = [0 => 'Empty'];
+        foreach(Klinik::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
+            $klinik_id[$key] = $val;
+        }
+
         $this->data['listSet']['parent_id'] = $listParent;
+        $this->data['listSet']['klinik_id'] = $klinik_id;
 
         $this->data['listSet']['recommended_for'] = get_list_recommended_for();
     }
@@ -103,17 +118,7 @@ class LabClinicController extends _CrudController
 
         $viewType = 'create';
 
-        $adminId = session()->get('admin_id');
-
-        $getAdmin = Admin::where('id', $adminId)->first();
-
-        if(!$getAdmin){
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
-        }
-
         $getListCollectData = collectPassingData($this->passingData, $viewType);
-
-        unset($getListCollectData['image_full']);
 
         $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
@@ -125,6 +130,18 @@ class LabClinicController extends _CrudController
             foreach ($getListCollectData as $key => $val) {
                 $data[$key] = $this->request->get($key);
             }
+        }
+
+        unset($data['image_full']);
+        unset($getListCollectData['image_full']);
+
+        if($data['klinik_id'] <= 0) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->withErrors([
+                    'klinik_id' => __('general.data_empty')
+                ]);
         }
 
         $dokument = $this->request->file('image_full');
@@ -143,13 +160,11 @@ class LabClinicController extends _CrudController
             }
         }
 
-
         $recommend = $data['recommended_for'];
 
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
         $data['image'] = $dokumentImage;
-        $data['klinik_id'] = $getAdmin->klinik_id;
         $data['recommended_for'] = json_encode($recommend);
 
         $getData = $this->crud->store($data);
@@ -162,7 +177,7 @@ class LabClinicController extends _CrudController
         else {
             session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
             session()->flash('message_alert', 2);
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.show', $id);
         }
     }
 
@@ -171,17 +186,14 @@ class LabClinicController extends _CrudController
 
         $viewType = 'edit';
 
-        $adminId = session()->get('admin_id');
-
-        $getAdmin = Admin::where('id', $adminId)->first();
-
-        if(!$getAdmin){
+        $getData = $this->crud->show($id);
+        if(!$getData) {
+            session()->flash('message', __('general.error_not_found_', ['field' => $this->data['thisLabel']]));
+            session()->flash('message_alert', 1);
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
-
-        unset($getListCollectData['image_full']);
 
         $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
@@ -195,8 +207,25 @@ class LabClinicController extends _CrudController
             }
         }
 
+        if($data['klinik_id'] <= 0) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->withErrors([
+                    'klinik_id' => __('general.data_empty')
+                ]);
+        }
+
+        unset($getListCollectData['image_full']);
+        unset($data['image_full']);
+
         $dokument = $this->request->file('image_full');
+
         $dokumentImage = null;
+        if(strlen($getData->image) > 0) {
+            $dokumentImage = $getData->image;
+        }
+
         if ($dokument) {
             if ($dokument->getError() != 1) {
 
@@ -217,7 +246,6 @@ class LabClinicController extends _CrudController
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
         $data['image'] = $dokumentImage;
-        $data['klinik_id'] = $getAdmin->klinik_id;
         $data['recommended_for'] = json_encode($recommend);
 
         $getData = $this->crud->update($data, $id);
@@ -282,15 +310,7 @@ class LabClinicController extends _CrudController
 
         $dataTables = new DataTables();
 
-        $adminId = session()->get('admin_id');
-
-        $getAdmin = Admin::where('id', $adminId)->first();
-
-        if(!$getAdmin){
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
-        }
-
-        $builder = $this->model::query()->select('*')->where('klinik_id', $getAdmin->klinik_id);
+        $builder = $this->model::query()->select('*');
 
         $dataTables = $dataTables->eloquent($builder)
             ->addColumn('action', function ($query) {
