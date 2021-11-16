@@ -406,14 +406,13 @@ class DoctorClinicController extends _CrudController
             ]);
         }
 
-
         $id = $getData->id;
 
         if($this->request->ajax()){
             return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
         }
         else {
-            session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
+            session()->flash('message', __('general.success_edit_', ['field' => $this->data['thisLabel']]));
             session()->flash('message_alert', 2);
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
@@ -503,17 +502,17 @@ class DoctorClinicController extends _CrudController
         $serviceId = $this->request->get('service_id');
         $price = clear_money_format($this->request->get('price'));
 
-        //dd($serviceId);
-
         if($serviceId){
+            $saveDataTemp = [];
+            $doctor = Doctor::where('id', $id)->first();
             foreach($serviceId as $key => $list){
-                //dd($list);
-                DoctorService::where('doctor_id', $id)->update([
-                    'doctor_id' => $getData->id,
-                    'service_id' => $list,
-                    'price' => $price[$key] != null ? $price[$key] : 0
-                ]);
+                $prices = $price[$key] != null ? $price[$key] : 0;
+
+                $saveDataTemp[$list] = [
+                    'price' => $prices
+                ];
             }
+            $doctor->getService()->sync($saveDataTemp);
         }
 
         $id = $getData->id;
@@ -524,7 +523,7 @@ class DoctorClinicController extends _CrudController
         else {
             session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
             session()->flash('message_alert', 2);
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.show', $id);
         }
     }
     public function show($id)
