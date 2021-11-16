@@ -360,5 +360,44 @@ else {
                 });
             });
         });
+
+        $('#service_id').on('change', function() {
+            let getListService = $(this).val();
+            let totalService = getListService.length;
+            $('#infoService').html('Input' + '&nbsp;' + totalService +'&nbsp;'+'Service');
+
+            $('#listDoctorService').empty();
+
+            let html = '';
+            let i = 0;
+            $.each(listDataService, function(index, item) {
+                $.each(getListService, function(index2, item2) {
+                    if (parseInt(index) === parseInt(item2)) {
+                        let getValue = item;
+                        html += '<div class="form-group">' +
+                            '<label for="service">{{ __('general.service') }} ' + (i + 1) + ' <span class="text-red">*</span></label>' +
+                            '<input type="text" id="service_' + i +'" name="service[' + i + ']" class="form-control" placeholder="@lang('general.service')" disabled value="' + getValue + '"> ' +
+                            '</div>'+
+                            '<div class="form-group">' +
+                            '<label for="price">{{ __('general.price') }} ' + (i + 1) + ' <span class="text-red">*</span></label>' +
+                            '<input type="text" id="price_' + i +'" name="price[' + i + ']" class="form-control setMoney" placeholder="@lang('general.price')"> ' +
+                            '</div>';
+                        i++;
+                    }
+                });
+            });
+
+            $('#listDoctorService').html(html);
+
+            $('.setMoney').inputmask('numeric', {
+                radixPoint: ".",
+                groupSeparator: ",",
+                digits: 2,
+                autoGroup: true,
+                prefix: '', //Space after $, this will not truncate the first character.
+                rightAlign: false
+            });
+
+        });
     </script>
 @stop
