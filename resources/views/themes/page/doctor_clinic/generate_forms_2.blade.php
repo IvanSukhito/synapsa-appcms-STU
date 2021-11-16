@@ -1,6 +1,8 @@
 @foreach($passing1 as $fieldName => $fieldData)
     <?php
-        $fieldValue = isset($dataOld->$fieldName) ? $dataOld->$fieldName : null;
+        $fieldValue = isset($dataUser->$fieldName) ? $dataUser->$fieldName : null;
+
+
         $listPassing = [
             'fieldName' => $fieldName,
             'fieldLang' => __($fieldData['lang']),

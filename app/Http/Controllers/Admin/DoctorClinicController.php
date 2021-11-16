@@ -5,12 +5,15 @@ namespace App\Http\Controllers\Admin;
 use App\Codes\Logic\_CrudController;
 use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Admin;
+use App\Codes\Models\V1\City;
+use App\Codes\Models\V1\District;
 use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\DoctorSchedule;
 use App\Codes\Models\V1\DoctorService;
 use App\Codes\Models\V1\DoctorCategory;
 use App\Codes\Models\V1\LabSchedule;
 use App\Codes\Models\V1\Province;
+use App\Codes\Models\V1\SubDistrict;
 use App\Codes\Models\V1\Users;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\DataTables;
@@ -301,15 +304,21 @@ class DoctorClinicController extends _CrudController
         }
 
         $data = $this->data;
+        $getProvince = Province::get();
 
         $getDoctorService = DoctorService::where('doctor_id',$id)->get();
+        $getDataUser = Users::where('id', $getData->user_id)->first();
 
         $data['thisLabel'] = __('general.doctor');
         $data['viewType'] = 'edit';
         $data['formsTitle'] = __('general.title_create', ['field' => __('general.doctor') . ' ' . $getData->name]);
         $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['passing1'] = collectPassingData($this->passingUser, $data['viewType']);
+        $data['province'] = $getProvince;
         $data['data'] = $getData;
+        $data['dataUser'] = $getDataUser;
         $data['doctorService'] = $getDoctorService;
+
         return view($this->listView[$data['viewType']], $data);
     }
 
@@ -493,15 +502,31 @@ class DoctorClinicController extends _CrudController
 
 
         $data = $this->data;
+        $getProvince = Province::get();
 
+        $getDataUser = Users::where('id', $getData->user_id)->first();
         $getDoctorService = DoctorService::where('doctor_id',$id)->get();
+
+        $getProvince = Province::where('id', $getDataUser->province_id)->first();
+        $getCity = City::where('id',$getDataUser->city_id)->first();
+        $getDistrict = District::where('id', $getDataUser->district_id)->first();
+        $getSubDistrict = SubDistrict::where('id', $getDataUser->sub_district_id)->first();
+
 
         $data['viewType'] = 'show';
         $data['formsTitle'] = __('general.title_show', ['field' => $data['thisLabel']]);
         $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['passing1'] = collectPassingData($this->passingUser, $data['viewType']);
+        $data['province'] = $getProvince;
         $data['data'] = $getData;
+        $data['dataUser'] = $getDataUser;
         $data['doctorService'] = $getDoctorService;
         $data['getScheduleData'] = $getScheduleData;
+        $data['province'] = $getProvince;
+        $data['city'] = $getCity;
+        $data['district'] = $getDistrict;
+        $data['subDistrict'] = $getSubDistrict;
+
 
         return view($this->listView[$data['viewType']], $data);
 

@@ -131,6 +131,74 @@ else {
 
 
                     @endif
+                    @if(in_array($viewType, ['show']))
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="province_id">{{ __('general.province') }} <span class="text-red">*</span></label>
+                                    <select name="province_id" id="province_id" class="form-control input-lg select2" disabled>
+                                        @if(isset($province))
+                                            <option value="{{$province->id}}"  selected disabled>{{$province->name}}</option>
+                                        @endif
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="city_id">{{ __('general.city') }} <span class="text-red">*</span></label>
+                                    <select name="city_id" id="city_id" class="form-control select2 city"disabled>
+                                        @if(isset($city))
+                                            <option value="{{$city->id}}">{{$city->name}}</option>
+                                        @endif
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="district_id">{{ __('general.district') }} <span class="text-red">*</span></label>
+                                    <select name="district_id" id="district_id" class="form-control select2 district" disabled>
+                                        @if(isset($district))
+                                            <option value="{{$district->id}}">{{$district->name}}</option>
+                                        @endif
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="sub_district_id">{{ __('general.sub_district') }} <span class="text-red">*</span></label>
+                                    <select name="sub_district_id" id="sub_district_id" class="form-control select2 sub_district" disabled>
+                                        @if(isset($subDistrict))
+                                            <option value="{{$subDistrict->id}}">{{$subDistrict->name}}</option>
+                                        @endif
+
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ Form::text('zip_code', old('zip_code', isset($dataUser->zip_code) ? $dataUser->zip_code : null), array_merge(['class' => $errors->has('zip_code') ? 'form-control' : 'form-control', 'id' => 'zip_code', 'required' => true, 'placeholder' => 'Masukan kode pos ', 'autocomplete' => 'off'], $addAttribute)) }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ Form::text('address', old('address', isset($dataUser->address) ? $dataUser->address : null), array_merge(['class' => $errors->has('address') ? 'form-control' : 'form-control', 'id' => 'address', 'required' => true, 'placeholder' => 'e.g Rumah, Kantor', 'autocomplete' => 'off'], $addAttribute ))}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="address_detail">{{ __('general.address_detail') }} <span class="text-red">*</span></label>
+                                    {{ Form::textarea('address_detail', old('address_detail', isset($dataUser->address_detail) ? $dataUser->address_detail : null), array_merge(['class' => $errors->has('address_detail') ? 'ckeditor' : 'ckeditor', 'id' => 'address_detail', 'required' => true, 'autocomplete' => 'off'], $addAttribute))}}
+                                </div>
+                            </div>
+                        </div>
+
+
+                    @endif
                 </div>
                 <!-- /.card-body -->
 
@@ -149,6 +217,7 @@ else {
                             <p id="infoService">Input 0 Service</p>
                         </div>
                     @endif
+
                     <div id="listService"></div>
                 </div>
                 <!-- /.card-body -->
