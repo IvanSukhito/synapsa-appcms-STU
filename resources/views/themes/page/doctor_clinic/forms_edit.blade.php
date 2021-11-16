@@ -240,60 +240,135 @@ else {
                 tags: true
             });
 
-            $(document).ready(function() {
-                // $('#service_id').change();
-                //  $('#listDoctorService').change();
-                $('.multiselect2').select2({
-                    tags: true
-                });
+            $('#province_id').change(function() {
 
-                let html = '';
-                let i = 0;
-                let getServiceId = [];
-                $.each(listDataService, function(index, item) {
+                let ProvinceId = $('#province_id').val();
+                var div= $('#city_id').parent();
+                var op="";
 
-                    $.each(listDoctorService, function(index2, item2){
-                        if (parseInt(index) === parseInt(item2.service_id)) {
-                            var getService = item;
-                            var getPrice = item2.price;
+                $.ajax({
+                    type: 'GET',
+                    url: "{{ route('admin.findCity') }}",
+                    data: { province_id :ProvinceId},
+                    success : function (data){
 
-                            html += '<div class="form-group">' +
-                                '<label for="service">{{ __('general.service') }} ' + (i+1) + ' <span class="text-red">*</span></label>' +
-                                '<input type="text" id="service_' + i +'" name="service[' + i + ']" class="form-control" placeholder="@lang('general.service')" disabled value="' + getService + '"> ' +
-                                '</div>'+
-                                '<div class="form-group">' +
-                                '<label for="price">{{ __('general.price') }} ' + (i+1) + ' <span class="text-red">*</span></label>' +
-                                '<input type="text" id="price_' + i +'" name="price[' + i + ']" class="form-control setMoney" placeholder="@lang('general.price')" value="' + getPrice + '"> ' +
-                                '</div>';
-                            i++;
-
+                        op+='<option value="0" selected disabled>chose city</option>';
+                        for(var i=0;i<data.length;i++){
+                            op+='<option value="'+data[i].id+'">'+data[i].name+'</option>';
                         }
 
-                        var ServiceId = item2.service_id;
+                        div.find('#city_id').html(" ");
+                        div.find('#city_id').append(op);
 
-                        getServiceId.push(ServiceId)
+                    },
+                    error: function (){
 
-                        $('#service_id').val(getServiceId);
-
-                        let totalService = listDoctorService.length;
-                        $('#infoService').html('Total' + '&nbsp;' + totalService +'&nbsp;'+'Service');
-
-
-                        $('#listDoctorService').html(html);
-
-                        $('.setMoney').inputmask('numeric', {
-                            radixPoint: ".",
-                            groupSeparator: ",",
-                            digits: 2,
-                            autoGroup: true,
-                            prefix: '', //Space after $, this will not truncate the first character.
-                            rightAlign: false
-                        });
-                    });
-                });
-                $('#service_id').select2('destroy').attr('readonly', true).css({'-moz-appearance': 'none','-webkit-appearance': 'none'});
+                    }
+                })
             });
 
+            $('#city_id').change(function() {
+
+                let CityId = $('#city_id').val();
+                var div= $('#district_id').parent();
+                var op="";
+
+                $.ajax({
+                    type: 'GET',
+                    url: "{{ route('admin.findDistrict') }}",
+                    data: { city_id :CityId},
+                    success : function (data){
+
+                        op+='<option value="0" selected disabled>chose district</option>';
+                        for(var i=0;i<data.length;i++){
+                            op+='<option value="'+data[i].id+'">'+data[i].name+'</option>';
+                        }
+
+                        div.find('#district_id').html(" ");
+                        div.find('#district_id').append(op);
+
+                    },
+                    error: function (){
+
+                    }
+                })
+            });
+
+            $('#district_id').change(function() {
+
+                let DistrictId = $('#district_id').val();
+                var div= $('#sub_district_id').parent();
+                var op="";
+
+                $.ajax({
+                    type: 'GET',
+                    url: "{{ route('admin.findSubDistrict') }}",
+                    data: { district_id :DistrictId},
+                    success : function (data){
+
+                        op+='<option value="0" selected disabled>chose sub district</option>';
+                        for(var i=0;i<data.length;i++){
+                            op+='<option value="'+data[i].id+'">'+data[i].name+'</option>';
+                        }
+
+                        div.find('#sub_district_id').html(" ");
+                        div.find('#sub_district_id').append(op);
+
+                    },
+                    error: function (){
+
+                    }
+                })
+            });
+
+
+
+            let html = '';
+            let i = 0;
+            let getServiceId = [];
+            $.each(listDataService, function(index, item) {
+
+                $.each(listDoctorService, function(index2, item2){
+                    if (parseInt(index) === parseInt(item2.service_id)) {
+                        var getService = item;
+                        var getPrice = item2.price;
+
+                        html += '<div class="form-group">' +
+                            '<label for="service">{{ __('general.service') }} ' + (i+1) + ' <span class="text-red">*</span></label>' +
+                            '<input type="text" id="service_' + i +'" name="service[' + i + ']" class="form-control" placeholder="@lang('general.service')" disabled value="' + getService + '"> ' +
+                            '</div>'+
+                            '<div class="form-group">' +
+                            '<label for="price">{{ __('general.price') }} ' + (i+1) + ' <span class="text-red">*</span></label>' +
+                            '<input type="text" id="price_' + i +'" name="price[' + i + ']" class="form-control setMoney" placeholder="@lang('general.price')" value="' + getPrice + '"> ' +
+                            '</div>';
+                        i++;
+
+                    }
+
+                    var ServiceId = item2.service_id;
+
+                    getServiceId.push(ServiceId)
+
+                    $('#service_id').val(getServiceId);
+
+                    let totalService = listDoctorService.length;
+                    $('#infoService').html('Total' + '&nbsp;' + totalService +'&nbsp;'+'Service');
+
+
+                    $('#listDoctorService').html(html);
+
+                    $('.setMoney').inputmask('numeric', {
+                        radixPoint: ".",
+                        groupSeparator: ",",
+                        digits: 2,
+                        autoGroup: true,
+                        prefix: '', //Space after $, this will not truncate the first character.
+                        rightAlign: false
+                    });
+                });
+            });
+            // $('#service_id').select2('destroy').attr('readonly', true).css({'-moz-appearance': 'none','-webkit-appearance': 'none'});
         });
+
     </script>
 @stop

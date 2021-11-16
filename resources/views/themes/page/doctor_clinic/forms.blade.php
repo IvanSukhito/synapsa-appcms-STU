@@ -391,16 +391,6 @@ else {
 
         });
 
-        $('#user_id').on('change', function (){
-            let username = $(this).val();
-            $.each(listDataUser, function(index, item){
-                if(username !== item){
-                    console.log('ok');
-                }
-                //jika username bukan sama dengan itemnya keluarin form email
-            });
-
-        });
         $('#service_id').on('change', function() {
             let getListService = $(this).val();
             let totalService = getListService.length;

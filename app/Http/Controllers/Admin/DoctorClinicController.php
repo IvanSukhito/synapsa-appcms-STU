@@ -87,22 +87,18 @@ class DoctorClinicController extends _CrudController
                 ]
             ],
             'address' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
                 'type' => 'texteditor',
                 'list' => 0,
                 'create' => 0,
+                'edit' => 0,
+                'show' => 0,
             ],
             'address_detail' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
                 'type' => 'texteditor',
                 'list' => 0,
                 'create' => 0,
+                'edit' => 0,
+                'show' => 0,
             ],
             'zip_code' => [
                 'validate' => [
@@ -111,6 +107,8 @@ class DoctorClinicController extends _CrudController
                 ],
                 'list' => 0,
                 'create' => 0,
+                'edit' => 0,
+                'show' => 0,
             ],
             'dob' => [
                 'validate' => [
@@ -338,7 +336,7 @@ class DoctorClinicController extends _CrudController
 
         unset($getListCollectData['service_id']);
 
-        //validate data1
+        //validate data2
         $validate = $this->setValidateData($getListCollectData2, $viewType);
         if (count($validate) > 0)
         {
@@ -431,6 +429,58 @@ class DoctorClinicController extends _CrudController
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
 
+        //update user dan validate user
+        $getDataUser = Users::where('id', $getData->user_id)->first();
+        $getListCollectData2 = collectPassingData($this->passingUser, $viewType);
+
+        unset($getListCollectData2['upload_ktp_full']);
+
+        $validate = $this->setValidateData($getListCollectData2, $viewType, $getDataUser->id);
+        if (count($validate) > 0)
+        {
+            $data2 = $this->validate($this->request, $validate);
+        }
+        else {
+            $data2 = [];
+            foreach ($getListCollectData2 as $key => $val) {
+                $data2[$key] = $this->request->get($key);
+            }
+        }
+
+        $dokument = $this->request->file('upload_ktp_full');
+        if ($dokument) {
+            if ($dokument->getError() != 1) {
+
+                $getFileName = $dokument->getClientOriginalName();
+                $ext = explode('.', $getFileName);
+                $ext = end($ext);
+                $destinationPath = 'synapsaapps/users';
+                if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
+                    $dokumentImage = Storage::putFile($destinationPath, $dokument);
+                }
+            }
+        }else{
+
+            $dokumentImage = $getDataUser->upload_ktp;
+
+        }
+
+        $data2['province_id'] = $this->request->get('province_id');
+        $data2['city_id'] = $this->request->get('city_id');
+        $data2['district_id'] = $this->request->get('district_id');
+        $data2['sub_district_id'] = $this->request->get('sub_district_id');
+        $data2['zip_code'] = $this->request->get('zip_code');
+        $data2['address'] = $this->request->get('address');
+        $data2['address_detail'] = $this->request->get('address_detail');
+        $data2['upload_ktp'] = $dokumentImage;
+        $data2['doctor'] = 1;
+
+        //dd($data2);
+        if($data2){
+            $user = $getDataUser->update($data2);
+        }
+
+        //update service dan validate service
         $getListCollectData = collectPassingData($this->passingData, $viewType);
         unset($getListCollectData['service_id']);
 
@@ -465,7 +515,6 @@ class DoctorClinicController extends _CrudController
                 ]);
             }
         }
-
 
         $id = $getData->id;
 
