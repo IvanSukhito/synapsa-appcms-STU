@@ -359,6 +359,15 @@ if ( ! function_exists('listAllMenu')) {
                 ],
             ],
             [
+                'name' => __('general.lab'),
+                'icon' => '<i class="nav-icon fa fa-flask"></i>',
+                'title' => __('general.lab'),
+                'active' => ['admin.lab.'],
+                'route' => 'admin.lab.index',
+                'key' => 'lab',
+                'type' => 1,
+            ],
+            [
                 'name' => __('general.banner'),
                 'icon' => '<i class="nav-icon fa fa-image"></i>',
                 'title' => __('general.banner'),
@@ -740,6 +749,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'product',
                      'product-clinic',
                      'lab-clinic',
+                     'lab',
                      'users',
                      'product-category',
                      'article-category',
