@@ -82,25 +82,27 @@ else {
                             <input type="checkbox" id="unlimitedCheck" name="stock_flag" @if(in_array($viewType, ['show'])) disabled @endif>
                         </div>
 
-                    <?php $no = 0; ?>
-                    @foreach($title as $key => $title)
-                        <?php $no++; ?>
-                        <b>Title - {!! $no !!}</b>
-                        {{ Form::text('title', $title, array_merge(['id' => 'title','name'=>'title[]', 'class' => 'form-control', 'placeholder' => __('general.title')], $addAttribute)) }}
-                        <br>
-                        <b>Desc - {!! $no !!}</b>
-                        <br>
-                        {{ Form::textarea('desc', $desc[$key], array_merge(['id' => 'desc', 'name'=>'desc[]', 'class' => 'ckeditor', 'placeholder' => __('general.desc')], $addAttribute)) }}
-                        <br>
-                    @endforeach
+                        <?php $no = 0; ?>
+                        @if($title && $desc)
+                            @foreach($title as $key => $title)
+                                <?php $no++; ?>
+                                <b>Title - {!! $no !!}</b>
+                                {{ Form::text('title', $title, array_merge(['id' => 'title','name'=>'title[]', 'class' => 'form-control', 'placeholder' => __('general.title')], $addAttribute)) }}
+                                <br>
+                                <b>Desc - {!! $no !!}</b>
+                                <br>
+                                {{ Form::textarea('desc', $desc[$key], array_merge(['id' => 'desc', 'name'=>'desc[]', 'class' => 'ckeditor', 'placeholder' => __('general.desc')], $addAttribute)) }}
+                                <br>
+                            @endforeach
+                        @endif
                     @endif
-                    @if(in_array($viewType, ['edit']))
-                        <div id="list_desc">
-                            <div class="form-group">
-                                <a href="#" onclick="return add_desc1()" class="btn btn-warning">Tambah</a>
+                        @if(in_array($viewType, ['edit']))
+                            <div id="list_desc">
+                                <div class="form-group">
+                                    <a href="#" onclick="return add_desc1()" class="btn btn-warning">Tambah</a>
+                                </div>
                             </div>
-                        </div>
-                    @endif
+                        @endif
                 </div>
                 <!-- /.card-body -->
 

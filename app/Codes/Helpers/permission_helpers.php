@@ -619,13 +619,14 @@ if ( ! function_exists('listAllMenu')) {
                 'icon' => '<i class="nav-icon fa fa-gear"></i>',
                 'title' => __('general.setting'),
                 'active' => [
-                    'admin.settings.',
                     'admin.payment.',
                     'admin.shipping.',
-                    'admin.admin.',
-                    'admin.role.',
                     'admin.faqs.',
                     'admin.klinik.',
+                    'admin.customer-support.',
+                    'admin.settings.',
+                    'admin.admin.',
+                    'admin.role.',
                 ],
                 'type' => 2,
                 'data' => [

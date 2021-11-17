@@ -350,7 +350,7 @@ class ProductClinicController extends _CrudController
         else {
             session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
             session()->flash('message_alert', 2);
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.show', $product->id);
         }
     }
 
@@ -436,7 +436,7 @@ class ProductClinicController extends _CrudController
             }
         }
 
-        $product = Product::where('id',$id)->update([
+        Product::where('id',$id)->update([
             'klinik_id' => $getAdmin->klinik_id,
             'product_category_id' => $productCategoryId,
             'name' => $productName,
@@ -457,7 +457,7 @@ class ProductClinicController extends _CrudController
         else {
             session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
             session()->flash('message_alert', 2);
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.show', $id);
         }
     }
 
@@ -895,7 +895,7 @@ class ProductClinicController extends _CrudController
         else {
             session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
             session()->flash('message_alert', 2);
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.show', $product->id);
         }
     }
 
