@@ -302,6 +302,15 @@ if ( ! function_exists('listAllMenu')) {
                 'type' => 1,
             ],
             [
+                'name' => __('general.appointment_lab_schedule'),
+                'icon' => '<i class="nav-icon fa fa-calendar-o"></i>',
+                'title' => __('general.appointment_lab_schedule'),
+                'active' => ['admin.appointment-lab-schedule.'],
+                'route' => 'admin.appointment-lab-schedule.index',
+                'key' => 'appointment-lab-schedule',
+                'type' => 1,
+            ],
+            [
                 'name' => __('general.lab_clinic'),
                 'icon' => '<i class="nav-icon fa fa-flask"></i>',
                 'title' => __('general.lab_clinic'),
@@ -775,6 +784,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'user_clinic',
                      'customer-support',
                      'banner',
+                     'appointment-lab-schedule',
 
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [

@@ -49,6 +49,7 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                 'App\Http\Controllers\Admin\PaymentController' => 'payment',
                 'App\Http\Controllers\Admin\ShippingController' => 'shipping',
                 'App\Http\Controllers\Admin\AppointmentLabController' => 'appointment-lab',
+                'App\Http\Controllers\Admin\AppointmentLabScheduleController' => 'appointment-lab-schedule',
                 'App\Http\Controllers\Admin\AppointmentLabHomecareController' => 'appointment-lab-homecare',
                 'App\Http\Controllers\Admin\AppointmentLabVisitController' => 'appointment-lab-visit',
                 'App\Http\Controllers\Admin\AppointmentNurseController' => 'appointment-nurse',
