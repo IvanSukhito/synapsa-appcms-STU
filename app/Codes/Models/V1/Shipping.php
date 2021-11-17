@@ -25,12 +25,12 @@ class Shipping extends Model
 
     public function getShippingPriceAttribute()
     {
-        return 15000;
+        return $this->price;
     }
 
     public function getShippingPriceNiceAttribute()
     {
-        return number_format(15000, 0, ',', '.');
+        return $this->price > 0 ? number_format($this->price, 0, ',', '.') : 0;
     }
 
     public function getIconFullAttribute()

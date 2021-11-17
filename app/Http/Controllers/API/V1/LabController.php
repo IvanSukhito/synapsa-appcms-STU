@@ -356,13 +356,17 @@ class LabController extends Controller
 
         $getUsersAddress = UsersAddress::where('user_id', $user->id)->first();
 
-        $getAddressName = $getUsersAddress->address_name ?? $user->address ?? '' ;
+        $getAddressName = $getUsersAddress->address_name ?? $user->address ?? '';
         $getAddress = $getUsersAddress->address ?? $user->address_detail ?? '';
         $getProvince = $getUsersAddress->province_id ?? $user->province_id ?? '';
-        $getCity = $getUsersAddress->city_id ?? $user->city_id ?? '';
-        $getDistrict = $getUsersAddress->district_id ?? $user->district_id ?? '';
-        $getSubDistrict = $getUsersAddress->sub_district_id ?? $user->sub_district_id ?? '';
-        $getZipCode = $getUsersAddress->zip_code ?? $user->zip_code ?? '';
+        $getProvinceName = $getUsersAddress->province_name ?? $user->province_name ?? '';
+        $getCity = $getUsersAddress->city_id ?? '';
+        $getCityName = $getUsersAddress->city_name ?? '';
+        $getDistrict = $getUsersAddress->district_id ?? '';
+        $getDistrictName = $getUsersAddress->district_name ?? '';
+        $getSubDistrict = $getUsersAddress->sub_district_id ?? '';
+        $getSubDistrictName = $getUsersAddress->sub_district_name ?? '';
+        $getZipCode = $getUsersAddress->zip_code ?? '';
         $getPhone = $user->phone ?? '';
 
         return response()->json([
@@ -371,9 +375,13 @@ class LabController extends Controller
                 'address_name' => $getAddressName,
                 'address' => $getAddress,
                 'province_id' => $getProvince,
+                'province_name' => $getProvinceName,
                 'city_id' => $getCity,
+                'city_name' => $getCityName,
                 'district_id' => $getDistrict,
+                'district_name' => $getDistrictName,
                 'sub_district_id' => $getSubDistrict,
+                'sub_district_name' => $getSubDistrictName,
                 'zip_code' => $getZipCode,
                 'phone' => $getPhone
             ]

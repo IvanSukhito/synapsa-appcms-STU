@@ -608,6 +608,7 @@ class DoctorController extends Controller
         $getAddressName = $getUsersAddress->address_name ?? $user->address ?? '';
         $getAddress = $getUsersAddress->address ?? $user->address_detail ?? '';
         $getProvince = $getUsersAddress->province_id ?? $user->province_id ?? '';
+        $getProvinceName = $getUsersAddress->province_name ?? $user->province_name ?? '';
         $getCity = $getUsersAddress->city_id ?? '';
         $getCityName = $getUsersAddress->city_name ?? '';
         $getDistrict = $getUsersAddress->district_id ?? '';
@@ -621,6 +622,7 @@ class DoctorController extends Controller
             'address_name' => $getAddressName,
             'address' => $getAddress,
             'province_id' => $getProvince,
+            'province_name' => $getProvinceName,
             'city_id' => $getCity,
             'city_name' => $getCityName,
             'district_id' => $getDistrict,

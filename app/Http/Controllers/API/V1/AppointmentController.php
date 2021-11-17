@@ -982,19 +982,26 @@ class AppointmentController extends Controller
             ], 404);
         }
 
-        if ($data) {
-            $getReceiver = $user->fullname ?? '';
-            $getAddress = $user->address ?? '';
-            $getPhone = $user->phone ?? '';
-        }
+        $getUserAddress = UsersAddress::where('user_id', $user->id)->first();
+
+//        $getReceiver = $user->fullname ?? '';
+//        $getAddress = $user->address ?? '';
+        $getPhone = $user->phone ?? '';
 
         return response()->json([
             'success' => 1,
             'data' => [
                 [
-                    'receiver' => $getReceiver ?? '',
-                    'address' => $getAddress ?? '',
+                    'receiver' => $getUserAddress->address_name ?? '',
                     'phone' => $getPhone ?? '',
+                    'city_id' => $getUserAddress->city_id ?? '',
+                    'city_name' => $getUserAddress->city_name ?? '',
+                    'district_id' => $getUserAddress->district_id ?? '',
+                    'district_name' => $getUserAddress->district_name ?? '',
+                    'sub_district_id' => $getUserAddress->sub_district_id ?? '',
+                    'sub_district_name' => $getUserAddress->sub_district_name ?? '',
+                    'address' => $getUserAddress->address ?? '',
+                    'address_detail' => $getUserAddress->address_detail ?? '',
                 ]
             ]
         ]);
@@ -1139,6 +1146,7 @@ class AppointmentController extends Controller
     {
         $user = $this->request->attributes->get('_user');
         $type = intval($this->request->get('type'));
+        $shippingId = intval($this->request->get('shipping_id'));
         if ($type != 1) {
             return response()->json([
                 'success' => 0,
@@ -1166,7 +1174,16 @@ class AppointmentController extends Controller
             $subTotal += ($list->qty * $list->price);
         }
 
-        $getShippingPrice = 15000;
+        $getShipping = Shipping::where('id', $shippingId)->first();
+        if (!$getShipping) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Pengiriman Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
+        $getShippingPrice = $getShipping->price;
 
         if ($getDetails->count() <= 0) {
             return response()->json([
@@ -1221,8 +1238,6 @@ class AppointmentController extends Controller
         ]);
 
         $getDetailsInformation = json_decode($getUsersCart->detail_information, true);
-        $getDetailsShipping = json_decode($getUsersCart->detail_shipping, true);
-        $shippingId = $shippingId ?? $getDetailsShipping['shipping_id'];
         $getShipping = Shipping::where('id', $shippingId)->first();
         if (!$getShipping) {
             return response()->json([
@@ -1232,7 +1247,7 @@ class AppointmentController extends Controller
             ], 422);
         }
 
-        $getShippingPrice = 15000;
+        $getShippingPrice = $getShipping->price;
 
         return response()->json([
             'success' => 1,
@@ -1337,7 +1352,7 @@ class AppointmentController extends Controller
             ], 404);
         }
 
-        $getShippingPrice = 15000;
+        $getShippingPrice = $getShipping->price;
 
         $total = 0;
         $getDetails = Product::selectRaw('appointment_doctor_product.id, product.id as product_id, product.name, product.image,

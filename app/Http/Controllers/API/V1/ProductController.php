@@ -394,25 +394,23 @@ class ProductController extends Controller
             'users_id' => $user->id,
         ]);
 
-        $getData = json_decode($getData->detail_information, true);
-        if ($getData) {
-            $getReceiver = $getData['receiver'] ?? '';
-            $getAddress = $getData['address'] ?? '';
-            $getPhone = $getData['phone'] ?? '';
-        }
-        else {
-            $getReceiver = $user->fullname ?? '';
-            $getAddress = $user->address ?? '';
-            $getPhone = $user->phone ?? '';
-        }
+        $getUserAddress = UsersAddress::where('user_id', $user->id)->first();
+        $getPhone = $user->phone ?? '';
 
         return response()->json([
             'success' => 1,
             'data' => [
                 [
-                    'receiver' => $getReceiver ?? '',
-                    'address' => $getAddress ?? '',
+                    'receiver' => $getUserAddress->address_name ?? '',
                     'phone' => $getPhone ?? '',
+                    'city_id' => $getUserAddress->city_id ?? '',
+                    'city_name' => $getUserAddress->city_name ?? '',
+                    'district_id' => $getUserAddress->district_id ?? '',
+                    'district_name' => $getUserAddress->district_name ?? '',
+                    'sub_district_id' => $getUserAddress->sub_district_id ?? '',
+                    'sub_district_name' => $getUserAddress->sub_district_name ?? '',
+                    'address' => $getUserAddress->address ?? '',
+                    'address_detail' => $getUserAddress->address_detail ?? '',
                 ]
             ]
         ]);
@@ -611,7 +609,7 @@ class ProductController extends Controller
             ], 422);
         }
 
-        $getShippingPrice = 15000;
+        $getShippingPrice = $getShipping->price;
 
         return response()->json([
             'success' => 1,
@@ -622,6 +620,7 @@ class ProductController extends Controller
                     'phone' => $getDetailsInformation['phone'] ?? '',
                     'shipping_name' => $getShipping->name,
                     'shipping_price' => $getShippingPrice,
+                    'shipping_price_nice' => $getShipping->shipping_price_nice,
                     'subtotal' => $subTotal,
                     'total' => $subTotal + $getShippingPrice
                 ],
@@ -664,7 +663,7 @@ class ProductController extends Controller
             ], 422);
         }
 
-        $getShippingPrice = 15000;
+        $getShippingPrice = $getShipping->price;
 
         $getPayment = Payment::where('status', 80)->orderBy('orders', 'ASC')->get();
 
@@ -677,6 +676,7 @@ class ProductController extends Controller
                     'phone' => $getDetailsInformation['phone'] ?? '',
                     'shipping_name' => $getShipping->name,
                     'shipping_price' => $getShippingPrice,
+                    'shipping_price_nice' => $getShipping->shipping_price_nice,
                     'subtotal' => $subTotal,
                     'total' => $subTotal + $getShippingPrice
                 ],
@@ -742,7 +742,7 @@ class ProductController extends Controller
             ], 422);
         }
 
-        $getShippingPrice = 15000;
+        $getShippingPrice = $getShipping->price;
 
         $getUsersCartDetails = Product::selectRaw('product.price, users_cart_detail.qty')
             ->join('users_cart_detail', 'users_cart_detail.product_id', '=', 'product.id')

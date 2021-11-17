@@ -140,7 +140,7 @@ class ProcessTransaction implements ShouldQueue
 
         $totalQty = 0;
         $subTotal = 0;
-        $shippingPrice = 15000;
+        $shippingPrice = $getShipping->price;
         $transactionDetails = [];
         $productQty = [];
         $getProductIds = [];
@@ -256,9 +256,6 @@ class ProcessTransaction implements ShouldQueue
 
         $getShipping = Shipping::where('id', $getShippingId)->first();
 
-        $getShippingPrice = 15000;
-
-        $total = 0;
         $getUsersCartDetails = AppointmentDoctorProduct::selectRaw('appointment_doctor_product.id, product.id as product_id, product.name, product.image,
             product.price, product.unit, appointment_doctor_product.product_qty as product_qty, product_qty_checkout, appointment_doctor_product.choose')
             ->join('product', 'appointment_doctor_product.product_id', '=', 'product.id')
@@ -272,7 +269,7 @@ class ProcessTransaction implements ShouldQueue
 
         $totalQty = 0;
         $subTotal = 0;
-        $shippingPrice = 15000;
+        $shippingPrice = $getShipping->price;
         $transactionDetails = [];
         $productQty = [];
         $getProductIds = [];
