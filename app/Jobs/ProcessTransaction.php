@@ -160,7 +160,6 @@ class ProcessTransaction implements ShouldQueue
             ]);
         }
 
-
         $getProducts = Product::whereIn('id', $getProductIds)->get();
 
         foreach ($getProducts as $key => $list){
@@ -168,10 +167,24 @@ class ProcessTransaction implements ShouldQueue
             $qty = $productQty[$key];
 
             if($list->stock_flag == 2) {
+                if($list->klinik_id > 0) {
+                    if ($list->parent_id > 0) {
+                        $productParent = Product::where('id', $list->parent_id)->first();
+                        $productParent->stock = $productParent->stock - $qty;
+                        $productParent->save();
+
+                        Product::where('parent_id', $productParent->id)->update([
+                            'stock' => $productParent->stock,
+                        ]);
+                    }
+                }
 
                 $list->stock = $list->stock - $qty;
-
                 $list->save();
+
+                Product::where('parent_id', $list->id)->update([
+                    'stock' => $list->stock,
+                ]);
             }
         }
 
@@ -301,10 +314,24 @@ class ProcessTransaction implements ShouldQueue
             $qty = $productQty[$key];
 
             if($list->stock_flag == 2) {
+                if($list->klinik_id > 0) {
+                    if ($list->parent_id > 0) {
+                        $productParent = Product::where('id', $list->parent_id)->first();
+                        $productParent->stock = $productParent->stock - $qty;
+                        $productParent->save();
+
+                        Product::where('parent_id', $productParent->id)->update([
+                            'stock' => $productParent->stock,
+                        ]);
+                    }
+                }
 
                 $list->stock = $list->stock - $qty;
-
                 $list->save();
+
+                Product::where('parent_id', $list->id)->update([
+                    'stock' => $list->stock,
+                ]);
             }
 
         }

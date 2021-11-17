@@ -71,15 +71,20 @@ else {
                 @endif
 
                 <div class="card-body">
+                    @if(isset($data->parent_id) && $data->parent_id > 0)
+                        <span class="text-red">* Product Ini Diambil Dari Synapsa</span>
+                    @endif
                     @include(env('ADMIN_TEMPLATE').'._component.generate_forms')
-                    @if(in_array($viewType, ['show','edit']) )
+                    @if(in_array($viewType, ['show','edit']))
                         <div class="form-group">
                             <label for="stock">{{ __('general.stock') }} <span class="text-red">*</span></label>
                             <div class="input-group">
-                                {{ Form::text('stock', old('stock', isset($data->stock) ? $data->stock : null), array_merge(['class' => $errors->has('stock') ? 'form-control is-invalid' : 'form-control', 'id' => 'stock', 'required' => true, 'autocomplete' => 'off'], $addAttribute ))}}
+                                {{ Form::text('stock', old('stock', isset($data->stock) ? $data->stock : null), array_merge(['class' => $errors->has('stock') ? 'form-control is-invalid' : 'form-control', 'id' => 'stock', 'required' => true, 'autocomplete' => 'off', isset($data->parent_id) && $data->parent_id > 0 ? 'disabled' : ''], $addAttribute ))}}
                             </div>
                             <label for="unlimitedCheck">Unlimited</label>
-                            <input type="checkbox" id="unlimitedCheck" name="stock_flag" @if(in_array($viewType, ['show'])) disabled @endif>
+                            <input type="checkbox" id="unlimitedCheck" name="stock_flag"
+                                @if(in_array($viewType, ['show'])) disabled @endif
+                                @if(isset($data->parent_id) && $data->parent_id > 0) disabled @endif >
                         </div>
 
                         <?php $no = 0; ?>
@@ -187,7 +192,7 @@ else {
 
             if(stock === '999' || stock <= '0') {
                 $('#unlimitedCheck').prop('checked', true);
-                $('#stock').val('Unlimited');
+                $('#stock').val('999');
                 $('#stock').prop('readonly', true);
             }
 
@@ -196,7 +201,7 @@ else {
         $('#unlimitedCheck').change(function() {
             if($('#unlimitedCheck').prop('checked') === true) {
                 $('#unlimitedCheck').val('1');
-                $('#stock').val('Unlimited');
+                $('#stock').val('999');
                 $('#stock').prop('readonly', true);
             }
             else {

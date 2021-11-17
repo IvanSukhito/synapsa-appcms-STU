@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 use Illuminate\Http\Request;
+use Yajra\DataTables\DataTables;
 
 class ProductController extends _CrudController
 {
@@ -140,6 +141,58 @@ class ProductController extends _CrudController
         $this->listView['edit'] = env('ADMIN_TEMPLATE').'.page.product.forms';
         $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.product.forms';
         $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.product.list';
+    }
+
+    public function dataTable()
+    {
+        $this->callPermission();
+
+        $dataTables = new DataTables();
+
+        $builder = $this->model::query()->select('*');
+
+        $dataTables = $dataTables->eloquent($builder)
+            ->addColumn('action', function ($query) {
+                return view($this->listView['dataTable'], [
+                    'query' => $query,
+                    'thisRoute' => $this->route,
+                    'permission' => $this->permission,
+                    'masterId' => $this->masterId
+                ]);
+            });
+
+        $listRaw = [];
+        $listRaw[] = 'action';
+        foreach (collectPassingData($this->passingData) as $fieldName => $list) {
+            if (in_array($list['type'], ['select', 'select2', 'multiselect2'])) {
+                $dataTables = $dataTables->editColumn($fieldName, function ($query) use ($fieldName) {
+                    $getList = isset($this->data['listSet'][$fieldName]) ? $this->data['listSet'][$fieldName] : [];
+                    return isset($getList[$query->$fieldName]) ? $getList[$query->$fieldName] : $query->$fieldName;
+                });
+            }
+            else if (in_array($list['type'], ['image', 'image_preview'])) {
+                $listRaw[] = $fieldName;
+                $dataTables = $dataTables->editColumn($fieldName, function ($query) use ($fieldName, $list, $listRaw) {
+                    if ($query->{$fieldName.'_full'}) {
+                        return '<img src="' . $query->{$fieldName.'_full'}. '" class="img-responsive max-image-preview"/>';
+                    }
+                    return '<img src="' . asset($list['path'] . $query->$fieldName) . '" class="img-responsive max-image-preview"/>';
+                });
+            }
+            else if (in_array($list['type'], ['code'])) {
+                $listRaw[] = $fieldName;
+                $dataTables = $dataTables->editColumn($fieldName, function ($query) use ($fieldName, $list, $listRaw) {
+                    return '<pre>' . json_encode(json_decode($query->$fieldName, true), JSON_PRETTY_PRINT) . '</pre>';
+                });
+            }
+            else if (in_array($list['type'], ['texteditor'])) {
+                $listRaw[] = $fieldName;
+            }
+        }
+
+        return $dataTables
+            ->rawColumns($listRaw)
+            ->make(true);
     }
 
     public function create(){
@@ -449,6 +502,10 @@ class ProductController extends _CrudController
             'stock_flag' => $productStockFlag,
         ]);
 
+        Product::where('parent_id', $id)->update([
+            'stock' => $productStock,
+            'stock_flag' => $productStockFlag
+        ]);
 
         if($this->request->ajax()){
             return response()->json(['result' => 1, 'message' => __('general.success_edit_', ['field' => $this->data['thisLabel']])]);
