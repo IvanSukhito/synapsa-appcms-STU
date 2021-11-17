@@ -151,6 +151,13 @@ class ProductController extends _CrudController
 
         $builder = $this->model::query()->select('*');
 
+        if ($this->request->get('filter_klinik_id')) {
+            $builder = $builder->where('klinik_id', $this->request->get('filter_klinik_id'));
+        }
+        else {
+            $builder = $builder->where('klinik_id', 0);
+        }
+
         $dataTables = $dataTables->eloquent($builder)
             ->addColumn('action', function ($query) {
                 return view($this->listView['dataTable'], [
