@@ -768,8 +768,9 @@ class ProductController extends Controller
         $getTotal = Transaction::where('klinik_id', $user->klinik_id)->whereYear('created_at', '=', date('Y'))
             ->whereMonth('created_at', '=', date('m'))->count();
 
+        //dd($getTotal);
         $newCode = str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT).rand(100,199);
-
+        //dd($newCode);
         $sendData = [
             'job' => [
                 'code' => $newCode,

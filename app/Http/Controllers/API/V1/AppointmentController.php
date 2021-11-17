@@ -594,6 +594,19 @@ class AppointmentController extends Controller
 
             $validateDate =  strtotime(date('Y-m-d', strtotime("+7 day")));
 
+            //code
+            $getTotal = AppointmentDoctor::where('klinik_id', $getTransaction->klinik_id)
+                ->where('doctor_id', $getDoctorData->id)
+                ->where('service_id', 1)
+                ->whereYear('created_at', '=', date('Y'))
+                ->whereMonth('created_at', '=', date('m'))
+                ->whereDate('created_at', '=', date('d'))
+                ->count();
+
+            $getTotalCode = str_pad(($getTotal + 1), 2, '0', STR_PAD_LEFT);
+
+            $newCode =  date('d').$getDoctorData->id.$getTotalCode;
+
             $getSchedule = DoctorSchedule::where('id', $scheduleId)
                 ->where('doctor_id', $doctorId)
                 ->where('service_id', $serviceId)->where('book', 80)
@@ -626,6 +639,7 @@ class AppointmentController extends Controller
             $getSchedule->save();
 
             $getAppointment->schedule_id = $getSchedule->id;
+            $getAppointment->code = $newCode;
             $getAppointment->date = $getSchedule->date_available;
             $getAppointment->time_start = $getSchedule->time_start;
             $getAppointment->time_end = $getSchedule->time_end;

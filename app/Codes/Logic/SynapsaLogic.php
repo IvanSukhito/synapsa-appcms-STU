@@ -350,10 +350,25 @@ class SynapsaLogic
         $getDoctorData = Doctor::where('id', $getTransactionDetails->doctor_id)->first();
         $getDoctor = Users::where('id', $getDoctorData->user_id)->first();
 
+        $getTotal = AppointmentDoctor::where('klinik_id', $getTransaction->klinik_id)
+                    ->where('doctor_id', $getDoctorData->id)
+                    ->where('service_id', 1)
+                    ->whereYear('created_at', '=', date('Y'))
+                    ->whereMonth('created_at', '=', date('m'))
+                    ->whereDate('created_at', '=', date('d'))
+                    ->count();
+
+        $getTotalCode = str_pad(($getTotal + 1), 2, '0', STR_PAD_LEFT);
+
+        //dd($getTotalCode);
+        $newCode =  date('d').$getDoctorData->id.$getTotalCode;
+
+
         if ($flag) {
             AppointmentDoctor::create([
                 'transaction_id' => $getTransaction->id,
                 'klinik_id' => $getTransaction->klinik_id,
+                'code' => $newCode,
                 'schedule_id' => $getSchedule->id,
                 'service_id' => $getSchedule->service_id,
                 'doctor_id' => $getSchedule->doctor_id,
@@ -391,12 +406,25 @@ class SynapsaLogic
         }
 
         $getUser = Users::where('id', $getTransaction->user_id)->first();
+        $getTotal = AppointmentLab::where('klinik_id', $getTransaction->klinik_id)
+            ->where('service_id', $getService->id)
+            ->whereYear('created_at', '=', date('Y'))
+            ->whereMonth('created_at', '=', date('m'))
+            ->whereDate('created_at', '=', date('d'))
+            ->count();
+
+        $getTotalCode = str_pad(($getTotal + 1), 3, '0', STR_PAD_LEFT);
+
+        //dd($getTotalCode);
+        $newCode = date('ym').$getService->id.$getTotalCode;
+
 
         if ($flag) {
             DB::beginTransaction();
 
             $getAppointmentLab = AppointmentLab::create([
                 'transaction_id' => $getTransaction->id,
+                'code' => $newCode,
                 'klinik_id' => $getTransaction->klinik_id,
                 'schedule_id' => $getSchedule->id,
                 'service_id' => $getSchedule->service_id,

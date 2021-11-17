@@ -21,6 +21,7 @@ class CreateAppointmentDoctorTable extends Migration
             $table->unsignedBigInteger('service_id')->default(0);
             $table->unsignedBigInteger('doctor_id')->default(0);
             $table->unsignedBigInteger('user_id')->default(0);
+            $table->string('code')->nullable();
             $table->string('type_appointment')->nullable();
             $table->date('date')->nullable();
             $table->time('time_start')->nullable();

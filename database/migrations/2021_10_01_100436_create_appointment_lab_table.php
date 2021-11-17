@@ -20,6 +20,7 @@ class CreateAppointmentLabTable extends Migration
             $table->unsignedBigInteger('schedule_id')->default(0);
             $table->unsignedBigInteger('service_id')->default(0);
             $table->unsignedBigInteger('user_id')->default(0);
+            $table->string('code')->nullable();
             $table->string('type_appointment')->nullable();
             $table->string('patient_name')->nullable();
             $table->string('patient_email')->nullable();
