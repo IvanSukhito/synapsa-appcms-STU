@@ -43,7 +43,6 @@ class ArticleController extends _CrudController
             'thumbnail_img_full' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
                 'type' => 'image',
                 'lang' => 'general.thumbnail_img'
@@ -51,7 +50,6 @@ class ArticleController extends _CrudController
             'image_full' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
                 'type' => 'image',
                 'list' => 0,
