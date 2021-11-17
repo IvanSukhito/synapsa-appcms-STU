@@ -219,8 +219,8 @@ class DoctorAppointmentController extends Controller
         $agoraLogic = new agoraLogic();
         if (strlen($data->video_link) <= 10) {
             $agoraChannel = $user->id.$data->user_id.'tele'.md5($data->date.$data->time_start .$data->time_end.$data->doctor_id.$data->user_id.rand(0,100));
-            $agoraUidDokter = Uuid::uuid4();
-            $agoraUidPasien = Uuid::uuid4();
+            $agoraUidDokter = ('1'.generateNewCode(10, 2)) * 1;
+            $agoraUidPasien = ('1'.generateNewCode(10, 2)) * 1;
             $agoraTokenDokter = $agoraLogic->createRtcToken($agoraChannel, $agoraUidDokter);
             $agoraTokenPasien = $agoraLogic->createRtcToken($agoraChannel, $agoraUidPasien);
             $agoraId = $agoraLogic->getAppId();
