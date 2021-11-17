@@ -29,7 +29,7 @@ class DoctorCategoryController extends _CrudController
                     'edit' => ''
                 ],
                 'type' => 'image',
-                'lang' => 'image',
+                'lang' => 'general.image',
             ],
             'action' => [
                 'create' => 0,
@@ -53,8 +53,6 @@ class DoctorCategoryController extends _CrudController
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
 
-        unset($getListCollectData['icon_img_full']);
-
         $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
         {
@@ -66,6 +64,9 @@ class DoctorCategoryController extends _CrudController
                 $data[$key] = $this->request->get($key);
             }
         }
+
+        unset($getListCollectData['icon_img_full']);
+        unset($data['icon_img_full']);
 
         $dokument = $this->request->file('icon_img_full');
         if ($dokument) {
