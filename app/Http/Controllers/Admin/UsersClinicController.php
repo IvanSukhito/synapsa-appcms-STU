@@ -115,7 +115,6 @@ class UsersClinicController extends _CrudController
             'upload_ktp_full' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
                 'type' => 'image',
                 'lang' => 'ktp',

@@ -26,7 +26,6 @@ class DoctorCategoryController extends _CrudController
             'icon_img_full' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => ''
                 ],
                 'type' => 'image',
                 'lang' => 'general.image',

@@ -27,7 +27,6 @@ class BannerPageController extends _CrudController
             'image_full' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
                 'type' => 'image',
                 'general' => 'image',

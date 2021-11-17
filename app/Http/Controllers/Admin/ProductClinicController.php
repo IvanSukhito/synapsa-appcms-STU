@@ -58,7 +58,6 @@ class ProductClinicController extends _CrudController
             'image_full' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => ''
                 ],
                 'type' => 'image',
                 'list' => 0,
