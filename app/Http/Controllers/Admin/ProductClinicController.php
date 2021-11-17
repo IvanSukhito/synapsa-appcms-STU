@@ -18,6 +18,8 @@ use Yajra\DataTables\DataTables;
 
 class ProductClinicController extends _CrudController
 {
+    protected $passingDataAddFromSynapsa;
+
     public function __construct(Request $request)
     {
         $passingData = [
@@ -106,6 +108,70 @@ class ProductClinicController extends _CrudController
             ]
         ];
 
+        $this->passingDataAddFromSynapsa = generatePassingData([
+            'id' => [
+                'create' => 0,
+                'edit' => 0,
+                'show' => 0
+            ],
+            'product_category_id' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'lang' => 'general.product-category',
+                'type' => 'select2',
+            ],
+            'name' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ]
+            ],
+            'price' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'type' => 'money',
+
+            ],
+            'unit' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'list' => 0,
+            ],
+            'image_full' => [
+                'validate' => [
+                    'create' => 'required',
+                ],
+                'type' => 'image',
+                'list' => 0,
+            ],
+            'type' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'type' => 'select',
+            ],
+            'status' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'type' => 'select2',
+            ],
+            'action' => [
+                'create' => 0,
+                'edit' => 0,
+                'show' => 0,
+                'lang' => 'Aksi',
+            ]
+        ]);
+
         parent::__construct(
             $request, 'general.product_clinic', 'product-clinic', 'V1\Product', 'product-clinic',
             $passingData
@@ -161,9 +227,7 @@ class ProductClinicController extends _CrudController
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
 
-
         $getData = $this->crud->show($id);
-        //dd($getData);
         if (!$getData) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
@@ -249,8 +313,6 @@ class ProductClinicController extends _CrudController
             ];
         }
 
-        //dd($listProduct);
-
         $data['thisLabel'] = __('general.product');
         $data['viewType'] = 'show';
         $data['formsTitle'] = __('general.title_show', ['field' => __('general.product') . ' ' . $getData->name]);
@@ -293,18 +355,17 @@ class ProductClinicController extends _CrudController
             }
         }
 
-        //$productStock = 999;
         $productStockFlag = $this->request->get('stock_flag');
         $dokument = $this->request->file('image_full');
         $desc = $this->request->get('desc');
         $title = $this->request->get('title');
+        $productStock = $this->request->get('stock');
 
-        if($productStockFlag == null){
+        if($productStockFlag != 1){
             $productStockFlag = 2;
-            $productStock = $this->request->get('stock');
-        }else{
+        }
+        else{
             $productStockFlag = 1;
-            $productStock = 999;
         }
 
         $descProduct = [];
@@ -382,6 +443,11 @@ class ProductClinicController extends _CrudController
                 unset($request['desc']);
             }
 
+            if($getData->parent_id > 0) {
+                unset($request['stock']);
+                unset($request['stock_flag']);
+            }
+
             $data = $this->validate($request, $validate);
         }
         else {
@@ -397,25 +463,31 @@ class ProductClinicController extends _CrudController
         $productUnit = $data['unit'];
         $productStatus = $data['status'];
         $productType = $data['type'];
-        $productStockFlag = $this->request->get('stock_flag');
         $desc = $this->request->get('desc');
         $title = $this->request->get('title');
+        $productStockFlag = $this->request->get('stock_flag');
+        $productStock = $this->request->get('stock');
 
-
-        if($productStockFlag == null){
+        if($productStockFlag != 1){
             $productStockFlag = 2;
-            $productStock = $this->request->get('stock');
-        }else{
+        }
+        else{
             $productStockFlag = 1;
-            $productStock = 999;
         }
 
-
+        if($getData->parent_id > 0) {
+            $productParent = Product::where('id', $getData->parent_id)->first();
+            if($productParent) {
+                $productStock = $productParent->stock;
+                $productStockFlag = $productParent->stock_flag;
+            }
+        }
 
         $descProduct = [];
-        $descProduct[]  =
-        [   'title' => $title,
-            'desc' => $desc   ];
+        $descProduct[]  = [
+            'title' => $title,
+            'desc' => $desc
+        ];
 
         $dokumentImage = $getData->image;
 
@@ -449,7 +521,6 @@ class ProductClinicController extends _CrudController
             'stock_flag' => $productStockFlag,
         ]);
 
-
         if($this->request->ajax()){
             return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
         }
@@ -469,7 +540,7 @@ class ProductClinicController extends _CrudController
         $getAdmin = Admin::where('id', $adminId)->first();
 
         $dataTables = new DataTables();
-        $builder = $this->model::query()->selectRaw('product.id, product.name as name, product_category.name as product_category_id, price, stock, product.status as status')
+        $builder = $this->model::query()->selectRaw('product.id, product.name as name, product_category.name as product_category_id, price, stock, product.status as status, type')
             ->leftJoin('product_category','product_category.id', '=', 'product.product_category_id')
             ->where('product.klinik_id', $getAdmin->klinik_id);
 
@@ -786,12 +857,10 @@ class ProductClinicController extends _CrudController
             ];
         }
 
-        //dd($listProduct);
-
         $data['thisLabel'] = __('general.product');
         $data['viewType'] = 'edit';
         $data['formsTitle'] = __('general.title_create', ['field' => __('general.product')]);
-        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['passing'] = collectPassingData($this->passingDataAddFromSynapsa, $data['viewType']);
         $data['data'] = $getData;
         $data['listProduct'] = $listProduct;
 
@@ -802,19 +871,16 @@ class ProductClinicController extends _CrudController
     public function store3($id){
         $this->callPermission();
 
-        //dd($id);
         $adminId = session()->get('admin_id');
         $getAdmin = Admin::where('id', $adminId)->first();
         if (!$getAdmin) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
 
-        $getData = $this->data;
-
         $viewType = 'edit';
         $getProductSynapsa = Product::where('id',$id)->first();
 
-        $getListCollectData = collectPassingData($this->passingData, $viewType);
+        $getListCollectData = collectPassingData($this->passingDataAddFromSynapsa, $viewType);
         $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
         {
@@ -827,30 +893,24 @@ class ProductClinicController extends _CrudController
             }
         }
 
-        $productCategoryId = $this->request->get('product_category_id');
-        $productName = $this->request->get('name');
-        $productPrice = clear_money_format($this->request->get('price'));
-        $productUnit = $this->request->get('unit');
-        $productStock = $this->request->get('stock');
-        $productStockFlag = $this->request->get('stock_flag');
-        $productStatus = $this->request->get('status');
-        $dokument = $this->request->file('image_full');
+        $productCategoryId = $data['product_category_id'];
+        $productName = $data['name'];
+        $productPrice = clear_money_format($data['price']);
+        $productUnit = $data['unit'];
+        $productStatus = $data['status'];
         $desc = $this->request->get('desc');
         $title = $this->request->get('title');
 
-        if($productStockFlag == null){
-            $productStockFlag = 2;
-            $productStock = $this->request->get('stock');
-        }else{
-            $productStockFlag = 1;
-            $productStock = 999;
-        }
-
         $descProduct = [];
 
-        $descProduct[]  = ['title' => $title,
-                           'desc' => $desc];
+        $descProduct[] = [
+            'title' => $title,
+            'desc' => $desc
+        ];
 
+        $dokumentImage = $getProductSynapsa->image;
+
+        $dokument = $this->request->file('image_full');
         if ($dokument) {
             if ($dokument->getError() != 1) {
 
@@ -864,29 +924,21 @@ class ProductClinicController extends _CrudController
                 }
 
             }
-        }else{
-            $dokumentImage = $getProductSynapsa->image;
         }
-
         $product = new Product();
+        $product->parent_id = $id;
         $product->klinik_id = $getAdmin->klinik_id;
         $product->product_category_id = $productCategoryId;
         $product->name = $productName;
         $product->price = $productPrice;
         $product->unit = $productUnit;
-        $product->stock = $productStock;
         $product->status = $productStatus;
         $product->desc = json_encode($descProduct);
         $product->image = $dokumentImage;
-        $product->stock_flag = $productStockFlag;
+        $product->stock = $getProductSynapsa->stock;
+        $product->stock_flag = $getProductSynapsa->stock_flag;
+
         $product->save();
-
-        //jika stock flagnya bukan unlimited kurangin dengan stocknya
-
-        if($getProductSynapsa->stock_flag != 1){
-            $getProductSynapsa->stock = $getProductSynapsa->stock - $product->stock;
-            $getProductSynapsa->save();
-        }
 
         if($this->request->ajax()){
             return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
