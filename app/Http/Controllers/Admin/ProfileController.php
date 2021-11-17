@@ -49,12 +49,12 @@ class ProfileController extends Controller
         $data['viewType'] = 'edit';
         $data['passing'] = generatePassingData([
             'name' => [
-                'validation' => [
+                'validate' => [
                     'edit' => 'required'
                 ]
             ],
             'username' => [
-                'validation' => [
+                'validate' => [
                     'edit' => 'required'
                 ]
             ]
@@ -102,19 +102,19 @@ class ProfileController extends Controller
         $data['passing'] = generatePassingData([
             'old_password' => [
                 'type' => 'password',
-                'validation' => [
+                'validate' => [
                     'edit' => 'required'
                 ]
             ],
             'password' => [
                 'type' => 'password',
-                'validation' => [
+                'validate' => [
                     'edit' => 'required|confirmed'
                 ]
             ],
             'password_confirmation' => [
                 'type' => 'password',
-                'validation' => [
+                'validate' => [
                     'edit' => 'required'
                 ]
             ]

@@ -6,7 +6,7 @@
         $listPassing = [
             'fieldName' => $fieldName,
             'fieldLang' => __($fieldData['lang']),
-            'fieldRequired' => isset($fieldData['validation'][$viewType]) && in_array('required', explode('|', $fieldData['validation'][$viewType])) ? 1 : 0,
+            'fieldRequired' => isset($fieldData['validate'][$viewType]) && in_array('required', explode('|', $fieldData['validate'][$viewType])) ? 1 : 0,
             'fieldValue' => $fieldValue,
             'fieldMessage'=>$fieldData['message'],
             'path'=>$fieldData['path'],

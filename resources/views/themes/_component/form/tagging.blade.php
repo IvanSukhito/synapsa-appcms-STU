@@ -17,7 +17,7 @@ if (is_string($fieldValue) && strlen($fieldValue) > 0) {
 }
 ?>
 <div class="form-group">
-    <label for="{{$fieldName}}">{{ __($fieldLang) }} {{ $fieldRequired == 1 ? ' *' : '' }}</label>
+    <label for="{{$fieldName}}">{{ __($fieldLang) }} {!! $fieldRequired == 1 ? ' <span class="text-red">*</span>' : '' !!}</label>
     {{ Form::select($fieldName.'[]', $listFieldName, old($fieldName, $fieldValue), $attribute) }}
     @if(isset($fieldMessage)) <span class="small">{!! $fieldMessage !!}</span> @endif
     @if($errors->has($fieldName)) <div class="invalid-feedback">{{ $errors->first($fieldName) }}</div> @endif

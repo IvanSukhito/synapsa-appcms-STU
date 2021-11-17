@@ -13,7 +13,7 @@ if ($fieldRequired == 1) {
 }
 ?>
 <div class="form-group">
-    <label for="{{$fieldName}}">{{ __($fieldLang) }} {{ $fieldRequired == 1 ? ' *' : '' }}</label>
+    <label for="{{$fieldName}}">{{ __($fieldLang) }} {!! $fieldRequired == 1 ? ' <span class="text-red">*</span>' : '' !!}</label>
     <div class="input-group">
         <div class="input-group-prepend">
             <div class="input-group-text">

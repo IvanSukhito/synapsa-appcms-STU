@@ -14,7 +14,7 @@ if ($fieldRequired == 1) {
 }
 ?>
 <div class="form-group">
-    <label for="{{$fieldName}}">{{ __($fieldLang) }} {{ $fieldRequired == 1 ? ' *' : '' }}</label>
+    <label for="{{$fieldName}}">{{ __($fieldLang) }} {!! $fieldRequired == 1 ? ' <span class="text-red">*</span>' : '' !!}</label>
     {{ Form::email($fieldName, old($fieldName, $fieldValue), $attribute) }}
     @if(isset($fieldMessage)) <span class="small">{{ $fieldMessage }}</span> @endif
     @if($errors->has($fieldName)) <div class="invalid-feedback">{{ $errors->first($fieldName) }}</div> @endif

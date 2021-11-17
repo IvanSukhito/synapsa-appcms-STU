@@ -84,7 +84,7 @@ class AdminController extends _CrudController
             ],
             'password_confirmation' => [
                 'type' => 'password',
-                'validation' => [
+                'validate' => [
                     'edit' => 'required'
                 ]
             ]

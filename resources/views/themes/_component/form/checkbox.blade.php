@@ -13,7 +13,7 @@ if ($fieldRequired == 1) {
 <div class="form-group form-check">
     <label for="{{$fieldName}}" class="form-check-label">
         {{ Form::checkbox($fieldName, 1, old($fieldName, $fieldValue), $attribute) }}
-        {{ __($fieldLang) }} {{ $fieldRequired == 1 ? ' *' : '' }}
+        {{ __($fieldLang) }} {!! $fieldRequired == 1 ? ' <span class="text-red">*</span>' : '' !!}
     </label>
     @if(isset($fieldMessage)) <span class="small">{!! $fieldMessage !!}</span> @endif
     @if($errors->has($fieldName)) <div class="invalid-feedback">{{ $errors->first($fieldName) }}</div> @endif

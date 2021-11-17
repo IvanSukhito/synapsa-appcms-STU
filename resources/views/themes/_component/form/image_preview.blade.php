@@ -6,7 +6,7 @@ if ($fieldRequired == 1) {
 }
 ?>
 <div class="form-group">
-    <label for="{{$fieldName}}">{{ __($fieldLang) }} {{ $fieldRequired == 1 ? ' *' : '' }}</label>
+    <label for="{{$fieldName}}">{{ __($fieldLang) }} {!! $fieldRequired == 1 ? ' <span class="text-red">*</span>' : '' !!}</label>
     @if($fieldValue)
         <br/>
         <a href="{{ $fieldValue }}" target="_blank" title="{{$fieldName}}" data-fancybox>
