@@ -123,18 +123,18 @@ class TransactionLabAdminController extends _CrudController
         $listUsers = array_merge([0 => '-'], Users::where('status', 80)->pluck('fullname', 'id')->toArray());
         $listKlinik = array_merge([0 => '-'], Klinik::where('status', 80)->pluck('name', 'id')->toArray());
         $listPayment = array_merge([0 => '-'], Payment::where('status', 80)->pluck('name', 'id')->toArray());
-        $klinik_id = $listKlinik;
-        $payment_id = $listPayment;
-        $shipping_id = array_merge([0 => '-'], Payment::where('status', 80)->pluck('name', 'id')->toArray());
+        $klinik_id = array_merge([0 => 'All'], Klinik::where('status', 80)->pluck('name', 'id')->toArray());
+        $payment_id = array_merge([0 => 'All'], Payment::where('status', 80)->pluck('name', 'id')->toArray());
         $status = array_merge([0 => '-'], get_list_transaction());
+        $filter_status = array_merge([0 => 'All'], get_list_transaction());
 
         $this->data['listSet']['user_id'] = $listUsers;
         $this->data['listSet']['klinik_id'] = $listKlinik;
         $this->data['listSet']['filter_klinik_id'] = $klinik_id;
         $this->data['listSet']['filter_payment_id'] = $payment_id;
-        $this->data['listSet']['filter_shipping_id'] = $shipping_id;
         $this->data['listSet']['payment_id'] = $listPayment;
         $this->data['listSet']['status'] = $status;
+        $this->data['listSet']['filter_status'] = $filter_status;
         $this->data['listSet']['type'] = get_list_type_transaction();
 
     }

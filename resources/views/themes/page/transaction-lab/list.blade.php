@@ -1,7 +1,6 @@
 <?php
 $klinik_id = app()->request->get('filter_klinik_id');
 $payment_id = app()->request->get('filter_payment_id');
-$shipping_id = app()->request->get('filter_shipping_id');
 $status = app()->request->get('status');
 $daterange = app()->request->get('daterange');
 
@@ -75,7 +74,7 @@ if ($daterange) {
 
                                 <div class="col-md-3">
                                     <label for="status">{{ __('general.status') }}</label>
-                                    {{ Form::select('status', $listSet['status'], old('status', $status), ['class' => 'form-control', 'autocomplete' => 'off']) }}
+                                    {{ Form::select('status', $listSet['filter_status'], old('status', $status), ['class' => 'form-control', 'autocomplete' => 'off']) }}
                                 </div>
 
                                 <div class="col-md-3">
