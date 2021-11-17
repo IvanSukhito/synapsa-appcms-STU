@@ -76,7 +76,7 @@ else {
                                     <select name="province_id" id="province_id" class="form-control input-lg select2" required>
                                         <option value="#" readonly="readonly">Province</option>
                                         @foreach($province as $listProvince)
-                                            <option value="{{$listProvince->id}}">{{$listProvince->name}}</option>
+                                            <option value="{{$listProvince->id}}" @if(isset($data->province_id) && $data->province_id == $listProvince->id) selected @endif>{{$listProvince->name}}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -85,7 +85,11 @@ else {
                                 <div class="form-group">
                                     <label for="city_id">{{ __('general.city') }} <span class="text-red">*</span></label>
                                     <select name="city_id" id="city_id" class="form-control select2 city"required>
-                                        <option value="">City</option>
+                                        @if(isset($cityId))
+                                            <option value="{{ $cityId->id }}">{{ $cityId->name }}</option>
+                                        @else
+                                            <option value="">City</option>
+                                        @endif
                                     </select>
                                 </div>
                             </div>
@@ -94,7 +98,11 @@ else {
                                 <div class="form-group">
                                     <label for="district_id">{{ __('general.district') }} <span class="text-red">*</span></label>
                                     <select name="district_id" id="district_id" class="form-control select2 district"required>
-                                        <option value="">District</option>
+                                        @if(isset($districtId))
+                                            <option value="{{ $districtId->id }}">{{ $districtId->name }}</option>
+                                        @else
+                                            <option value="">District</option>
+                                        @endif
                                     </select>
                                 </div>
                             </div>
@@ -102,7 +110,11 @@ else {
                                 <div class="form-group">
                                     <label for="sub_district_id">{{ __('general.sub_district') }} <span class="text-red">*</span></label>
                                     <select name="sub_district_id" id="sub_district_id" class="form-control select2 sub_district"required>
-                                        <option value="">Sub District</option>
+                                        @if(isset($subDistrictId))
+                                            <option value="{{ $subDistrictId->id }}">{{ $subDistrictId->name }}</option>
+                                        @else
+                                            <option value="">Sub District</option>
+                                        @endif
                                     </select>
                                 </div>
                             </div>

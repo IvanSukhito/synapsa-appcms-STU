@@ -96,7 +96,6 @@ class UsersPatientController extends _CrudController
             'upload_ktp_full' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => 'required'
                 ],
                 'type' => 'image',
                 'lang' => 'ktp',
@@ -207,10 +206,13 @@ class UsersPatientController extends _CrudController
         $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
         $data['data'] = $getData;
         $data['province'] = $getProvince;
-
+        $data['cityId'] = City::where('id', $getData->city_id)->first();
+        $data['districtId'] = District::where('id', $getData->district_id)->first();
+        $data['subDistrictId'] = SubDistrict::where('id', $getData->sub_district_id)->first();
 
         return view($this->listView[$data['viewType']], $data);
     }
+
     public function show($id)
     {
         $this->callPermission();
