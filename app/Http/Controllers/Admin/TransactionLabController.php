@@ -145,20 +145,23 @@ class TransactionLabController extends _CrudController
         foreach(Klinik::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
             $klinik_id[$key] = $val;
         }
+
         $payment_id = [0 => 'All'];
         foreach(Payment::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
             $payment_id[$key] = $val;
         }
+
         $shipping_id = [0 => 'All'];
         foreach(Shipping::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
             $shipping_id[$key] = $val;
         }
+
         $status = [0 => 'All'];
         foreach(get_list_transaction() as $key => $val) {
             $status[$key] = $val;
         }
 
-
+        $filter_status = array_merge([0 => 'All'], get_list_transaction());
 
         $this->data['listSet']['user_id'] = $listUsers;
         $this->data['listSet']['klinik_id'] = $listKlinik;
@@ -168,6 +171,7 @@ class TransactionLabController extends _CrudController
         $this->data['listSet']['filter_shipping_id'] = $shipping_id;
         $this->data['listSet']['payment_id'] = $listPayment;
         $this->data['listSet']['status'] = get_list_transaction();
+        $this->data['listSet']['filter_status'] = $filter_status;
         $this->data['listSet']['type'] = get_list_type_transaction();
 
     }
