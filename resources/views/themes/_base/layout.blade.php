@@ -11,7 +11,7 @@
 
     @section('css')
             <link rel="stylesheet" href="{{ asset('/assets/cms/css/app.css') }}">
-            <link rel="stylesheet" href="{{ asset('/assets/cms/css//calendar/fullcalendar.css') }}">
+            <link rel="stylesheet" href="{{ asset('/assets/cms/js/calendar/fullcalendar.css') }}">
             <link rel="stylesheet" href="{{ asset('/assets/cms/dropify/css/dropify.min.css') }}">
     @show
     @section('script-top')
