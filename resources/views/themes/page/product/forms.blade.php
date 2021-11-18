@@ -70,6 +70,9 @@ else {
                 @endif
 
                 <div class="card-body">
+                    @if(isset($data->parent_id) && $data->parent_id > 0)
+                        <span class="text-red">* Product Ini Diambil Dari Synapsa</span>
+                    @endif
                     @include(env('ADMIN_TEMPLATE').'._component.generate_forms')
                     @if(in_array($viewType, ['show','edit']) )
                         <div class="form-group">
