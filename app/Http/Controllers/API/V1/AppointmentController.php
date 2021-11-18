@@ -594,6 +594,19 @@ class AppointmentController extends Controller
 
             $validateDate =  strtotime(date('Y-m-d', strtotime("+7 day")));
 
+            //code
+            $getTotal = AppointmentDoctor::where('klinik_id', $getTransaction->klinik_id)
+                ->where('doctor_id', $getDoctorData->id)
+                ->where('service_id', 1)
+                ->whereYear('created_at', '=', date('Y'))
+                ->whereMonth('created_at', '=', date('m'))
+                ->whereDate('created_at', '=', date('d'))
+                ->count();
+
+            $getTotalCode = str_pad(($getTotal + 1), 2, '0', STR_PAD_LEFT);
+
+            $newCode =  date('d').$getDoctorData->id.$getTotalCode;
+
             $getSchedule = DoctorSchedule::where('id', $scheduleId)
                 ->where('doctor_id', $doctorId)
                 ->where('service_id', $serviceId)->where('book', 80)
@@ -626,6 +639,7 @@ class AppointmentController extends Controller
             $getSchedule->save();
 
             $getAppointment->schedule_id = $getSchedule->id;
+            $getAppointment->code = $newCode;
             $getAppointment->date = $getSchedule->date_available;
             $getAppointment->time_start = $getSchedule->time_start;
             $getAppointment->time_end = $getSchedule->time_end;
@@ -982,28 +996,14 @@ class AppointmentController extends Controller
             ], 404);
         }
 
-        $getUserAddress = UsersAddress::where('user_id', $user->id)->first();
-
-//        $getReceiver = $user->fullname ?? '';
-//        $getAddress = $user->address ?? '';
         $getPhone = $user->phone ?? '';
+        $logic = new SynapsaLogic();
+        $getUserAddress = $logic->getUserAddress($user->id, $getPhone);
+        $getUserAddress['receiver'] = $getUserAddress['address_name'] ?? '';
 
         return response()->json([
             'success' => 1,
-            'data' => [
-                [
-                    'receiver' => $getUserAddress->address_name ?? '',
-                    'phone' => $getPhone ?? '',
-                    'city_id' => $getUserAddress->city_id ?? '',
-                    'city_name' => $getUserAddress->city_name ?? '',
-                    'district_id' => $getUserAddress->district_id ?? '',
-                    'district_name' => $getUserAddress->district_name ?? '',
-                    'sub_district_id' => $getUserAddress->sub_district_id ?? '',
-                    'sub_district_name' => $getUserAddress->sub_district_name ?? '',
-                    'address' => $getUserAddress->address ?? '',
-                    'address_detail' => $getUserAddress->address_detail ?? '',
-                ]
-            ]
+            'data' => $getUserAddress
         ]);
     }
 
@@ -1071,25 +1071,12 @@ class AppointmentController extends Controller
             ], 404);
         }
 
-        $getUsersAddress = UsersAddress::where('user_id', $user->id)->first();
-
-        $getAddressName = $getUsersAddress ? $getUsersAddress->address_name : '';
-        $getAddress = $getUsersAddress ? $getUsersAddress->address : '';
-        $getCity = $getUsersAddress ? $getUsersAddress->city_id : '';
-        $getDistrict = $getUsersAddress ? $getUsersAddress->district_id : '';
-        $getSubDistrict = $getUsersAddress ? $getUsersAddress->sub_district_id : '';
-        $getZipCode = $getUsersAddress ? $getUsersAddress->zip_code : '';
+        $logic = new SynapsaLogic();
+        $getUserAddress = $logic->getUserAddress($user->id, $user->phone);
 
         return response()->json([
             'success' => 1,
-            'data' => [
-                'address_name' => $getAddressName ?? $user->address,
-                'address' => $getAddress ?? $user->address_detail,
-                'city_id' => $getCity ?? $user->city_id,
-                'district_id' => $getDistrict ?? $user->district_id,
-                'sub_district_id' => $getSubDistrict ?? $user->sub_district_id,
-                'zip_code' => $getZipCode ?? $user->zip_code,
-            ]
+            'data' => $getUserAddress
         ]);
     }
 
@@ -1417,32 +1404,14 @@ class AppointmentController extends Controller
 
     private function getUserAddress($userId)
     {
-        $getUsersAddress = UsersAddress::where('user_id', $userId)->first();
         $user = $this->request->attributes->get('_user');
 
-        $getAddressName = $getUsersAddress->address_name ??$user->address ?? '';
-        $getAddress = $getUsersAddress->address ?? $user->address_detail ?? '';
-        $getCity = $getUsersAddress->city_id ?? '';
-        $getCityName = $getUsersAddress->city_name ?? '';
-        $getDistrict = $getUsersAddress->district_id ?? '';
-        $getDistrictName = $getUsersAddress->district_name ?? '';
-        $getSubDistrict = $getUsersAddress->sub_district_id ?? '';
-        $getSubDistrictName = $getUsersAddress->sub_district_name ?? '';
-        $getZipCode = $getUsersAddress->zip_code ?? '';
         $getPhone = $user->phone ?? '';
 
-        return [
-            'address_name' => $getAddressName,
-            'address' => $getAddress,
-            'city_id' => $getCity,
-            'city_name' => $getCityName,
-            'district_id' => $getDistrict,
-            'district_name' => $getDistrictName,
-            'sub_district_id' => $getSubDistrict,
-            'sub_district_name' => $getSubDistrictName,
-            'zip_code' => $getZipCode,
-            'phone' => $getPhone
-        ];
+        $logic = new SynapsaLogic();
+        $getUserAddress = $logic->getUserAddress($user->id, $getPhone);
+
+        return $getUserAddress;
 
     }
 

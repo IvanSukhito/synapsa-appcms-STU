@@ -390,29 +390,17 @@ class ProductController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $getData = UsersCart::firstOrCreate([
+        UsersCart::firstOrCreate([
             'users_id' => $user->id,
         ]);
 
-        $getUserAddress = UsersAddress::where('user_id', $user->id)->first();
-        $getPhone = $user->phone ?? '';
+        $logic = new SynapsaLogic();
+        $getUsersAddress = $logic->getUserAddress($user->id, $user->phone);
+        $getUsersAddress['receiver'] = $getUsersAddress['address_name'] ?? '';
 
         return response()->json([
             'success' => 1,
-            'data' => [
-                [
-                    'receiver' => $getUserAddress->address_name ?? '',
-                    'phone' => $getPhone ?? '',
-                    'city_id' => $getUserAddress->city_id ?? '',
-                    'city_name' => $getUserAddress->city_name ?? '',
-                    'district_id' => $getUserAddress->district_id ?? '',
-                    'district_name' => $getUserAddress->district_name ?? '',
-                    'sub_district_id' => $getUserAddress->sub_district_id ?? '',
-                    'sub_district_name' => $getUserAddress->sub_district_name ?? '',
-                    'address' => $getUserAddress->address ?? '',
-                    'address_detail' => $getUserAddress->address_detail ?? '',
-                ]
-            ]
+            'data' => $getUsersAddress
         ]);
     }
 
@@ -768,8 +756,9 @@ class ProductController extends Controller
         $getTotal = Transaction::where('klinik_id', $user->klinik_id)->whereYear('created_at', '=', date('Y'))
             ->whereMonth('created_at', '=', date('m'))->count();
 
+        //dd($getTotal);
         $newCode = str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT).rand(100,199);
-
+        //dd($newCode);
         $sendData = [
             'job' => [
                 'code' => $newCode,

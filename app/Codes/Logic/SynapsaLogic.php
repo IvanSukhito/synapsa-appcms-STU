@@ -16,6 +16,7 @@ use App\Codes\Models\V1\Service;
 use App\Codes\Models\V1\SetJob;
 use App\Codes\Models\V1\Transaction;
 use App\Codes\Models\V1\Users;
+use App\Codes\Models\V1\UsersAddress;
 use App\Jobs\ProcessTransaction;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -24,6 +25,44 @@ class SynapsaLogic
 {
     public function __construct()
     {
+    }
+
+    /**
+     * @param $userId
+     * @param null $phone
+     * @return array
+     */
+    public function getUserAddress($userId, $phone = null)
+    {
+        if ($phone == null) {
+            $user = Users::where('id', $userId)->first();
+            if ($user) {
+                $phone = $user->phone;
+            }
+        }
+
+        $getUserAddress = UsersAddress::firstOrCreate([
+            'user_id' => $userId
+        ]);
+        if ($getUserAddress) {
+            return [
+                'address_name' => $getUserAddress->address_name ?? '',
+                'phone' => $phone ?? '',
+                'city_id' => $getUserAddress->city_id ?? '',
+                'city_name' => $getUserAddress->city_name ?? '',
+                'district_id' => $getUserAddress->district_id ?? '',
+                'district_name' => $getUserAddress->district_name ?? '',
+                'sub_district_id' => $getUserAddress->sub_district_id ?? '',
+                'sub_district_name' => $getUserAddress->sub_district_name ?? '',
+                'address' => $getUserAddress->address ?? '',
+                'address_detail' => $getUserAddress->address_detail ?? '',
+                'zip_code' => $getUserAddress->zip_code ?? '',
+            ];
+        }
+        else {
+            return [];
+        }
+
     }
 
     public function createPayment($payment, $additional, $flag = 0)
@@ -350,10 +389,25 @@ class SynapsaLogic
         $getDoctorData = Doctor::where('id', $getTransactionDetails->doctor_id)->first();
         $getDoctor = Users::where('id', $getDoctorData->user_id)->first();
 
+        $getTotal = AppointmentDoctor::where('klinik_id', $getTransaction->klinik_id)
+                    ->where('doctor_id', $getDoctorData->id)
+                    ->where('service_id', 1)
+                    ->whereYear('created_at', '=', date('Y'))
+                    ->whereMonth('created_at', '=', date('m'))
+                    ->whereDate('created_at', '=', date('d'))
+                    ->count();
+
+        $getTotalCode = str_pad(($getTotal + 1), 2, '0', STR_PAD_LEFT);
+
+        //dd($getTotalCode);
+        $newCode =  date('d').$getDoctorData->id.$getTotalCode;
+
+
         if ($flag) {
             AppointmentDoctor::create([
                 'transaction_id' => $getTransaction->id,
                 'klinik_id' => $getTransaction->klinik_id,
+                'code' => $newCode,
                 'schedule_id' => $getSchedule->id,
                 'service_id' => $getSchedule->service_id,
                 'doctor_id' => $getSchedule->doctor_id,
@@ -391,12 +445,25 @@ class SynapsaLogic
         }
 
         $getUser = Users::where('id', $getTransaction->user_id)->first();
+        $getTotal = AppointmentLab::where('klinik_id', $getTransaction->klinik_id)
+            ->where('service_id', $getService->id)
+            ->whereYear('created_at', '=', date('Y'))
+            ->whereMonth('created_at', '=', date('m'))
+            ->whereDate('created_at', '=', date('d'))
+            ->count();
+
+        $getTotalCode = str_pad(($getTotal + 1), 3, '0', STR_PAD_LEFT);
+
+        //dd($getTotalCode);
+        $newCode = date('ym').$getService->id.$getTotalCode;
+
 
         if ($flag) {
             DB::beginTransaction();
 
             $getAppointmentLab = AppointmentLab::create([
                 'transaction_id' => $getTransaction->id,
+                'code' => $newCode,
                 'klinik_id' => $getTransaction->klinik_id,
                 'schedule_id' => $getSchedule->id,
                 'service_id' => $getSchedule->service_id,
@@ -523,6 +590,7 @@ class SynapsaLogic
         readfile($file);
         exit;
     }
+
     public function downloadExampleImportLabSchedule() {
         $file = env('OSS_URL') . '/' . 'synapsaapps/lab-schedule/example_import/rqTH6V46UlU725sIwxslokh7G5XdUiDCXW7YIYA2.xlsx';
         $fileName = create_slugs('Example Import Lab Schedule');
