@@ -169,22 +169,23 @@ class ProcessTransaction implements ShouldQueue
             $qty = $productQty[$key];
 
             if($list->stock_flag == 2) {
-                if($list->klinik_id > 0 && $list->parent_id > 0) {
-                    $productParent = Product::where('id', $list->parent_id)->first();
-                    $productParent->stock = $productParent->stock - $qty;
-                    $productParent->save();
-
-                    Product::where('parent_id', $productParent->id)->update([
-                        'stock' => $productParent->stock,
-                    ]);
-                }
-
                 $list->stock = $list->stock - $qty;
                 $list->save();
 
                 Product::where('parent_id', $list->id)->update([
                     'stock' => $list->stock,
                 ]);
+
+                if($list->klinik_id > 0 && $list->parent_id > 0) {
+                    $productParent = Product::where('id', $list->parent_id)->first();
+                    $productParent->stock = $list->stock;
+                    $productParent->save();
+
+                    Product::where('parent_id', $productParent->id)->update([
+                        'stock' => $list->stock,
+                    ]);
+                    dd($productParent);
+                }
             }
         }
 
