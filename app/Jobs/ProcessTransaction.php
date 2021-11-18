@@ -184,6 +184,7 @@ class ProcessTransaction implements ShouldQueue
                     Product::where('parent_id', $productParent->id)->update([
                         'stock' => $list->stock,
                     ]);
+                    dd('In');
                 }
             }
         }
