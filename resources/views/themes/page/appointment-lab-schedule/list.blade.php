@@ -44,7 +44,7 @@
                      </div>
                      <div class="col-md-4 right">
                          <label for="filter_service">{{ __('general.service') }}</label>
-                         <input style="margin-left: 20px;"  type="text" class="form-control-sm center" id="time_start" name="time_start" autocomplete="off" required>
+                         {{ Form::select('service_id', $listSet['service_id'], old('service_id'), ['class' => 'form-control-sm', 'autocomplete' => 'off']) }}
                      </div>
                  </div>
                 </div>
@@ -84,8 +84,8 @@
                 //default : 'agendaWeek',
                 editable: false,
                 defaultView: 'agendaWeek',
-                slotDuration: '00:30:00',
-                minTime: '06:30:00', // Start time for the calendar
+                slotDuration: '00:15:00',
+                minTime: '07:00:00', // Start time for the calendar
                 maxTime: '18:00:00', // End time for the calendar
                 header: {
                     left: 'prev,next today',

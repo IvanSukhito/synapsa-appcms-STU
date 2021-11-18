@@ -6,6 +6,7 @@ use App\Codes\Logic\_CrudController;
 
 use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Admin;
+use App\Codes\Models\Settings;
 use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\DoctorCategory;
 use App\Codes\Models\V1\Klinik;
@@ -14,11 +15,13 @@ use App\Codes\Models\V1\Service;
 use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\LabSchedule;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\DataTables;
 
 class LabScheduleController extends _CrudController
 {
+    protected $setting;
     public function __construct(Request $request)
     {
         $passingData = [
@@ -89,13 +92,23 @@ class LabScheduleController extends _CrudController
             $passingData
         );
 
+        $this->setting = Cache::remember('settings', env('SESSION_LIFETIME'), function () {
+            return Settings::pluck('value', 'key')->toArray();
+        });
 
-        $getService = Service::where('status', 80)->pluck('name', 'id')->toArray();
-        if($getService) {
-            foreach($getService as $key => $value) {
-                $listService[$key] = $value;
-            }
+        $getServiceLab = isset($this->setting['service-lab']) ? json_decode($this->setting['service-lab'], true) : [];
+        if (count($getServiceLab) > 0) {
+            $service = Service::whereIn('id', $getServiceLab)->where('status', '=', 80)->pluck('name','id')->toArray();
         }
+        else {
+            $service = Service::where('status', '=', 80)->orderBy('orders', 'ASC')->pluck('name','id')->toArray();
+        }
+
+
+        $service_id = [];
+        foreach($service as $key => $val) {
+            $service_id[$key] = $val;
+        };
 
         $klinik_id = [0 => 'Empty'];
         foreach(Klinik::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
@@ -103,7 +116,7 @@ class LabScheduleController extends _CrudController
         }
 
         $this->data['listSet']['klinik_id'] = $klinik_id;
-        $this->data['listSet']['service_id'] = $listService;
+        $this->data['listSet']['service_id'] = $service_id;
         $this->data['listSet']['day'] = get_list_day();
         $this->data['listSet']['book'] = get_list_availabe();
         $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.lab.schedule';
