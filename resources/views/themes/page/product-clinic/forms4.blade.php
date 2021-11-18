@@ -156,7 +156,7 @@ else {
 
             if(stock <= '0' || stock === '999') {
                 $('#unlimitedCheck').prop('checked', true);
-                $('#stock').val('Unlimited');
+                $('#stock').val('999');
                 $('#stock').prop('readonly', true);
             }
 
