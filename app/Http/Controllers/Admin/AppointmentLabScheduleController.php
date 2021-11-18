@@ -105,6 +105,7 @@ class AppointmentLabScheduleController extends _CrudController
 
         $data['passing'] = collectPassingData($this->passingData);
 
+
         return view($this->listView['index'], $data);
     }
 

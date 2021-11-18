@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 
+use App\Codes\Models\V1\AppointmentLab;
 use App\Codes\Models\V1\City;
 use App\Codes\Models\V1\District;
 use App\Codes\Models\V1\Product;
@@ -58,6 +59,20 @@ class GeneralController extends Controller
 
 
         return response()->json($getProduct);
+    }
+
+    public function appointmentLabSchedule(Request $request){
+        if($request->ajax())
+        {
+            $data = AppointmentLab::whereDate('time_start', '>=', $request->time_start)
+                ->whereDate('time_end',   '<=', $request->time_end)
+                ->get(['id', 'code', 'time_start', 'time_end']);
+
+            //dd($data);
+            return response()->json($data);
+            //dd($data);
+        }
+        //return view(welcome);
     }
 
 
