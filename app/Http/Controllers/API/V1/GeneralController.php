@@ -149,16 +149,6 @@ class GeneralController extends Controller
             $users->image = $getUploadImage;
             $users->save();
 
-            //Insert to table Users_Address
-            $addressDetail = [
-                'address' => $users->address,
-                'address_detail' => $users->address_detail,
-                'province_id' => $users->province_id,
-                'city_id' => $users->city_id,
-                'district_id' => $users->district_id,
-                'sub_district_id' => $users->sub_district_id,
-                'zip_code' => $users->zip_code,
-            ];
             $usersAddress = new UsersAddress();
             $usersAddress->user_id = $users->id;
             $usersAddress->province_id = $users->province_id;
@@ -166,9 +156,9 @@ class GeneralController extends Controller
             $usersAddress->district_id = $users->district_id;
             $usersAddress->sub_district_id = $users->sub_district_id;
             $usersAddress->zip_code = $users->zip_code;
-            $usersAddress->address_name = $users->address;
-            $usersAddress->address = $users->address_detail;
-            $usersAddress->address_detail = json_encode($addressDetail);
+            $usersAddress->address_name = $users->fullname;
+            $usersAddress->address = $users->address;
+            $usersAddress->address_detail = $users->address_detail;
             $usersAddress->save();
 
             return response()->json([

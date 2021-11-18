@@ -253,23 +253,10 @@ class ProfileController extends Controller
         $user->zip_code = strip_tags($this->request->get('zip_code'));
         $user->save();
 
-
-
-        $getUser = [
-            'address' => $user->address,
-            'address_detail' => $user->address_detail,
-            'province' => $user->province_id,
-            'city' => $user->city_id,
-            'district' => $user->district_id,
-            'sub_district' => $user->sub_district_id,
-            'zip_code' => $user->zip_code
-        ];
-
         if ($getUserAddress){
 
-            $getUserAddress->address_name = strip_tags($this->request->get('address'));
-            $getUserAddress->address = strip_tags($this->request->get('address_detail'));
-            $getUserAddress->address_detail = json_encode($getUser);
+            $getUserAddress->address = strip_tags($this->request->get('address'));
+            $getUserAddress->address_detail = strip_tags($this->request->get('address_detail'));
             $getUserAddress->province_id = intval($this->request->get('province_id'));
             $getUserAddress->city_id = intval($this->request->get('city_id'));
             $getUserAddress->district_id = intval($this->request->get('district_id'));
@@ -281,7 +268,7 @@ class ProfileController extends Controller
 
         return response()->json([
             'success' => 1,
-            'data' => $getUser,
+            'data' => $getUserAddress,
             'token' => $this->request->attributes->get('_refresh_token'),
             'message' => ['Sukses Memperbarui Alamat Profil'],
         ]);
