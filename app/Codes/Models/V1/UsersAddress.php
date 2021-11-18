@@ -10,6 +10,7 @@ class UsersAddress extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
       'user_id',
+      'province_id',
       'city_id',
       'district_id',
       'sub_district_id',
@@ -20,10 +21,20 @@ class UsersAddress extends Model
     ];
 
     protected $appends = [
+        'province_name',
         'city_name',
         'district_name',
         'sub_district_name'
     ];
+
+    public function getProvinceNameAttribute()
+    {
+        $getData = $this->getProvince()->first();
+        if ($getData) {
+            return $getData->name;
+        }
+        return '';
+    }
 
     public function getCityNameAttribute()
     {
@@ -50,6 +61,11 @@ class UsersAddress extends Model
             return $getData->name;
         }
         return '';
+    }
+
+    public function getProvince()
+    {
+        return $this->belongsTo(Province::class, 'province_id', 'id');
     }
 
     public function getCity()

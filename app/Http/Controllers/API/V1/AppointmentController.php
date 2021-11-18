@@ -996,28 +996,14 @@ class AppointmentController extends Controller
             ], 404);
         }
 
-        $getUserAddress = UsersAddress::where('user_id', $user->id)->first();
-
-//        $getReceiver = $user->fullname ?? '';
-//        $getAddress = $user->address ?? '';
         $getPhone = $user->phone ?? '';
+        $logic = new SynapsaLogic();
+        $getUserAddress = $logic->getUserAddress($user->id, $getPhone);
+        $getUserAddress['receiver'] = $getUserAddress['address_name'] ?? '';
 
         return response()->json([
             'success' => 1,
-            'data' => [
-                [
-                    'receiver' => $getUserAddress->address_name ?? '',
-                    'phone' => $getPhone ?? '',
-                    'city_id' => $getUserAddress->city_id ?? '',
-                    'city_name' => $getUserAddress->city_name ?? '',
-                    'district_id' => $getUserAddress->district_id ?? '',
-                    'district_name' => $getUserAddress->district_name ?? '',
-                    'sub_district_id' => $getUserAddress->sub_district_id ?? '',
-                    'sub_district_name' => $getUserAddress->sub_district_name ?? '',
-                    'address' => $getUserAddress->address ?? '',
-                    'address_detail' => $getUserAddress->address_detail ?? '',
-                ]
-            ]
+            'data' => $getUserAddress
         ]);
     }
 
@@ -1085,25 +1071,12 @@ class AppointmentController extends Controller
             ], 404);
         }
 
-        $getUsersAddress = UsersAddress::where('user_id', $user->id)->first();
-
-        $getAddressName = $getUsersAddress ? $getUsersAddress->address_name : '';
-        $getAddress = $getUsersAddress ? $getUsersAddress->address : '';
-        $getCity = $getUsersAddress ? $getUsersAddress->city_id : '';
-        $getDistrict = $getUsersAddress ? $getUsersAddress->district_id : '';
-        $getSubDistrict = $getUsersAddress ? $getUsersAddress->sub_district_id : '';
-        $getZipCode = $getUsersAddress ? $getUsersAddress->zip_code : '';
+        $logic = new SynapsaLogic();
+        $getUserAddress = $logic->getUserAddress($user->id, $user->phone);
 
         return response()->json([
             'success' => 1,
-            'data' => [
-                'address_name' => $getAddressName ?? $user->address,
-                'address' => $getAddress ?? $user->address_detail,
-                'city_id' => $getCity ?? $user->city_id,
-                'district_id' => $getDistrict ?? $user->district_id,
-                'sub_district_id' => $getSubDistrict ?? $user->sub_district_id,
-                'zip_code' => $getZipCode ?? $user->zip_code,
-            ]
+            'data' => $getUserAddress
         ]);
     }
 
@@ -1431,32 +1404,14 @@ class AppointmentController extends Controller
 
     private function getUserAddress($userId)
     {
-        $getUsersAddress = UsersAddress::where('user_id', $userId)->first();
         $user = $this->request->attributes->get('_user');
 
-        $getAddressName = $getUsersAddress->address_name ??$user->address ?? '';
-        $getAddress = $getUsersAddress->address ?? $user->address_detail ?? '';
-        $getCity = $getUsersAddress->city_id ?? '';
-        $getCityName = $getUsersAddress->city_name ?? '';
-        $getDistrict = $getUsersAddress->district_id ?? '';
-        $getDistrictName = $getUsersAddress->district_name ?? '';
-        $getSubDistrict = $getUsersAddress->sub_district_id ?? '';
-        $getSubDistrictName = $getUsersAddress->sub_district_name ?? '';
-        $getZipCode = $getUsersAddress->zip_code ?? '';
         $getPhone = $user->phone ?? '';
 
-        return [
-            'address_name' => $getAddressName,
-            'address' => $getAddress,
-            'city_id' => $getCity,
-            'city_name' => $getCityName,
-            'district_id' => $getDistrict,
-            'district_name' => $getDistrictName,
-            'sub_district_id' => $getSubDistrict,
-            'sub_district_name' => $getSubDistrictName,
-            'zip_code' => $getZipCode,
-            'phone' => $getPhone
-        ];
+        $logic = new SynapsaLogic();
+        $getUserAddress = $logic->getUserAddress($user->id, $getPhone);
+
+        return $getUserAddress;
 
     }
 

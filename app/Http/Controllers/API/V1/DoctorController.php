@@ -602,37 +602,12 @@ class DoctorController extends Controller
 
     private function getUserAddress($userId)
     {
-        $getUsersAddress = UsersAddress::where('user_id', $userId)->first();
         $user = $this->request->attributes->get('_user');
 
-        $getAddressName = $getUsersAddress->address_name ?? $user->address ?? '';
-        $getAddress = $getUsersAddress->address ?? $user->address_detail ?? '';
-        $getProvince = $getUsersAddress->province_id ?? $user->province_id ?? '';
-        $getProvinceName = $getUsersAddress->province_name ?? $user->province_name ?? '';
-        $getCity = $getUsersAddress->city_id ?? '';
-        $getCityName = $getUsersAddress->city_name ?? '';
-        $getDistrict = $getUsersAddress->district_id ?? '';
-        $getDistrictName = $getUsersAddress->district_name ?? '';
-        $getSubDistrict = $getUsersAddress->sub_district_id ?? '';
-        $getSubDistrictName = $getUsersAddress->sub_district_name ?? '';
-        $getZipCode = $getUsersAddress->zip_code ?? '';
         $getPhone = $user->phone ?? '';
 
-        return [
-            'address_name' => $getAddressName,
-            'address' => $getAddress,
-            'province_id' => $getProvince,
-            'province_name' => $getProvinceName,
-            'city_id' => $getCity,
-            'city_name' => $getCityName,
-            'district_id' => $getDistrict,
-            'district_name' => $getDistrictName,
-            'sub_district_id' => $getSubDistrict,
-            'sub_district_name' => $getSubDistrictName,
-            'zip_code' => $getZipCode,
-            'phone' => $getPhone
-        ];
-
+        $logic = new SynapsaLogic();
+        return $logic->getUserAddress($user->id, $getPhone);
     }
 
 }

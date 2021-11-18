@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API\V1;
 
+use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\Notifications;
@@ -205,19 +206,16 @@ class ProfileController extends Controller
     public function getAddress(){
         $user = $this->request->attributes->get('_user');
 
-        $getUser = [
-            'address' => $user->address,
-            'address_detail' => $user->address_detail,
-            'province' => $user->province_id,
-            'city' => $user->city_id,
-            'district' => $user->district_id,
-            'sub_district' => $user->sub_district_id,
-            'zip_code' => $user->zip_code
-        ];
+        $logic = new SynapsaLogic();
+        $getUsersAddress = $logic->getUserAddress($user->id, $user->phone);
+        $getUsersAddress['province'] = $getUsersAddress['province_id'] ?? 0;
+        $getUsersAddress['city'] = $getUsersAddress['city_id'] ?? 0;
+        $getUsersAddress['district'] = $getUsersAddress['district_id'] ?? 0;
+        $getUsersAddress['sub_district'] = $getUsersAddress['sub_district'] ?? 0;
 
         return response()->json([
             'success' => 1,
-            'data' => $getUser,
+            'data' => $getUsersAddress,
             'token' => $this->request->attributes->get('_refresh_token')
         ]);
 
@@ -255,13 +253,14 @@ class ProfileController extends Controller
 
         if ($getUserAddress){
 
-            $getUserAddress->address = strip_tags($this->request->get('address'));
-            $getUserAddress->address_detail = strip_tags($this->request->get('address_detail'));
-            $getUserAddress->province_id = intval($this->request->get('province_id'));
-            $getUserAddress->city_id = intval($this->request->get('city_id'));
-            $getUserAddress->district_id = intval($this->request->get('district_id'));
-            $getUserAddress->sub_district_id = intval($this->request->get('sub_district_id'));
-            $getUserAddress->zip_code = strip_tags($this->request->get('zip_code'));
+            $getUserAddress->address_name = $user->fullname;
+            $getUserAddress->address = $user->address;
+            $getUserAddress->address_detail = $user->address_detail;
+            $getUserAddress->province_id = $user->province_id;
+            $getUserAddress->city_id = $user->city_id;
+            $getUserAddress->district_id = $user->district_id;
+            $getUserAddress->sub_district_id = $user->sub_district_id;
+            $getUserAddress->zip_code = $user->zip_code;
             $getUserAddress->save();
 
         }

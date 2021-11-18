@@ -304,32 +304,12 @@ class NurseController extends Controller
 
     private function getUserAddress($userId)
     {
-        $getUsersAddress = UsersAddress::where('user_id', $userId)->first();
         $user = $this->request->attributes->get('_user');
 
-        $getAddressName = $getUsersAddress->address_name ?? $user->address ?? '';
-        $getAddress = $getUsersAddress->address ?? $user->address_detail ?? '';
-        $getCity = $getUsersAddress->city_id ?? '';
-        $getCityName = $getUsersAddress->city_name ?? '';
-        $getDistrict = $getUsersAddress->district_id ?? '';
-        $getDistrictName = $getUsersAddress->district_name ?? '';
-        $getSubDistrict = $getUsersAddress->sub_district_id ?? '';
-        $getSubDistrictName = $getUsersAddress->sub_district_name ?? '';
-        $getZipCode = $getUsersAddress->zip_code ?? '';
-        $getPhone = $user->phone ?? '';
+        $logic = new SynapsaLogic();
+        $getUsersAddress = $logic->getUserAddress($user->id, $user->phone);
 
-        return [
-            'address_name' => $getAddressName,
-            'address' => $getAddress,
-            'city_id' => $getCity,
-            'city_name' => $getCityName,
-            'district_id' => $getDistrict,
-            'district_name' => $getDistrictName,
-            'sub_district_id' => $getSubDistrict,
-            'sub_district_name' => $getSubDistrictName,
-            'zip_code' => $getZipCode,
-            'phone' => $getPhone
-        ];
+        return $getUsersAddress;
 
     }
 
