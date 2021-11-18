@@ -15,6 +15,7 @@ class CreateInvoiceTable extends Migration
     {
         Schema::create('invoice', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('transaction_id')->default(0);
             $table->unsignedBigInteger('product_category_id')->default(0);
             $table->unsignedBigInteger('klinik_id')->default(0);
             $table->string('product_category_name')->nullable();
@@ -27,8 +28,10 @@ class CreateInvoiceTable extends Migration
             $table->decimal('price_product_klinik', 26, 2)->nullable();
             $table->decimal('price_product_synapsa', 26, 2)->nullable();
             $table->string('product_unit')->nullable();
-            $table->longText('product_desc')->nullable();
             $table->tinyInteger('product_type')->default(0);
+            $table->datetime('transaction_date')->nullable();
+            $table->string('total_qty_transaction')->nullable();
+            $table->decimal('total_price_transaction', 26, 2)->nullable();
             $table->tinyInteger('status')->default(0);
             $table->timestamps();
         });

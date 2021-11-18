@@ -31,11 +31,17 @@ class InvoiceController extends _CrudController
                 'show' => 0,
                 'edit' => 0,
             ],
+            'transaction_date' => [
+                'extra' => [
+                    'edit' => ['disabled' => true],
+                ],
+            ],
             'product_category_name' => [
                 'lang' => 'general.product-category',
                 'extra' => [
                     'edit' => ['disabled' => true],
-                ]
+                ],
+                'list' => 0,
             ],
             'klinik_name' => [
                 'lang' => 'general.klinik',
@@ -66,6 +72,16 @@ class InvoiceController extends _CrudController
                     'edit' => ['disabled' => true],
                 ]
             ],
+            'total_qty_transaction' => [
+                'extra' => [
+                    'edit' => ['disabled' => true],
+                ],
+            ],
+            'total_price_transaction' => [
+                'extra' => [
+                    'edit' => ['disabled' => true],
+                ],
+            ],
             'product_image_full' => [
                 'list' => 0,
                 'edit' => 0,
@@ -87,17 +103,14 @@ class InvoiceController extends _CrudController
             'product_unit' => [
                 'extra' => [
                     'edit' => ['disabled' => true],
-                ]
-            ],
-            'product_desc' => [
+                ],
                 'list' => 0,
-                'edit' => 0,
-                'show' => 0
             ],
             'product_type' => [
                 'extra' => [
                     'edit' => ['disabled' => true],
                 ],
+                'list' => 0,
                 'type' => 'select',
             ],
             'status' => [

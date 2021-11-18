@@ -7,9 +7,11 @@ use App\Codes\Models\Admin;
 use App\Codes\Models\V1\AppointmentLab;
 use App\Codes\Models\V1\City;
 use App\Codes\Models\V1\District;
+use App\Codes\Models\V1\Invoice;
 use App\Codes\Models\V1\Klinik;
 use App\Codes\Models\V1\Lab;
 use App\Codes\Models\V1\Payment;
+use App\Codes\Models\V1\Product;
 use App\Codes\Models\V1\ProductCategory;
 use App\Codes\Models\V1\Province;
 use App\Codes\Models\V1\Shipping;
@@ -528,8 +530,40 @@ class TransactionProductController extends _CrudController
 
         $this->callPermission();
 
-
         $getData = Transaction::where('id', $id)->first();
+
+        $transactionDetails = $getData->getTransactionDetails()->get();
+        if(count($transactionDetails) > 0) {
+            foreach($transactionDetails as $list) {
+                $product = Product::where('id', $list->product_id)->first();
+                if($product->klinik_id > 0 && $product->parent_id > 0) {
+                    $productParent = Product::where('id', $product->parent_id)->first();
+                    $productCategory = ProductCategory::where('id', $product->product_category_id)->first();
+                    $productKlinik = Klinik::where('id', $product->klinik_id)->first();
+
+                    $invoice = new Invoice();
+                    $invoice->transaction_id = $id;
+                    $invoice->product_category_id = $product->product_category_id;
+                    $invoice->klinik_id = $product->klinik_id;
+                    $invoice->product_category_name = $productCategory->name;
+                    $invoice->klinik_name = $productKlinik->name;
+                    $invoice->klinik_address = $productKlinik->address;
+                    $invoice->klinik_no_telp = $productKlinik->no_telp;
+                    $invoice->klinik_email = $productKlinik->email;
+                    $invoice->product_name = $product->name;
+                    $invoice->product_image = $product->image;
+                    $invoice->price_product_klinik = $product->price;
+                    $invoice->price_product_synapsa = $productParent->price;
+                    $invoice->product_unit = $product->unit;
+                    $invoice->product_type = $product->type;
+                    $invoice->transaction_date = date('Y-m-d H:i:s', strtotime($getData->created_at));
+                    $invoice->total_qty_transaction = $getData->total_qty;
+                    $invoice->total_price_transaction = $getData->total;
+                    $invoice->save();
+
+                }
+            }
+        }
 
         if(!$getData){
             session()->flash('message', __('general.data_not_found'));
