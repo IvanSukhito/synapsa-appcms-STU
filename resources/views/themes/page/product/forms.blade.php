@@ -2,7 +2,6 @@
 $title = isset($listProduct['title']) ? $listProduct['title'] : null;
 $desc = isset($listProduct['desc']) ? $listProduct['desc'] : null;
 
-
 switch ($viewType) {
     case 'create': $printCard = 'card-success'; break;
     case 'edit': $printCard = 'card-primary'; break;

@@ -60,6 +60,7 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                 'App\Http\Controllers\Admin\TransactionProductAdminController' => 'transaction-product-admin',
                 'App\Http\Controllers\Admin\LabController' => 'lab',
                 'App\Http\Controllers\Admin\LabScheduleController' => 'lab-schedule',
+                'App\Http\Controllers\Admin\InvoiceController' => 'invoice',
             ];
 
             foreach ($listRouter as $controller => $linkName) {

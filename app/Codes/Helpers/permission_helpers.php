@@ -528,6 +528,15 @@ if ( ! function_exists('listAllMenu')) {
                 ],
             ],
             [
+                'name' => __('general.invoice'),
+                'icon' => '<i class="nav-icon fa fa-money"></i>',
+                'title' => __('general.invoice'),
+                'active' => ['admin.invoice.'],
+                'route' => 'admin.invoice.index',
+                'key' => 'invoice',
+                'type' => 1,
+            ],
+            [
                 'name' => __('general.appointment_lab'),
                 'icon' => '<i class="nav-icon fa fa-book"></i>',
                 'title' => __('general.appointment_lab'),
@@ -716,6 +725,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'appointment-nurse',
                      'clinic_info',
                      'transaction-product',
+                     'invoice'
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [
