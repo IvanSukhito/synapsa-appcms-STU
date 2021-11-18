@@ -168,7 +168,7 @@ class DoctorAppointmentController extends Controller
 
         $dateNow = strtotime(date('Y-m-d'));
 
-        $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image,
+        $data = AppointmentDoctor::selectRaw('appointment_doctor.*, users.id AS doctor_user_id,doctor_category.name, users.image,
                 CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
             ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
             ->join('users', 'users.id', '=', 'doctor.user_id')
