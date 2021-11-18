@@ -11,6 +11,7 @@
 
     @section('css')
             <link rel="stylesheet" href="{{ asset('/assets/cms/css/app.css') }}">
+            <link rel="stylesheet" href="{{ asset('/assets/cms/js/calendar/fullcalendar.css') }}">
             <link rel="stylesheet" href="{{ asset('/assets/cms/dropify/css/dropify.min.css') }}">
     @show
     @section('script-top')
@@ -80,6 +81,7 @@
     <script src="{{ asset('/assets/cms/js/app.js') }}"></script>
     <script src="{{ asset('/assets/cms/js/moment.min.js') }}"></script>
     <script src="{{ asset('/assets/cms/js/money.js') }}"></script>
+    <script src="{{ asset('/assets/cms/js/calendar/fullcalendar.min.js') }}"></script>
     <script src="{{ asset('/assets/cms/dropify/js/dropify.js')}}"> </script>
 
     @if(session()->has('message'))

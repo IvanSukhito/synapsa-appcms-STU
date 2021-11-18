@@ -67,7 +67,7 @@
                     right: 'agendaWeek,agendaDay'
                 },
 
-                events: '/full-calender',
+                //events: '/full-calender',
                 selectable: true,
                 selectHelper: true,
             })
