@@ -558,7 +558,7 @@ class TransactionProductController extends _CrudController
                     $invoice->product_type = $product->type;
                     $invoice->transaction_date = date('Y-m-d H:i:s', strtotime($getData->created_at));
                     $invoice->total_qty_transaction = $getData->total_qty;
-                    $invoice->total_price_transaction = $getData->total;
+                    $invoice->total_price_transaction = $getData->subtotal;
                     $invoice->save();
 
                 }
