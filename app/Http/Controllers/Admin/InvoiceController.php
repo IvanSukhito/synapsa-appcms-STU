@@ -31,11 +31,17 @@ class InvoiceController extends _CrudController
                 'show' => 0,
                 'edit' => 0,
             ],
+            'transaction_date' => [
+                'extra' => [
+                    'edit' => ['disabled' => true],
+                ],
+            ],
             'product_category_name' => [
                 'lang' => 'general.product-category',
                 'extra' => [
                     'edit' => ['disabled' => true],
-                ]
+                ],
+                'list' => 0,
             ],
             'klinik_name' => [
                 'lang' => 'general.klinik',
@@ -66,6 +72,16 @@ class InvoiceController extends _CrudController
                     'edit' => ['disabled' => true],
                 ]
             ],
+            'total_qty_transaction' => [
+                'extra' => [
+                    'edit' => ['disabled' => true],
+                ],
+            ],
+            'total_price_transaction' => [
+                'extra' => [
+                    'edit' => ['disabled' => true],
+                ],
+            ],
             'product_image_full' => [
                 'list' => 0,
                 'edit' => 0,
@@ -87,17 +103,14 @@ class InvoiceController extends _CrudController
             'product_unit' => [
                 'extra' => [
                     'edit' => ['disabled' => true],
-                ]
-            ],
-            'product_desc' => [
+                ],
                 'list' => 0,
-                'edit' => 0,
-                'show' => 0
             ],
             'product_type' => [
                 'extra' => [
                     'edit' => ['disabled' => true],
                 ],
+                'list' => 0,
                 'type' => 'select',
             ],
             'status' => [
@@ -173,6 +186,14 @@ class InvoiceController extends _CrudController
             else if (in_array($list['type'], ['texteditor'])) {
                 $listRaw[] = $fieldName;
             }
+
+            if($fieldName == 'transaction_date') {
+                $listRaw[] = $fieldName;
+                $dataTables = $dataTables->editColumn($fieldName, function ($query) use ($fieldName, $list, $listRaw) {
+                    return date('d F Y', strtotime($query->$fieldName));
+                });
+            }
+
         }
 
         return $dataTables
@@ -216,6 +237,8 @@ class InvoiceController extends _CrudController
                 $desc[] = 'desc' => [''],
             ];
         }
+
+        $getData['transaction_date'] = date('d F Y', strtotime($getData['transaction_date']));
 
         $data['viewType'] = 'edit';
         $data['formsTitle'] = __('general.title_edit', ['field' => $data['thisLabel']]);
@@ -261,6 +284,8 @@ class InvoiceController extends _CrudController
                 $desc[] = 'desc' => [''],
             ];
         }
+
+        $getData['transaction_date'] = date('d F Y', strtotime($getData['transaction_date']));
 
         $data['viewType'] = 'show';
         $data['formsTitle'] = __('general.title_show', ['field' => $data['thisLabel']]);

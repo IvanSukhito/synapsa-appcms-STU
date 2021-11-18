@@ -6,7 +6,6 @@ use App\Codes\Models\V1\AppointmentDoctor;
 use App\Codes\Models\V1\AppointmentDoctorProduct;
 use App\Codes\Models\V1\BookNurse;
 use App\Codes\Models\V1\DoctorSchedule;
-use App\Codes\Models\V1\Invoice;
 use App\Codes\Models\V1\Klinik;
 use App\Codes\Models\V1\LabSchedule;
 use App\Codes\Models\V1\Payment;
@@ -170,45 +169,22 @@ class ProcessTransaction implements ShouldQueue
             $qty = $productQty[$key];
 
             if($list->stock_flag == 2) {
-                if($list->klinik_id > 0 && $list->parent_id > 0) {
-                    $productParent = Product::where('id', $list->parent_id)->first();
-                    $productParent->stock = $productParent->stock - $qty;
-                    $productParent->save();
-
-                    Product::where('parent_id', $productParent->id)->update([
-                        'stock' => $productParent->stock,
-                    ]);
-                }
-
                 $list->stock = $list->stock - $qty;
                 $list->save();
 
                 Product::where('parent_id', $list->id)->update([
                     'stock' => $list->stock,
                 ]);
-            }
 
-            if($list->klinik_id > 0 && $list->parent_id > 0) {
-                $productParent = Product::where('id', $list->parent_id)->first();
-                $productCategory = ProductCategory::where('id', $list->product_category_id)->first();
-                $klinik = Klinik::where('id', $list->klinik_id)->first();
+                if($list->klinik_id > 0 && $list->parent_id > 0) {
+                    $productParent = Product::where('id', $list->parent_id)->first();
+                    $productParent->stock = $list->stock;
+                    $productParent->save();
 
-                Invoice::create([
-                    'product_category_id' => $list->product_category_id,
-                    'klinik_id' => $list->klinik_id,
-                    'product_category_name' => $productCategory->name ?? '',
-                    'klinik_name' => $klinik->name ?? '',
-                    'klinik_address' => $klinik->address ?? '',
-                    'klinik_no_telp' => $klinik->no_telp ?? '',
-                    'klinik_email' => $klinik->email ?? '',
-                    'product_name' => $list->name,
-                    'product_image' => $list->image,
-                    'price_product_klinik' => $list->price,
-                    'price_product_synapsa' => $productParent->price ?? 0,
-                    'product_unit' => $list->unit,
-                    'product_desc' => $list->desc,
-                    'product_type' => $list->type,
-                ]);
+                    Product::where('parent_id', $productParent->id)->update([
+                        'stock' => $list->stock,
+                    ]);
+                }
             }
         }
 
@@ -353,29 +329,6 @@ class ProcessTransaction implements ShouldQueue
 
                 Product::where('parent_id', $list->id)->update([
                     'stock' => $list->stock,
-                ]);
-            }
-
-            if($list->klinik_id > 0 && $list->parent_id > 0) {
-                $productParent = Product::where('id', $list->parent_id)->first();
-                $productCategory = ProductCategory::where('id', $list->product_category_id)->first();
-                $klinik = Klinik::where('id', $list->klinik_id)->first();
-
-                Invoice::create([
-                    'product_category_id' => $list->product_category_id,
-                    'klinik_id' => $list->klinik_id,
-                    'product_category_name' => $productCategory->name ?? '',
-                    'klinik_name' => $klinik->name ?? '',
-                    'klinik_address' => $klinik->address ?? '',
-                    'klinik_no_telp' => $klinik->no_telp ?? '',
-                    'klinik_email' => $klinik->email ?? '',
-                    'product_name' => $list->name,
-                    'product_image' => $list->image,
-                    'price_product_klinik' => $list->price,
-                    'price_product_synapsa' => $productParent->price ?? 0,
-                    'product_unit' => $list->unit,
-                    'product_desc' => $list->desc,
-                    'product_type' => $list->type,
                 ]);
             }
 

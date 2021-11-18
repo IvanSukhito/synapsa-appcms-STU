@@ -426,4 +426,7 @@ return [
     'product_image' => 'Gambar Produk',
     'in_progress_payment' => 'Dalam Proses Pembayaran',
     'paid' => 'Terbayar',
+    'transaction_date' => 'Tanggal Transaksi',
+    'total_qty_transaction' => 'Qty Produk Transaksi',
+    'total_price_transaction' => 'Total Harga Transaksi',
 ];

@@ -48,6 +48,8 @@ class SynapsaLogic
             return [
                 'address_name' => $getUserAddress->address_name ?? '',
                 'phone' => $phone ?? '',
+                'province_id' => $getUserAddress->province_id ?? '',
+                'province_name' => $getUserAddress->province_name ?? '',
                 'city_id' => $getUserAddress->city_id ?? '',
                 'city_name' => $getUserAddress->city_name ?? '',
                 'district_id' => $getUserAddress->district_id ?? '',

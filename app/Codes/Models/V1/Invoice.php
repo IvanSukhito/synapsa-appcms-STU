@@ -9,6 +9,7 @@ class Invoice extends Model
     protected $table = 'invoice';
     protected $primaryKey = 'id';
     protected $fillable = [
+        'transaction_id',
         'product_category_id',
         'klinik_id',
         'product_category_name',
@@ -21,9 +22,15 @@ class Invoice extends Model
         'price_product_klinik',
         'price_product_synapsa',
         'product_unit',
-        'product_desc',
         'product_type',
+        'transaction_date',
+        'total_qty_transaction',
+        'total_price_transaction',
         'status',
+    ];
+
+    protected $dates = [
+        'transaction_date'
     ];
 
     protected $appends = [
