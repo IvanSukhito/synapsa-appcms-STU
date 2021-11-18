@@ -514,6 +514,13 @@ class ProductController extends _CrudController
             'stock_flag' => $productStockFlag
         ]);
 
+        if($klinikId > 0 && $getData->parent_id > 0) {
+            Product::where('id', $getData->parent_id)->update([
+                'stock' => $productStock,
+                'stock_flag' => $productStockFlag
+            ]);
+        }
+
         if($this->request->ajax()){
             return response()->json(['result' => 1, 'message' => __('general.success_edit_', ['field' => $this->data['thisLabel']])]);
         }
