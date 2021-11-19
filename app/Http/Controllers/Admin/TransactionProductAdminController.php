@@ -169,7 +169,7 @@ class TransactionProductAdminController extends _CrudController
                     'edit' => ['disabled' => true]
                 ],
                 'list' => 0,
-                'type' => 'number',
+                'type' => 'money',
                 'lang' => 'general.shipping_price',
             ],
             'total_qty' => [
@@ -189,7 +189,7 @@ class TransactionProductAdminController extends _CrudController
                 ],
                 'edit' => 0,
                 'list' => 0,
-                'type' => 'number',
+                'type' => 'money',
                 'lang' => 'general.subtotal',
             ],
             'total' => [
@@ -199,7 +199,7 @@ class TransactionProductAdminController extends _CrudController
                 'extra' => [
                     'edit' => ['disabled' => true]
                 ],
-                'type' => 'number',
+                'type' => 'money',
                 'list' => 0,
                 'lang' => 'general.total',
             ],
@@ -430,6 +430,12 @@ class TransactionProductAdminController extends _CrudController
                 $listRaw[] = $fieldName;
                 $dataTables = $dataTables->editColumn($fieldName, function ($query) use ($fieldName, $list, $listRaw) {
                     return '<pre>' . json_encode(json_decode($query->$fieldName, true), JSON_PRETTY_PRINT) . '</pre>';
+                });
+            }
+            else if (in_array($list['type'], ['money'])) {
+                $listRaw[] = $fieldName;
+                $dataTables = $dataTables->editColumn($fieldName, function ($query) use ($fieldName, $list, $listRaw) {
+                    return number_format($query->$fieldName, 2);
                 });
             }
             else if (in_array($list['type'], ['texteditor'])) {

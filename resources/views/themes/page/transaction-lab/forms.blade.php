@@ -94,7 +94,7 @@ else {
                                             <td>{{ $list->type_service_name }}</td>
                                             <td>{{ $list->category_service_name }}</td>
                                             <td>{{ $list->lab_name }}</td>
-                                            <td>{{ $list->lab_price }}</td>
+                                            <td>{{ number_format($list->lab_price, 2) }}</td>
                                         </tr>
                                     @endforeach
                                     </tbody>

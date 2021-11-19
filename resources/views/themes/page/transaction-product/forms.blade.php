@@ -90,8 +90,8 @@ else {
                                             <td>{{ $list->klinik }}</td>
                                             <td>{{ $list->product_name }}</td>
                                             <td>{{ $list->product_qty }}</td>
-                                            <td>{{ 'Rp'.' '.$list->product_price }}</td>
-                                            <td><?php echo('Rp'.' '.$list->product_price * $list->product_qty)?></td>
+                                            <td>{{ number_format($list->product_price, 2) }}</td>
+                                            <td><?php echo( number_format($list->product_price * $list->product_qty, 2) )?></td>
                                         </tr>
                                     @endforeach
                                     </tbody>

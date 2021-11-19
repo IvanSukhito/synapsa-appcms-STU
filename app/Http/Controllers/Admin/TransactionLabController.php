@@ -85,7 +85,7 @@ class TransactionLabController extends _CrudController
                     'create' => 'required',
                     'edit' => 'required'
                 ],
-                'type' => 'number',
+                'type' => 'money',
                 'lang' => 'general.total',
             ],
             'status' => [
@@ -232,6 +232,12 @@ class TransactionLabController extends _CrudController
                 $listRaw[] = $fieldName;
                 $dataTables = $dataTables->editColumn($fieldName, function ($query) use ($fieldName, $list, $listRaw) {
                     return '<pre>' . json_encode(json_decode($query->$fieldName, true), JSON_PRETTY_PRINT) . '</pre>';
+                });
+            }
+            else if (in_array($list['type'], ['money'])) {
+                $listRaw[] = $fieldName;
+                $dataTables = $dataTables->editColumn($fieldName, function ($query) use ($fieldName, $list, $listRaw) {
+                    return number_format($query->$fieldName, 2);
                 });
             }
             else if (in_array($list['type'], ['texteditor'])) {
