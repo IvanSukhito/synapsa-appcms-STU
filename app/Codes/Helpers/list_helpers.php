@@ -151,6 +151,18 @@ if ( ! function_exists('get_list_appointment')) {
     }
 }
 
+
+if ( ! function_exists('get_list_appointment_color')) {
+    function get_list_appointment_color()
+    {
+        return [
+            1 => __('#f39c12'),
+            80 => __('#00a65a'),
+            90 => __('#f56954')
+        ];
+    }
+}
+
 if ( ! function_exists('get_list_online_meeting')) {
     function get_list_online_meeting()
     {

@@ -9,7 +9,7 @@ return [
     */
 
     'add' => 'Add',
-    'appointment_lab_schedule' => 'Appointment Lab Schedule',
+    'appointment_lab_schedule' => 'Lab Schedule',
     'faqs' => 'Faqs',
     'phone' => 'Phone',
     'mail' => 'Mail',
@@ -34,9 +34,11 @@ return [
     'time_end' => 'Time End',
     'book' => 'Book Schedule',
     'article_category_id' => 'Article Category',
+    'Time_Start' => 'Time Start',
     'thumbnail_img' => 'Thumbnail Image',
     'total_test' => 'Total Test',
     'available' => 'Available',
+    'interval' => 'Interval',
     'reschedule' => 'Reschedule',
     'meeting' => 'Meeting',
     'pic_clinic' => 'PIC Klinik',

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 
+use App\Codes\Models\V1\AppointmentLab;
 use App\Codes\Models\V1\City;
 use App\Codes\Models\V1\District;
 use App\Codes\Models\V1\Product;
@@ -58,6 +59,29 @@ class GeneralController extends Controller
 
 
         return response()->json($getProduct);
+    }
+
+    public function appointmentLabSchedule(){
+
+        $clinic =  session()->get('admin_clinic_id');
+        $getData = AppointmentLab::selectRaw('appointment_lab.*, transaction_details.lab_name as lab_name')
+                    ->leftJoin('transaction_details', 'transaction_details.transaction_id','=','appointment_lab.transaction_id')
+                    ->where('klinik_id', $clinic)->get();
+
+        $dataArr = array();
+        foreach ($getData as $list){
+            $dataArr[] = array(
+                'id' => $list->id,
+                'lab_name' => $list->lab_name,
+                'status' => $list->status,
+                'code' => $list->code,
+                'patient' => $list->patient_name,
+                'time_start' => $list->date.' '.$list->time_start,
+                'time_end' => $list->date.' '.$list->time_end,
+            );
+        }
+
+        return response()->json($dataArr);
     }
 
 
