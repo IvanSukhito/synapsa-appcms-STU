@@ -259,15 +259,15 @@ class HistoryController extends Controller
 
             $newLogic = new SynapsaLogic();
             $getPayment = Payment::where('id', $getData->payment_id)->first();
-            $getResult = $newLogic->createPayment($getPayment, $getAdditional, 1);
+            $getResult = $newLogic->createPayment($getPayment, $getAdditional, 1, $id);
             if ($getResult['success'] == 1) {
 
                 $getInfo = isset($getResult['info']) ? $getResult['info'] : '';
-
-                $getData->payment_refer_id = $getResult['prefer_id'] ?? '';
-                $getData->send_info = json_encode($getAdditional);
-                $getData->payment_info = json_encode($getInfo);
-                $getData->save();
+//
+//                $getData->payment_refer_id = $getResult['prefer_id'] ?? '';
+//                $getData->send_info = json_encode($getAdditional);
+//                $getData->payment_info = json_encode($getInfo);
+//                $getData->save();
 
                 return response()->json([
                     'success' => 1,
