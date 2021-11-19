@@ -35,23 +35,33 @@
                 <div class="card-header" style="background-color: #2e6da4; color:white;">
                  <div class="row">
                      <div class="col-md-4">
+                         <div class="form-group">
                          <label for="filter_interval">{{ __('general.interval') }}</label>
-                         <input style="margin-left: 20px;" type="text" class="form-control-sm center" id="set_interval" name="set_interval" autocomplete="off"  required>
+                         <input style="margin-left: 10px;" type="text" class="form-control-sm center" id="set_interval" name="set_interval" autocomplete="off"  required>
+                         </div>
                      </div>
                      <div class="col-md-4">
+                         <div class="form-group">
                          <label for="filter_time_start">{{ __('general.time_start') }}</label>
-                         <input style="margin-left: 20px;"  type="text" class="form-control-sm center" id="time_start" name="time_start" autocomplete="off" required>
+                         <input style="margin-left: 10px;" type="text" class="form-control-sm center" id="time_start" name="time_start" autocomplete="off" required>
+                         </div>
                      </div>
                      <div class="col-md-4 right">
+                         <div class="form-group">
                          <label for="filter_service">{{ __('general.service') }}</label>
-                         {{ Form::select('service_id', $listSet['service_id'], old('service_id'), ['class' => 'form-control-sm', 'autocomplete' => 'off']) }}
+                         {{ Form::select('service_id', $listSet['service_id'], old('service_id'), ['style' => 'margin-left: 10px;','class' => 'form-control-sm', 'autocomplete' => 'off']) }}
+                         </div>
                      </div>
                  </div>
                 </div>
                 <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12">
                     <div id="calendar"></div>
                     <div class="loading_start" style="position: absolute;top: 75px;left: 0;width: 100%;height: 100%;background: rgba(255,255,255,0.8);z-index: 1;text-align: center;display: none;">
                         <div style="position: relative;top: 15%;"><i class="fa fa-spin fa-5x fa-refresh"></i></div>
+                    </div>
+                        </div>
                     </div>
                 </div>
                 <!-- /.card-body -->
@@ -100,6 +110,7 @@
                 },
 
                 events:  function(start_time, end_time, timezone, callback){
+                    //$('.loading_start').show();
                     $.ajax({
                         type: 'GET',
                         url: "{{ route('admin.appointmentLabSchedule') }}",
@@ -121,6 +132,7 @@
                                 });
                             });
                             callback(events);
+                            //$('.loading_start').hide();
                         }
                     });
                 },

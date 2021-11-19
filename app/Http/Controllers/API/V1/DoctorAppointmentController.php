@@ -136,7 +136,7 @@ class DoctorAppointmentController extends Controller
         $formPatient = json_decode($data->form_patient, true);
         $doctorPrescription = json_decode($data->doctor_prescription, true);
 
-        $dataProducts = AppointmentDoctorProduct::selectRaw('appointment_doctor_product.id, product_id, product_name, 
+        $dataProducts = AppointmentDoctorProduct::selectRaw('appointment_doctor_product.id, product_id, product_name,
             product_qty, product_qty_checkout, product_price, choose,
             CONCAT("'.env('OSS_URL').'/'.'", product.image) AS product_image_full')
             ->leftJoin('product', 'product.id', '=', 'appointment_doctor_product.product_id')->where('appointment_doctor_id', $id)->get();
@@ -583,11 +583,35 @@ class DoctorAppointmentController extends Controller
 
         $getListProduct = $this->request->get('product_ids');
         $getQty = $this->request->get('qty');
+        $getDosis = $this->request->get('dosis');
+        $getTypeDosis = $this->request->get('type_dosis');
+        $getPeriod = $this->request->get('period');
 
         $getListQty = [];
         if($getQty) {
             foreach ($getQty as $index => $list) {
                 $getListQty[] = $list;
+            }
+        }
+
+        $getListDosis = [];
+        if ($getDosis){
+            foreach ($getDosis as $index => $list){
+                $getListDosis[] = $list;
+            }
+        }
+
+        $getListPeriod = [];
+        if ($getPeriod){
+            foreach ($getPeriod as $index => $list){
+                $getListPeriod[] = $list;
+            }
+        }
+
+        $getListTypeDosis = [];
+        if ($getTypeDosis){
+            foreach ($getTypeDosis as $index => $list){
+                $getListTypeDosis[] = $list;
             }
         }
 
@@ -601,12 +625,19 @@ class DoctorAppointmentController extends Controller
         $getProducts = Product::whereIn('id', $getListProductId)->get();
         foreach ($getProducts as $index => $list) {
             $getQty = intval($getListQty[$index]) > 0 ? intval($getListQty[$index]) : 1;
+            $getDosis = isset($getListDosis[$index]) ? strip_tags($getListDosis[$index]) : '';
+            $getTypeDosis = intval($getListTypeDosis[$index]) > 0 ? intval($getListTypeDosis[$index]) : 1;
+            $getPeriod = isset($getListPeriod[$index]) ? $getListPeriod[$index] : '';
+
             AppointmentDoctorProduct::create([
                 'appointment_doctor_id' => $id,
                 'product_id' => $list->id,
                 'product_name' => $list->name,
                 'product_qty' => $getQty,
                 'product_price' => $list->price,
+                'dosis' => $getDosis,
+                'type_dosis' => $getTypeDosis,
+                'period' => json_encode([$getPeriod]),
                 'choose' => 0,
                 'status' => 1
             ]);

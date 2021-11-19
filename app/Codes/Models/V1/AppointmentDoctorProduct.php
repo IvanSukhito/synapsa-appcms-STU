@@ -15,6 +15,9 @@ class AppointmentDoctorProduct extends Model
         'product_qty',
         'product_qty_checkout',
         'product_price',
+        'dosis',
+        'type_dosis',
+        'period',
         'choose',
         'status'
     ];
