@@ -69,7 +69,7 @@ class Transaction extends Model
 
     public function getTotalNiceAttribute()
     {
-        return intval($this->total) > 0 ? number_format($this->total, 0, ',', '.' ) : 0;
+        return intval($this->total) > 0 ? number_format($this->total, 0, ',', '.') : 0;
     }
 
     public function getSubtotalNiceAttribute()
