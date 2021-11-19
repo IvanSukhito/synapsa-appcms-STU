@@ -61,18 +61,26 @@ class GeneralController extends Controller
         return response()->json($getProduct);
     }
 
-    public function appointmentLabSchedule(Request $request){
-        if($request->ajax())
-        {
-            $data = AppointmentLab::whereDate('time_start', '>=', $request->time_start)
-                ->whereDate('time_end',   '<=', $request->time_end)
-                ->get(['id', 'code', 'time_start', 'time_end']);
+    public function appointmentLabSchedule(){
 
-            //dd($data);
-            return response()->json($data);
-            //dd($data);
+        $getData = AppointmentLab::selectRaw('appointment_lab.*, transaction_details.lab_name as lab_name')
+                    ->leftJoin('transaction_details', 'transaction_details.transaction_id','=','appointment_lab.transaction_id')
+                    ->where('klinik_id', 1)->get();
+
+        $dataArr = array();
+        foreach ($getData as $list){
+            $dataArr[] = array(
+                'id' => $list->id,
+                'lab_name' => $list->lab_name,
+                'status' => $list->status,
+                'code' => $list->code,
+                'patient' => $list->patient_name,
+                'time_start' => $list->date.' '.$list->time_start,
+                'time_end' => $list->date.' '.$list->time_end,
+            );
         }
-        //return view(welcome);
+
+        return response()->json($dataArr);
     }
 
 

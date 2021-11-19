@@ -9,7 +9,7 @@ return [
     */
 
     'add' => 'Add',
-    'appointment_lab_schedule' => 'Appointment Lab Schedule',
+    'appointment_lab_schedule' => 'Lab Schedule',
     'faqs' => 'Faqs',
     'phone' => 'Phone',
     'mail' => 'Mail',

@@ -50,6 +50,9 @@
                 </div>
                 <div class="card-body">
                     <div id="calendar"></div>
+                    <div class="loading_start" style="position: absolute;top: 75px;left: 0;width: 100%;height: 100%;background: rgba(255,255,255,0.8);z-index: 1;text-align: center;display: none;">
+                        <div style="position: relative;top: 15%;"><i class="fa fa-spin fa-5x fa-refresh"></i></div>
+                    </div>
                 </div>
                 <!-- /.card-body -->
             </div>
@@ -65,6 +68,9 @@
 
         $(document).ready(function (){
 
+            var getRouteUrl = '{{ route('admin.' . $thisRoute . '.index') }}';
+            var listColor = <?php echo json_encode(get_list_appointment_color()) ?>;
+            console.log(getRouteUrl);
             $('#set_interval').datetimepicker({
                 format: 'mm',
                 stepping: 15
@@ -83,7 +89,7 @@
 
                 //default : 'agendaWeek',
                 editable: false,
-                defaultView: 'agendaWeek',
+                defaultView: 'agendaDay',
                 slotDuration: '00:15:00',
                 minTime: '07:00:00', // Start time for the calendar
                 maxTime: '18:00:00', // End time for the calendar
@@ -93,8 +99,32 @@
                     right: 'agendaWeek,agendaDay'
                 },
 
-                events: '/admin/appointment-lab-schedule',
-                selectable: true,
+                events:  function(start_time, end_time, timezone, callback){
+                    $.ajax({
+                        type: 'GET',
+                        url: "{{ route('admin.appointmentLabSchedule') }}",
+                        success: function (response){
+                            var events = [];
+                            console.log(response);
+
+                            $.each(response, function (index, item){
+                                var getStatus = parseInt(item.status);
+                                var color = listColor[getStatus];
+
+                                events.push({
+                                    id: item.id,
+                                    title: item.code+' - '+item.patient+' - '+item.lab_name,
+                                    start: item.time_start,
+                                    end: item.time_end,
+                                    backgroundColor: color,
+                                    borderColor: color,
+                                });
+                            });
+                            callback(events);
+                        }
+                    });
+                },
+                selectable: false,
                 selectHelper: true,
             });
 

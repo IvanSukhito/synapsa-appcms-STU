@@ -120,7 +120,25 @@ class AppointmentLabScheduleController extends _CrudController
 
         $data = $this->data;
 
-        $data['passing'] = collectPassingData($this->passingData);
+
+
+        $getData = AppointmentLab::selectRaw('appointment_lab.*, transaction_details.lab_name as lab_name')
+            ->leftJoin('transaction_details', 'transaction_details.transaction_id','=','appointment_lab.transaction_id')
+            ->where('klinik_id', 1)->get();
+
+        //dd($getData);
+
+        $dataArr = array();
+            foreach ($getData as $list){
+                $dataArr[] = array(
+                    'id' => $list->id,
+                    'code' => $list->code,
+                    'time_start' => date('Y-m-d').' '.$list->time_start,
+                    'time_end' => date('Y-m-d').' '.$list->time_end,
+                );
+            }
+            //dd($dataArr);
+
 
 
         return view($this->listView['index'], $data);

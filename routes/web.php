@@ -136,7 +136,7 @@ Route::get('/findCity', ['uses' => 'App\Http\Controllers\Admin\GeneralController
 Route::get('/findDistrict', ['uses' => 'App\Http\Controllers\Admin\GeneralController@findDistrict'])->name('admin.findDistrict');
 Route::get('/findSubDistrict', ['uses' => 'App\Http\Controllers\Admin\GeneralController@findSubDistrict'])->name('admin.findSubDistrict');
 Route::get('/findProductSynapsa', ['uses' => 'App\Http\Controllers\Admin\GeneralController@findProductSynapsa'])->name('admin.findProductSynapsa');
-//Route::get('/appointment-lab-schedule', ['uses' => 'App\Http\Controllers\Admin\GeneralController@appointmentLabSchedule'])->name('admin.appointmentLabSchedule');
+Route::get('/appointment-lab-schedule', ['uses' => 'App\Http\Controllers\Admin\GeneralController@appointmentLabSchedule'])->name('admin.appointmentLabSchedule');
 
 Route::get('test', function () {
     return view('welcome');
