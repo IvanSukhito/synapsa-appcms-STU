@@ -63,9 +63,10 @@ class GeneralController extends Controller
 
     public function appointmentLabSchedule(){
 
+        $clinic =  session()->get('admin_clinic_id');
         $getData = AppointmentLab::selectRaw('appointment_lab.*, transaction_details.lab_name as lab_name')
                     ->leftJoin('transaction_details', 'transaction_details.transaction_id','=','appointment_lab.transaction_id')
-                    ->where('klinik_id', 1)->get();
+                    ->where('klinik_id', $clinic)->get();
 
         $dataArr = array();
         foreach ($getData as $list){
