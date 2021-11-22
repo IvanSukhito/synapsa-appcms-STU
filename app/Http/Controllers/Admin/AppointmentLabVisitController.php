@@ -35,6 +35,12 @@ class AppointmentLabVisitController extends _CrudController
             'type_appointment' => [
                 'create' => 0,
                 'edit' => 0,
+                'list' => 0,
+            ],
+            'date' => [
+                'create' => 0,
+                'edit' => 0,
+                'lang' => 'general.book_date',
             ],
             'time_start' => [
                 'create' => 0,
@@ -47,10 +53,15 @@ class AppointmentLabVisitController extends _CrudController
                 'list' => 0,
 
             ],
+            'layanan_lab' => [
+                'create' => 0,
+                'edit' => 0,
+            ],
             'total_test' => [
                 'create' => 0,
                 'edit' => 0,
-                'list' => 0
+                'list' => 0,
+                'show' => 0,
             ],
             'status' => [
                 'create' => 0,
@@ -98,6 +109,7 @@ class AppointmentLabVisitController extends _CrudController
         $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.appointment-lab.list_button';
         $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.appointment-lab.list';
         $this->listView['uploadHasilLab'] = env('ADMIN_TEMPLATE').'.page.appointment-lab.forms2';
+        //$this->listView['show'] = env('ADMIN_TEMPLATE').'.page.appointment-lab.forms';
 
     }
 
@@ -111,6 +123,32 @@ class AppointmentLabVisitController extends _CrudController
 
         return view($this->listView['index'], $data);
 
+    }
+
+
+    public function show($id)
+    {
+        $this->callPermission();
+
+        $getData = $this->crud->show($id);
+        //dd($getData);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $getData = $getData->selectRaw('appointment_lab.*, lab_name as layanan_lab')
+                    ->leftJoin('appointment_lab_details','appointment_lab_details.appointment_lab_id','=','appointment_lab.id')
+                    ->where('appointment_lab.id', $id)
+                    ->first();
+
+        $data = $this->data;
+
+        $data['viewType'] = 'show';
+        $data['formsTitle'] = __('general.title_show', ['field' => $data['thisLabel']]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['data'] = $getData;
+
+        return view($this->listView[$data['viewType']], $data);
     }
 
     public function approve($id){
@@ -252,9 +290,10 @@ class AppointmentLabVisitController extends _CrudController
 
        $dataTables = new DataTables();
 
-       $builder = $this->model::query()->selectRaw('appointment_lab.id, service.name as service, users.fullname as user, patient_name, patient_email, type_appointment,  time_start, time_end, total_test, appointment_lab.status, appointment_lab.created_at')
+       $builder = $this->model::query()->selectRaw('appointment_lab.id, service.name as service, users.fullname as user, patient_name, patient_email, type_appointment,  appointment_lab.date as date, time_start, time_end, total_test, appointment_lab.status, appointment_lab.created_at, appointment_lab_details.lab_name as layanan_lab')
            ->leftJoin('service','service.id', '=', 'appointment_lab.service_id')
            ->leftJoin('users','users.id', '=', 'appointment_lab.user_id')
+           ->leftJoin('appointment_lab_details','appointment_lab_details.appointment_lab_id','=','appointment_lab.id')
            ->where('appointment_lab.klinik_id', $getAdmin->klinik_id)
            ->where('type_appointment', 'Visit');
 
