@@ -19,6 +19,7 @@ class CreateKlinikTable extends Migration
             $table->text('address')->nullable();
             $table->string('no_telp')->nullable();
             $table->string('email')->nullable();
+            $table->longText('logo')->nullable();
             $table->string('monday')->nullable();
             $table->string('tuesday')->nullable();
             $table->string('wednesday')->nullable();

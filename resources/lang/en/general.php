@@ -435,5 +435,6 @@ return [
     'price_synapsa' => 'Harga Synapsa',
     'qty' => 'Qty',
     'vendor' => 'Vendor',
-    'ship_to' => 'Ship To'
+    'ship_to' => 'Ship To',
+    'logo' => 'Logo'
 ];
