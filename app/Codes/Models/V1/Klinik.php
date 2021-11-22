@@ -25,12 +25,20 @@ class Klinik extends Model
         'status',
     ];
 
+    protected $appends = [
+        'logo_full'
+    ];
+
     public function getAdmin()
     {
         return $this->hasMany(Admin::class, 'klinik_id', 'id');
     }
 
-
-
-
+    public function getLogoFullAttribute()
+    {
+        if (strlen($this->logo) > 0) {
+            return env('OSS_URL').'/'.$this->logo;
+        }
+        return asset('assets/cms/images/no-img.png');
+    }
 }

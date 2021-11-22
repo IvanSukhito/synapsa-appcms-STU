@@ -51,12 +51,13 @@ class KlinikController extends _CrudController
                 ],
                 'lang' => 'general.clinic_phone'
             ],
-            'logo' => [
+            'logo_full' => [
                 'validate' => [
                     'create' => 'required',
                 ],
                 'lang' => 'general.logo',
                 'type' => 'image',
+                'list' => 0,
             ],
             'status' => [
                 'validate' => [
@@ -134,13 +135,13 @@ class KlinikController extends _CrudController
             }
         }
 
-        unset($getListCollectData['logo']);
-        unset($data['logo']);
+        unset($getListCollectData['logo_full']);
+        unset($data['logo_full']);
 
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
         $logoImage = '';
-        $logo = $this->request->file('logo');
+        $logo = $this->request->file('logo_full');
         if ($logo) {
             if ($logo->getError() != 1) {
                 $getFileName = $logo->getClientOriginalName();
@@ -218,13 +219,13 @@ class KlinikController extends _CrudController
             }
         }
 
-        unset($getListCollectData['logo']);
-        unset($data['logo']);
+        unset($getListCollectData['logo_full']);
+        unset($data['logo_full']);
 
         $data = $this->getCollectedData($getListCollectData, $viewType, $data, $getData);
 
         $logoImage = $getData->logo;
-        $logo = $this->request->file('logo');
+        $logo = $this->request->file('logo_full');
         if ($logo) {
             if ($logo->getError() != 1) {
                 $getFileName = $logo->getClientOriginalName();
