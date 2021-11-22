@@ -646,7 +646,7 @@ class DoctorAppointmentController extends Controller
                 'product_price' => $list->price,
                 'dosis' => $getDosis,
                 'type_dosis' => $getTypeDosis,
-                'period' => json_encode([$getPeriod]),
+                'period' => $getPeriod,
                 'note' => $getNote,
                 'choose' => 0,
                 'status' => 1
