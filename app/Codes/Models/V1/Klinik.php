@@ -14,6 +14,7 @@ class Klinik extends Model
         'address',
         'no_telp',
         'email',
+        'logo',
         'monday',
         'tuesday',
         'wednesday',

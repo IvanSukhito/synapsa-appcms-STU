@@ -431,4 +431,12 @@ return [
     'transaction_date' => 'Tanggal Transaksi',
     'total_qty_transaction' => 'Qty Produk Transaksi',
     'total_price_transaction' => 'Total Harga Transaksi',
+    'title_invoice' => 'INVOICE',
+    'notes_and_instruction' => 'Catatan dan Instruksi',
+    'price_klinik' => 'Harga Klinik',
+    'price_synapsa' => 'Harga Synapsa',
+    'qty' => 'Qty',
+    'vendor' => 'Vendor',
+    'ship_to' => 'Ship To',
+    'logo' => 'Logo'
 ];

@@ -51,6 +51,13 @@ class KlinikController extends _CrudController
                 ],
                 'lang' => 'general.clinic_phone'
             ],
+            'logo' => [
+                'validate' => [
+                    'create' => 'required',
+                ],
+                'lang' => 'general.logo',
+                'type' => 'image',
+            ],
             'status' => [
                 'validate' => [
                     'create' => 'required',
@@ -127,7 +134,24 @@ class KlinikController extends _CrudController
             }
         }
 
+        unset($getListCollectData['logo']);
+        unset($data['logo']);
+
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
+
+        $logoImage = '';
+        $logo = $this->request->file('logo');
+        if ($logo) {
+            if ($logo->getError() != 1) {
+                $getFileName = $logo->getClientOriginalName();
+                $ext = explode('.', $getFileName);
+                $ext = end($ext);
+                $destinationPath = 'synapsaapps/klinik';
+                if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
+                    $logoImage = Storage::putFile($destinationPath, $logo);
+                }
+            }
+        }
 
         $saveData = [
             'monday' => $this->request->get('monday'),
@@ -137,6 +161,7 @@ class KlinikController extends _CrudController
             'friday' => $this->request->get('friday'),
             'saturday' => $this->request->get('saturday'),
             'sunday' => $this->request->get('sunday'),
+            'logo' => $logoImage,
         ];
 
         foreach($saveData as $key => $val) {
@@ -147,7 +172,7 @@ class KlinikController extends _CrudController
 
         $id = $getData->id;
 
-        $role_clinic = Role::where('name', 'Clinic')->first();
+        $role_clinic = Role::where('permission_data', 'LIKE', '%' . json_encode('role_clinic') . '%')->first();
 
         Admin::create([
             'role_id' => $role_clinic->id,
@@ -157,7 +182,6 @@ class KlinikController extends _CrudController
             'password' => bcrypt(strtolower(str_replace(' ', '', $getData->name))),
             'status' => 80
         ]);
-
 
         if($this->request->ajax()){
             return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
@@ -194,7 +218,24 @@ class KlinikController extends _CrudController
             }
         }
 
+        unset($getListCollectData['logo']);
+        unset($data['logo']);
+
         $data = $this->getCollectedData($getListCollectData, $viewType, $data, $getData);
+
+        $logoImage = $getData->logo;
+        $logo = $this->request->file('logo');
+        if ($logo) {
+            if ($logo->getError() != 1) {
+                $getFileName = $logo->getClientOriginalName();
+                $ext = explode('.', $getFileName);
+                $ext = end($ext);
+                $destinationPath = 'synapsaapps/klinik';
+                if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
+                    $logoImage = Storage::putFile($destinationPath, $logo);
+                }
+            }
+        }
 
         foreach ($getListCollectData as $key => $val) {
             if($val['type'] == 'image_many') {
@@ -225,6 +266,7 @@ class KlinikController extends _CrudController
             'friday' => $this->request->get('friday'),
             'saturday' => $this->request->get('saturday'),
             'sunday' => $this->request->get('sunday'),
+            'logo' => $logoImage
         ];
 
         foreach($saveData as $key => $val) {

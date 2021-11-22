@@ -63,10 +63,7 @@ class Invoice extends Model
         return $this->belongsTo(ProductCategory::class, 'product_category_id', 'id');
     }
 
-    public function getTagging()
-    {
-        return $this->belongsToMany(Tagging::class, 'product_tagging', 'product_id', 'tagging_id');
+    public function getTransaction() {
+        return $this->belongsTo(Transaction::class, 'transaction_id', 'id');
     }
-
-
 }

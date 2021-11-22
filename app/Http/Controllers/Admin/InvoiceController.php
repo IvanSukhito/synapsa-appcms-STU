@@ -137,7 +137,7 @@ class InvoiceController extends _CrudController
         $this->data['listSet']['product_type'] = get_list_type_product();
 
         $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.invoice.list';
-        $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.invoice.forms';
+        $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.invoice.show';
         $this->listView['edit'] = env('ADMIN_TEMPLATE').'.page.invoice.forms';
     }
 
@@ -284,8 +284,6 @@ class InvoiceController extends _CrudController
                 $desc[] = 'desc' => [''],
             ];
         }
-
-        $getData['transaction_date'] = date('d F Y', strtotime($getData['transaction_date']));
 
         $data['viewType'] = 'show';
         $data['formsTitle'] = __('general.title_show', ['field' => $data['thisLabel']]);
