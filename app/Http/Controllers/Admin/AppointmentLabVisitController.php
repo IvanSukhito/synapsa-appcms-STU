@@ -29,7 +29,7 @@ class AppointmentLabVisitController extends _CrudController
                 'create' => 0,
                 'edit' => 0,
                 'type' => 'select',
-                'lang' => 'klinik'
+                'lang' => 'general.klinik'
             ],
             'patient_name' => [
                 'create' => 0,
