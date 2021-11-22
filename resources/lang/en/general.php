@@ -17,6 +17,8 @@ return [
     'banner' => 'Banner',
     'target' => 'Url',
     'clinic_info' => 'Clinic Info',
+    'layanan_lab' => 'Layanan Lab',
+    'book_date' => 'Tanggal Book',
     'clinic_phone' => 'Clinic Phone',
     'province' => 'Province',
     'district' => 'District',
