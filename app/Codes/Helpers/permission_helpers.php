@@ -874,15 +874,15 @@ if ( ! function_exists('listAvailablePermission'))
         $listPermission['lab-schedule']['create'][] = 'admin.lab-schedule.create2';
         $listPermission['lab-schedule']['create'][] = 'admin.lab-schedule.store2';
 
-        $listPermission['appointment-lab-homecare']['edit'][] = 'admin.appointment-lab-homecare.approve';
-        $listPermission['appointment-lab-homecare']['edit'][] = 'admin.appointment-lab-homecare.reject';
-        $listPermission['appointment-lab-homecare']['edit'][] = 'admin.appointment-lab-homecare.uploadHasilLab';
-        $listPermission['appointment-lab-homecare']['edit'][] = 'admin.appointment-lab-homecare.storeHasilLab';
+        $listPermission['appointment-lab-homecare-clinic']['edit'][] = 'admin.appointment-lab-homecare-clinic.approve';
+        $listPermission['appointment-lab-homecare-clinic']['edit'][] = 'admin.appointment-lab-homecare-clinic.reject';
+        $listPermission['appointment-lab-homecare-clinic']['edit'][] = 'admin.appointment-lab-homecare-clinic.uploadHasilLab';
+        $listPermission['appointment-lab-homecare-clinic']['edit'][] = 'admin.appointment-lab-homecare-clinic.storeHasilLab';
 
-        $listPermission['appointment-lab-visit-clinic']['edit'][] = 'admin.appointment-lab-visit.approve';
-        $listPermission['appointment-lab-visit-clinic']['edit'][] = 'admin.appointment-lab-visit.reject';
-        $listPermission['appointment-lab-visit-clinic']['edit'][] = 'admin.appointment-lab-visit.uploadHasilLab';
-        $listPermission['appointment-lab-visit-clinic']['edit'][] = 'admin.appointment-lab-visit.storeHasilLab';
+        $listPermission['appointment-lab-visit-clinic']['edit'][] = 'admin.appointment-lab-visit-clinic.approve';
+        $listPermission['appointment-lab-visit-clinic']['edit'][] = 'admin.appointment-lab-visit-clinic.reject';
+        $listPermission['appointment-lab-visit-clinic']['edit'][] = 'admin.appointment-lab-visit-clinic.uploadHasilLab';
+        $listPermission['appointment-lab-visit-clinic']['edit'][] = 'admin.appointment-lab-visit-clinic.storeHasilLab';
 
         $listPermission['appointment-nurse']['edit'][] = 'admin.appointment-nurse.approve';
         $listPermission['appointment-nurse']['edit'][] = 'admin.appointment-nurse.reject';
