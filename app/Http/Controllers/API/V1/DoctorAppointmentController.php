@@ -586,6 +586,7 @@ class DoctorAppointmentController extends Controller
         $getDosis = $this->request->get('dosis');
         $getTypeDosis = $this->request->get('type_dosis');
         $getPeriod = $this->request->get('period');
+        $getNote = $this->request->get('note');
 
         $getListQty = [];
         if($getQty) {
@@ -622,12 +623,20 @@ class DoctorAppointmentController extends Controller
             }
         }
 
+        $getListNote = [];
+        if ($getNote){
+            foreach ($getNote as $index => $list){
+                $getListNote[] = $list;
+            }
+        }
+
         $getProducts = Product::whereIn('id', $getListProductId)->get();
         foreach ($getProducts as $index => $list) {
             $getQty = intval($getListQty[$index]) > 0 ? intval($getListQty[$index]) : 1;
             $getDosis = isset($getListDosis[$index]) ? strip_tags($getListDosis[$index]) : '';
             $getTypeDosis = intval($getListTypeDosis[$index]) > 0 ? intval($getListTypeDosis[$index]) : 1;
             $getPeriod = isset($getListPeriod[$index]) ? $getListPeriod[$index] : '';
+            $getNote = isset($getListNote[$index]) ? $getListNote[$index] : '';
 
             AppointmentDoctorProduct::create([
                 'appointment_doctor_id' => $id,
@@ -637,7 +646,8 @@ class DoctorAppointmentController extends Controller
                 'product_price' => $list->price,
                 'dosis' => $getDosis,
                 'type_dosis' => $getTypeDosis,
-                'period' => json_encode([$getPeriod]),
+                'period' => $getPeriod,
+                'note' => $getNote,
                 'choose' => 0,
                 'status' => 1
             ]);
