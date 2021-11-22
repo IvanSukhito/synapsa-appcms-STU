@@ -18,6 +18,7 @@ class AppointmentDoctorProduct extends Model
         'dosis',
         'type_dosis',
         'period',
+        'note',
         'choose',
         'status'
     ];
