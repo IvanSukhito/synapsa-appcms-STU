@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\DataTables;
 
 
-class AppointmentLabHomecareController extends _CrudController
+class AppointmentLabHomecareClinicController extends _CrudController
 {
     public function __construct(Request $request)
     {
@@ -86,7 +86,7 @@ class AppointmentLabHomecareController extends _CrudController
 
 
         parent::__construct(
-            $request, 'general.appointment_lab_homecare', 'appointment-lab-homecare', 'V1\AppointmentLab', 'appointment-lab-homecare',
+            $request, 'general.appointment_lab_homecare_clinic', 'appointment-lab-homecare-clinic', 'V1\AppointmentLab', 'appointment-lab-homecare-clinic',
             $passingData
         );
 
@@ -130,6 +130,81 @@ class AppointmentLabHomecareController extends _CrudController
 
     }
 
+    public function approve($id){
+
+        $this->callPermission();
+
+        $getData = AppointmentLab::where('id', $id)->first();
+
+        if(!$getData){
+            session()->flash('message', __('general.data_not_found'));
+            session()->flash('message_alert', 1);
+            return redirect()->route('admin.' . $this->route . '.index');
+        }
+
+        $getData->status = 4;
+        $getData->save();
+
+        if($this->request->ajax()){
+            return response()->json(['result' => 1, 'message' => __('general.success_add')]);
+        }
+        else {
+            session()->flash('message', __('general.success_approve_'));
+            session()->flash('message_alert', 2);
+            return redirect()->route('admin.' . $this->route . '.index');
+        }
+    }
+
+    public function reject($id){
+
+        $this->callPermission();
+
+        $getData = AppointmentLab::where('id', $id)->first();
+
+        if(!$getData){
+            session()->flash('message', __('general.data_not_found'));
+            session()->flash('message_alert', 1);
+            return redirect()->route('admin.' . $this->route . '.index');
+        }
+
+        $getData->status = 90;
+        $getData->save();
+
+        if($this->request->ajax()){
+            return response()->json(['result' => 1, 'message' => __('general.success_reject')]);
+        }
+        else {
+            session()->flash('message', __('general.success_reject_appointment_lab'));
+            session()->flash('message_alert', 2);
+            return redirect()->route('admin.' . $this->route . '.index');
+        }
+    }
+
+    public function uploadHasilLab($id){
+        $this->callPermission();
+
+        $adminId = session()->get('admin_id');
+        $getAdmin = Admin::where('id', $adminId)->first();
+        if (!$getAdmin) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $getData = $this->crud->show($id);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $data = $this->data;
+
+        $data['thisLabel'] = __('general.lab');
+        $data['viewType'] = 'edit';
+        $data['formsTitle'] = __('general.upload_hasil_lab', ['field' => __('general.lab')]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['data'] = $getData;
+
+        return view($this->listView['uploadHasilLab'], $data);
+    }
+
     public function show($id)
     {
         $this->callPermission();
@@ -151,6 +226,7 @@ class AppointmentLabHomecareController extends _CrudController
                         ->where('appointment_lab.id', $id)
                         ->first();
 
+
         $data['viewType'] = 'show';
         $data['formsTitle'] = __('general.title_show', ['field' => $data['thisLabel']]);
         $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
@@ -164,10 +240,56 @@ class AppointmentLabHomecareController extends _CrudController
         return view($this->listView[$data['viewType']], $data);
     }
 
+    public function storeHasilLab($id){
+
+        $this->callPermission();
+
+        $adminId = session()->get('admin_id');
+        $getAdmin = Admin::where('id', $adminId)->first();
+        if (!$getAdmin) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $getData = AppointmentLab::where('id', $id)->where('klinik_id', $getAdmin->klinik_id)->first();
+
+        $dokument = $this->request->file('form_patient');
+
+
+        if ($dokument) {
+            if ($dokument->getError() != 1) {
+
+                $getFileName = $dokument->getClientOriginalName();
+                $ext = explode('.', $getFileName);
+                $ext = end($ext);
+                $destinationPath = 'synapsaapps/lab';
+                if (in_array(strtolower($ext), ['pdf', 'doc'])) {
+
+                    $dokumentPDF = Storage::putFile($destinationPath, $dokument);
+                }
+
+            }
+        }
+
+        $getData->form_patient = $dokumentPDF;
+        $getData->status = 80;
+        $getData->save();
+
+        if($this->request->ajax()){
+            return response()->json(['result' => 1, 'message' => __('general.success_upload_result_lab')]);
+        }
+        else {
+            session()->flash('message', __('general.success_upload_result_lab'));
+            session()->flash('message_alert', 2);
+            return redirect()->route('admin.' . $this->route . '.index');
+        }
+
+
+    }
+
     public function dataTable()
    {
        $this->callPermission();
-       //$userId = session()->get('admin_id');
+
        $adminId = session()->get('admin_id');
 
        $getAdmin = Admin::where('id', $adminId)->first();
@@ -178,6 +300,7 @@ class AppointmentLabHomecareController extends _CrudController
            ->leftJoin('service','service.id', '=', 'appointment_lab.service_id')
            ->leftJoin('users','users.id', '=', 'appointment_lab.user_id')
            ->leftJoin('appointment_lab_details','appointment_lab_details.appointment_lab_id','=','appointment_lab.id')
+           ->where('appointment_lab.klinik_id', $getAdmin->klinik_id)
            ->where('type_appointment', 'Homecare');
 
        if ($this->request->get('status') && $this->request->get('status') != 0) {

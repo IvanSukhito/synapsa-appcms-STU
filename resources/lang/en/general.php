@@ -438,5 +438,8 @@ return [
     'qty' => 'Qty',
     'vendor' => 'Vendor',
     'ship_to' => 'Ship To',
-    'logo' => 'Logo'
+    'logo' => 'Logo',
+    'appointment_lab_clinic' => 'Appoinment Lab Clinic',
+    'appointment_lab_homecare_clinic' => 'Lab Homecare Clinic',
+    'appointment_lab_visit_clinic' => 'Lab Visit Clinic',
 ];
