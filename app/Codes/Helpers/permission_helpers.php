@@ -757,9 +757,6 @@ if ( ! function_exists('listAvailablePermission'))
                      'settings',
                      'faqs',
                      'transaction',
-                     'appointment-lab',
-                     'appointment-lab-visit',
-                     'appointment-lab-homecare',
                      'appointment-lab-clinic',
                      'appointment-lab-visit-clinic',
                      'appointment-lab-homecare-clinic',
@@ -788,8 +785,9 @@ if ( ! function_exists('listAvailablePermission'))
                      'transaction-lab-admin',
                      'transaction-product-admin',
                      'transaction-doctor-admin',
-
-
+                     'appointment-lab',
+                     'appointment-lab-visit',
+                     'appointment-lab-homecare',
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [
