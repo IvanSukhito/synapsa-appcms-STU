@@ -247,7 +247,7 @@ class AppointmentController extends Controller
             $doctorPrescription = json_decode($data->doctor_prescription, true);
 
             $getDetails = Product::selectRaw('appointment_doctor_product.id, product.id as product_id, product.name, product.image,
-            product.price, product.unit, appointment_doctor_product.product_qty, appointment_doctor_product.choose')
+            product.price, product.unit, appointment_doctor_product.product_qty, appointment_doctor_product.choose, appointment_doctor_product.dosis, appointment_doctor_product.type_dosis, appointment_doctor_product.period, appointment_doctor_product.note')
                 ->join('appointment_doctor_product', 'appointment_doctor_product.product_id', '=', 'product.id')
                 ->where('appointment_doctor_product.appointment_doctor_id', '=', $id)->get();
 
