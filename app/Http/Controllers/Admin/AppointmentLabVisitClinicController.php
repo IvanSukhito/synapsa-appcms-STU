@@ -106,9 +106,9 @@ class AppointmentLabVisitClinicController extends _CrudController
         $this->data['listSet']['service_id'] = $service_id;
 
         $this->data['listSet']['status'] = $status;
-        $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.appointment-lab.list_button';
-        $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.appointment-lab.list';
-        $this->listView['uploadHasilLab'] = env('ADMIN_TEMPLATE').'.page.appointment-lab.forms2';
+        $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.appointment-lab-clinic.list_button';
+        $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.appointment-lab-clinic.list';
+        $this->listView['uploadHasilLab'] = env('ADMIN_TEMPLATE').'.page.appointment-lab-clinic.forms2';
         //$this->listView['show'] = env('ADMIN_TEMPLATE').'.page.appointment-lab.forms';
 
     }

@@ -65,14 +65,11 @@ if ($daterange) {
                     <form method="get">
                         <div class="card-header">
                             <div class="row">
+
+
                                 <div class="col-md-3">
                                     <label for="status">{{ __('general.status_appointment') }}</label>
                                     {{ Form::select('status', $listSet['status'], old('status', $status), ['class' => 'form-control', 'autocomplete' => 'off']) }}
-                                </div>
-
-                                <div class="col-md-3">
-                                    <label for="klinik_id">{{ __('general.klinik') }}</label>
-                                    {{ Form::select('klinik_id', $listSet['klinik_id'], old('klinik_id', $status), ['id' => 'klinik_id', 'class' => 'form-control', 'autocomplete' => 'off']) }}
                                 </div>
 
                                 <div class="col-md-3">

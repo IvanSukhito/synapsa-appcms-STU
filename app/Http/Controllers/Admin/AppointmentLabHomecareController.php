@@ -6,6 +6,7 @@ use App\Codes\Logic\_CrudController;
 use App\Codes\Models\Admin;
 use App\Codes\Models\V1\City;
 use App\Codes\Models\V1\District;
+use App\Codes\Models\V1\Klinik;
 use App\Codes\Models\V1\Lab;
 use App\Codes\Models\V1\AppointmentLab;
 use App\Codes\Models\V1\Province;
@@ -27,6 +28,12 @@ class AppointmentLabHomecareController extends _CrudController
                 'create' => 0,
                 'edit' => 0,
                 'show' => 0
+            ],
+            'klinik_id' => [
+                'create' => 0,
+                'edit' => 0,
+                'type' => 'select',
+                'lang' => 'general.klinik'
             ],
             'patient_name' => [
                 'create' => 0,
@@ -101,16 +108,23 @@ class AppointmentLabHomecareController extends _CrudController
         $service_id = [];
         foreach(Service::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
             $service_id[$key] = $val;
-        };
+        }
+
         $status = [0 => 'All'];
         foreach(get_list_appointment() as $key => $val) {
             $status[$key] = $val;
         }
 
+        $klinik_id = [0 => 'All'];
+        foreach(Klinik::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
+            $klinik_id[$key] = $val;
+        }
+
         $this->data['listSet']['user_id'] =  $listUsers;
         $this->data['listSet']['service_id'] = $service_id;
-
         $this->data['listSet']['status'] = $status;
+        $this->data['listSet']['klinik_id'] = $klinik_id;
+
         $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.appointment-lab.list_button';
         $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.appointment-lab.list';
         $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.appointment-lab.forms';
@@ -167,10 +181,6 @@ class AppointmentLabHomecareController extends _CrudController
     public function dataTable()
    {
        $this->callPermission();
-       //$userId = session()->get('admin_id');
-       $adminId = session()->get('admin_id');
-
-       $getAdmin = Admin::where('id', $adminId)->first();
 
        $dataTables = new DataTables();
 
@@ -182,6 +192,9 @@ class AppointmentLabHomecareController extends _CrudController
 
        if ($this->request->get('status') && $this->request->get('status') != 0) {
            $builder = $builder->where('appointment_lab.status', $this->request->get('status'));
+       }
+       if ($this->request->get('klinik_id') && $this->request->get('klinik_id') != 0) {
+           $builder = $builder->where('appointment_lab.klinik_id', $this->request->get('klinik_id'));
        }
        if ($this->request->get('daterange')) {
            $getDateRange = $this->request->get('daterange');
