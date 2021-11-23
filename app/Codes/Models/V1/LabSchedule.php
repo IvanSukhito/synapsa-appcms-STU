@@ -12,9 +12,11 @@ class LabSchedule extends Model
         'lab_id',
         'klinik_id',
         'service_id',
+        'weekday',
         'date_available',
         'time_start',
         'time_end',
+        'type',
         'book'
     ];
     protected $appends = [

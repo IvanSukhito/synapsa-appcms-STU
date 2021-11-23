@@ -18,9 +18,11 @@ class CreateLabScheduleTable extends Migration
             $table->unsignedBigInteger('lab_id')->default(0);
             $table->unsignedBigInteger('klinik_id')->default(0);
             $table->unsignedBigInteger('service_id')->default(0);
+            $table->tinyInteger('weekday')->default(0);
             $table->date('date_available')->nullable();
             $table->time('time_start')->nullable();
             $table->time('time_end')->nullable();
+            $table->tinyInteger('type')->default(0);
             $table->integer('book')->default(0);
             $table->timestamps();
         });
