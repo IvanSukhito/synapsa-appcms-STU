@@ -29,7 +29,8 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-12">
-                            Welcome, {{ session('admin_name') }}
+                            Welcome, {{ session('admin_name') }}<br />
+                            <a href="{{ route('admin.download') }}">Download</a>
                         </div>
                     </div>
                 </div>

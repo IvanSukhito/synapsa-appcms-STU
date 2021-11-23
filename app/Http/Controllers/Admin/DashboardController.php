@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 
+use App\Codes\Logic\generateLogic;
 use App\Codes\Models\Admin;
 use App\Codes\Models\V1\AppointmentDoctor;
 use App\Codes\Models\V1\AppointmentLab;
@@ -107,8 +108,20 @@ class DashboardController extends Controller
             }
             return view(env('ADMIN_TEMPLATE') . '.page.dashboard_super_admin', $data);
         }
-        //dd($getClinic);
+
         return view(env('ADMIN_TEMPLATE').'.page.dashboard', $data);
+    }
+
+    public function download()
+    {
+        $data = AppointmentDoctor::where('id', 6)->first();
+        if ($data && $data->status == 80) {
+            $generateLogic = new generateLogic();
+            $generateLogic->generatePdfDiagnosa($data);
+            exit;
+        }
+
+        return '';
     }
 
 }
