@@ -84,10 +84,10 @@ else {
 
                                         <ul class="list-group list-group-unbordered mb-3">
                                             <li class="list-group-item">
-                                                <b>Total Transaction</b> <a class="float-right">{{ $transaction->count() }}</a>
+                                                <b>Total Transaction</b> <a class="float-right">{{ $transactionLab->count() + $transactionProduct->count() + $transactionDoctor->count() }}</a>
                                             </li>
                                             <li class="list-group-item">
-                                                <b>Total Appointment</b> <a class="float-right">0</a>
+                                                <b>Total Appointment</b> <a class="float-right">{{ $appointmentLab->count() + $appointmentDoctor->count() }}</a>
                                             </li>
                                         </ul>
 
@@ -151,35 +151,244 @@ else {
                                             </div>
                                             <!-- /.tab-pane -->
                                             <div class="tab-pane active" id="transaction">
-                                                <!-- The timeline -->
-                                                <table class="table table-bordered table-striped" id="data1">
+                                                <!-- Transaction -->
+                                                <ul class="nav nav-pills">
+                                                    <li class="nav-item"><a class="nav-link" href="#lab" data-toggle="tab">@lang('general.transaction_lab')</a></li>
+                                                    <li class="nav-item"><a class="nav-link active" href="#product" data-toggle="tab">@lang('general.transaction_product')</a></li>
+                                                    <li class="nav-item"><a class="nav-link" href="#doctor" data-toggle="tab">@lang('general.transaction_doctor')</a></li>
+                                                </ul>
 
-                                                    <thead>
-                                                    <tr>
-                                                        <th>@lang('general.id')</th>
-                                                        <th>@lang('general.transaction_code')</th>
-                                                        <th>@lang('general.payment_name')</th>
-                                                        <th>@lang('general.total')</th>
-                                                        <th>@lang('general.type_transaction')</th>
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                    @foreach($transaction as $list)
-                                                        <tr>
-                                                            <td>{{ $list->id }}</td>
-                                                            <td>{{ $list->code }}</td>
-                                                            <td>{{ $list->payment_name }}</td>
-                                                            <td>{{ number_format($list->total, 2) }}</td>
-                                                            <td>{{ $list->type_service_name }}</td>
-                                                        </tr>
-                                                    @endforeach
-                                                    </tbody>
-                                                </table>
+                                                <div class="tab-content">
+                                                    <div class="tab-pane" id="lab">
+
+                                                        <br>
+                                                        <table class="table table-bordered table-striped" id="dataT1">
+
+                                                            <thead>
+                                                            <tr>
+                                                                <th>@lang('general.id')</th>
+                                                                <th>@lang('general.transaction_code')</th>
+                                                                <th>@lang('general.payment_name')</th>
+                                                                <th>@lang('general.lab_name')</th>
+                                                                <th>@lang('general.service')</th>
+                                                                <th>@lang('general.total')</th>
+                                                                <th>@lang('general.status')</th>
+                                                                <th>@lang('general.tanggal_transaction')</th>
+                                                                <th>@lang('general.action')</th>
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            @foreach($transactionLab as $list)
+                                                                <tr>
+                                                                    <td>{{ $list->id }}</td>
+                                                                    <td>{{ $list->code }}</td>
+                                                                    <td>{{ $list->payment_name }}</td>
+                                                                    <td>{{ $list->lab_name }}</td>
+                                                                    <td>{{ $list->category_service_name }}</td>
+                                                                    <td>{{ number_format($list->total, 2) }}</td>
+                                                                    <td>{{ $getListStatusTransaction[$list->status] }}</td>
+                                                                    <td>{{ $list->created_at }}</td>
+                                                                    <td>
+                                                                        <a href="{{ route('admin.' . 'transaction-lab' . '.show', $list->id) }}" class="mb-1 btn btn-info btn-sm"
+                                                                           title="@lang('general.show')">
+                                                                            <i class="fa fa-eye"></i>
+                                                                            <span class="d-none d-md-inline"> @lang('general.show')</span>
+                                                                        </a>
+                                                                    </td>
+                                                                </tr>
+                                                            @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                    <div class="tab-pane active" id="product">
+
+                                                        <br>
+                                                        <table class="table table-bordered table-striped" id="dataT2">
+
+                                                            <thead>
+                                                            <tr>
+                                                                <th>@lang('general.id')</th>
+                                                                <th>@lang('general.transaction_code')</th>
+                                                                <th>@lang('general.payment_name')</th>
+                                                                <th>@lang('general.product_name')</th>
+                                                                <th>@lang('general.status')</th>
+                                                                <th>@lang('general.tanggal_transaction')</th>
+                                                                <th>@lang('general.total')</th>
+                                                                <th>@lang('general.action')</th>
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            @foreach($transactionProduct as $list)
+                                                                <tr>
+
+                                                                    <td>{{ $list->id }}</td>
+                                                                    <td>{{ $list->code }}</td>
+                                                                    <td>{{ $list->payment_name }}</td>
+                                                                    <td>{{ $list->product_name }}</td>
+                                                                    <td>{{ $getListStatusTransaction[$list->status] }}</td>
+                                                                    <td>{{ $list->created_at }}</td>
+                                                                    <td>{{ number_format($list->total, 2) }}</td>
+                                                                    <td>
+                                                                        <a href="{{ route('admin.' . 'transaction-product' . '.show', $list->id) }}" class="mb-1 btn btn-info btn-sm"
+                                                                             title="@lang('general.show')">
+                                                                            <i class="fa fa-eye"></i>
+                                                                            <span class="d-none d-md-inline"> @lang('general.show')</span>
+                                                                        </a>
+                                                                    </td>
+
+                                                                </tr>
+                                                            @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                    <div class="tab-pane" id="doctor">
+
+                                                        <br>
+                                                        <table class="table table-bordered table-striped" id="dataT3">
+
+                                                            <thead>
+                                                            <tr>
+                                                                <th>@lang('general.id')</th>
+                                                                <th>@lang('general.transaction_code')</th>
+                                                                <th>@lang('general.service')</th>
+                                                                <th>@lang('general.payment_name')</th>
+                                                                <th>@lang('general.doctor_name')</th>
+                                                                <th>@lang('general.total')</th>
+                                                                <th>@lang('general.status')</th>
+                                                                <th>@lang('general.tanggal_transaction')</th>
+                                                                <th>@lang('general.action')</th>
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            @foreach($transactionDoctor as $list)
+                                                                <tr>
+                                                                    <td>{{ $list->id }}</td>
+                                                                    <td>{{ $list->code }}</td>
+                                                                    <td>{{ $list->payment_name }}</td>
+                                                                    <td>{{ $list->category_service_name }}</td>
+                                                                    <td>{{ $list->doctor_name }}</td>
+                                                                    <td>{{ number_format($list->total, 2) }}</td>
+                                                                    <td>{{ $getListStatusTransaction[$list->status] }}</td>
+                                                                    <td>{{ $list->created_at }}</td>
+                                                                    <td>
+                                                                        <a href="{{ route('admin.' . 'transaction-doctor' . '.show', $list->id) }}" class="mb-1 btn btn-info btn-sm"
+                                                                           title="@lang('general.show')">
+                                                                            <i class="fa fa-eye"></i>
+                                                                            <span class="d-none d-md-inline"> @lang('general.show')</span>
+                                                                        </a>
+                                                                    </td>
+                                                                </tr>
+                                                            @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+
                                             </div>
                                             <!-- /.tab-pane -->
 
                                             <div class="tab-pane" id="appointment">
                                                 <!-- /.appointment -->
+                                                <ul class="nav nav-pills">
+                                                    <li class="nav-item"><a class="nav-link" href="#appointmentDoctor" data-toggle="tab">@lang('general.appointment_doctor')</a></li>
+                                                    <li class="nav-item"><a class="nav-link active" href="#appointmentLab" data-toggle="tab">@lang('general.appointment_lab')</a></li>
+                                                </ul>
+
+                                                <div class="tab-content">
+                                                    <div class="tab-pane" id="appointmentDoctor">
+
+                                                        <br>
+                                                        <table class="table table-bordered table-striped" id="dataA1">
+
+                                                            <thead>
+                                                            <tr>
+                                                                <th>@lang('general.id')</th>
+                                                                <th>@lang('general.appointment_code')</th>
+                                                                <th>@lang('general.type_appointment')</th>
+                                                                <th>@lang('general.doctor_name')</th>
+                                                                <th>@lang('general.date')</th>
+                                                                <th>@lang('general.status')</th>
+                                                                <th>@lang('general.created_at')</th>
+                                                                <th>@lang('general.action')</th>
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            @foreach($appointmentDoctor as $list)
+                                                                <tr>
+                                                                    <td>{{ $list->id }}</td>
+                                                                    <td>{{ $list->code }}</td>
+                                                                    <td>{{ $list->type_appointment }}</td>
+                                                                    <td>{{ $list->doctor_name }}</td>
+                                                                    <td>{{ $list->date }}</td>
+                                                                    <td>{{ $getListStatusAppointment[$list->status] }}</td>
+                                                                    <td>{{ $list->created_at }}</td>
+                                                                    <td>
+                                                                            <a href="#" class="mb-1 btn btn-info btn-sm"
+                                                                               title="@lang('general.show')">
+                                                                                <i class="fa fa-eye"></i>
+                                                                                <span class="d-none d-md-inline"> @lang('general.show')</span>
+                                                                            </a>
+                                                                    </td>
+                                                                </tr>
+                                                            @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                    <div class="tab-pane active" id="appointmentLab">
+
+                                                        <br>
+                                                        <table class="table table-bordered table-striped" id="dataA2">
+
+                                                            <thead>
+                                                            <tr>
+                                                                <th>@lang('general.id')</th>
+                                                                <th>@lang('general.appointment_code')</th>
+                                                                <th>@lang('general.type_appointment')</th>
+                                                                <th>@lang('general.lab_name')</th>
+                                                                <th>@lang('general.lab_price')</th>
+                                                                <th>@lang('general.date')</th>
+                                                                <th>@lang('general.time_start')</th>
+                                                                <th>@lang('general.time_end')</th>
+                                                                <th>@lang('general.status')</th>
+                                                                <th>@lang('general.created_at')</th>
+                                                                <th>@lang('general.action')</th>
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            @foreach($appointmentLab as $list)
+                                                                <tr>
+                                                                    <td>{{ $list->id }}</td>
+                                                                    <td>{{ $list->code }}</td>
+                                                                    <td>{{ $list->type_appointment }}</td>
+                                                                    <td>{{ $list->lab_name }}</td>
+                                                                    <td>{{ $list->lab_price }}</td>
+                                                                    <td>{{ $list->date }}</td>
+                                                                    <td>{{ $list->time_start }}</td>
+                                                                    <td>{{ $list->time_end }}</td>
+                                                                    <td>{{ $getListStatusAppointment[$list->status] }}</td>
+                                                                    <td>{{ $list->created_at }}</td>
+                                                                    <td>
+                                                                        @if($list->type_appointment == 'Homecare')
+                                                                        <a href="{{ route('admin.' . 'appointment-lab-homecare' . '.show', $list->id) }}" class="mb-1 btn btn-info btn-sm"
+                                                                           title="@lang('general.show')">
+                                                                            <i class="fa fa-eye"></i>
+                                                                            <span class="d-none d-md-inline"> @lang('general.show')</span>
+                                                                        </a>
+                                                                        @else
+                                                                            <a href="{{ route('admin.' . 'appointment-lab-visit' . '.show', $list->id) }}" class="mb-1 btn btn-info btn-sm"
+                                                                               title="@lang('general.show')">
+                                                                                <i class="fa fa-eye"></i>
+                                                                                <span class="d-none d-md-inline"> @lang('general.show')</span>
+                                                                            </a>
+                                                                         @endif
+                                                                    </td>
+                                                                </tr>
+                                                            @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+
                                             </div>
                                             <!-- /.tab-pane -->
                                         </div>
@@ -230,13 +439,21 @@ else {
     <script type="text/javascript">
         'use strict';
         let table;
-        table = jQuery('#data1').DataTable({
+        table = jQuery('#dataT1, #dataT2, #dataT3').DataTable({
+            pageLength: 5,
             autoWidth: false,
             scrollX: true,
+            aaSorting: [ {!! "[0,'desc']" !!}],
             rowReorder: {
                 selector: 'td:nth-child(2)'
             },
             responsive: true
+        });
+        table = jQuery('#dataA1, #dataA2').DataTable({
+            autoWidth: false,
+            scrollX: true,
+            responsive: true,
+            aaSorting: [ {!! "[0,'desc']" !!}],
         });
     </script>
 @stop

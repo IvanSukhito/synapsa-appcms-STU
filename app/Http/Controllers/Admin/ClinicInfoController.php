@@ -65,6 +65,9 @@ class ClinicInfoController extends _CrudController
             'sunday' => [
                 'edit' => 0,
             ],
+            'theme_color' => [
+                'edit' => 0,
+            ],
             'action' => [
                 'create' => 0,
                 'edit' => 0,
@@ -102,7 +105,8 @@ class ClinicInfoController extends _CrudController
     {
         $this->callPermission();
 
-        $getData = $this->crud->show($id);
+        $adminClinicId = session()->get('admin_clinic_id');
+        $getData = $this->crud->show($adminClinicId);
         if (!$getData) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
@@ -123,7 +127,8 @@ class ClinicInfoController extends _CrudController
 
         $viewType = 'edit';
 
-        $getData = $this->crud->show($id);
+        $adminClinicId = session()->get('admin_clinic_id');
+        $getData = $this->crud->show($adminClinicId);
         if (!$getData) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
@@ -198,8 +203,9 @@ class ClinicInfoController extends _CrudController
         $this->callPermission();
 
         $viewType = 'show';
+        $adminClinicId = session()->get('admin_clinic_id');
 
-        $getData = $this->crud->show($id);
+        $getData = $this->crud->show($adminClinicId);
 
         if (!$getData) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');

@@ -27,6 +27,7 @@ class CreateKlinikTable extends Migration
             $table->string('friday')->nullable();
             $table->string('saturday')->nullable();
             $table->string('sunday')->nullable();
+            $table->string('theme_color', 10)->nullable();
             $table->tinyInteger('status')->default(99);
             $table->timestamps();
         });
