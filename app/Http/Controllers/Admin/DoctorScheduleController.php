@@ -93,8 +93,8 @@ class DoctorScheduleController extends _CrudController
         $this->data['listSet']['doctor_id'] = $listUsers;
         $this->data['listSet']['service_id'] = $listService;
         $this->data['listSet']['day'] = get_list_day();
-        $this->data['listSet']['book'] = get_list_availabe();
+        $this->data['listSet']['book'] = get_list_available();
     }
-   
-    
+
+
 }
