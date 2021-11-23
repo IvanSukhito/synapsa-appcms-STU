@@ -6,7 +6,9 @@ use App\Codes\Logic\_CrudController;
 use App\Codes\Models\V1\City;
 use App\Codes\Models\V1\District;
 use App\Codes\Models\V1\Doctor;
+use App\Codes\Models\V1\Province;
 use App\Codes\Models\V1\SubDistrict;
+use App\Codes\Models\V1\Transaction;
 use App\Codes\Models\V1\Users;
 use App\Codes\MOdels\V1\UsersAddress;
 use App\Codes\Models\V1\Klinik;
@@ -33,62 +35,13 @@ class UsersClinicController extends _CrudController
 //                'lang' => 'general.klinik',
 //                'type' => 'select2',
 //            ],
-            'city_id' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'lang' => 'general.city',
-                'type' => 'select2',
-                'list' => 0,
-            ],
-            'district_id' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'lang' => 'general.district',
-                'type' => 'select2',
-                'list' => 0,
-            ],
-            'sub_district_id' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'lang' => 'general.sub_district',
-                'type' => 'select2',
-                'list' => 0,
-            ],
             'fullname' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
                 ]
             ],
-            'address' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'type' => 'texteditor',
-                'list' => 0,
-            ],
-            'address_detail' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'type' => 'texteditor',
-                'list' => 0,
-            ],
-            'zip_code' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'list' => 0,
-            ],
+
             'dob' => [
                 'validate' => [
                     'create' => 'required',
@@ -149,7 +102,7 @@ class UsersClinicController extends _CrudController
         ];
 
         parent::__construct(
-            $request, 'general.users_clinic', 'user_clinic', 'V1\Users', 'users_clinic',
+            $request, 'general.users_clinic', 'user_clinic', 'V1\Users', 'user_clinic',
             $passingData
         );
 
@@ -160,35 +113,50 @@ class UsersClinicController extends _CrudController
             }
         }
 
-        $getCity = City::pluck('name', 'id')->toArray();
-        $listCity = [0 => 'Kosong'];
-        if($getCity) {
-            foreach($getCity as $key => $value) {
-                $listCity[$key] = $value;
-            }
-        }
-
-        $getDistrict = District::pluck('name', 'id')->toArray();
-        $listDistrict = [0 => 'Kosong'];
-        if($getDistrict) {
-            foreach($getDistrict as $key => $value) {
-                $listDistrict[$key] = $value;
-            }
-        }
-
-        $getSubDistrict = SubDistrict::pluck('name', 'id')->toArray();
-        if($getSubDistrict) {
-            foreach($getSubDistrict as $key => $value) {
-                $listSubDistrict[$key] = $value;
-            }
-        }
 
         $this->data['listSet']['klinik_id'] = $listKlinik;
-        $this->data['listSet']['city_id'] = $listCity;
         $this->data['listSet']['gender'] = get_list_gender();
         $this->data['listSet']['status'] = get_list_active_inactive();
-        $this->data['listSet']['district_id'] = $listDistrict;
-        $this->data['listSet']['sub_district_id'] = $listSubDistrict;
+        $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.user-clinic.list_button';
+        $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.user-clinic.forms';
+
+    }
+
+    public function show($id)
+    {
+        $this->callPermission();
+
+        $getData = $this->crud->show($id);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $data = $this->data;
+
+        $getProvince = Province::where('id', $getData->province_id)->first();
+        $getCity = City::where('id',$getData->city_id)->first();
+        $getDistrict = District::where('id', $getData->district_id)->first();
+        $getSubDistrict = SubDistrict::where('id', $getData->sub_district_id)->first();
+
+        $getDataTransaction =   Transaction::selectRaw('transaction.*')
+                                ->leftJoin('users','users.id','=','transaction.user_id')
+                                ->where('users.id', $id)
+                                ->get();
+
+        $data['listSet']['status'] = get_list_active_inactive();
+
+        $data['viewType'] = 'show';
+        $data['formsTitle'] = __('general.title_show', ['field' => $data['thisLabel']]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['data'] = $getData;
+        $data['province'] = $getProvince;
+        $data['city'] = $getCity;
+        $data['district'] = $getDistrict;
+        $data['subDistrict'] = $getSubDistrict;
+        $data['transaction'] = $getDataTransaction;
+        $data['getListStatus'] = $data['listSet']['status'];
+
+        return view($this->listView[$data['viewType']], $data);
     }
 
     public function store(){
