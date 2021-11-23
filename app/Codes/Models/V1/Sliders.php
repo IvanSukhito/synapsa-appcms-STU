@@ -9,6 +9,7 @@ class Sliders extends Model
     protected $table = 'sliders';
     protected $primaryKey = 'id';
     protected $fillable = [
+        'klinik_id',
         'title',
         'image',
         'target',
