@@ -152,7 +152,7 @@ if ($daterange) {
                                <span class="info-box-icon bg-warning elevation-1"><i class="fa fa-users"></i></span>
 
                                 <div class="info-box-content">
-                                    <a href="{{ route('admin.user_clinic.index') }}" style="color:black;">
+                                    <a href="{{ route('admin.user-clinic.index') }}" style="color:black;">
                                     <span class="info-box-text">Pasien Terdaftar</span>
                                     <span class="info-box-number">
                                     {!! $user->count() ?? 0 !!}

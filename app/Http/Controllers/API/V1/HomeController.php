@@ -42,6 +42,7 @@ class HomeController extends Controller
             'user_id' => $user->id,
             'klinik_id' => $user->klinik_id,
             'klinik_name' => $getKlinik ? $getKlinik->name : '',
+            'klinik_theme' => $getKlinik ? $getKlinik->theme_color : '',
             'fullname' => $user->fullname,
             'address' => $user->address,
             'address_detail' => $user->address_detail,
@@ -85,7 +86,7 @@ class HomeController extends Controller
         }
 
         $totalNotif = Notifications::where('user_id',$user->id)->where('is_read',1)->count();
-        $dataSliders = Sliders::where('status',1)->orderBy('id','DESC')->get();
+        $dataSliders = Sliders::where('status',1)->whereIn('klinik_id', [0, $user->klinik_id])->orderBy('id','DESC')->get();
         $dataProduct = Product::orderBy('id','DESC')->paginate($limitProduct);
         $dataArticle = Article::orderBy('publish_date','DESC')->where('publish_status', 1)->limit($limitArticle)->get();
         $getKlinik = Klinik::where('id', $user->klinik_id)->first();
@@ -97,6 +98,7 @@ class HomeController extends Controller
                     'user_id' => $user->id,
                     'klinik_id' => $user->klinik_id,
                     'klinik_name' => $getKlinik ? $getKlinik->name : '',
+                    'klinik_theme' => $getKlinik ? $getKlinik->theme_color : '',
                     'fullname' => $user->fullname,
                     'address' => $user->address,
                     'address_detail' => $user->address_detail,

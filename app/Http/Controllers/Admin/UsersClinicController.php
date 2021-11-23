@@ -105,7 +105,7 @@ class UsersClinicController extends _CrudController
         ];
 
         parent::__construct(
-            $request, 'general.users_clinic', 'user_clinic', 'V1\Users', 'user_clinic',
+            $request, 'general.users_clinic', 'user-clinic', 'V1\Users', 'user-clinic',
             $passingData
         );
 
@@ -152,6 +152,7 @@ class UsersClinicController extends _CrudController
                                 ->leftJoin('users','users.id','=','transaction.user_id')
                                 ->leftJoin('transaction_details','transaction_details.transaction_id','=','transaction.id')
                                 ->where('users.id', $id)
+                                ->where('transaction.klinik_id', $adminClinicId)
                                 ->where('transaction.type_service', 1)
                                 ->orderBy('transaction.id','DESC')
                                 ->get();
@@ -160,6 +161,7 @@ class UsersClinicController extends _CrudController
         $getDataTransactionLab =   Transaction::selectRaw('transaction.*, lab_name, lab_price')
             ->leftJoin('users','users.id','=','transaction.user_id')
             ->leftJoin('transaction_details','transaction_details.transaction_id','=','transaction.id')
+            ->where('transaction.klinik_id', $adminClinicId)
             ->where('users.id', $id)
             ->where('transaction.type_service', 3)
             ->orderBy('id','DESC')
@@ -169,6 +171,7 @@ class UsersClinicController extends _CrudController
         $getDataTransactionDoctor =   Transaction::selectRaw('transaction.*, doctor_name, doctor_price')
             ->leftJoin('users','users.id','=','transaction.user_id')
             ->leftJoin('transaction_details','transaction_details.transaction_id','=','transaction.id')
+            ->where('transaction.klinik_id', $adminClinicId)
             ->where('users.id', $id)
             ->where('transaction.type_service', 2)
             ->orderBy('id','DESC')
@@ -180,11 +183,13 @@ class UsersClinicController extends _CrudController
                              ->leftJoin('appointment_lab_details','appointment_lab_details.appointment_lab_id', '=' ,'appointment_lab.id')
                              ->leftJoin('users','users.id','=','appointment_lab.user_id')
                              ->where('users.id', $id)
+                             ->where('appointment_lab.klinik_id', $adminClinicId)
                              ->get();
 //        // Appointment Doctor
         $getAppointmentDoctor = AppointmentDoctor::selectRaw('appointment_doctor.*, product_name, product_qty_checkout as product_qty, product_price')
                                 ->leftJoin('appointment_doctor_product','appointment_doctor_product.appointment_doctor_id', '=', 'appointment_doctor.id')
                                 ->leftJoin('users','users.id','=','appointment_doctor.user_id')
+                                ->where('appointment_doctor.klinik_id', $adminClinicId)
                                 ->where('users.id', $id)
                                 ->get();
 
