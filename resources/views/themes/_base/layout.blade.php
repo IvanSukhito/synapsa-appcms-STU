@@ -24,6 +24,9 @@
             <li class="nav-item">
                 <a class="nav-link" data-widget="pushmenu" href="#"><i class="fa fa-bars"></i></a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link">{{ session('admin_clinic_name') }}</a>
+            </li>
         </ul>
         <ul class="navbar-nav ml-auto">
             <li class="nav-item d-none d-sm-inline-block">
