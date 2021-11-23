@@ -4,7 +4,7 @@ foreach ($fieldExtra as $extraKey => $extraVal) {
     $attribute[$extraKey] = $extraVal;
 }
 $attribute['id'] = $fieldName;
-$attribute['class'] = 'form-control';
+$attribute['class'] = 'form-control setcolorpicker';
 if ($errors->has($fieldName)) {
     $attribute['class'] .= ' is-invalid';
 }

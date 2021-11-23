@@ -75,7 +75,7 @@
             $(this).val(picker.startDate.format('HH:mm') + ' - ' + picker.endDate.format('HH:mm'));
         });
 
-        $('.colorpicker').colorpicker();
+        $('.setcolorpicker').colorpicker();
 
         $('.select2').select2();
         $('.tagging').select2({
