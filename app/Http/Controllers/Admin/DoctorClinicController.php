@@ -15,6 +15,7 @@ use App\Codes\Models\V1\LabSchedule;
 use App\Codes\Models\V1\Province;
 use App\Codes\Models\V1\SubDistrict;
 use App\Codes\Models\V1\Users;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\DataTables;
 use App\Codes\Models\V1\Service;
@@ -600,8 +601,6 @@ class DoctorClinicController extends _CrudController
             ->orderBy('date_available', 'ASC')
             ->get();
 
-        $getTargetDay = $this->request->get('date') > 0 ? $this->request->get('date') : 1;
-
         $getListDay = DoctorSchedule::select('weekday')
             ->where('doctor_id', $getDoctor->id)
             ->where('type', 1)
@@ -610,6 +609,8 @@ class DoctorClinicController extends _CrudController
             ->get();
 
         $getListWeekday = $this->data['listSet']['weekday'];
+
+        $getTargetDay = $this->request->get('date') > 0 ? $this->request->get('date') : Carbon::now()->dayOfWeek;
 
         $notFound = 1;
         $findFirstDay = '';
@@ -689,7 +690,7 @@ class DoctorClinicController extends _CrudController
     {
         $this->callPermission();
 
-        if($this->request->get('schedule_type') == 0) {
+        if($this->request->get('schedule_type') == 1) {
             $data = $this->validate($this->request, [
                 'service' => 'required',
                 'time_start' => 'required',
@@ -762,7 +763,7 @@ class DoctorClinicController extends _CrudController
             }
         }
 
-        if($this->request->get('schedule_type') == 0) {
+        if($this->request->get('schedule_type') == 1) {
             $data = $this->validate($this->request, [
                 'service' => 'required',
                 'time_start' => 'required',

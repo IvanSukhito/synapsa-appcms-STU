@@ -4,12 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
 use App\Codes\Models\V1\Klinik;
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Yajra\DataTables\DataTables;
 
 
-class BannerPageController extends _CrudController
+class BannerPageClinicController extends _CrudController
 {
     public function __construct(Request $request)
     {
@@ -18,14 +18,6 @@ class BannerPageController extends _CrudController
                 'create' => 0,
                 'edit' => 0,
                 'show' => 0
-            ],
-            'klinik_id' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'type' => 'select',
-                'lang' => 'general.klinik'
             ],
             'title' => [
                 'validate' => [
@@ -86,33 +78,97 @@ class BannerPageController extends _CrudController
         ];
 
         parent::__construct(
-            $request, 'general.banner', 'banner', 'V1\Sliders', 'banner',
+            $request, 'general.banner_clinic', 'banner-clinic', 'V1\Sliders', 'banner-clinic',
             $passingData
         );
 
-        $listKlinik = [0 => 'Empty'];
-        foreach (Klinik::where('status', 80)->pluck('name', 'id')->toArray() as $key => $value) {
-            $listKlinik[$key] = $value;
+        $this->data['listSet']['status'] = get_list_active_inactive();
+    }
+
+    public function index()
+    {
+        $this->callPermission();
+
+        $adminClinicId = session()->get('admin_clinic_id');
+        if(!$adminClinicId) {
+            session()->flash('message', __('Tidak ada clinic yang di assign'));
+            session()->flash('message_alert', 1);
+            return redirect()->route('admin');
         }
 
-        $this->data['listSet']['status'] = get_list_active_inactive();
-        $this->data['listSet']['klinik_id'] = $listKlinik;
+        $data = $this->data;
+
+        $data['passing'] = collectPassingData($this->passingData);
+
+        return view($this->listView['index'], $data);
+    }
+
+    public function dataTable()
+    {
+        $this->callPermission();
+
+        $adminClinicId = session()->get('admin_clinic_id');
+
+        $dataTables = new DataTables();
+
+        $builder = $this->model::query()->select('*')->where('klinik_id', $adminClinicId);
+
+        $dataTables = $dataTables->eloquent($builder)
+            ->addColumn('action', function ($query) {
+                return view($this->listView['dataTable'], [
+                    'query' => $query,
+                    'thisRoute' => $this->route,
+                    'permission' => $this->permission,
+                    'masterId' => $this->masterId
+                ]);
+            });
+
+        $listRaw = [];
+        $listRaw[] = 'action';
+        foreach (collectPassingData($this->passingData) as $fieldName => $list) {
+            if (in_array($list['type'], ['select', 'select2', 'multiselect2'])) {
+                $dataTables = $dataTables->editColumn($fieldName, function ($query) use ($fieldName) {
+                    $getList = isset($this->data['listSet'][$fieldName]) ? $this->data['listSet'][$fieldName] : [];
+                    return isset($getList[$query->$fieldName]) ? $getList[$query->$fieldName] : $query->$fieldName;
+                });
+            }
+            else if (in_array($list['type'], ['image', 'image_preview'])) {
+                $listRaw[] = $fieldName;
+                $dataTables = $dataTables->editColumn($fieldName, function ($query) use ($fieldName, $list, $listRaw) {
+                    if ($query->{$fieldName.'_full'}) {
+                        return '<img src="' . $query->{$fieldName.'_full'}. '" class="img-responsive max-image-preview"/>';
+                    }
+                    return '<img src="' . asset($list['path'] . $query->$fieldName) . '" class="img-responsive max-image-preview"/>';
+                });
+            }
+            else if (in_array($list['type'], ['code'])) {
+                $listRaw[] = $fieldName;
+                $dataTables = $dataTables->editColumn($fieldName, function ($query) use ($fieldName, $list, $listRaw) {
+                    return '<pre>' . json_encode(json_decode($query->$fieldName, true), JSON_PRETTY_PRINT) . '</pre>';
+                });
+            }
+            else if (in_array($list['type'], ['texteditor'])) {
+                $listRaw[] = $fieldName;
+            }
+        }
+
+        return $dataTables
+            ->rawColumns($listRaw)
+            ->make(true);
     }
 
     public function store()
     {
         $this->callPermission();
 
-        $viewType = 'create';
-
-        if($this->request->get('klinik_id') <= 0) {
-            return redirect()
-                ->back()
-                ->withInput()
-                ->withErrors([
-                    'klinik_id' => __('general.data_empty')
-                ]);
+        $adminClinicId = session()->get('admin_clinic_id');
+        if(!$adminClinicId) {
+            session()->flash('message', __('Tidak ada clinic yang di assign'));
+            session()->flash('message_alert', 1);
+            return redirect()->route('admin');
         }
+
+        $viewType = 'create';
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
 
@@ -148,6 +204,7 @@ class BannerPageController extends _CrudController
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
         $data['image'] = $dokumentImage;
+        $data['klinik_id'] = $adminClinicId;
         $getData = $this->crud->store($data);
 
         $id = $getData->id;
@@ -173,13 +230,11 @@ class BannerPageController extends _CrudController
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
 
-        if($this->request->get('klinik_id') <= 0) {
-            return redirect()
-                ->back()
-                ->withInput()
-                ->withErrors([
-                    'klinik_id' => __('general.data_empty')
-                ]);
+        $adminClinicId = session()->get('admin_clinic_id');
+        if(!$adminClinicId) {
+            session()->flash('message', __('Tidak ada clinic yang di assign'));
+            session()->flash('message_alert', 1);
+            return redirect()->route('admin');
         }
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
@@ -242,6 +297,7 @@ class BannerPageController extends _CrudController
         }
 
         $data['image'] = $dokumentImage;
+        $data['image'] = $adminClinicId;
         $getData = $this->crud->update($data, $id);
 
         $id = $getData->id;

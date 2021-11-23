@@ -233,6 +233,7 @@ class GeneralController extends Controller
                     'user_id' => $user->id,
                     'klinik_id' => $user->klinik_id,
                     'klinik_name' => $getKlinik ? $getKlinik->name : '',
+                    'klinik_theme' => $getKlinik ? $getKlinik->theme_color : '',
                     'fullname' => $user->fullname,
                     'address' => $user->address,
                     'address_detail' => $user->address_detail,

@@ -455,6 +455,7 @@ return [
     'schedule_umum' => 'Schedule Umum',
     'schedule_khusus' => 'Schedule Khusus',
     'schedule_type' => 'Tipe Schedule',
+    'banner_clinic' => 'Banner Clinic'
 
     'doctor-clinic-visit' => 'Doctor Visit',
     'doctor-clinic-telemed' => 'Doctor Telemed',
