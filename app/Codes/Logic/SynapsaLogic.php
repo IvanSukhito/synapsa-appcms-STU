@@ -647,4 +647,5 @@ class SynapsaLogic
         readfile($file);
         exit;
     }
+
 }

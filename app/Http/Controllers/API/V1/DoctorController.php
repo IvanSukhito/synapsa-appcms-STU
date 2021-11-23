@@ -146,6 +146,7 @@ class DoctorController extends Controller
         }
 
         $data = $this->getDoctorInfo($id, $serviceId);
+//        $data = $this->getDoctorInfo(13, $serviceId);
 
         if (!$data) {
             return response()->json([
@@ -156,17 +157,44 @@ class DoctorController extends Controller
         }
         else {
 
-            $getDoctorSchedule = DoctorSchedule::where('doctor_id', '=', $id)->where('service_id', '=', $serviceId)
+            $getWeekday = intval(date('w', strtotime($getDate)));
+            $getDoctorSchedule = DoctorSchedule::where('service_id', $serviceId)->where('weekday', $getWeekday)->get();
+
+            $getDoctorSchedule2 = DoctorSchedule::where('doctor_id', '=', $id)->where('service_id', '=', $serviceId)
                 ->where('date_available', '=', $getDate)
                 ->get();
+
+            if ($getDoctorSchedule2) {
+                $getSchedule = $getDoctorSchedule2;
+            }
+            else {
+                $getSchedule = $getDoctorSchedule;
+            }
+
+            $temp = [];
+            foreach ($getSchedule as $list) {
+                $temp[] = [
+                    'id' => $list->id,
+                    'doctor_id' => $id,
+                    'service_id' => $serviceId,
+                    'date_available' => $getDate,
+                    'time_start' => $list->time_start,
+                    'time_end' => $list->time_end,
+                    'type' => $list->type,
+                    'weekday' => $list->weekday,
+                    'book' => $list->book,
+                    'book_nice' => $list->book_nice
+                ];
+            }
+            $getDoctorSchedule = $temp;
 
             $getList = get_list_type_service();
 
             return response()->json([
                 'success' => 1,
                 'data' => [
-                    'schedule_start' => date('Y-m-d', strtotime("+1 day")),
-                    'schedule_end' => date('Y-m-d', strtotime("+366 day")),
+                    'schedule_start' => date('Y-m-d', strtotime("now")),
+                    'schedule_end' => date('Y-m-d', strtotime("+1 year")),
                     'address' => $getService->type == 2 ? 1 : 0,
                     'address_nice' => $getList[$getService->type] ?? '-',
                     'date' => $getDate,

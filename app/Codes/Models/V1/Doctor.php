@@ -17,8 +17,39 @@ class Doctor extends Model
     ];
 
     protected $appends = [
+        'status_nice',
+        'gender_nice',
+        'image_full',
         'price_nice'
     ];
+
+    public function getStatusNiceAttribute()
+    {
+        if (isset($this->status)) {
+            $getList = get_list_active_inactive();
+            return $getList[$this->status] ?? $this->status;
+        }
+        return '';
+    }
+
+    public function getGenderNiceAttribute()
+    {
+        if (isset($this->gender)) {
+            $getList = get_list_gender();
+            return $getList[$this->gender] ?? $this->gender;
+        }
+        return '';
+    }
+
+    public function getImageFullAttribute()
+    {
+        if (isset($this->image)) {
+            if (strlen($this->image) > 0) {
+                return env('OSS_URL').'/'.$this->image;
+            }
+        }
+        return asset('assets/cms/images/no-img.png');
+    }
 
     public function getPriceNiceAttribute()
     {
