@@ -4,7 +4,7 @@ foreach ($fieldExtra as $extraKey => $extraVal) {
     $attribute[$extraKey] = $extraVal;
 }
 $attribute['id'] = $fieldName;
-$attribute['class'] = 'form-control pull-right colorpicker';
+$attribute['class'] = 'form-control colorpicker';
 if ($errors->has($fieldName)) {
     $attribute['class'] .= ' is-invalid';
 }
@@ -15,11 +15,7 @@ if ($fieldRequired == 1) {
 ?>
 <div class="form-group">
     <label for="{{$fieldName}}">{{ __($fieldLang) }} {!! $fieldRequired == 1 ? ' <span class="text-red">*</span>' : '' !!}</label>
-    <div class="input-group my-colorpicker2">
-        {{ Form::text($fieldName, old($fieldName, $fieldValue), $attribute) }}
-        <div class="input-group-append">
-            <span class="input-group-text"><i class="fas fa-square"></i></span>
-        </div>
+    {{ Form::text($fieldName, old($fieldName, $fieldValue), $attribute) }}
     </div>
     @if(isset($fieldMessage)) <span class="small">{{ $fieldMessage }}</span> @endif
     @if($errors->has($fieldName)) <div class="invalid-feedback">{{ $errors->first($fieldName) }}</div> @endif

@@ -66,7 +66,7 @@ class ClinicInfoController extends _CrudController
                 'edit' => 0,
             ],
             'theme_color' => [
-                'edit' => 0,
+                'type' => 'colorpicker'
             ],
             'action' => [
                 'create' => 0,
@@ -90,7 +90,6 @@ class ClinicInfoController extends _CrudController
     public function index()
     {
         $adminClinicId = session()->get('admin_clinic_id');
-
 
         //dd($adminClinicId);
         $getData = $this->crud->show($adminClinicId);
@@ -182,7 +181,6 @@ class ClinicInfoController extends _CrudController
         foreach($saveData as $key => $val) {
             $data[$key] = $val;
         }
-
 
         $getData = $this->crud->update($data, $id);
 
