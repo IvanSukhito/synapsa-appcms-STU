@@ -207,8 +207,8 @@ if ( ! function_exists('get_list_read')) {
     }
 }
 
-if ( ! function_exists('get_list_availabe')) {
-    function get_list_availabe()
+if ( ! function_exists('get_list_available')) {
+    function get_list_available()
     {
         return [
             80 => __('general.available'),

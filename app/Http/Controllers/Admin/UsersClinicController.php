@@ -128,8 +128,14 @@ class UsersClinicController extends _CrudController
     public function show($id)
     {
         $this->callPermission();
+        $adminClinicId = session()->get('admin_clinic_id');
 
-        $getData = $this->crud->show($id);
+        $getData = $this->crud->show($id, [
+            'id' => $id,
+            'klinik_id' => $adminClinicId
+        ]);
+
+        //dd($getData);
         if (!$getData) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }

@@ -606,7 +606,7 @@ class DoctorController extends _CrudController
         $data['city'] = $getCity;
         $data['district'] = $getDistrict;
         $data['subDistrict'] = $getSubDistrict;
-
+        $data['getListAvailable'] = get_list_available();
 
         return view($this->listView[$data['viewType']], $data);
 

@@ -247,7 +247,7 @@ else {
                                     <td>{{ $list->date_available }}</td>
                                     <td>{{ $list->time_start }}</td>
                                     <td>{{ $list->time_end }}</td>
-                                    <td>{{ $getListAvailabe[$list->book] ?? $list->book }}</td>
+                                    <td>{{ $getListAvailable[$list->book] ?? $list->book }}</td>
                                 </tr>
                             @endforeach
                             </tbody>
