@@ -67,7 +67,12 @@ class generateLogic
         $row = $firstRow;
         $column += 7;
 
-        $getImage = strlen($getClinic->logo) > 0 ? env('OSS_URL') . '/' . $getClinic->logo : 'https://unictive.oss-ap-southeast-5.aliyuncs.com/synapsaklinik/uploads/logo/JRyRXJATtXC8FF9rOmJXpGrMV4ZPjCQ5bNOGQyNf.png';
+        $getUrl = 'https://unictive.oss-ap-southeast-5.aliyuncs.com/synapsaklinik/uploads/logo/JRyRXJATtXC8FF9rOmJXpGrMV4ZPjCQ5bNOGQyNf.png';
+        if($getClinic) {
+            $getUrl = strlen($getClinic->logo) > 0 ? env('OSS_URL') . '/' . $getClinic->logo : 'https://unictive.oss-ap-southeast-5.aliyuncs.com/synapsaklinik/uploads/logo/JRyRXJATtXC8FF9rOmJXpGrMV4ZPjCQ5bNOGQyNf.png';
+        }
+
+        $getImage = $getUrl;
         $getExt = explode('.', $getImage);
         $ext = end($getExt);
         $fileImageName = 'uploads/logo' . rand(100, 999) . '.' . $ext;
