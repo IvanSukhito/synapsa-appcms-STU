@@ -690,7 +690,7 @@ class DoctorClinicController extends _CrudController
     {
         $this->callPermission();
 
-        if($this->request->get('schedule_type') == 0) {
+        if($this->request->get('schedule_type') == 1) {
             $data = $this->validate($this->request, [
                 'service' => 'required',
                 'time_start' => 'required',
@@ -763,7 +763,7 @@ class DoctorClinicController extends _CrudController
             }
         }
 
-        if($this->request->get('schedule_type') == 0) {
+        if($this->request->get('schedule_type') == 1) {
             $data = $this->validate($this->request, [
                 'service' => 'required',
                 'time_start' => 'required',
