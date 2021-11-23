@@ -457,7 +457,7 @@ return [
     'schedule_type' => 'Tipe Schedule',
     'banner_clinic' => 'Banner Clinic',
 
-    'doctor-clinic-visit' => 'Doctor Visit',
-    'doctor-clinic-telemed' => 'Doctor Telemed',
-    'doctor-clinic-homecare' => 'Doctor Homecare',
+    'doctor_clinic_visit' => 'Doctor Visit',
+    'doctor_clinic_telemed' => 'Doctor Telemed',
+    'doctor_clinic_homecare' => 'Doctor Homecare',
 ];
