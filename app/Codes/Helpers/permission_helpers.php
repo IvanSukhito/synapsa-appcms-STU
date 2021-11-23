@@ -405,6 +405,15 @@ if ( ! function_exists('listAllMenu')) {
                 'type' => 1,
             ],
             [
+                'name' => __('general.banner_clinic'),
+                'icon' => '<i class="nav-icon fa fa-image"></i>',
+                'title' => __('general.banner_clinic'),
+                'active' => ['admin.banner-clinic.'],
+                'route' => 'admin.banner-clinic.index',
+                'key' => 'banner-clinic',
+                'type' => 1,
+            ],
+            [
                 'name' => __('general.service'),
                 'icon' => '<i class="nav-icon fa fa-medkit"></i>',
                 'title' => __('general.service'),
@@ -865,6 +874,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'doctor',
                      'customer-support',
                      'banner',
+                     'banner-clinic',
                      'appointment-lab-schedule',
 
                  ] as $keyPermission) {
