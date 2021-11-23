@@ -137,7 +137,7 @@ class DoctorAppointmentController extends Controller
         $doctorPrescription = json_decode($data->doctor_prescription, true);
 
         $dataProducts = AppointmentDoctorProduct::selectRaw('appointment_doctor_product.id, product_id, product_name,
-            product_qty, product_qty_checkout, product_price, choose,
+            product_qty, product_qty_checkout, product_price, dosis, type_dosis, period, note, choose,
             CONCAT("'.env('OSS_URL').'/'.'", product.image) AS product_image_full')
             ->leftJoin('product', 'product.id', '=', 'appointment_doctor_product.product_id')->where('appointment_doctor_id', $id)->get();
 
