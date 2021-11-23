@@ -13,6 +13,7 @@
             <link rel="stylesheet" href="{{ asset('/assets/cms/css/app.css') }}">
             <link rel="stylesheet" href="{{ asset('/assets/cms/js/calendar/fullcalendar.css') }}">
             <link rel="stylesheet" href="{{ asset('/assets/cms/dropify/css/dropify.min.css') }}">
+            <link rel="stylesheet" href="{{ asset('/assets/cms/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css') }}">
     @show
     @section('script-top')
     @show
@@ -86,7 +87,7 @@
     <script src="{{ asset('/assets/cms/js/money.js') }}"></script>
     <script src="{{ asset('/assets/cms/js/calendar/fullcalendar.min.js') }}"></script>
     <script src="{{ asset('/assets/cms/dropify/js/dropify.js')}}"> </script>
-
+    <script src="{{ asset('/assets/cms/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js') }}"></script>
     @if(session()->has('message'))
         <?php
         switch (session()->get('message_alert')) {

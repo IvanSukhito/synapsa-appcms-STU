@@ -73,6 +73,7 @@ else {
                 <div class="card-body">
                     @if(isset($data->parent_id) && $data->parent_id > 0)
                         <span class="text-red">* Product Ini Diambil Dari Synapsa</span>
+                        <a href="{{ route('admin.product-clinic.show', $data->parent_id) }}" class="btn btn-info btn-sm">Detail Product Parent</a>
                     @endif
                     @include(env('ADMIN_TEMPLATE').'._component.generate_forms')
                     @if(in_array($viewType, ['show','edit']))

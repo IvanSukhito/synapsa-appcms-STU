@@ -177,6 +177,7 @@ class ProductClinicController extends _CrudController
             $passingData
         );
 
+        $listCategory = [];
         $getCategory = ProductCategory::where('status', 80)->pluck('name', 'id')->toArray();
         if($getCategory) {
             foreach($getCategory as $key => $value) {
@@ -188,7 +189,7 @@ class ProductClinicController extends _CrudController
         $this->data['listSet']['status'] = get_list_active_inactive();
         $this->data['listSet']['stock_flag'] = get_list_stock_flag();
         $this->data['listSet']['type'] = get_list_type_product();
-        //$this->listView['index'] = env('ADMIN_TEMPLATE').'.page.product.list';
+
         $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.product-clinic.forms';
         $this->listView['create2'] = env('ADMIN_TEMPLATE').'.page.product-clinic.forms2';
         $this->listView['find-product-synapsa'] = env('ADMIN_TEMPLATE').'.page.product-clinic.forms3';
@@ -221,13 +222,12 @@ class ProductClinicController extends _CrudController
     public function edit($id){
         $this->callPermission();
 
-        $adminId = session()->get('admin_id');
-        $getUsers = Users::where('id', $adminId)->first();
-        if (!$getUsers) {
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
-        }
+        $adminClinicId = session()->get('admin_clinic_id');
 
-        $getData = $this->crud->show($id);
+        $getData = $this->crud->show($id, [
+            'id' => $id,
+            'klinik_id' => $adminClinicId
+        ]);
         if (!$getData) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
@@ -273,14 +273,11 @@ class ProductClinicController extends _CrudController
     public function show($id){
         $this->callPermission();
 
-        $adminId = session()->get('admin_id');
-        $getUsers = Users::where('id', $adminId)->first();
-        if (!$getUsers) {
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
-        }
+        $adminClinicId = session()->get('admin_clinic_id');
 
-
-        $getData = $this->crud->show($id);
+        $getData = $this->crud->show($id, 'id', [
+            'klinik_id' => [$adminClinicId, 0]
+        ]);
         if (!$getData) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
