@@ -323,11 +323,25 @@ else {
                                                                     <td>{{ $getListStatusAppointment[$list->status] }}</td>
                                                                     <td>{{ $list->created_at }}</td>
                                                                     <td>
-                                                                            <a href="#" class="mb-1 btn btn-info btn-sm"
+                                                                        @if($list->type_appointment == 'Homecare')
+                                                                            <a href="{{ route('admin.' . 'doctor-clinic-homecare' . '.show', $list->id) }}" class="mb-1 btn btn-info btn-sm"
                                                                                title="@lang('general.show')">
                                                                                 <i class="fa fa-eye"></i>
                                                                                 <span class="d-none d-md-inline"> @lang('general.show')</span>
                                                                             </a>
+                                                                        @elseif($list->type_appointment == 'Telemed')
+                                                                            <a href="{{ route('admin.' . 'doctor-clinic-telemed' . '.show', $list->id) }}" class="mb-1 btn btn-info btn-sm"
+                                                                               title="@lang('general.show')">
+                                                                                <i class="fa fa-eye"></i>
+                                                                                <span class="d-none d-md-inline"> @lang('general.show')</span>
+                                                                            </a>
+                                                                        @else
+                                                                            <a href="{{ route('admin.' . 'doctor-clinic-visit' . '.show', $list->id) }}" class="mb-1 btn btn-info btn-sm"
+                                                                               title="@lang('general.show')">
+                                                                                <i class="fa fa-eye"></i>
+                                                                                <span class="d-none d-md-inline"> @lang('general.show')</span>
+                                                                            </a>
+                                                                        @endif
                                                                     </td>
                                                                 </tr>
                                                             @endforeach
@@ -450,6 +464,7 @@ else {
             responsive: true
         });
         table = jQuery('#dataA1, #dataA2').DataTable({
+            pageLength: 5,
             autoWidth: false,
             scrollX: true,
             responsive: true,
