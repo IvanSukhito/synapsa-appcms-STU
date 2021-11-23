@@ -296,9 +296,9 @@ if ( ! function_exists('listAllMenu')) {
                 'name' => __('general.user_clinic'),
                 'icon' => '<i class="nav-icon fa fa-user"></i>',
                 'title' => __('general.user_clinic'),
-                'active' => ['admin.user_clinic.'],
-                'route' => 'admin.user_clinic.index',
-                'key' => 'user_clinic',
+                'active' => ['admin.user-clinic.'],
+                'route' => 'admin.user-clinic.index',
+                'key' => 'user-clinic',
                 'type' => 1,
             ],
             [
@@ -798,6 +798,9 @@ if ( ! function_exists('listAvailablePermission'))
                      'appointment-lab-clinic',
                      'appointment-lab-visit-clinic',
                      'appointment-lab-homecare-clinic',
+                     'appointment-doctor-visit-clinic',
+                     'appointment-doctor-telemed-clinic',
+                     'appointment-doctor-homecare-clinic',
                      'appointment-nurse',
                      'clinic_info',
                      'transaction-product',
@@ -826,7 +829,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'appointment-lab',
                      'appointment-lab-visit',
                      'appointment-lab-homecare',
-                     'user_clinic',
+                     'user-clinic',
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [
