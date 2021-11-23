@@ -372,7 +372,7 @@ class GeneralController extends Controller
 
         return response()->json([
             'success' => 1,
-            'data' => $getData
+            'data' => $getData->get()
         ]);
     }
 
@@ -396,7 +396,7 @@ class GeneralController extends Controller
 
         return response()->json([
             'success' => 1,
-            'data' => $getData
+            'data' => $getData->get()
         ]);
     }
 
@@ -419,7 +419,7 @@ class GeneralController extends Controller
 
         return response()->json([
             'success' => 1,
-            'data' => $getData
+            'data' => $getData->get()
         ]);
     }
 
@@ -442,7 +442,7 @@ class GeneralController extends Controller
 
         return response()->json([
             'success' => 1,
-            'data' => $getData
+            'data' => $getData->get()
         ]);
     }
 
