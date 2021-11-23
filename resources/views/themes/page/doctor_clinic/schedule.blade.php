@@ -62,7 +62,7 @@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="row">
-                                        {{ Form::text('schedule_type', $scheduleType, ['id' => 'schedule_type', 'class' => 'form-control', 'required' => true, 'hidden' => true]) }}
+                                        {{ Form::text('type', $scheduleType, ['id' => 'type', 'class' => 'form-control', 'required' => true, 'hidden' => true]) }}
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="service_{!! $list->id !!}">{{ __('general.service') }} <span
@@ -264,7 +264,7 @@
         $('#schedule_type').on('change', function() {
             let type = $(this).val();
 
-            if(type === '0') {
+            if(type === '1') {
                 $('#date').parent().parent().hide();
                 $('#date').prop('required', false);
 
@@ -413,7 +413,7 @@
             }
 
             let data = {
-                schedule_type: $('#schedule_type').val(),
+                schedule_type: $('#type').val(),
                 service: $('#service_' + getId).val(),
                 weekday: $('#weekday_' + getId).val(),
                 date: $('#date_' + getId).val(),
