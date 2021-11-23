@@ -118,7 +118,7 @@ class LabScheduleController extends _CrudController
         $this->data['listSet']['klinik_id'] = $klinik_id;
         $this->data['listSet']['service_id'] = $service_id;
         $this->data['listSet']['day'] = get_list_day();
-        $this->data['listSet']['book'] = get_list_availabe();
+        $this->data['listSet']['book'] = get_list_available();
         $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.lab.schedule';
         $this->listView['create2'] = env('ADMIN_TEMPLATE').'.page.lab.forms2';
 
