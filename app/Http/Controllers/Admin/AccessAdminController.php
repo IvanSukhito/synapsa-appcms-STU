@@ -35,7 +35,7 @@ class AccessAdminController extends Controller
 
         $user = $this->accessLogin->cekLogin($this->request->get('username'),
             $this->request->get('password'), 'Admin', 'username', 'password', ['status'=>80]);
-          //dd($user);
+
         if ($user) {
             $getRole = Role::where('id', $user->role_id)->first();
             $getPermissionData = isset($getRole) ? json_decode($getRole->permission_data, TRUE) : null;
@@ -43,12 +43,13 @@ class AccessAdminController extends Controller
             $getRoleSuperAdmin = isset($getPermissionData['super_admin']) ? 1: 0;
             $getRoleClinic = isset($getPermissionData['role_clinic']) ? 1 : 0;
 
-            //dd($getRoleClinic);
             $getClinic = 0;
+            $getClinicName = '';
             if ($getRoleClinic == 1) {
                 $getClinicData = $user->getKlinik()->first();
                 if ($getClinicData) {
                     $getClinic = $getClinicData->id;
+                    $getClinicName = $getClinicData->name;
                 }
             }
 
@@ -57,8 +58,9 @@ class AccessAdminController extends Controller
             session()->put('admin_name', $user->name);
             session()->put('admin_role', $user->role_id);
             session()->put('admin_clinic_id', $getClinic);
+            session()->put('admin_clinic_name', $getClinicName);
             session()->put('admin_role_clinic', $getRoleClinic);
-            session()->put('admin_super_admin', isset($getPermissionData['super_admin']) ? 1 : 0);
+            session()->put('admin_super_admin', $getRoleSuperAdmin);
             try {
                 session_start();
                 $_SESSION['set_login_ck_editor'] = 1;
