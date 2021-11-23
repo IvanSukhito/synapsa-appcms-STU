@@ -16,6 +16,9 @@ if ($fieldRequired == 1) {
 <div class="form-group">
     <label for="{{$fieldName}}">{{ __($fieldLang) }} {!! $fieldRequired == 1 ? ' <span class="text-red">*</span>' : '' !!}</label>
     {{ Form::text($fieldName, old($fieldName, $fieldValue), $attribute) }}
+    @if(!in_array($viewType, ['show']))
+        <div style="width: 50px; height: 50px; background-color: {{$fieldValue}}"></div>
+    @endif
     @if(isset($fieldMessage)) <span class="small">{{ $fieldMessage }}</span> @endif
     @if($errors->has($fieldName)) <div class="invalid-feedback">{{ $errors->first($fieldName) }}</div> @endif
 </div>
