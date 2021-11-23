@@ -41,6 +41,10 @@ class AppointmentDoctor extends Model
         'online_meeting_nice'
     ];
 
+    protected $dates = [
+        'created_at',
+    ];
+
     public function getAppointmentDoctorProduct()
     {
         return $this->hasMany(AppointmentDoctorProduct::class, 'appointment_doctor_id', 'id');
@@ -57,5 +61,12 @@ class AppointmentDoctor extends Model
          $getList = get_list_online_meeting();
          return $getList[$this->online_meeting] ?? $this->online_meeting;
      }
+
+    public function getCreatedAtAttribute()
+    {
+        return \Carbon\Carbon::parse($this->attributes['created_at'])
+            ->format('Y-m-d H:i:s ');
+    }
+
 
 }

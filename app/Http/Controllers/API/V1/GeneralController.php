@@ -361,7 +361,7 @@ class GeneralController extends Controller
     }
 
     public function searchProvince(){
-        $this->limit = 10;
+
         $s = $this->request->get('s');
 
         $getData = Province::query();
@@ -372,13 +372,13 @@ class GeneralController extends Controller
 
         return response()->json([
             'success' => 1,
-            'data' => $getData->paginate($this->limit)
+            'data' => $getData->get()
         ]);
     }
 
     public function searchCity()
     {
-        $this->limit = 10;
+
         $s = $this->request->get('s');
         $provinceId = intval($this->request->get('province_id'));
 
@@ -396,13 +396,13 @@ class GeneralController extends Controller
 
         return response()->json([
             'success' => 1,
-            'data' => $getData->paginate($this->limit)
+            'data' => $getData->get()
         ]);
     }
 
     public function searchDistrict()
     {
-        $this->limit = 10;
+
         $s = $this->request->get('s');
         $cityId = intval($this->request->get('city_id'));
 
@@ -419,13 +419,13 @@ class GeneralController extends Controller
 
         return response()->json([
             'success' => 1,
-            'data' => $getData->paginate($this->limit)
+            'data' => $getData->get()
         ]);
     }
 
     public function searchSubdistrict()
     {
-        $this->limit = 10;
+
         $s = $this->request->get('s');
         $districtId = intval($this->request->get('district_id'));
 
@@ -442,7 +442,7 @@ class GeneralController extends Controller
 
         return response()->json([
             'success' => 1,
-            'data' => $getData->paginate($this->limit)
+            'data' => $getData->get()
         ]);
     }
 

@@ -53,10 +53,9 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                 'App\Http\Controllers\Admin\AppointmentLabScheduleController' => 'appointment-lab-schedule',
                 'App\Http\Controllers\Admin\AppointmentLabHomecareController' => 'appointment-lab-homecare',
                 'App\Http\Controllers\Admin\AppointmentLabVisitController' => 'appointment-lab-visit',
-//                'App\Http\Controllers\Admin\AppointmentDoctorVisitController' => 'appointment-doctor-visit-clinic',
-//                'App\Http\Controllers\Admin\AppointmentDoctorTelemedController' => 'appointment-doctor-telemed-clinic',
-//                'App\Http\Controllers\Admin\AppointmentDoctorHomecareController' => 'appointment-doctor-homecare-clinic',
-
+                'App\Http\Controllers\Admin\AppointmentDoctorVisitClinicController' => 'doctor-clinic-visit',
+                'App\Http\Controllers\Admin\AppointmentDoctorTelemedClinicController' => 'doctor-clinic-telemed',
+                'App\Http\Controllers\Admin\AppointmentDoctorHomecareClinicController' => 'doctor-clinic-homecare',
                 'App\Http\Controllers\Admin\AppointmentNurseController' => 'appointment-nurse',
                 'App\Http\Controllers\Admin\ClinicInfoController' => 'clinic_info',
                 'App\Http\Controllers\Admin\DoctorClinicController' => 'doctor_clinic',
