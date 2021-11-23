@@ -593,6 +593,9 @@ class DoctorClinicController extends _CrudController
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
 
+        $serviceTelemed = Service::select('id')->where('name', 'LIKE', '%Telemed%')->first();
+        $telemedId = $serviceTelemed->id;
+
         $getListDate = DoctorSchedule::select('date_available')
             ->where('doctor_id', $getDoctor->id)
             ->whereIn('type', [0,2])
@@ -681,6 +684,7 @@ class DoctorClinicController extends _CrudController
         $data['getTargetDay'] = $getTargetDay;
         $data['getListWeekday'] = $getListWeekday;
         $data['scheduleType'] = $scheduleType;
+        $data['telemedId'] = $telemedId;
         $data['getData'] = $getData;
 
         return view($this->listView['schedule'], $data);
