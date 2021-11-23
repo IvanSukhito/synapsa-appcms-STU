@@ -70,101 +70,101 @@ else {
                     @if(in_array($viewType, ['edit']))
                         @include(env('ADMIN_TEMPLATE').'._component.generate_forms')
                         <div class="form-group">
-                        <label for="monday">{{ __('general.monday') }} <span class="text-red">*</span></label>
-                        <div class="input-group">
-                            <div class="input-group-prepend datepicker-trigger">
-                                <div class="input-group-text">
-                                    <i class="fa fa-calendar"></i>
+                            <label for="monday">{{ __('general.monday') }} <span class="text-red">*</span></label>
+                            <div class="input-group">
+                                <div class="input-group-prepend datepicker-trigger">
+                                    <div class="input-group-text">
+                                        <i class="fa fa-calendar"></i>
+                                    </div>
                                 </div>
+                                {{ Form::text('monday', old('monday', isset($data->monday) ? $data->monday : null), ['class' => $errors->has('monday') ? 'form-control pull-right timerange is-invalid' : 'form-control pull-right timerange', 'id' => 'monday', 'required' => true, 'autocomplete' => 'off']) }}
                             </div>
-                            {{ Form::text('monday', old('monday', isset($data->monday) ? $data->monday : null), ['class' => $errors->has('monday') ? 'form-control pull-right timerange is-invalid' : 'form-control pull-right timerange', 'id' => 'monday', 'required' => true, 'autocomplete' => 'off']) }}
+                            <label for="mondaycheck">Closed</label>
+                            <input type="checkbox" id="mondaycheck" name="mondaycheck" @if(in_array($viewType, ['show'])) disabled @endif>
                         </div>
-                        <label for="mondaycheck">Closed</label>
-                        <input type="checkbox" id="mondaycheck" name="mondaycheck" @if(in_array($viewType, ['show'])) disabled @endif>
-                </div>
 
-                <div class="form-group">
-                    <label for="tuesday">{{ __('general.tuesday') }} <span class="text-red">*</span></label>
-                    <div class="input-group">
-                        <div class="input-group-prepend datepicker-trigger">
-                            <div class="input-group-text">
-                                <i class="fa fa-calendar"></i>
+                        <div class="form-group">
+                            <label for="tuesday">{{ __('general.tuesday') }} <span class="text-red">*</span></label>
+                            <div class="input-group">
+                                <div class="input-group-prepend datepicker-trigger">
+                                    <div class="input-group-text">
+                                        <i class="fa fa-calendar"></i>
+                                    </div>
+                                </div>
+                                {{ Form::text('tuesday', old('tuesday', isset($data->tuesday) ? $data->tuesday : null), ['class' => $errors->has('tuesday') ? 'form-control pull-right timerange is-invalid' : 'form-control pull-right timerange', 'id' => 'tuesday', 'required' => true, 'autocomplete' => 'off']) }}
                             </div>
+                            <label for="tuesdaycheck">Closed</label>
+                            <input type="checkbox" id="tuesdaycheck" name="tuesdaycheck" @if(in_array($viewType, ['show'])) disabled @endif>
                         </div>
-                        {{ Form::text('tuesday', old('tuesday', isset($data->tuesday) ? $data->tuesday : null), ['class' => $errors->has('tuesday') ? 'form-control pull-right timerange is-invalid' : 'form-control pull-right timerange', 'id' => 'tuesday', 'required' => true, 'autocomplete' => 'off']) }}
-                    </div>
-                    <label for="tuesdaycheck">Closed</label>
-                    <input type="checkbox" id="tuesdaycheck" name="tuesdaycheck" @if(in_array($viewType, ['show'])) disabled @endif>
-                </div>
-                <div class="form-group">
-                    <label for="wednesday">{{ __('general.wednesday') }} <span class="text-red">*</span></label>
-                    <div class="input-group">
-                        <div class="input-group-prepend datepicker-trigger">
-                            <div class="input-group-text">
-                                <i class="fa fa-calendar"></i>
+                        <div class="form-group">
+                            <label for="wednesday">{{ __('general.wednesday') }} <span class="text-red">*</span></label>
+                            <div class="input-group">
+                                <div class="input-group-prepend datepicker-trigger">
+                                    <div class="input-group-text">
+                                        <i class="fa fa-calendar"></i>
+                                    </div>
+                                </div>
+                                {{ Form::text('wednesday', old('wednesday', isset($data->wednesday) ? $data->wednesday : null), ['class' => $errors->has('wednesday') ? 'form-control pull-right timerange is-invalid' : 'form-control pull-right timerange', 'id' => 'wednesday', 'required' => true, 'autocomplete' => 'off']) }}
                             </div>
+                            <label for="wednesdaycheck">Closed</label>
+                            <input type="checkbox" id="wednesdaycheck" name="wednesdaycheck" @if(in_array($viewType, ['show'])) disabled @endif>
                         </div>
-                        {{ Form::text('wednesday', old('wednesday', isset($data->wednesday) ? $data->wednesday : null), ['class' => $errors->has('wednesday') ? 'form-control pull-right timerange is-invalid' : 'form-control pull-right timerange', 'id' => 'wednesday', 'required' => true, 'autocomplete' => 'off']) }}
-                    </div>
-                    <label for="wednesdaycheck">Closed</label>
-                    <input type="checkbox" id="wednesdaycheck" name="wednesdaycheck" @if(in_array($viewType, ['show'])) disabled @endif>
-                </div>
 
-                <div class="form-group">
-                    <label for="thursday">{{ __('general.thursday') }} <span class="text-red">*</span></label>
-                    <div class="input-group">
-                        <div class="input-group-prepend datepicker-trigger">
-                            <div class="input-group-text">
-                                <i class="fa fa-calendar"></i>
+                        <div class="form-group">
+                            <label for="thursday">{{ __('general.thursday') }} <span class="text-red">*</span></label>
+                            <div class="input-group">
+                                <div class="input-group-prepend datepicker-trigger">
+                                    <div class="input-group-text">
+                                        <i class="fa fa-calendar"></i>
+                                    </div>
+                                </div>
+                                {{ Form::text('thursday', old('thursday', isset($data->thursday) ? $data->thursday : null), ['class' => $errors->has('thursday') ? 'form-control pull-right timerange is-invalid' : 'form-control pull-right timerange', 'id' => 'thursday', 'required' => true, 'autocomplete' => 'off']) }}
                             </div>
+                            <label for="thursdaycheck">Closed</label>
+                            <input type="checkbox" id="thursdaycheck" name="thursdaycheck" @if(in_array($viewType, ['show'])) disabled @endif>
                         </div>
-                        {{ Form::text('thursday', old('thursday', isset($data->thursday) ? $data->thursday : null), ['class' => $errors->has('thursday') ? 'form-control pull-right timerange is-invalid' : 'form-control pull-right timerange', 'id' => 'thursday', 'required' => true, 'autocomplete' => 'off']) }}
-                    </div>
-                    <label for="thursdaycheck">Closed</label>
-                    <input type="checkbox" id="thursdaycheck" name="thursdaycheck" @if(in_array($viewType, ['show'])) disabled @endif>
-                </div>
 
-                <div class="form-group">
-                    <label for="friday">{{ __('general.friday') }} <span class="text-red">*</span></label>
-                    <div class="input-group">
-                        <div class="input-group-prepend datepicker-trigger">
-                            <div class="input-group-text">
-                                <i class="fa fa-calendar"></i>
+                        <div class="form-group">
+                            <label for="friday">{{ __('general.friday') }} <span class="text-red">*</span></label>
+                            <div class="input-group">
+                                <div class="input-group-prepend datepicker-trigger">
+                                    <div class="input-group-text">
+                                        <i class="fa fa-calendar"></i>
+                                    </div>
+                                </div>
+                                {{ Form::text('friday', old('friday', isset($data->friday) ? $data->friday : null), ['class' => $errors->has('friday') ? 'form-control pull-right timerange is-invalid' : 'form-control pull-right timerange', 'id' => 'friday', 'required' => true, 'autocomplete' => 'off']) }}
                             </div>
+                            <label for="fridaycheck">Closed</label>
+                            <input type="checkbox" id="fridaycheck" name="fridaycheck" @if(in_array($viewType, ['show'])) disabled @endif>
                         </div>
-                        {{ Form::text('friday', old('friday', isset($data->friday) ? $data->friday : null), ['class' => $errors->has('friday') ? 'form-control pull-right timerange is-invalid' : 'form-control pull-right timerange', 'id' => 'friday', 'required' => true, 'autocomplete' => 'off']) }}
-                    </div>
-                    <label for="fridaycheck">Closed</label>
-                    <input type="checkbox" id="fridaycheck" name="fridaycheck" @if(in_array($viewType, ['show'])) disabled @endif>
-                </div>
 
-                <div class="form-group">
-                    <label for="saturday">{{ __('general.saturday') }} <span class="text-red">*</span></label>
-                    <div class="input-group">
-                        <div class="input-group-prepend datepicker-trigger">
-                            <div class="input-group-text">
-                                <i class="fa fa-calendar"></i>
+                        <div class="form-group">
+                            <label for="saturday">{{ __('general.saturday') }} <span class="text-red">*</span></label>
+                            <div class="input-group">
+                                <div class="input-group-prepend datepicker-trigger">
+                                    <div class="input-group-text">
+                                        <i class="fa fa-calendar"></i>
+                                    </div>
+                                </div>
+                                {{ Form::text('saturday', old('saturday', isset($data->saturday) ? $data->saturday : null), ['class' => $errors->has('saturday') ? 'form-control pull-right timerange is-invalid' : 'form-control pull-right timerange', 'id' => 'saturday', 'required' => true, 'autocomplete' => 'off']) }}
                             </div>
+                            <label for="saturdaycheck">Closed</label>
+                            <input type="checkbox" id="saturdaycheck" name="saturdaycheck" @if(in_array($viewType, ['show'])) disabled @endif>
                         </div>
-                        {{ Form::text('saturday', old('saturday', isset($data->saturday) ? $data->saturday : null), ['class' => $errors->has('saturday') ? 'form-control pull-right timerange is-invalid' : 'form-control pull-right timerange', 'id' => 'saturday', 'required' => true, 'autocomplete' => 'off']) }}
-                    </div>
-                    <label for="saturdaycheck">Closed</label>
-                    <input type="checkbox" id="saturdaycheck" name="saturdaycheck" @if(in_array($viewType, ['show'])) disabled @endif>
-                </div>
 
-                <div class="form-group">
-                    <label for="sunday">{{ __('general.sunday') }} <span class="text-red">*</span></label>
-                    <div class="input-group">
-                        <div class="input-group-prepend datepicker-trigger">
-                            <div class="input-group-text">
-                                <i class="fa fa-calendar"></i>
+                        <div class="form-group">
+                            <label for="sunday">{{ __('general.sunday') }} <span class="text-red">*</span></label>
+                            <div class="input-group">
+                                <div class="input-group-prepend datepicker-trigger">
+                                    <div class="input-group-text">
+                                        <i class="fa fa-calendar"></i>
+                                    </div>
+                                </div>
+                                {{ Form::text('sunday', old('sunday', isset($data->sunday) ? $data->sunday : null), ['class' => $errors->has('sunday') ? 'form-control pull-right timerange is-invalid' : 'form-control pull-right timerange', 'id' => 'sunday', 'required' => true, 'autocomplete' => 'off']) }}
                             </div>
+                            <label for="sundaycheck">Closed</label>
+                            <input type="checkbox" id="sundaycheck" name="sundaycheck" @if(in_array($viewType, ['show'])) disabled @endif>
                         </div>
-                        {{ Form::text('sunday', old('sunday', isset($data->sunday) ? $data->sunday : null), ['class' => $errors->has('sunday') ? 'form-control pull-right timerange is-invalid' : 'form-control pull-right timerange', 'id' => 'sunday', 'required' => true, 'autocomplete' => 'off']) }}
-                    </div>
-                    <label for="sundaycheck">Closed</label>
-                    <input type="checkbox" id="sundaycheck" name="sundaycheck" @if(in_array($viewType, ['show'])) disabled @endif>
-                </div>
                     @endif
 
                     @if(in_array($viewType, ['show']))
@@ -191,6 +191,11 @@ else {
                                             <td>@lang('general.email')</td>
                                             <td>:</td>
                                             <td> {{ $data->email ?? '-' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>@lang('general.theme_color')</td>
+                                            <td>:</td>
+                                            <td style="background-color: {{ $data->theme_color }}"></td>
                                         </tr>
                                         <tr>
                                             <td>@lang('general.monday')</td>
