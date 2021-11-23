@@ -22,6 +22,7 @@ class Klinik extends Model
         'friday',
         'saturday',
         'sunday',
+        'theme_color',
         'status',
     ];
 
