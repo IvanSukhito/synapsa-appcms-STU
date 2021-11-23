@@ -370,8 +370,6 @@
                             },
                         });
 
-                        location.reload();
-
                     }
                     else {
                         $.notify({
