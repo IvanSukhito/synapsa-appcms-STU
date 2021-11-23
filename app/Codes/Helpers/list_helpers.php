@@ -357,3 +357,28 @@ if ( ! function_exists('get_list_status_invoice')) {
     }
 }
 
+if ( ! function_exists('get_list_weekday')) {
+    function get_list_weekday()
+    {
+        return [
+            1 => __('general.monday'),
+            2 => __('general.tuesday'),
+            3 => __('general.wednesday'),
+            4 => __('general.thursday'),
+            5 => __('general.friday'),
+            6 => __('general.saturday'),
+            7 => __('general.sunday'),
+        ];
+    }
+}
+
+if ( ! function_exists('get_list_schedule_type')) {
+    function get_list_schedule_type()
+    {
+        return [
+            1 => __('general.schedule_umum'),
+            2 => __('general.schedule_khusus'),
+        ];
+    }
+}
+

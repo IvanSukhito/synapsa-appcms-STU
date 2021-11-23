@@ -65,6 +65,9 @@ class ClinicInfoController extends _CrudController
             'sunday' => [
                 'edit' => 0,
             ],
+            'theme_color' => [
+                'edit' => 0,
+            ],
             'action' => [
                 'create' => 0,
                 'edit' => 0,

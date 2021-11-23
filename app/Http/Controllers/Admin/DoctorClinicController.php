@@ -207,6 +207,8 @@ class DoctorClinicController extends _CrudController
         $this->data['listSet']['doctor_category_id'] = $listDoctorCategory;
         $this->data['listSet']['gender'] = get_list_gender();
         $this->data['listSet']['status'] = get_list_active_inactive();
+        $this->data['listSet']['weekday'] = get_list_weekday();
+        $this->data['listSet']['schedule_type'] = get_list_schedule_type();
         $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.doctor_clinic.list_button';
 
     }
@@ -579,7 +581,6 @@ class DoctorClinicController extends _CrudController
         $data['getListAvailable'] = get_list_available();
 
         return view($this->listView[$data['viewType']], $data);
-
     }
 
     public function schedule($id)
@@ -591,33 +592,72 @@ class DoctorClinicController extends _CrudController
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
 
-        $getTargetDate = strtotime($this->request->get('date')) > 0 ? date('Y-m-d', strtotime($this->request->get('date'))) : date('Y-m-d');
-
         $getListDate = DoctorSchedule::select('date_available')
-            ->where('doctor_id', $getDoctor->id)->where('date_available', '>=', date('Y-m-d'))
+            ->where('doctor_id', $getDoctor->id)
+            ->whereIn('type', [0,2])
+            ->where('date_available', '!=', null)
             ->groupBy('date_available')
             ->orderBy('date_available', 'ASC')
             ->get();
 
+        $getTargetDay = $this->request->get('date') > 0 ? $this->request->get('date') : 1;
+
+        $getListDay = DoctorSchedule::select('weekday')
+            ->where('doctor_id', $getDoctor->id)
+            ->where('type', 1)
+            ->groupBy('weekday')
+            ->orderBy('weekday', 'ASC')
+            ->get();
+
+        $getListWeekday = $this->data['listSet']['weekday'];
+
         $notFound = 1;
-        $findFirstDate = '';
+        $findFirstDay = '';
         $temp = [];
-        foreach ($getListDate as $list) {
-            $temp[$list->date_available] = date('d-F-Y', strtotime($list->date_available));
-            if (strlen($findFirstDate) <= 0) {
-                $findFirstDate = $list->date_available;
+        foreach ($getListDay as $list) {
+            $temp[$list->weekday] = $getListWeekday[$list->weekday];
+            if (strlen($findFirstDay) <= 0) {
+                $findFirstDay = $getListWeekday[$list->weekday];
             }
-            if ($getTargetDate == $list->date_available) {
+            if ($getTargetDay == $list->weekday) {
                 $notFound = 0;
             }
         }
-        $getListDate = $temp;
 
-        if ($notFound == 1 && strlen($findFirstDate) > 0) {
-            $getTargetDate = $findFirstDate;
+        if(count($getListDate) > 0) {
+            foreach($getListDate as $list) {
+                $temp[$list->date_available] = date('d F Y', strtotime($list->date_available));
+                if (strlen($findFirstDay) <= 0) {
+                    $findFirstDay = $list->date_available;
+                }
+                if ($getTargetDay == $list->date_available) {
+                    $notFound = 0;
+                }
+            }
         }
 
-        $getData = DoctorSchedule::where('date_available', $getTargetDate)->where('doctor_id', $getDoctor->id)->orderBy('id','DESC')->get();
+        $getListDay = $temp;
+
+        if ($notFound == 1 && strlen($findFirstDay) > 0) {
+            $getTargetDay = $findFirstDay;
+        }
+
+        if(in_array($getTargetDay, [1,2,3,4,5,6,7])) {
+            $getData = DoctorSchedule::where('weekday', $getTargetDay)
+                ->where('doctor_id', $getDoctor->id)
+                ->orderBy('id', 'DESC')
+                ->get();
+
+            $scheduleType = 0;
+        }
+        else {
+            $getData = DoctorSchedule::where('date_available', $getTargetDay)
+                ->where('doctor_id', $getDoctor->id)
+                ->orderBy('id', 'DESC')
+                ->get();
+
+            $scheduleType = 1;
+        }
 
         $getDoctorService = DoctorService::where('doctor_id', $id)->get()->toArray();
 
@@ -629,15 +669,17 @@ class DoctorClinicController extends _CrudController
         $service = [];
         foreach(Service::where('status', 80)->whereIn('id', $service_id)->pluck('name', 'id')->toArray() as $key => $val) {
             $service[$key] = $val;
-        };
+        }
 
         $data = $this->data;
         $data['parentLabel'] = $data['thisLabel'];
         $data['thisLabel'] = __('general.doctor_schedule');
         $data['listSet']['service'] = $service;
         $data['getDoctor'] = $getDoctor;
-        $data['getListDate'] = $getListDate;
-        $data['getTargetDate'] = $getTargetDate;
+        $data['getListDay'] = $getListDay;
+        $data['getTargetDay'] = $getTargetDay;
+        $data['getListWeekday'] = $getListWeekday;
+        $data['scheduleType'] = $scheduleType;
         $data['getData'] = $getData;
 
         return view($this->listView['schedule'], $data);
@@ -647,26 +689,52 @@ class DoctorClinicController extends _CrudController
     {
         $this->callPermission();
 
-        $data = $this->validate($this->request, [
-            'service' => 'required',
-            'date' => 'required',
-            'time_start' => 'required',
-            'time_end' => 'required'
-        ]);
+        if($this->request->get('schedule_type') == 0) {
+            $data = $this->validate($this->request, [
+                'service' => 'required',
+                'time_start' => 'required',
+                'time_end' => 'required',
+                'weekday' => 'required',
+            ]);
 
-        $getServiceId = intval($data['service']);
-        $getDate = strtotime($data['date']) > 0 ? date('Y-m-d', strtotime($data['date'])) : date('Y-m-d', strtotime("+1 day"));
-        $getTimeStart = strtotime($data['time_start']) > 0 ? date('H:i:00', strtotime($data['time_start'])) : date('H:i:00');
-        $getTimeEnd = strtotime($data['time_end']) > 0 ? date('H:i:00', strtotime($data['time_end'])) : date('H:i:00');
+            $getWeekday = intval($data['weekday']);
+            $getServiceId = intval($data['service']);
+            $getTimeStart = strtotime($data['time_start']) > 0 ? date('H:i:00', strtotime($data['time_start'])) : date('H:i:00');
+            $getTimeEnd = strtotime($data['time_end']) > 0 ? date('H:i:00', strtotime($data['time_end'])) : date('H:i:00');
 
-        DoctorSchedule::create([
-            'doctor_id' => $id,
-            'service_id' => $getServiceId,
-            'date_available' => $getDate,
-            'time_start' => $getTimeStart,
-            'time_end' => $getTimeEnd,
-            'book' => 80
-        ]);
+            DoctorSchedule::create([
+                'doctor_id' => $id,
+                'service_id' => $getServiceId,
+                'weekday' => $getWeekday,
+                'time_start' => $getTimeStart,
+                'time_end' => $getTimeEnd,
+                'type' => 1,
+                'book' => 80
+            ]);
+        }
+        else {
+            $data = $this->validate($this->request, [
+                'service' => 'required',
+                'time_start' => 'required',
+                'time_end' => 'required',
+                'date' => 'required',
+            ]);
+
+            $getDate = strtotime($data['date']) > 0 ? date('Y-m-d', strtotime($data['date'])) : date('Y-m-d', strtotime("+1 day"));
+            $getServiceId = intval($data['service']);
+            $getTimeStart = strtotime($data['time_start']) > 0 ? date('H:i:00', strtotime($data['time_start'])) : date('H:i:00');
+            $getTimeEnd = strtotime($data['time_end']) > 0 ? date('H:i:00', strtotime($data['time_end'])) : date('H:i:00');
+
+            DoctorSchedule::create([
+                'doctor_id' => $id,
+                'service_id' => $getServiceId,
+                'date_available' => $getDate,
+                'time_start' => $getTimeStart,
+                'time_end' => $getTimeEnd,
+                'type' => 2,
+                'book' => 80
+            ]);
+        }
 
         if($this->request->ajax()){
             return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
@@ -682,18 +750,6 @@ class DoctorClinicController extends _CrudController
     {
         $this->callPermission();
 
-        $data = $this->validate($this->request, [
-            'service' => 'required',
-            'date' => 'required',
-            'time_start' => 'required',
-            'time_end' => 'required'
-        ]);
-
-        $getServiceId = intval($data['service']);
-        $getDate = strtotime($data['date']) > 0 ? date('Y-m-d', strtotime($data['date'])) : date('Y-m-d', strtotime("+1 day"));
-        $getTimeStart = strtotime($data['time_start']) > 0 ? date('H:i:00', strtotime($data['time_start'])) : date('H:i:00');
-        $getTimeEnd = strtotime($data['time_end']) > 0 ? date('H:i:00', strtotime($data['time_end'])) : date('H:i:00');
-
         $getData = DoctorSchedule::where('doctor_id', $id)->where('id', $scheduleId)->first();
         if (!$getData) {
             if($this->request->ajax()){
@@ -706,11 +762,45 @@ class DoctorClinicController extends _CrudController
             }
         }
 
-        $getData->doctor_id = $id;
-        $getData->service_id = $getServiceId;
-        $getData->date_available = $getDate;
-        $getData->time_start = $getTimeStart;
-        $getData->time_end = $getTimeEnd;
+        if($this->request->get('schedule_type') == 0) {
+            $data = $this->validate($this->request, [
+                'service' => 'required',
+                'time_start' => 'required',
+                'time_end' => 'required',
+                'weekday' => 'required',
+            ]);
+
+            $getWeekday = intval($data['weekday']);
+            $getServiceId = intval($data['service']);
+            $getTimeStart = strtotime($data['time_start']) > 0 ? date('H:i:00', strtotime($data['time_start'])) : date('H:i:00');
+            $getTimeEnd = strtotime($data['time_end']) > 0 ? date('H:i:00', strtotime($data['time_end'])) : date('H:i:00');
+
+
+            $getData->doctor_id = $id;
+            $getData->service_id = $getServiceId;
+            $getData->weekday = $getWeekday;
+            $getData->time_start = $getTimeStart;
+            $getData->time_end = $getTimeEnd;
+        }
+        else {
+            $data = $this->validate($this->request, [
+                'service' => 'required',
+                'time_start' => 'required',
+                'time_end' => 'required',
+                'date' => 'required',
+            ]);
+
+            $getDate = strtotime($data['date']) > 0 ? date('Y-m-d', strtotime($data['date'])) : date('Y-m-d', strtotime("+1 day"));
+            $getServiceId = intval($data['service']);
+            $getTimeStart = strtotime($data['time_start']) > 0 ? date('H:i:00', strtotime($data['time_start'])) : date('H:i:00');
+            $getTimeEnd = strtotime($data['time_end']) > 0 ? date('H:i:00', strtotime($data['time_end'])) : date('H:i:00');
+
+            $getData->doctor_id = $id;
+            $getData->service_id = $getServiceId;
+            $getData->date_available = $getDate;
+            $getData->time_start = $getTimeStart;
+            $getData->time_end = $getTimeEnd;
+        }
 
         $getData->save();
 
@@ -751,8 +841,6 @@ class DoctorClinicController extends _CrudController
             return redirect()->route($this->rootRoute.'.' . $this->route . '.schedule', $id);
         }
     }
-
-
 
     public function create2(){
         $this->callPermission();
@@ -926,7 +1014,6 @@ class DoctorClinicController extends _CrudController
                 }
             }
             catch(\Exception $e) {
-                dd($e);
                 isset($doctor) ?? $doctor->delete();
                 isset($doctorCategory) ?? $doctorCategory->delete();
 

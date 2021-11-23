@@ -11,9 +11,11 @@ class DoctorSchedule extends Model
     protected $fillable = [
         'doctor_id',
         'service_id',
+        'weekday',
         'date_available',
         'time_start',
         'time_end',
+        'type',
         'book'
     ];
 

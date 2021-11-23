@@ -451,4 +451,8 @@ return [
     'appointment_lab_clinic' => 'Appoinment Lab Clinic',
     'appointment_lab_homecare_clinic' => 'Lab Homecare Clinic',
     'appointment_lab_visit_clinic' => 'Lab Visit Clinic',
+    'weekday' => 'Hari',
+    'schedule_umum' => 'Schedule Umum',
+    'schedule_khusus' => 'Schedule Khusus',
+    'schedule_type' => 'Tipe Schedule',
 ];

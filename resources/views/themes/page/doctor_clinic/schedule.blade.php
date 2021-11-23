@@ -45,25 +45,24 @@
 
                 <!-- /.card-header -->
                 <div class="card-header">
-
                     <div id="list-day">
-                        {{ Form::select('list_date', $getListDate, $getTargetDate, ['id' => 'list_date',
+                        {{ Form::select('list_date', $getListDay, $getTargetDay, ['id' => 'list_date',
                             'class' => 'form-control', 'onchange' => 'changeDate(this)', 'data-link' => route('admin.' . $thisRoute . '.schedule', ['id' => $getDoctor->id])
                             ]) }}
                     </div>
 
                 </div>
                 <div class="card-header">
-                    <h3 class="card-title">{{ __('general.title_home', ['field' => $thisLabel]) }}: {{ date('d-F-Y', strtotime($getTargetDate)) }}</h3>
+                    <h3 class="card-title">{{ __('general.title_home', ['field' => $thisLabel]) }}: {{ $getListWeekday[$getTargetDay] ?? $getTargetDay }}</h3>
                 </div>
                 <div class="card-body">
 
                     <div id="list_schedule">
                         @foreach($getData as $list)
-
                             <div class="card">
                                 <div class="card-body">
                                     <div class="row">
+                                        {{ Form::text('schedule_type', $scheduleType, ['id' => 'schedule_type', 'class' => 'form-control', 'required' => true, 'hidden' => true]) }}
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="service_{!! $list->id !!}">{{ __('general.service') }} <span
@@ -71,19 +70,31 @@
                                                 {{ Form::select('service_'.$list->id, $listSet['service'], $list->service_id, ['id' => 'service_'.$list->id, 'class' => 'form-control', 'required' => true]) }}
                                             </div>
                                         </div>
+
+                                        @if($scheduleType == 0)
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="weekday_{!! $list->id !!}">@lang('general.weekday') <span class="text-red">*</span></label>
+                                                {{ Form::select('weekday_'.$list->id, $listSet['weekday'] ,$list->weekday, ['id' => 'weekday_'.$list->id, 'class' => 'form-control', 'required' => true, 'autocomplete'=>'off']) }}
+                                            </div>
+                                        </div>
+
+                                        @elseif($scheduleType == 1)
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="date_{!! $list->id !!}">@lang('general.date') <span class="text-red">*</span></label>
                                                 <div class="input-group">
-                                                    <div class="input-group-prepend datepicker-trigger">
-                                                        <div class="input-group-text">
-                                                            <i class="fa fa-calendar"></i>
-                                                        </div>
+                                                <div class="input-group-prepend datepicker-trigger">
+                                                    <div class="input-group-text">
+                                                        <i class="fa fa-calendar"></i>
                                                     </div>
-                                                    {{ Form::text('date_'.$list->id, $list->date_available, ['id' => 'date_'.$list->id, 'class' => 'form-control date', 'required' => true, 'autocomplete'=>'off']) }}
                                                 </div>
+                                                {{ Form::text('date_'.$list->id, $list->date_available, ['id' => 'date_'.$list->id, 'class' => 'form-control date', 'required' => true, 'autocomplete'=>'off']) }}
+                                            </div>
                                             </div>
                                         </div>
+                                        @endif
+
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 <label for="time_start_{!! $list->id !!}">@lang('general.time_start') <span class="text-red">*</span></label>
@@ -156,11 +167,22 @@
                     </div>
                     <div class="modal-body">
                         <div class="form-group">
+                            <label for="schedule_type">{{ __('general.schedule_type') }} <span class="text-red">*</span></label>
+                            {{ Form::select('schedule_type', $listSet['schedule_type'], old('schedule_type'), ['id' => 'schedule_type', 'class' => 'form-control', 'required' => true]) }}
+                        </div>
+
+                        <div class="form-group">
                             <div class="form-group">
                                 <label for="service">{{ __('general.service') }} <span class="text-red">*</span></label>
                                 {{ Form::select('service', $listSet['service'], old('service'), ['id' => 'service', 'class' => 'form-control', 'required' => true]) }}
                             </div>
                         </div>
+
+                        <div class="form-group">
+                            <label for="weekday">@lang('general.weekday') <span class="text-red">*</span></label>
+                            {{ Form::select('weekday', $listSet['weekday'], old('weekday'), ['id' => 'weekday', 'class' => 'form-control', 'required' => true]) }}
+                        </div>
+
                         <div class="form-group">
                             <label for="date">@lang('general.date') <span class="text-red">*</span></label>
                             <div class="input-group">
@@ -172,6 +194,7 @@
                                 <input type="text" class="form-control" id="date" name="date" autocomplete="off" required>
                             </div>
                         </div>
+
                         <div class="form-group">
                             <label for="time_start">@lang('general.time_start') <span class="text-red">*</span></label>
                             <div class="input-group">
@@ -183,6 +206,7 @@
                                 <input onfocusout="return setTimeEnd(this)" type="text" class="form-control" id="time_start" name="time_start" autocomplete="off" required>
                             </div>
                         </div>
+
                         <div class="form-group">
                             <label for="time_end">@lang('general.time_end') <span class="text-red">*</span></label>
                             <div class="input-group">
@@ -194,7 +218,9 @@
                                 <input type="text" class="form-control" id="time_end" name="time_end" autocomplete="off" required>
                             </div>
                         </div>
+
                         <span class="small">Notes:<br />Telemed: 20 minutes video call, 10 minutes diagnosa</span>
+
                         <div class="form-group text-red" id="errorForm">
                         </div>
                     </div>
@@ -226,14 +252,32 @@
             $('.date').datetimepicker({
                 format: 'YYYY-MM-DD',
             });
+
             $('.time').datetimepicker({
                 format: 'HH:mm:ss',
                 stepping: 15
             });
-            // $('#time_end').datetimepicker({
-            //     format: 'HH:mm:ss',
-            //     stepping: 15
-            // });
+
+            $('#schedule_type').change();
+        });
+
+        $('#schedule_type').on('change', function() {
+            let type = $(this).val();
+
+            if(type === '0') {
+                $('#date').parent().parent().hide();
+                $('#date').prop('required', false);
+
+                $('#weekday').parent().show();
+                $('#weekday').prop('required', true);
+            }
+            else {
+                $('#date').parent().parent().show();
+                $('#date').prop('required', true);
+
+                $('#weekday').parent().hide();
+                $('#weekday').prop('required', false);
+            }
         });
 
         $('#service').on('change', function() {
@@ -279,7 +323,6 @@
 
         function createForm() {
             $('#errorForm').empty();
-            $('#service').val('');
             $('#date').val('');
             $('#time_start').val('');
             $('#time_end').val('');
@@ -297,7 +340,9 @@
             }
 
             let data = {
+                schedule_type: $('#schedule_type').val(),
                 service: $('#service').val(),
+                weekday: $('#weekday').val(),
                 date: $('#date').val(),
                 time_start: $('#time_start').val(),
                 time_end: $('#time_end').val()
@@ -368,7 +413,9 @@
             }
 
             let data = {
+                schedule_type: $('#schedule_type').val(),
                 service: $('#service_' + getId).val(),
+                weekday: $('#weekday_' + getId).val(),
                 date: $('#date_' + getId).val(),
                 time_start: $('#time_start_' + getId).val(),
                 time_end: $('#time_end_' + getId).val()
