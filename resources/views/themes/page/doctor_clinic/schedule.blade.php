@@ -56,10 +56,24 @@
                     <h3 class="card-title">{{ __('general.title_home', ['field' => $thisLabel]) }}: {{ $getListWeekday[$getTargetDay] ?? $getTargetDay }}</h3>
                 </div>
                 <div class="card-body">
-
+                    <div class="col-md-12">
+                        <p class="text-warning">Note:<br />
+                            * Background Kuning: Schedule Telah Di Booking</p>
+                    </div>
                     <div id="list_schedule">
                         @foreach($getData as $list)
-                            <div class="card">
+                            <?php
+                                if($list->book == 99) {
+                                    $addAttribute = [
+                                        'disabled' => true
+                                    ];
+                                }
+                                else {
+                                    $addAttribute = [
+                                    ];
+                                }
+                            ?>
+                            <div class="card {{ $list->book == 99 ? 'bg-warning' : '' }}">
                                 <div class="card-body">
                                     <div class="row">
                                         {{ Form::text('type', $scheduleType, ['id' => 'type', 'class' => 'form-control', 'required' => true, 'hidden' => true]) }}
@@ -67,7 +81,7 @@
                                             <div class="form-group">
                                                 <label for="service_{!! $list->id !!}">{{ __('general.service') }} <span
                                                         class="text-red">*</span></label>
-                                                {{ Form::select('service_'.$list->id, $listSet['service'], $list->service_id, ['id' => 'service_'.$list->id, 'class' => 'form-control', 'required' => true]) }}
+                                                {{ Form::select('service_'.$list->id, $listSet['service'], $list->service_id, array_merge(['id' => 'service_'.$list->id, 'class' => 'form-control', 'required' => true], $addAttribute)) }}
                                             </div>
                                         </div>
 
@@ -75,7 +89,7 @@
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="weekday_{!! $list->id !!}">@lang('general.weekday') <span class="text-red">*</span></label>
-                                                {{ Form::select('weekday_'.$list->id, $listSet['weekday'] ,$list->weekday, ['id' => 'weekday_'.$list->id, 'class' => 'form-control', 'required' => true, 'autocomplete'=>'off']) }}
+                                                {{ Form::select('weekday_'.$list->id, $listSet['weekday'] ,$list->weekday, array_merge(['id' => 'weekday_'.$list->id, 'class' => 'form-control', 'required' => true, 'autocomplete'=>'off'], $addAttribute)) }}
                                             </div>
                                         </div>
 
@@ -89,7 +103,7 @@
                                                         <i class="fa fa-calendar"></i>
                                                     </div>
                                                 </div>
-                                                {{ Form::text('date_'.$list->id, $list->date_available, ['id' => 'date_'.$list->id, 'class' => 'form-control date', 'required' => true, 'autocomplete'=>'off']) }}
+                                                {{ Form::text('date_'.$list->id, $list->date_available, array_merge(['id' => 'date_'.$list->id, 'class' => 'form-control date', 'required' => true, 'autocomplete'=>'off'], $addAttribute)) }}
                                             </div>
                                             </div>
                                         </div>
@@ -104,7 +118,7 @@
                                                             <i class="fa fa-calendar"></i>
                                                         </div>
                                                     </div>
-                                                    {{ Form::text('time_start_'.$list->id, $list->time_start, ['id' => 'time_start_'.$list->id, 'class' => 'form-control time', 'required' => true, 'autocomplete'=>'off']) }}
+                                                    {{ Form::text('time_start_'.$list->id, $list->time_start, array_merge(['id' => 'time_start_'.$list->id, 'class' => 'form-control time', 'required' => true, 'autocomplete'=>'off'], $addAttribute)) }}
                                                 </div>
                                             </div>
                                         </div>
@@ -117,37 +131,37 @@
                                                             <i class="fa fa-calendar"></i>
                                                         </div>
                                                     </div>
-                                                    {{ Form::text('time_end_'.$list->id, $list->time_end, ['id' => 'time_end_'.$list->id, 'class' => 'form-control time', 'required' => true, 'autocomplete'=>'off']) }}
+                                                    {{ Form::text('time_end_'.$list->id, $list->time_end, array_merge(['id' => 'time_end_'.$list->id, 'class' => 'form-control time', 'required' => true, 'autocomplete'=>'off'], $addAttribute)) }}
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="col-md-2">
                                             <div class="form-group">
-                                                @if ($permission['edit'])
-                                                <a href="#" class="mb-1 btn btn-primary btn-sm" title="@lang('general.update')"
-                                                   data-href="{{ route('admin.' . $thisRoute . '.updateSchedule', ['id' => $list->doctor_id, 'scheduleId' => $list->id]) }}"
-                                                   data-id="{!! $list->id !!}"
-                                                   onclick="return updateData(this)">
-                                                    <i class="fa fa-pencil"></i>
-                                                    <span class="d-none d-md-inline"> @lang('general.update')</span>
-                                                </a>
-                                                @endif
-                                                @if ($permission['destroy'])
-                                                <a href="#" class="mb-1 btn btn-danger btn-sm" title="@lang('general.delete')"
-                                                   onclick="return actionData('{{ route('admin.' . $thisRoute . '.destroySchedule', ['id' => $list->doctor_id, 'scheduleId' => $list->id]) }}', 'delete', this)">
-                                                    <i class="fa fa-trash"></i>
-                                                    <span class="d-none d-md-inline"> @lang('general.delete')</span>
-                                                </a>
+                                                @if($list->book != 99)
+                                                    @if ($permission['edit'])
+                                                    <a href="#" class="mb-1 btn btn-primary btn-sm" title="@lang('general.update')"
+                                                       data-href="{{ route('admin.' . $thisRoute . '.updateSchedule', ['id' => $list->doctor_id, 'scheduleId' => $list->id]) }}"
+                                                       data-id="{!! $list->id !!}"
+                                                       onclick="return updateData(this)">
+                                                        <i class="fa fa-pencil"></i>
+                                                        <span class="d-none d-md-inline"> @lang('general.update')</span>
+                                                    </a>
+                                                    @endif
+                                                    @if ($permission['destroy'])
+                                                    <a href="#" class="mb-1 btn btn-danger btn-sm" title="@lang('general.delete')"
+                                                       onclick="return actionData('{{ route('admin.' . $thisRoute . '.destroySchedule', ['id' => $list->doctor_id, 'scheduleId' => $list->id]) }}', 'delete', this)">
+                                                        <i class="fa fa-trash"></i>
+                                                        <span class="d-none d-md-inline"> @lang('general.delete')</span>
+                                                    </a>
+                                                    @endif
                                                 @endif
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
                         @endforeach
                     </div>
-
                 </div>
                 <!-- /.card-body -->
             </div>

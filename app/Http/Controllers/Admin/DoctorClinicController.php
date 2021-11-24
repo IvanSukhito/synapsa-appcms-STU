@@ -593,6 +593,18 @@ class DoctorClinicController extends _CrudController
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
 
+        $listSetCarbonDay = [
+            1 => Carbon::MONDAY,
+            2 => Carbon::TUESDAY,
+            3 => Carbon::WEDNESDAY,
+            4 => Carbon::THURSDAY,
+            5 => Carbon::FRIDAY,
+            6 => Carbon::SATURDAY,
+            7 => Carbon::SUNDAY,
+        ];
+
+        $now = Carbon::now();
+
         $serviceTelemed = Service::select('id')->where('name', 'LIKE', '%Telemed%')->first();
         $telemedId = $serviceTelemed->id;
 
@@ -630,12 +642,17 @@ class DoctorClinicController extends _CrudController
 
         if(count($getListDate) > 0) {
             foreach($getListDate as $list) {
-                $temp[$list->date_available] = date('d F Y', strtotime($list->date_available));
-                if (strlen($findFirstDay) <= 0) {
-                    $findFirstDay = $list->date_available;
-                }
-                if ($getTargetDay == $list->date_available) {
-                    $notFound = 0;
+                $startDate = $now->startOfWeek()->format('Y-m-d');
+                $endDate = $now->endOfWeek()->format('Y-m-d');
+                if($list->date_available >= $startDate && $list->date_available <= $endDate) {
+                    $date = Carbon::parse($list->date_available)->dayOfWeek;
+                    $temp[$date] = $getListWeekday[$date];
+                    if (strlen($findFirstDay) <= 0) {
+                        $findFirstDay = $date;
+                    }
+                    if ($getTargetDay == $date) {
+                        $notFound = 0;
+                    }
                 }
             }
         }
@@ -644,6 +661,17 @@ class DoctorClinicController extends _CrudController
 
         if ($notFound == 1 && strlen($findFirstDay) > 0) {
             $getTargetDay = $findFirstDay;
+        }
+
+        $weekStartDate = $now->startOfWeek($listSetCarbonDay[$getTargetDay])->format('Y-m-d');
+
+        $checkGetListSchedule = DoctorSchedule::where('date_available', $weekStartDate)
+            ->where('doctor_id', $getDoctor->id)
+            ->whereIn('type', [0,2])
+            ->get();
+
+        if(count($checkGetListSchedule) > 0) {
+            $getTargetDay = $weekStartDate;
         }
 
         if(in_array($getTargetDay, [1,2,3,4,5,6,7])) {
@@ -661,6 +689,8 @@ class DoctorClinicController extends _CrudController
                 ->get();
 
             $scheduleType = 1;
+
+            $getTargetDay = date('w', strtotime($getTargetDay));
         }
 
         $getDoctorService = DoctorService::where('doctor_id', $id)->get()->toArray();
