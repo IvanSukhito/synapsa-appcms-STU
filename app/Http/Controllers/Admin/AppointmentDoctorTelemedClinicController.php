@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
 use App\Codes\Models\Admin;
+use App\Codes\Models\V1\AppointmentDoctorProduct;
 use App\Codes\Models\V1\Service;
 use App\Codes\Models\V1\Users;
 use Illuminate\Http\Request;
@@ -34,6 +35,11 @@ class AppointmentDoctorTelemedClinicController extends _CrudController
                 'edit' => 0,
             ],
             'type_appointment' => [
+                'create' => 0,
+                'edit' => 0,
+                'list' => 0,
+            ],
+            'diagnosis' => [
                 'create' => 0,
                 'edit' => 0,
                 'list' => 0,
@@ -72,7 +78,7 @@ class AppointmentDoctorTelemedClinicController extends _CrudController
         ];
 
         parent::__construct(
-            $request, 'general.doctor-clinic-telemed', 'doctor-clinic-telemed', 'V1\AppointmentDoctor', 'doctor-clinic-telemed',
+            $request, 'general.doctor_clinic_telemed', 'doctor-clinic-telemed', 'V1\AppointmentDoctor', 'doctor-clinic-telemed',
             $passingData
         );
 
@@ -89,11 +95,47 @@ class AppointmentDoctorTelemedClinicController extends _CrudController
 
 
         $this->data['listSet']['service_id'] = $service_id;
-
         $this->data['listSet']['status'] = $status;
+        $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.appointment-doctor-clinic.doctor-clinic-telemed.forms';
+
 
     }
 
+    public function show($id)
+    {
+        $this->callPermission();
+
+        $adminClinicId = session()->get('admin_clinic_id');
+
+        if (!$adminClinicId) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $getData = $this->crud->show($id, [
+            'id' => $id,
+            'klinik_id' => $adminClinicId,
+        ]);
+
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $data = $this->data;
+
+        $getAppointmentDoctorDetail = AppointmentDoctorProduct::selectRaw('appointment_doctor_product.*, doctor_prescription')
+                                        ->leftJoin('appointment_doctor','appointment_doctor.id','=','appointment_doctor_product.appointment_doctor_id')
+                                        ->where('appointment_doctor_product.appointment_doctor_id', $id)
+                                        ->get();
+
+        $data['viewType'] = 'show';
+        $data['formsTitle'] = __('general.title_show', ['field' => $data['thisLabel']]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['data'] = $getData;
+        $data['doctorProduct'] = $getAppointmentDoctorDetail;
+        $data['listSetTypeDosis'] = get_list_type_dosis();
+
+        return view($this->listView[$data['viewType']], $data);
+    }
 
     public function dataTable()
     {

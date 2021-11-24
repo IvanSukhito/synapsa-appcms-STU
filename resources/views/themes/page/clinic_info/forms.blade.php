@@ -193,6 +193,23 @@ else {
                                             <td> {{ $data->email ?? '-' }}</td>
                                         </tr>
                                         <tr>
+                                            <td>@lang('general.logo')</td>
+                                            <td>:</td>
+                                            <td>
+                                                @if(isset($data->logo) == 1)
+
+                                                        <a href="{{  env('OSS_URL').'/'.$data->logo }}" target="_blank" title="doctor-prescription"  data-fancybox>
+                                                            <img src="{{  env('OSS_URL').'/'.$data->logo }}" class="img-responsive max-image-preview" alt="doctor-prescription"/>
+                                                        </a>
+
+                                                @else
+                                                    <a href="{{ asset('assets/cms/images/no-img.png') }}" target="_blank" title="doctor-prescription"  data-fancybox>
+                                                        <img src="{{ asset('assets/cms/images/no-img.png') }}" class="img-responsive max-image-preview" alt="doctor-prescription"/>
+                                                    </a>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <td>@lang('general.theme_color')</td>
                                             <td>:</td>
                                             <td style="background-color: {{ $data->theme_color }}"></td>

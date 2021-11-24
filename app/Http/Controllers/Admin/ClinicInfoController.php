@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Codes\Logic\_CrudController;
 use App\Codes\Models\Admin;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ClinicInfoController extends _CrudController
 {
@@ -43,6 +44,11 @@ class ClinicInfoController extends _CrudController
                     'edit' => 'required|email'
                 ],
                 'lang' => 'general.email'
+            ],
+            'logo_full' => [
+
+                'lang' => 'general.logo',
+                'type' => 'image',
             ],
             'monday' => [
                 'edit' => 0,
@@ -145,7 +151,30 @@ class ClinicInfoController extends _CrudController
             }
         }
 
+        unset($getListCollectData['logo_full']);
+
+        $dokument = $this->request->file('logo_full');
+        if ($dokument) {
+            if ($dokument->getError() != 1) {
+
+                $getFileName = $dokument->getClientOriginalName();
+                $ext = explode('.', $getFileName);
+                $ext = end($ext);
+                $destinationPath = 'synapsaapps/clinic';
+                if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
+
+                    $dokumentImage = Storage::putFile($destinationPath, $dokument);
+                }
+
+            }
+        }
+        else{
+            $dokumentImage = $getData->logo;
+        }
+
         $data = $this->getCollectedData($getListCollectData, $viewType, $data, $getData);
+
+        unset($data['logo_full']);
 
         foreach ($getListCollectData as $key => $val) {
             if($val['type'] == 'image_many') {
@@ -176,6 +205,7 @@ class ClinicInfoController extends _CrudController
         'friday' => $this->request->get('friday'),
         'saturday' => $this->request->get('saturday'),
         'sunday' => $this->request->get('sunday'),
+        'logo' => $dokumentImage,
     ];
 
         foreach($saveData as $key => $val) {

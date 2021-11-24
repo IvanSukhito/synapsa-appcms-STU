@@ -460,4 +460,14 @@ return [
     'doctor_clinic_visit' => 'Doctor Visit',
     'doctor_clinic_telemed' => 'Doctor Telemed',
     'doctor_clinic_homecare' => 'Doctor Homecare',
+    'doctor_prescription_full' => 'Resep Dokter',
+    'diagnosis' => 'Diagnosis',
+    'jumlah_disarankan' => 'Jumlah Disarankan',
+    'jumlah_dicheckout' => 'Jumlah Dicheckout',
+    'sebelum_makan' => 'Sebelum Makan',
+    'sesudah_makan' => 'Sesudah Makan',
+    'type_dosis' => 'Type Dosis',
+    'doctor_prescription' => 'Resep Dokter',
+
+    'theme_color' => 'Theme Color',
 ];
