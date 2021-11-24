@@ -50,11 +50,12 @@
                             'class' => 'form-control', 'onchange' => 'changeDate(this)', 'data-link' => route('admin.' . $thisRoute . '.schedule', ['id' => $getDoctor->id])
                             ]) }}
                     </div>
-
                 </div>
+
                 <div class="card-header">
                     <h3 class="card-title">{{ __('general.title_home', ['field' => $thisLabel]) }}: {{ $getListWeekday[$getTargetDay] ?? $getTargetDay }}</h3>
                 </div>
+
                 <div class="card-body">
                     <div class="col-md-12">
                         <p class="text-warning">Note:<br />
@@ -85,7 +86,7 @@
                                             </div>
                                         </div>
 
-                                        @if($scheduleType == 0)
+                                        @if($scheduleType == 1)
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="weekday_{!! $list->id !!}">@lang('general.weekday') <span class="text-red">*</span></label>
@@ -93,7 +94,7 @@
                                             </div>
                                         </div>
 
-                                        @elseif($scheduleType == 1)
+                                        @elseif($scheduleType == 2)
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="date_{!! $list->id !!}">@lang('general.date') <span class="text-red">*</span></label>
@@ -260,7 +261,13 @@
             $('#date').datetimepicker({
                 format: 'YYYY-MM-DD',
             });
+
             $('#time_start').datetimepicker({
+                format: 'HH:mm:ss',
+                stepping: 15
+            });
+
+            $('#time_end').datetimepicker({
                 format: 'HH:mm:ss',
                 stepping: 15
             });
