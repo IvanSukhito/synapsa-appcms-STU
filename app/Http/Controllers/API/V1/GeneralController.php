@@ -378,7 +378,6 @@ class GeneralController extends Controller
 
     public function searchCity()
     {
-
         $s = $this->request->get('s');
         $provinceId = intval($this->request->get('province_id'));
 
