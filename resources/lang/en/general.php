@@ -468,4 +468,6 @@ return [
     'sesudah_makan' => 'Sesudah Makan',
     'type_dosis' => 'Type Dosis',
     'doctor_prescription' => 'Resep Dokter',
+
+    'theme_color' => 'Theme Color',
 ];
