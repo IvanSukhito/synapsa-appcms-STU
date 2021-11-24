@@ -3,16 +3,14 @@
 namespace App\Http\Controllers\API\V1;
 
 use App\Codes\Logic\AccessLogin;
+use App\Codes\Logic\UserLogic;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\City;
-use App\Codes\Models\V1\DeviceToken;
 use App\Codes\Models\V1\District;
-use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\Klinik;
 use App\Codes\Models\V1\Province;
 use App\Codes\Models\V1\SubDistrict;
 use App\Codes\Models\V1\Users;
-use App\Codes\Models\V1\UsersAddress;
 use App\Codes\Models\V1\ForgetPassword;
 use App\Http\Controllers\Controller;
 use Illuminate\Database\QueryException;
@@ -127,57 +125,45 @@ class GeneralController extends Controller
         }
 
         try {
-            $users = new Users();
-            $users->klinik_id = $this->request->get('klinik_id');
-            $users->province_id = $this->request->get('province_id');
-            $users->city_id = $this->request->get('city_id');
-            $users->district_id = $this->request->get('district_id');
-            $users->sub_district_id = $this->request->get('sub_district_id');
-            $users->fullname = $this->request->get('fullname');
-            $users->address = $this->request->get('address');
-            $users->address_detail = $this->request->get('address_detail');
-            $users->zip_code = $this->request->get('zip_code');
-            $users->dob = $this->request->get('dob');
-            $users->gender = $this->request->get('gender');
-            $users->nik = $this->request->get('nik');
-            $users->phone = $this->request->get('phone');
-            $users->email = $this->request->get('email');
-            $users->password = bcrypt($this->request->get('password'));
-            $users->status = 80;
-            $users->patient = $this->request->get('patient');
-            $users->upload_ktp = $getUploadKtp;
-            $users->image = $getUploadImage;
-            $users->save();
 
-            $usersAddress = new UsersAddress();
-            $usersAddress->user_id = $users->id;
-            $usersAddress->province_id = $users->province_id;
-            $usersAddress->city_id = $users->city_id;
-            $usersAddress->district_id = $users->district_id;
-            $usersAddress->sub_district_id = $users->sub_district_id;
-            $usersAddress->zip_code = $users->zip_code;
-            $usersAddress->address_name = $users->fullname;
-            $usersAddress->address = $users->address;
-            $usersAddress->address_detail = $users->address_detail;
-            $usersAddress->save();
+            $userLogic = new UserLogic();
+            $getUser = $userLogic->userCreatePatient([
+                'klinik_id' => $this->request->get('klinik_id'),
+                'province_id' => $this->request->get('province_id'),
+                'city_id' => $this->request->get('city_id'),
+                'district_id' => $this->request->get('district_id'),
+                'sub_district_id' => $this->request->get('sub_district_id'),
+                'fullname' => $this->request->get('fullname'),
+                'address' => $this->request->get('address'),
+                'address_detail' => $this->request->get('address_detail'),
+                'zip_code' => $this->request->get('zip_code'),
+                'dob' => $this->request->get('dob'),
+                'gender' => $this->request->get('gender'),
+                'nik' => $this->request->get('nik'),
+                'phone' => $this->request->get('phone'),
+                'email' => $this->request->get('email'),
+                'password' => $this->request->get('password'),
+                'upload_ktp' => $getUploadKtp,
+                'image' => $getUploadImage
+            ]);
 
             return response()->json([
                 'message' => ['Data Berhasil Dimasukan'],
                 'data' => [
-                    'user_id' => $users->id,
-                    'klinik_id' => $users->klinik_id,
-                    'fullname' => $users->fullname,
-                    'address' => $users->address,
-                    'address_detail' => $users->address_detail,
-                    'zip_code' => $users->zip_code,
-                    'gender' => $users->gender,
-                    'dob' => $users->dob,
-                    'nik' => $users->nik,
-                    'phone' => $users->phone,
-                    'email' => $users->email,
-                    'patient' => $users->patient,
-                    'doctor' => $users->doctor,
-                    'nurse' => $users->nurse
+                    'user_id' => $getUser->id,
+                    'klinik_id' => $getUser->klinik_id,
+                    'fullname' => $getUser->fullname,
+                    'address' => $getUser->address,
+                    'address_detail' => $getUser->address_detail,
+                    'zip_code' => $getUser->zip_code,
+                    'gender' => $getUser->gender,
+                    'dob' => $getUser->dob,
+                    'nik' => $getUser->nik,
+                    'phone' => $getUser->phone,
+                    'email' => $getUser->email,
+                    'patient' => $getUser->patient,
+                    'doctor' => $getUser->doctor,
+                    'nurse' => $getUser->nurse
                 ]
             ]);
 
@@ -218,43 +204,14 @@ class GeneralController extends Controller
             try {
                 $token = JWTAuth::fromUser($user);
 
+                $userLogic = new UserLogic();
+
                 $getToken = $this->request->get('fcm_token');
                 if ($getToken && strlen($getToken) > 5) {
-                    $getDeviceToken = DeviceToken::firstOrCreate([
-                        'token' => $getToken
-                    ]);
-                    $getDeviceToken->getUser()->sync([$user->id]);
-//                    $user->getDeviceToken()->sync([$getDeviceToken->id]);
+                    $userLogic->updateToken($user->id, $getToken);
                 }
 
-                $getKlinik = Klinik::where('id', $user->klinik_id)->first();
-
-                $result = [
-                    'user_id' => $user->id,
-                    'klinik_id' => $user->klinik_id,
-                    'klinik_name' => $getKlinik ? $getKlinik->name : '',
-                    'klinik_theme' => $getKlinik ? $getKlinik->theme_color : '',
-                    'fullname' => $user->fullname,
-                    'address' => $user->address,
-                    'address_detail' => $user->address_detail,
-                    'zip_code' => $user->zip_code,
-                    'gender' => intval($user->gender) == 1 ? 1 : 2,
-                    'phone' => $user->phone,
-                    'email' => $user->email,
-                    'patient' => $user->patient,
-                    'doctor' => $user->doctor,
-                    'nurse' => $user->nurse,
-                    'status' => $user->status,
-                    'status_nice' => $user->status_nice,
-                    'gender_nice' => $user->gender_nice
-                ];
-
-                if ($user->doctor == 1) {
-                    $getDoctor = Doctor::selectRaw('formal_edu, nonformal_edu, doctor_category_id, doctor_category.name AS doctor_category')
-                        ->join('doctor_category', 'doctor_category.id', '=', 'doctor.doctor_category_id')
-                        ->where('user_id', $user->id)->first();
-                    $result['info_doctor'] = $getDoctor;
-                }
+                $result = $userLogic->userInfo($user->id, $user);
 
                 return response()->json([
                     'success' => 1,

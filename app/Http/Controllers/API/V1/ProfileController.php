@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\V1;
 
 use App\Codes\Logic\SynapsaLogic;
+use App\Codes\Logic\UserLogic;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\Notifications;
@@ -33,14 +34,13 @@ class ProfileController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $getUser = $user;
-        $getUser->image_full = strlen($user->image) > 0 ? env('OSS_URL').'/'.$user->image : asset('assets/cms/images/no-img.png');
-        $getUser->upload_ktp_full = strlen($user->upload_ktp) > 0 ? env('OSS_URL').'/'.$user->upload_ktp : asset('assets/cms/images/no-img.png');
-        $getUser->join = date('d F Y', strtotime($user->created_at));
+        $userLogic = new UserLogic();
+
+        $result = $userLogic->userInfo($user->id);
 
         return response()->json([
             'success' => 1,
-            'data' => $getUser,
+            'data' => $result,
             'token' => $this->request->attributes->get('_refresh_token')
         ]);
 
@@ -49,8 +49,6 @@ class ProfileController extends Controller
     public function updateProfile()
     {
         $user = $this->request->attributes->get('_user');
-
-        $user = Users::where('id', $user->id)->first();
 
         $validator = Validator::make($this->request->all(), [
             'fullname' => 'required',
@@ -101,35 +99,25 @@ class ProfileController extends Controller
             }
         }
 
-        $user->fullname = $this->request->get('fullname');
-        $user->dob = $this->request->get('dob');
-        $user->gender = $this->request->get('gender');
-        $user->nik = $this->request->get('nik');
+        $saveData = [
+            'fullname' => $this->request->get('fullname'),
+            'dob' => $this->request->get('dob'),
+            'gender' => $this->request->get('gender'),
+            'nik' => $this->request->get('nik'),
+            'email' => $this->request->get('email'),
+            'phone' => $this->request->get('phone'),
+            'upload_ktp' => $getUploadKtp
+        ];
         if (strlen($getUploadKtp) > 0) {
-            $user->upload_ktp = $getUploadKtp;
+            $saveData['upload_ktp'] = $getUploadKtp;
         }
-        $user->email = $this->request->get('email');
-        $user->phone = $this->request->get('phone');
-        $user->save();
+
+        $userLogic = new UserLogic();
+        $result = $userLogic->userUpdatePatient($user->id, $saveData);
 
         return response()->json([
             'success' => 1,
-            'data' => [
-                'klinik_id' => $user->klinik_id,
-                'fullname' => $user->fullname,
-                'address' => $user->address,
-                'address_detail' => $user->address_detail,
-                'zip_code' => $user->zip_code,
-                'gender' => $user->gender,
-                'dob' => $user->dob,
-                'nik' => $user->nik,
-                'phone' => $user->phone,
-                'email' => $user->email,
-                'patient' => $user->patient,
-                'doctor' => $user->doctor,
-                'nurse' => $user->nurse,
-                'image' => $user->upload_ktp_full
-            ],
+            'data' => $result,
             'token' => $this->request->attributes->get('_refresh_token'),
             'message' => ['Berhasil Memperbarui profil'],
         ]);
@@ -160,6 +148,17 @@ class ProfileController extends Controller
             $getFile = Storage::put($destinationPath.'/'.$set_file_name, $image);
             if ($getFile) {
                 $getImage = $destinationPath.'/'.$set_file_name;
+
+                $userLogic = new UserLogic();
+                $result = $userLogic->userUpdatePatient($user->id, ['image' => $getImage]);
+
+                return response()->json([
+                    'success' => 1,
+                    'data' => $result,
+                    'token' => $this->request->attributes->get('_refresh_token'),
+                    'message' => ['Berhasil Memperbarui Foto Profile'],
+                ]);
+
             }
             else {
                 return response()->json([
@@ -178,44 +177,16 @@ class ProfileController extends Controller
             ], 422);
         }
 
-        if ($getImage) {
-            $user->image = $getImage;
-            $user->save();
-
-            $getUser = [
-                'image' => env('OSS_URL').'/'.$destinationPath.'/'.$set_file_name
-            ];
-
-            return response()->json([
-                'success' => 1,
-                'data' => $getUser,
-                'token' => $this->request->attributes->get('_refresh_token'),
-                'message' => ['Berhasil Memperbarui Foto Profile'],
-            ]);
-        }
-        else {
-
-            return response()->json([
-                'success' => 0,
-                'message' => ['Gagal Untuk Mengunggah'],
-                'token' => $this->request->attributes->get('_refresh_token')
-            ], 422);
-        }
     }
 
     public function getAddress(){
         $user = $this->request->attributes->get('_user');
 
-        $logic = new SynapsaLogic();
-        $getUsersAddress = $logic->getUserAddress($user->id, $user->phone);
-        $getUsersAddress['province'] = $getUsersAddress['province_id'] ?? 0;
-        $getUsersAddress['city'] = $getUsersAddress['city_id'] ?? 0;
-        $getUsersAddress['district'] = $getUsersAddress['district_id'] ?? 0;
-        $getUsersAddress['sub_district'] = $getUsersAddress['sub_district'] ?? 0;
+        $userLogic = new UserLogic();
 
         return response()->json([
             'success' => 1,
-            'data' => $getUsersAddress,
+            'data' => $userLogic->userAddress($user->id),
             'token' => $this->request->attributes->get('_refresh_token')
         ]);
 
@@ -227,11 +198,13 @@ class ProfileController extends Controller
 
         $user = Users::where('id', $user->id)->first();
 
-        $getUserAddress = UsersAddress::where('user_id', $user->id)->first();
-
         $validator = Validator::make($this->request->all(), [
             'address' => 'required',
             'address_detail' => 'required',
+            'province_id' => 'required',
+            'city_id' => 'required',
+            'district_id' => 'required',
+            'sub_district_id' => 'required',
             'zip_code' => 'required',
         ]);
         if ($validator->fails()) {
@@ -242,38 +215,26 @@ class ProfileController extends Controller
             ], 422);
         }
 
-        $user->address = strip_tags($this->request->get('address'));
-        $user->address_detail = strip_tags($this->request->get('address_detail'));
-        $user->province_id = intval($this->request->get('province_id'));
-        $user->city_id = intval($this->request->get('city_id'));
-        $user->district_id = intval($this->request->get('district_id'));
-        $user->sub_district_id = intval($this->request->get('sub_district_id'));
-        $user->zip_code = strip_tags($this->request->get('zip_code'));
-        $user->save();
+        $userLogic = new UserLogic();
 
-        if ($getUserAddress){
-
-            $getUserAddress->address_name = $user->fullname;
-            $getUserAddress->address = $user->address;
-            $getUserAddress->address_detail = $user->address_detail;
-            $getUserAddress->province_id = $user->province_id;
-            $getUserAddress->city_id = $user->city_id;
-            $getUserAddress->district_id = $user->district_id;
-            $getUserAddress->sub_district_id = $user->sub_district_id;
-            $getUserAddress->zip_code = $user->zip_code;
-            $getUserAddress->save();
-
-        }
+        $result = $userLogic->userUpdateAddressPatient($user->id, [
+            'address' => strip_tags($this->request->get('address')),
+            'address_detail' => strip_tags($this->request->get('address_detail')),
+            'province_id' => intval($this->request->get('province_id')),
+            'city_id' => intval($this->request->get('city_id')),
+            'district_id' => intval($this->request->get('district_id')),
+            'sub_district_id' => intval($this->request->get('sub_district_id')),
+            'zip_code' => strip_tags($this->request->get('zip_code'))
+        ]);
 
         return response()->json([
             'success' => 1,
-            'data' => $getUserAddress,
+            'data' => $result,
             'token' => $this->request->attributes->get('_refresh_token'),
             'message' => ['Sukses Memperbarui Alamat Profil'],
         ]);
 
     }
-
 
     public function updatePassword()
     {
@@ -302,8 +263,8 @@ class ProfileController extends Controller
             ],422);
         }
 
-        $user->password = bcrypt($this->request->get('password'));
-        $user->save();
+        $userLogic = new UserLogic();
+        $userLogic->userUpdatePatient($user->id, ['password' => $this->request->get('password')]);
 
         return response()->json([
             'success' => 1,

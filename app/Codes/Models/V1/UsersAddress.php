@@ -21,11 +21,35 @@ class UsersAddress extends Model
     ];
 
     protected $appends = [
+        'province',
+        'city',
+        'district',
+        'sub_district',
         'province_name',
         'city_name',
         'district_name',
         'sub_district_name'
     ];
+
+    public function getProvinceAttribute()
+    {
+        return $this->province_id;
+    }
+
+    public function getCityAttribute()
+    {
+        return $this->city_id;
+    }
+
+    public function getDistrictAttribute()
+    {
+        return $this->district_id;
+    }
+
+    public function getSubDistrictAttribute()
+    {
+        return $this->sub_district_id;
+    }
 
     public function getProvinceNameAttribute()
     {

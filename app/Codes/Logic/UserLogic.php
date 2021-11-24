@@ -3,6 +3,8 @@
 namespace App\Codes\Logic;
 
 use App\Codes\Models\V1\DeviceToken;
+use App\Codes\Models\V1\Doctor;
+use App\Codes\Models\V1\Klinik;
 use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\UsersAddress;
 use App\Codes\Models\V1\UsersCart;
@@ -86,6 +88,14 @@ class UserLogic
             return false;
         }
 
+        $getUser = Users::where('id', $userId)->first();
+        if ($getUser) {
+            foreach ($saveData as $key => $val) {
+                $getUser->$key = $val;
+            }
+            $getUser->save();
+        }
+
         foreach ($saveData as $key => $val) {
             $getUsersAddress->$key = $val;
         }
@@ -104,13 +114,50 @@ class UserLogic
         $getDeviceToken->getUser()->sync([$userId]);
     }
 
-    public function userInfo($userId)
+    public function userInfo($userId, $user = null)
     {
-        $getUser = Users::where('id', $userId)->first();
+        if ($user == null) {
+            $getUser = Users::where('id', $userId)->first();
+        }
+        else {
+            $getUser = $user;
+        }
+
         if (!$getUser) {
             return false;
         }
-        return $getUser;
+
+        $getKlinik = Klinik::where('id', $getUser->klinik_id)->first();
+
+        $result = [
+            'user_id' => $getUser->id,
+            'klinik_id' => $getUser->klinik_id,
+            'klinik_name' => $getKlinik ? $getKlinik->name : '',
+            'klinik_theme' => $getKlinik ? $getKlinik->theme_color : '',
+            'fullname' => $getUser->fullname,
+            'address' => $getUser->address,
+            'address_detail' => $getUser->address_detail,
+            'zip_code' => $getUser->zip_code,
+            'gender' => intval($getUser->gender) == 1 ? 1 : 2,
+            'phone' => $getUser->phone,
+            'email' => $getUser->email,
+            'patient' => $getUser->patient,
+            'doctor' => $getUser->doctor,
+            'nurse' => $getUser->nurse,
+            'status' => $getUser->status,
+            'status_nice' => $getUser->status_nice,
+            'gender_nice' => $getUser->gender_nice,
+            'join' => date('d F Y', strtotime($getUser->created_at))
+
+        ];
+        if ($getUser->doctor == 1) {
+            $getDoctor = Doctor::selectRaw('formal_edu, nonformal_edu, doctor_category_id, doctor_category.name AS doctor_category')
+                ->join('doctor_category', 'doctor_category.id', '=', 'doctor.doctor_category_id')
+                ->where('user_id', $getUser->id)->first();
+            $result['info_doctor'] = $getDoctor;
+        }
+
+        return $result;
     }
 
     public function userAddress($userId)

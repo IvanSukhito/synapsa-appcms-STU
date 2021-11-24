@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers\API\V1;
 
-use App\Codes\Models\V1\DeviceToken;
-use App\Codes\Models\V1\Doctor;
+use App\Codes\Logic\UserLogic;
 use App\Codes\Models\V1\Klinik;
-use App\Codes\Models\V1\Users;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Codes\Models\V1\Article;
@@ -26,44 +24,15 @@ class HomeController extends Controller
     public function checkLogin()
     {
         $user = $this->request->attributes->get('_user');
-        $getKlinik = Klinik::where('id', $user->klinik_id)->first();
+
+        $userLogic = new UserLogic();
 
         $getToken = $this->request->get('fcm_token');
         if ($getToken && strlen($getToken) > 5) {
-            $getUser = Users::where('id', $user->id)->first();
-            $getDeviceToken = DeviceToken::firstOrCreate([
-                'token' => $getToken
-            ]);
-            $getDeviceToken->getUser()->sync([$user->id]);
-//            $getUser->getDeviceToken()->sync([$getDeviceToken->id]);
+            $userLogic->updateToken($user->id, $getToken);
         }
 
-        $result = [
-            'user_id' => $user->id,
-            'klinik_id' => $user->klinik_id,
-            'klinik_name' => $getKlinik ? $getKlinik->name : '',
-            'klinik_theme' => $getKlinik ? $getKlinik->theme_color : '',
-            'fullname' => $user->fullname,
-            'address' => $user->address,
-            'address_detail' => $user->address_detail,
-            'zip_code' => $user->zip_code,
-            'gender' => intval($user->gender) == 1 ? 1 : 2,
-            'phone' => $user->phone,
-            'email' => $user->email,
-            'patient' => $user->patient,
-            'doctor' => $user->doctor,
-            'nurse' => $user->nurse,
-            'status' => $user->status,
-            'status_nice' => $user->status_nice,
-            'gender_nice' => $user->gender_nice
-        ];
-
-        if ($user->doctor == 1) {
-            $getDoctor = Doctor::selectRaw('formal_edu, nonformal_edu, doctor_category_id, doctor_category.name AS doctor_category')
-                ->join('doctor_category', 'doctor_category.id', '=', 'doctor.doctor_category_id')
-                ->where('user_id', $user->id)->first();
-            $result['info_doctor'] = $getDoctor;
-        }
+        $result = $userLogic->userInfo($user->id, $user);
 
         return response()->json([
             'success' => 1,
