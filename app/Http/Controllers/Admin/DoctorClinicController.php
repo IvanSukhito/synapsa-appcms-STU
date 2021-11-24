@@ -680,7 +680,7 @@ class DoctorClinicController extends _CrudController
                 ->orderBy('id', 'DESC')
                 ->get();
 
-            $scheduleType = 0;
+            $scheduleType = 1;
         }
         else {
             $getData = DoctorSchedule::where('date_available', $getTargetDay)
@@ -688,7 +688,7 @@ class DoctorClinicController extends _CrudController
                 ->orderBy('id', 'DESC')
                 ->get();
 
-            $scheduleType = 1;
+            $scheduleType = 2;
 
             $getTargetDay = date('w', strtotime($getTargetDay));
         }
@@ -723,6 +723,10 @@ class DoctorClinicController extends _CrudController
     public function storeSchedule($id)
     {
         $this->callPermission();
+
+        $this->validate($this->request, [
+            'schedule_type' => 'required',
+        ]);
 
         if($this->request->get('schedule_type') == 1) {
             $data = $this->validate($this->request, [
@@ -785,6 +789,10 @@ class DoctorClinicController extends _CrudController
     {
         $this->callPermission();
 
+        $this->validate($this->request, [
+            'schedule_type' => 'required',
+        ]);
+
         $getData = DoctorSchedule::where('doctor_id', $id)->where('id', $scheduleId)->first();
         if (!$getData) {
             if($this->request->ajax()){
@@ -809,7 +817,6 @@ class DoctorClinicController extends _CrudController
             $getServiceId = intval($data['service']);
             $getTimeStart = strtotime($data['time_start']) > 0 ? date('H:i:00', strtotime($data['time_start'])) : date('H:i:00');
             $getTimeEnd = strtotime($data['time_end']) > 0 ? date('H:i:00', strtotime($data['time_end'])) : date('H:i:00');
-
 
             $getData->doctor_id = $id;
             $getData->service_id = $getServiceId;
