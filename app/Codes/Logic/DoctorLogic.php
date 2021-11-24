@@ -12,19 +12,43 @@ class DoctorLogic
     {
     }
 
-    public function doctorInfo($doctorId, $serviceId)
+    /**
+     * @param $doctorId
+     * @param null $serviceId
+     * @return mixed
+     */
+    public function doctorInfo($doctorId, $serviceId = null)
     {
-        return Doctor::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
+        if ($serviceId) {
+            $getData = Doctor::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
             phone, gender, doctor_service.price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
-            ->join('users', 'users.id', '=', 'doctor.user_id')
-            ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
-            ->join('doctor_service', 'doctor_service.doctor_id','=','doctor.id')
-            ->where('doctor_service.service_id', '=', $serviceId)
-            ->where('doctor.id', '=', $doctorId)
-            ->where('users.doctor','=', 1)->first();
+                ->join('users', 'users.id', '=', 'doctor.user_id')
+                ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
+                ->join('doctor_service', 'doctor_service.doctor_id','=','doctor.id')
+                ->where('doctor_service.service_id', '=', $serviceId)
+                ->where('doctor.id', '=', $doctorId)
+                ->where('users.doctor','=', 1);
+        }
+        else {
+            $getData = Doctor::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
+            phone, gender, 0 AS price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
+                ->join('users', 'users.id', '=', 'doctor.user_id')
+                ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
+                ->where('doctor.id', '=', $doctorId)
+                ->where('users.doctor','=', 1);
+        }
+
+        return $getData->first();
+
     }
 
-    public function getSchedule($doctorId, $serviceId, $date)
+    /**
+     * @param $doctorId
+     * @param $serviceId
+     * @param $date
+     * @return array
+     */
+    public function getSchedule($doctorId, $serviceId, $date): array
     {
         $getDoctorSchedule = DoctorSchedule::where('doctor_id', '=', $doctorId)->where('service_id', '=', $serviceId)
             ->where('date_available', '=', $date)
@@ -66,7 +90,15 @@ class DoctorLogic
 
     }
 
-    public function checkSchedule($doctorId, $serviceId, $scheduleId, $date, $raw = 0)
+    /**
+     * @param $doctorId
+     * @param $serviceId
+     * @param $scheduleId
+     * @param $date
+     * @param int $raw
+     * @return array|int|int[]
+     */
+    public function checkSchedule($doctorId, $serviceId, $scheduleId, $date, int $raw = 0)
     {
         $getSchedule = DoctorSchedule::where('doctor_id', '=', $doctorId)->where('service_id', '=', $serviceId)
             ->where('id', '=', $scheduleId)->first();
@@ -79,7 +111,8 @@ class DoctorLogic
             return 0;
         }
 
-        $getAppointmentDoctor = AppointmentDoctor::where('date', '=', $date)->where('time_start', '=', $getSchedule->time_start)->first();
+        $getAppointmentDoctor = AppointmentDoctor::where('doctor_id', '=', $doctorId)->where('date', '=', $date)
+            ->where('time_start', '=', $getSchedule->time_start)->first();
         if ($getAppointmentDoctor) {
             if ($raw == 1) {
                 return [
@@ -100,7 +133,35 @@ class DoctorLogic
         }
     }
 
-    public function setSchedule($doctorId, $serviceId, $scheduleId, $date, $getUser, $getDoctor, $getService, $getTransaction, $newCode)
+    /**
+     * @param $doctorId
+     * @param $date
+     * @param $timeStart
+     * @return int
+     */
+    public function checkAvailableSchedule($doctorId, $date, $timeStart): int
+    {
+        $getAppointmentDoctor = AppointmentDoctor::where('doctor_id', '=', $doctorId)->where('date', '=', $date)
+            ->where('time_start', '=', $timeStart)->first();
+        if ($getAppointmentDoctor) {
+            return 0;
+        }
+        return 1;
+    }
+
+    /**
+     * @param $doctorId
+     * @param $serviceId
+     * @param $scheduleId
+     * @param $date
+     * @param $getUser
+     * @param $getDoctor
+     * @param $getService
+     * @param $getTransaction
+     * @param $newCode
+     * @return int
+     */
+    public function createAppointment($doctorId, $serviceId, $scheduleId, $date, $getUser, $getDoctor, $getService, $getTransaction, $newCode): int
     {
         $getData = $this->checkSchedule($doctorId, $serviceId, $scheduleId, $date, 1);
         if ($getData['success'] == 1) {
@@ -126,6 +187,35 @@ class DoctorLogic
 
             return 1;
 
+        }
+
+        return 0;
+
+    }
+
+    /**
+     * @param $doctorId
+     * @param $appointmentId
+     * @param $date
+     * @param $timeStart
+     * @param $timeEnd
+     * @param $getUser
+     * @param $getDoctor
+     * @return int
+     */
+    public function rescheduleAppointment($doctorId, $appointmentId, $date, $timeStart, $timeEnd, $getUser, $getDoctor): int
+    {
+        $getAppointment = AppointmentDoctor::where('id', $appointmentId)->where('user_id', $getUser->id)
+            ->where('doctor_id', $getDoctor->id)->first();
+        if ($getAppointment) {
+            if ($this->checkAvailableSchedule($doctorId, $date, $timeStart)) {
+                $getAppointment->time_start = $timeStart;
+                $getAppointment->time_end = $timeEnd;
+                $getAppointment->status = $timeEnd;
+                $getAppointment->save();
+
+                return 1;
+            }
         }
 
         return 0;
