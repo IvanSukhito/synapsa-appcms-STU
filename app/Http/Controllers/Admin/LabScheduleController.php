@@ -30,6 +30,12 @@ class LabScheduleController extends _CrudController
                 'edit' => 0,
                 'show' => 0
             ],
+            'schedule_type' => [
+                'type' => 'select',
+                'create' => 0,
+                'edit' => 0,
+                'list' => 0,
+            ],
             'lab_id' => [
                 'type' => 'select2',
                 'create' => 0,
@@ -56,6 +62,12 @@ class LabScheduleController extends _CrudController
                     'edit' => 'required'
                 ],
                 'type' => 'datepicker',
+            ],
+            'weekday' => [
+                'validate' => [
+                    'edit' => 'required'
+                ],
+                'type' => 'select',
             ],
             'time_start' => [
                 'validate' => [
@@ -108,7 +120,7 @@ class LabScheduleController extends _CrudController
         $service_id = [];
         foreach($service as $key => $val) {
             $service_id[$key] = $val;
-        };
+        }
 
         $klinik_id = [0 => 'Empty'];
         foreach(Klinik::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
@@ -119,6 +131,8 @@ class LabScheduleController extends _CrudController
         $this->data['listSet']['service_id'] = $service_id;
         $this->data['listSet']['day'] = get_list_day();
         $this->data['listSet']['book'] = get_list_available();
+        $this->data['listSet']['weekday'] = get_list_weekday();
+        $this->data['listSet']['schedule_type'] = get_list_schedule_type();
         $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.lab.schedule';
         $this->listView['create2'] = env('ADMIN_TEMPLATE').'.page.lab.forms2';
 
