@@ -107,7 +107,7 @@ else {
                                             <td>{{ $list->product_qty_checkout }}</td>
                                             <td>{{ number_format($list->product_price, 2) }}</td>
                                             <td>{{ $list->dosis }}</td>
-                                            <td>{{ $listSetTypeDosis[$list->type_dosis] }}</td>
+                                            <td>{{ $listSetTypeDosis[$list->type_dosis] ?? 'Tidak Ada'}}</td>
                                             <td>{{ $list->period }}</td>
                                         </tr>
                                     @endforeach
