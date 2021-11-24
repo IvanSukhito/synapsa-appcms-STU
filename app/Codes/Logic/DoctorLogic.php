@@ -3,8 +3,11 @@
 namespace App\Codes\Logic;
 
 use App\Codes\Models\V1\AppointmentDoctor;
+use App\Codes\Models\V1\AppointmentDoctorProduct;
 use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\DoctorSchedule;
+use App\Codes\Models\V1\Service;
+use Illuminate\Support\Facades\DB;
 
 class DoctorLogic
 {
@@ -48,7 +51,7 @@ class DoctorLogic
      * @param $date
      * @return array
      */
-    public function getSchedule($doctorId, $serviceId, $date): array
+    public function scheduleGet($doctorId, $serviceId, $date): array
     {
         $getDoctorSchedule = DoctorSchedule::where('doctor_id', '=', $doctorId)->where('service_id', '=', $serviceId)
             ->where('date_available', '=', $date)
@@ -98,7 +101,7 @@ class DoctorLogic
      * @param int $raw
      * @return array|int|int[]
      */
-    public function checkSchedule($doctorId, $serviceId, $scheduleId, $date, int $raw = 0)
+    public function scheduleCheck($doctorId, $serviceId, $scheduleId, $date, int $raw = 0)
     {
         $getSchedule = DoctorSchedule::where('doctor_id', '=', $doctorId)->where('service_id', '=', $serviceId)
             ->where('id', '=', $scheduleId)->first();
@@ -139,7 +142,7 @@ class DoctorLogic
      * @param $timeStart
      * @return int
      */
-    public function checkAvailableSchedule($doctorId, $date, $timeStart): int
+    public function scheduleCheckAvailable($doctorId, $date, $timeStart): int
     {
         $getAppointmentDoctor = AppointmentDoctor::where('doctor_id', '=', $doctorId)->where('date', '=', $date)
             ->where('time_start', '=', $timeStart)->first();
@@ -161,7 +164,7 @@ class DoctorLogic
      * @param $newCode
      * @return int
      */
-    public function createAppointment($doctorId, $serviceId, $scheduleId, $date, $getUser, $getDoctor, $getService, $getTransaction, $newCode): int
+    public function appointmentCreate($doctorId, $serviceId, $scheduleId, $date, $getUser, $getDoctor, $getService, $getTransaction, $newCode): int
     {
         $getData = $this->checkSchedule($doctorId, $serviceId, $scheduleId, $date, 1);
         if ($getData['success'] == 1) {
@@ -194,6 +197,98 @@ class DoctorLogic
     }
 
     /**
+     * Flag
+     * 1. Patient
+     * 2. Doctor
+     * @param $appointmentId
+     * @param $flag
+     * @param null $userId
+     * @param null $doctorId
+     * @return false
+     */
+    public function appointmentInfo($appointmentId, $flag, $userId = null, $doctorId = null): bool
+    {
+        if ($flag == 1) {
+            $getAppointment = AppointmentDoctor::whereIn('status')->where('id', $appointmentId)
+                ->where('user_id', $userId)->first();
+        }
+        else {
+            $getAppointment = AppointmentDoctor::whereIn('status', [1,2])->where('id', $appointmentId)
+                ->where('doctor_id', $doctorId)->first();
+        }
+        if ($getAppointment) {
+            return $getAppointment;
+        }
+        return false;
+    }
+
+    /**
+     * Flag
+     * 1. Patient
+     * 2. Doctor
+     * @param $appointmentId
+     * @param $flag
+     * @param null $userId
+     * @param null $doctorId
+     * @return int
+     */
+    public function appointmentApprove($appointmentId, $flag, $userId = null, $doctorId = null): int
+    {
+        if ($flag == 1) {
+            $getAppointment = AppointmentDoctor::whereIn('status', [1,2])->where('id', $appointmentId)
+                ->where('user_id', $userId)->first();
+        }
+        else {
+            $getAppointment = AppointmentDoctor::whereIn('status', [1,2])->where('id', $appointmentId)
+                ->where('doctor_id', $doctorId)->first();
+        }
+        if ($getAppointment) {
+            $getService = Service::where('id', $getAppointment->service_id)->first();
+            if ($getService && $getService->type == 1) {
+                $getAppointment->video_link = '';
+                $getAppointment->online_meeting = 1;
+                $getAppointment->status = 3;
+            }
+            else {
+                $getAppointment->status = 4;
+            }
+            $getAppointment->save();
+            return 1;
+        }
+        return 0;
+    }
+
+    /**
+     * Flag
+     * 1. Patient
+     * 2. Doctor
+     * @param $appointmentId
+     * @param $flag
+     * @param null $userId
+     * @param null $doctorId
+     * @return int
+     */
+    public function appointmentCancel($appointmentId, $flag, $userId = null, $doctorId = null): int
+    {
+        if ($flag == 1) {
+            $getAppointment = AppointmentDoctor::whereIn('status', [1,2,80])->where('id', $appointmentId)
+                ->where('user_id', $userId)->first();
+        }
+        else {
+            $getAppointment = AppointmentDoctor::whereIn('status', [1,2,80])->where('id', $appointmentId)
+                ->where('doctor_id', $doctorId)->first();
+        }
+        if ($getAppointment) {
+            $getAppointment->video_link = '';
+            $getAppointment->online_meeting = 0;
+            $getAppointment->status = 99;
+            $getAppointment->save();
+            return 1;
+        }
+        return 0;
+    }
+
+    /**
      * @param $doctorId
      * @param $appointmentId
      * @param $date
@@ -203,7 +298,7 @@ class DoctorLogic
      * @param $getDoctor
      * @return int
      */
-    public function rescheduleAppointment($doctorId, $appointmentId, $date, $timeStart, $timeEnd, $getUser, $getDoctor): int
+    public function appointmentChange($doctorId, $appointmentId, $date, $timeStart, $timeEnd, $getUser, $getDoctor): int
     {
         $getAppointment = AppointmentDoctor::where('id', $appointmentId)->where('user_id', $getUser->id)
             ->where('doctor_id', $getDoctor->id)->first();
@@ -219,6 +314,229 @@ class DoctorLogic
         }
 
         return 0;
+
+    }
+
+    /**
+     * @param $appointmentId
+     * @param $userId
+     * @param $saveData
+     * @return int
+     */
+    public function appointmentFillForm($appointmentId, $userId, $saveData): int
+    {
+        $getAppointment = AppointmentDoctor::where('id', $appointmentId)->where('user_id', $userId)->first();
+        if (!$getAppointment) {
+            return 0;
+        }
+
+        $saveFormPatient = [
+            'body_height' => strip_tags($saveData['body_height']) ?? '',
+            'body_weight' => strip_tags($saveData['body_weight']) ?? '',
+            'blood_pressure' => strip_tags($saveData['blood_pressure']) ?? '',
+            'body_temperature' => strip_tags($saveData['body_temperature']) ?? '',
+            'medical_checkup' => $saveData['medical_checkup'] ?? [],
+            'complaint' => strip_tags($saveData['complaint']) ?? ''
+        ];
+
+        $getAppointment->form_patient = json_encode($saveFormPatient);
+        $getAppointment->save();
+
+        return 1;
+
+    }
+
+    /**
+     * @param $appointmentId
+     * @param $doctorId
+     * @return array
+     */
+    public function meetingCreate($appointmentId, $doctorId): array
+    {
+        $getAppointment = AppointmentDoctor::where('status', '=', 3)->where('id', $appointmentId)
+            ->where('doctor_id', $doctorId)->first();
+        if (!$getAppointment) {
+            return [];
+        }
+
+        $getAppointment->online_meeting = 2;
+        $getAppointment->time_start_meeting = null;
+
+        $agoraLogic = new agoraLogic();
+        if (strlen($getAppointment->video_link) <= 10) {
+            $agoraChannel = $getAppointment->id.$getAppointment->user_id.'tele'.md5($getAppointment->date.$getAppointment->time_start .$getAppointment->time_end.$getAppointment->doctor_id.$getAppointment->user_id.rand(0,100));
+            $agoraUidDoctor = rand(1000000000, 9999999999);
+            $agoraUidPatient = rand(1000000000, 9999999999);
+            $agoraTokenDoctor = $agoraLogic->createRtcToken($agoraChannel, $agoraUidDoctor);
+            $agoraTokenPatient = $agoraLogic->createRtcToken($agoraChannel, $agoraUidPatient);
+            $agoraId = $agoraLogic->getAppId();
+
+            $getAppointment->video_link = json_encode([
+                'id' => $agoraId,
+                'channel' => $agoraChannel,
+                'uid_doctor' => $agoraUidDoctor,
+                'uid_patient' => $agoraUidPatient,
+                'token_doctor' => $agoraTokenDoctor,
+                'token_patient' => $agoraTokenPatient
+            ]);
+
+        }
+        else {
+            $getVideo = json_decode($getAppointment->video_link, true);
+            $agoraId = $getVideo['id'] ?? '';
+            $agoraChannel = $getVideo['channel'] ?? '';
+            $agoraUidDoctor = $getVideo['uid_doctor'] ?? '';
+            $agoraUidPatient = $getVideo['uid_patient'] ?? '';
+            $agoraTokenDoctor = $agoraLogic->createRtcToken($agoraChannel, $agoraUidDoctor);
+            $agoraTokenPatient = $agoraLogic->createRtcToken($agoraChannel, $agoraUidPatient);
+
+            $getAppointment->video_link = json_encode([
+                'id' => $agoraId,
+                'channel' => $agoraChannel,
+                'uid_doctor' => $agoraUidDoctor,
+                'uid_patient' => $agoraUidPatient,
+                'token_doctor' => $agoraTokenDoctor,
+                'token_patient' => $agoraTokenPatient
+            ]);
+
+        }
+
+        $getAppointment->save();
+
+        return [
+            'appointment' => $getAppointment,
+            'video_id' => $agoraId,
+            'video_channel' => $agoraChannel,
+            'video_uid_doctor' => $agoraUidDoctor,
+            'video_uid_patient' => $agoraUidPatient,
+            'video_token_doctor' => $agoraTokenDoctor,
+            'video_token_patient' => $agoraTokenPatient
+        ];
+
+    }
+
+    /**
+     * @param $appointmentId
+     * @param $userId
+     * @return array
+     */
+    public function meetingGetInfo($appointmentId, $userId): array
+    {
+        $getAppointment = AppointmentDoctor::where('status', '=', 3)->where('id', $appointmentId)
+            ->where('user_id', $userId)->first();
+        if (!$getAppointment) {
+            return [];
+        }
+
+        if (strlen($getAppointment->video_link) <= 10) {
+            return [];
+        }
+        else {
+
+            $getVideo = json_decode($getAppointment->video_link, true);
+            $agoraId = $getVideo['id'] ?? '';
+            $agoraChannel = $getVideo['channel'] ?? '';
+            $agoraUidDoctor = $getVideo['uid_doctor'] ?? '';
+            $agoraUidPatient = $getVideo['uid_patient'] ?? '';
+            $agoraTokenDoctor = $getVideo['token_doctor'] ?? '';
+            $agoraTokenPatient = $getVideo['token_patient'] ?? '';
+
+            return [
+                'appointment' => $getAppointment,
+                'video_id' => $agoraId,
+                'video_channel' => $agoraChannel,
+                'video_uid_doctor' => $agoraUidDoctor,
+                'video_uid_patient' => $agoraUidPatient,
+                'video_token_doctor' => $agoraTokenDoctor,
+                'video_token_patient' => $agoraTokenPatient
+            ];
+
+        }
+    }
+
+    /**
+     * @param $appointmentId
+     * @param $doctorId
+     * @return bool
+     */
+    public function meetingCallFinish($appointmentId, $doctorId): bool
+    {
+        $getAppointment = AppointmentDoctor::where('status', '=', 3)->where('id', $appointmentId)
+            ->where('doctor_id', $doctorId)->first();
+        if (!$getAppointment) {
+            return false;
+        }
+
+        $getAppointment->online_meeting = 80;
+        $getAppointment->save();
+
+        return $getAppointment;
+
+    }
+
+    /**
+     * @param $appointmentId
+     * @param $doctorId
+     * @return bool
+     */
+    public function meetingCallFailed($appointmentId, $doctorId): bool
+    {
+        $getAppointment = AppointmentDoctor::where('status', '=', 3)->where('id', $appointmentId)
+            ->where('doctor_id', $doctorId)->first();
+        if (!$getAppointment) {
+            return false;
+        }
+
+        $getAppointment->online_meeting = 1;
+        $getAppointment->attempted += 1;
+        $getAppointment->save();
+
+        return $getAppointment;
+
+    }
+
+    /**
+     * @param $appointmentId
+     * @param $doctorId
+     * @param $saveData
+     * @param $saveProducts
+     * @return bool
+     */
+    public function appointmentDiagnosis($appointmentId, $doctorId, $saveData, $saveProducts): bool
+    {
+        $getAppointment = AppointmentDoctor::whereIn('status', [3,4])->where('id', $appointmentId)
+            ->where('doctor_id', $doctorId)->first();
+        if (!$getAppointment) {
+            return false;
+        }
+
+        DB::beginTransaction();
+
+        $getAppointment->diagnosis = strip_tags($saveData['diagnosis']) ?? '';
+        $getAppointment->treatment = strip_tags($saveData['treatment']) ?? '';
+        $getAppointment->doctor_prescription = json_encode($saveData['doctor_prescription']) ?? null;
+        $getAppointment->status = 80;
+        $getAppointment->save();
+
+        foreach ($saveProducts as $item) {
+            AppointmentDoctorProduct::create([
+                'appointment_doctor_id' => $appointmentId,
+                'product_id' => $item['product_id'] ?? '',
+                'product_name' => $item['product_name'] ?? '',
+                'product_qty' => $item['product_qty'] ?? '',
+                'product_price' => $item['product_price'] ?? '',
+                'dose' => $item['dose'] ?? '',
+                'type_dose' => $item['type_dose'] ?? '',
+                'period' => $item['period'] ?? '',
+                'note' => $item['note'] ?? '',
+                'choose' => 0,
+                'status' => 1
+            ]);
+        }
+
+        DB::commit();
+
+        return $getAppointment;
 
     }
 
