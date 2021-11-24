@@ -57,9 +57,15 @@ class UserLogic
 
     }
 
-    public function userUpdatePatient($userId, $saveData)
+    public function userUpdatePatient($userId, $saveData, $user = null)
     {
-        $getUser = Users::where('id', $userId)->first();
+        if ($user == null) {
+            $getUser = Users::where('id', $userId)->first();
+        }
+        else {
+            $getUser = $user;
+        }
+
         if (!$getUser) {
             return false;
         }

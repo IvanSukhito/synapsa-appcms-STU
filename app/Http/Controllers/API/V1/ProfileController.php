@@ -128,8 +128,6 @@ class ProfileController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $user = Users::where('id', $user->id)->first();
-
         $validator = Validator::make($this->request->all(), [
             'image' => 'required'
         ]);
@@ -264,7 +262,7 @@ class ProfileController extends Controller
         }
 
         $userLogic = new UserLogic();
-        $userLogic->userUpdatePatient($user->id, ['password' => $this->request->get('password')]);
+        $userLogic->userUpdatePatient($user->id, ['password' => $this->request->get('password')], $user);
 
         return response()->json([
             'success' => 1,
