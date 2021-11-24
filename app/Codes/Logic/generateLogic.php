@@ -2,6 +2,7 @@
 
 namespace App\Codes\Logic;
 
+use App\Codes\Models\V1\AppointmentDoctor;
 use App\Codes\Models\V1\AppointmentDoctorProduct;
 use App\Codes\Models\V1\Klinik;
 use PhpOffice\PhpSpreadsheet\Helper\Html;
@@ -21,6 +22,13 @@ class generateLogic
         ini_set('max_execution_time', -1);
 
         $html = new Html();
+
+        $getAppointment = AppointmentDoctor::selectRaw('appointment_doctor.*, klinik.logo as logo, doctor_category.name as category')
+                            ->leftJoin('doctor','doctor.id','=','appointment_doctor.doctor_id')
+                            ->leftJoin('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
+                            ->leftJoin('klinik','klinik.id','=','appointment_doctor.klinik_id')
+                            ->where('appointment_doctor.id', $getData->id)
+                            ->first();
 
         $getMedicine = AppointmentDoctorProduct::selectRaw('product_name, product_qty')
             ->where('appointment_doctor_id', $getData->id)->get();
@@ -43,7 +51,7 @@ class generateLogic
 
         $column = 2;
         $row = 1;
-        $sheet->setCellValueByColumnAndRow($column, $row, 'Dr. Dwi Rosaline Febrina');
+        $sheet->setCellValueByColumnAndRow($column, $row, $getAppointment->doctor_name);
         $sheet->mergeCellsByColumnAndRow($column, $row, $column + 4, $row);
         $sheet->getStyleByColumnAndRow($column, $row, $column + 4, $row++)->applyFromArray([
             'font' => array(
@@ -51,10 +59,10 @@ class generateLogic
                 'color' => array('argb' => '00000000'),
             ),
         ]);
-        $sheet->setCellValueByColumnAndRow($column, $row, 'Dokter Umum');
+        $sheet->setCellValueByColumnAndRow($column, $row, $getAppointment->category);
         $sheet->mergeCellsByColumnAndRow($column, $row, $column + 4, $row++);
 
-        $sheet->setCellValueByColumnAndRow($column, $row, '1/2.102/31.75.08.1005/-1.779.3/e/2016');
+        $sheet->setCellValueByColumnAndRow($column, $row, $getAppointment->code);
         $sheet->mergeCellsByColumnAndRow($column, $row, $column + 4, $row);
 
         $sheet->getStyleByColumnAndRow($column, $firstRow + 1, $column + 4, $row)->applyFromArray([
@@ -100,7 +108,7 @@ class generateLogic
 
         $row += 2;
 
-        $sheet->setCellValueByColumnAndRow($column, $row, 'Agu 02, 2021');
+        $sheet->setCellValueByColumnAndRow($column, $row, $getAppointment->date);
         $sheet->mergeCellsByColumnAndRow($column, $row, $column + 1, $row);
 
         $sheet->getStyleByColumnAndRow($column, $row, $column + 1, $row)->applyFromArray([
