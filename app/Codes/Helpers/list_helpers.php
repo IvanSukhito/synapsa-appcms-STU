@@ -217,6 +217,17 @@ if ( ! function_exists('get_list_available')) {
     }
 }
 
+if ( ! function_exists('get_list_type_dosis')) {
+    function get_list_type_dosis()
+    {
+        return [
+            1 => __('general.sebelum_makan'),
+            2 => __('general.sesudah_makan')
+        ];
+    }
+}
+
+
 if ( ! function_exists('get_list_type_service')) {
     function get_list_type_service()
     {
