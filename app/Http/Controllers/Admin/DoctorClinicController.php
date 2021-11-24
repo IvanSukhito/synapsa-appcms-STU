@@ -621,7 +621,7 @@ class DoctorClinicController extends _CrudController
         foreach ($getListDay as $list) {
             $temp[$list->weekday] = $getListWeekday[$list->weekday];
             if (strlen($findFirstDay) <= 0) {
-                $findFirstDay = $getListWeekday[$list->weekday];
+                $findFirstDay = $list->weekday;
             }
             if ($getTargetDay == $list->weekday) {
                 $notFound = 0;

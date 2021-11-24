@@ -240,6 +240,8 @@
     <script type="text/javascript">
         'use strict';
 
+        let telemedId = <?= $telemedId ?>;
+
         $(document).ready(function() {
             $('#date').datetimepicker({
                 format: 'YYYY-MM-DD',
@@ -282,7 +284,7 @@
 
         $('#service').on('change', function() {
             let service = $('#service').val();
-            if(service === "1") {
+            if(service == telemedId) {
                 if($('#time_start').val().length > 0) {
                     let time = moment($('#time_start').val(), 'HH:mm:ss');
                     time = time.add(30, 'minutes').format('HH:mm:ss');
@@ -298,8 +300,7 @@
 
         function setTimeEnd(curr) {
             let service = $('#service').val();
-            console.log(typeof service);
-            if(service === "1") {
+            if(service == telemedId) {
                 let time = moment($('#time_start').val(), 'HH:mm:ss');
                 time = time.add(30, 'minutes').format('HH:mm:ss');
 
