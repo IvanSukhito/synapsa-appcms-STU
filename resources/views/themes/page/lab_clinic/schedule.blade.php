@@ -40,48 +40,77 @@
                             <i class="fa fa-file-excel-o"></i> @lang('general.import')
                         </a>
                     </div>
-                @endif
+            @endif
 
-                <!-- /.card-header -->
+            <!-- /.card-header -->
                 <div class="card-header">
                     <div id="list-day">
-                        {{ Form::select('list_date', $getListDate, $getTargetDate, ['id' => 'list_date',
+                        {{ Form::select('list_date', $getListDay, $getTargetDay, ['id' => 'list_date',
                             'class' => 'form-control', 'onchange' => 'changeDate(this)', 'data-link' => route('admin.' . $thisRoute . '.index')
                             ]) }}
                     </div>
 
                 </div>
+
                 <div class="card-header">
-                    <h3 class="card-title">{{ __('general.title_home', ['field' => $thisLabel]) }}: {{ date('d-F-Y', strtotime($getTargetDate)) }}</h3>
+                    <h3 class="card-title">{{ __('general.title_home', ['field' => $thisLabel]) }}: {{ $getListWeekday[$getTargetDay] ?? $getTargetDay }}</h3>
                 </div>
+
                 <div class="card-body">
+                    <div class="col-md-12">
+                        <p class="text-warning">Note:<br />
+                            * Background Kuning: Schedule Telah Di Booking</p>
+                    </div>
                     <div id="list_schedule">
                         @foreach($getData as $list)
-                            <div class="card">
+                            <?php
+                            if($list->book == 99) {
+                                $addAttribute = [
+                                    'disabled' => true
+                                ];
+                            }
+                            else {
+                                $addAttribute = [
+                                ];
+                            }
+                            ?>
+                            <div class="card {{ $list->book == 99 ? 'bg-warning' : '' }}">
                                 <div class="card-body">
                                     <div class="col-lg-12">
                                         <div class="row">
-                                            <div class="col-md-3">
+                                            {{ Form::text('type', $scheduleType, ['id' => 'type', 'class' => 'form-control', 'required' => true, 'hidden' => true]) }}
+                                            <div class="col-md-2">
                                                 <div class="form-group">
+                                                    <label for="service_{!! $list->id !!}">{{ __('general.service') }} <span
+                                                            class="text-red">*</span></label>
+                                                    {{ Form::select('service_'.$list->id, $listSet['service'], $list->service_id, array_merge(['id' => 'service_'.$list->id, 'class' => 'form-control', 'required' => true], $addAttribute)) }}
+                                                </div>
+                                            </div>
+
+                                            @if($scheduleType == 1)
+                                                <div class="col-md-3">
                                                     <div class="form-group">
-                                                        <label for="service_{!! $list->id !!}">{{ __('general.service') }} <span class="text-red">*</span></label>
-                                                        {{ Form::select('service_'.$list->id, $listSet['service_id'], $list->service_id, ['id' => 'service_'.$list->id, 'class' => 'form-control', 'required' => true]) }}
+                                                        <label for="weekday_{!! $list->id !!}">@lang('general.weekday') <span class="text-red">*</span></label>
+                                                        {{ Form::select('weekday_'.$list->id, $listSet['weekday'] ,$list->weekday, array_merge(['id' => 'weekday_'.$list->id, 'class' => 'form-control', 'required' => true, 'autocomplete'=>'off'], $addAttribute)) }}
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <div class="form-group">
-                                                    <label for="date_{!! $list->id !!}">@lang('general.date') <span class="text-red">*</span></label>
-                                                    <div class="input-group">
-                                                        <div class="input-group-prepend datepicker-trigger">
-                                                            <div class="input-group-text">
-                                                                <i class="fa fa-calendar"></i>
+
+                                            @elseif($scheduleType == 2)
+                                                <div class="col-md-3">
+                                                    <div class="form-group">
+                                                        <label for="date_{!! $list->id !!}">@lang('general.date') <span class="text-red">*</span></label>
+                                                        <div class="input-group">
+                                                            <div class="input-group-prepend datepicker-trigger">
+                                                                <div class="input-group-text">
+                                                                    <i class="fa fa-calendar"></i>
+                                                                </div>
                                                             </div>
+                                                            {{ Form::text('date_'.$list->id, $list->date_available, array_merge(['id' => 'date_'.$list->id, 'class' => 'form-control date', 'required' => true, 'autocomplete'=>'off'], $addAttribute)) }}
                                                         </div>
-                                                        {{ Form::text('date_'.$list->id, $list->date_available, ['id' => 'date_'.$list->id, 'class' => 'form-control datepicker', 'required' => true, 'autocomplete'=>'off']) }}
                                                     </div>
                                                 </div>
-                                            </div>
+                                            @endif
+
                                             <div class="col-md-2">
                                                 <div class="form-group">
                                                     <label for="time_start_{!! $list->id !!}">@lang('general.time_start') <span class="text-red">*</span></label>
@@ -91,7 +120,7 @@
                                                                 <i class="fa fa-calendar"></i>
                                                             </div>
                                                         </div>
-                                                        {{ Form::text('time_start_'.$list->id, $list->time_start, ['id' => 'time_start_'.$list->id, 'class' => 'form-control timepicker', 'required' => true, 'autocomplete'=>'off']) }}
+                                                        {{ Form::text('time_start_'.$list->id, $list->time_start, array_merge(['id' => 'time_start_'.$list->id, 'class' => 'form-control time', 'required' => true, 'autocomplete'=>'off'], $addAttribute)) }}
                                                     </div>
                                                 </div>
                                             </div>
@@ -104,27 +133,33 @@
                                                                 <i class="fa fa-calendar"></i>
                                                             </div>
                                                         </div>
-                                                        {{ Form::text('time_end_'.$list->id, $list->time_end, ['id' => 'time_end_'.$list->id, 'class' => 'form-control timepicker', 'required' => true, 'autocomplete'=>'off']) }}
+                                                        {{ Form::text('time_end_'.$list->id, $list->time_end, array_merge(['id' => 'time_end_'.$list->id, 'class' => 'form-control time', 'required' => true, 'autocomplete'=>'off'], $addAttribute)) }}
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-2">
+                                            <div class="col-md-1">
                                                 <div class="form-group">
-                                                    @if ($permission['edit'])
-                                                    <a href="#" class="mb-1 btn btn-primary btn-sm" title="@lang('general.update')"
-                                                       data-href="{{ route('admin.' . $thisRoute . '.updateLab',$list->{$masterId}) }}"
-                                                       data-id="{!! $list->id !!}"
-                                                       onclick="return updateData(this)">
-                                                        <i class="fa fa-pencil"></i>
-                                                        <span class="d-none d-md-inline"> @lang('general.update')</span>
-                                                    </a>
-                                                    @endif
-                                                    @if ($permission['destroy'])
-                                                    <a href="#" class="btn btn-danger btn-sm" title="@lang('general.delete')"
-                                                       onclick="return actionData('{{ route('admin.' . $thisRoute . '.destroy',$list->{$masterId}) }}', 'delete', this)">
-                                                        <i class="fa fa-trash"></i>
-                                                        <span class="d-none d-md-inline"> @lang('general.delete')</span>
-                                                    </a>
+                                                    @if($list->book != 99)
+                                                        @if ($permission['edit'])
+                                                            <a href="#" class="mb-1 btn btn-primary btn-sm"
+                                                               title="@lang('general.update')"
+                                                               data-href="{{ route('admin.' . $thisRoute . '.updateLab',$list->{$masterId}) }}"
+                                                               data-id="{!! $list->id !!}"
+                                                               onclick="return updateData(this)">
+                                                                <i class="fa fa-pencil"></i>
+                                                                <span
+                                                                    class="d-none d-md-inline"> @lang('general.update')</span>
+                                                            </a>
+                                                        @endif
+                                                        @if ($permission['destroy'])
+                                                            <a href="#" class="btn btn-danger btn-sm"
+                                                               title="@lang('general.delete')"
+                                                               onclick="return actionData('{{ route('admin.' . $thisRoute . '.destroy',$list->{$masterId}) }}', 'delete', this)">
+                                                                <i class="fa fa-trash"></i>
+                                                                <span
+                                                                    class="d-none d-md-inline"> @lang('general.delete')</span>
+                                                            </a>
+                                                        @endif
                                                     @endif
                                                 </div>
                                             </div>
@@ -145,21 +180,32 @@
     <div class="modal" tabindex="-1" role="dialog" id="scheduleTask">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <form id="scheduleForm" action="{!! route('admin.'.$thisRoute.'.store') !!}" enctype="multipart/form-data" method="POST" onsubmit="return submitScheduleForm(this)">
+                <form id="scheduleForm" action="{!! route('admin.'.$thisRoute.'.store') !!}"
+                      enctype="multipart/form-data" method="POST" onsubmit="return submitScheduleForm(this)">
                     @csrf
                     <div class="modal-header">
-                        <h5 class="modal-title" id="schedule-title">@lang('general.title_create', ['field' => $thisLabel])</h5>
+                        <h5 class="modal-title"
+                            id="schedule-title">@lang('general.title_create', ['field' => $thisLabel])</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
                         <div class="form-group">
-                            <div class="form-group">
-                                <label for="service">{{ __('general.service') }} <span class="text-red">*</span></label>
-                                {{ Form::select('service', $listSet['service'], old('service'), ['id' => 'service', 'class' => 'form-control', 'required' => true]) }}
-                            </div>
+                            <label for="schedule_type">{{ __('general.schedule_type') }} <span class="text-red">*</span></label>
+                            {{ Form::select('schedule_type', $listSet['schedule_type'], old('schedule_type'), ['id' => 'schedule_type', 'class' => 'form-control', 'required' => true]) }}
                         </div>
+
+                        <div class="form-group">
+                            <label for="service">{{ __('general.service') }} <span class="text-red">*</span></label>
+                            {{ Form::select('service', $listSet['service'], old('service'), ['id' => 'service', 'class' => 'form-control', 'required' => true]) }}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="weekday">@lang('general.weekday') <span class="text-red">*</span></label>
+                            {{ Form::select('weekday', $listSet['weekday'], old('weekday'), ['id' => 'weekday', 'class' => 'form-control', 'required' => true]) }}
+                        </div>
+
                         <div class="form-group">
                             <label for="date">@lang('general.date') <span class="text-red">*</span></label>
                             <div class="input-group">
@@ -171,6 +217,7 @@
                                 <input type="text" class="form-control" id="date" name="date" autocomplete="off" required>
                             </div>
                         </div>
+
                         <div class="form-group">
                             <label for="time_start">@lang('general.time_start') <span class="text-red">*</span></label>
                             <div class="input-group">
@@ -179,9 +226,11 @@
                                         <i class="fa fa-calendar"></i>
                                     </div>
                                 </div>
-                                <input type="text" class="form-control" id="time_start" name="time_start" autocomplete="off" required>
+                                <input type="text" class="form-control" id="time_start" name="time_start"
+                                       autocomplete="off" required>
                             </div>
                         </div>
+
                         <div class="form-group">
                             <label for="time_end">@lang('general.time_end') <span class="text-red">*</span></label>
                             <div class="input-group">
@@ -190,14 +239,17 @@
                                         <i class="fa fa-calendar"></i>
                                     </div>
                                 </div>
-                                <input type="text" class="form-control" id="time_end" name="time_end" autocomplete="off" required>
+                                <input type="text" class="form-control" id="time_end" name="time_end" autocomplete="off"
+                                       required>
                             </div>
                         </div>
+
                         <div class="form-group text-red" id="errorForm">
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary pull-left" data-dismiss="modal">@lang('general.close')</button>
+                        <button type="button" class="btn btn-secondary pull-left"
+                                data-dismiss="modal">@lang('general.close')</button>
                         <button type="submit" class="btn btn-primary">@lang('general.submit')</button>
                     </div>
                 </form>
@@ -212,26 +264,50 @@
     <script type="text/javascript">
         'use strict';
 
-        $(document).ready(function() {
+        $(document).ready(function () {
             $('#date').datetimepicker({
                 format: 'YYYY-MM-DD',
             });
+
             $('#time_start').datetimepicker({
                 format: 'HH:mm:ss',
                 stepping: 15
             });
+
             $('#time_end').datetimepicker({
                 format: 'HH:mm:ss',
                 stepping: 15
             });
 
-            $('.datepicker').datetimepicker({
+            $('.date').datetimepicker({
                 format: 'YYYY-MM-DD',
             });
-            $('.timepicker').datetimepicker({
+
+            $('.time').datetimepicker({
                 format: 'HH:mm:ss',
                 stepping: 15
             });
+
+            $('#schedule_type').change();
+        });
+
+        $('#schedule_type').on('change', function() {
+            let type = $(this).val();
+
+            if(type === '1') {
+                $('#date').parent().parent().hide();
+                $('#date').prop('required', false);
+
+                $('#weekday').parent().show();
+                $('#weekday').prop('required', true);
+            }
+            else {
+                $('#date').parent().parent().show();
+                $('#date').prop('required', true);
+
+                $('#weekday').parent().hide();
+                $('#weekday').prop('required', false);
+            }
         });
 
         function changeDate(curr) {
@@ -242,7 +318,6 @@
 
         function createForm() {
             $('#errorForm').empty();
-            $('#service').val('');
             $('#date').val('');
             $('#time_start').val('');
             $('#time_end').val('');
@@ -255,14 +330,15 @@
             let getLink = $(curr).attr('action');
             let linkSplit = getLink.split('/');
             let url = '';
-            for(let i=3; i<linkSplit.length; i++) {
-                url += '/'+linkSplit[i];
+            for (let i = 3; i < linkSplit.length; i++) {
+                url += '/' + linkSplit[i];
             }
 
             let data = {
-                service_id: $('#service').val(),
-                klinik_id: $('#klinik').val(),
-                date_available: $('#date').val(),
+                service: $('#service').val(),
+                schedule_type: $('#schedule_type').val(),
+                date: $('#date').val(),
+                weekday: $('#weekday').val(),
                 time_start: $('#time_start').val(),
                 time_end: $('#time_end').val()
             };
@@ -275,12 +351,12 @@
                 headers: {
                     'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                 },
-                success: function(result) {
+                success: function (result) {
                     if (parseInt(result.result) === 1) {
                         $.notify({
                             // options
                             message: result.message
-                        },{
+                        }, {
                             // settings
                             type: 'success',
                             placement: {
@@ -289,14 +365,11 @@
                             },
                         });
 
-                        location.reload();
-
-                    }
-                    else {
+                    } else {
                         $.notify({
                             // options
                             message: result.message
-                        },{
+                        }, {
                             // settings
                             type: 'danger',
                             placement: {
@@ -306,15 +379,16 @@
                         });
                     }
                 },
-                error: function(result){
+                error: function (result) {
                     $('#errorForm').empty();
                     if (typeof result.responseJSON.errors === 'object') {
-                        $.each(result.responseJSON.errors, function(index, item) {
+                        $.each(result.responseJSON.errors, function (index, item) {
+                            console.log(index, item);
                             $('#errorForm').append('<div>' + item[0] + '</div>')
                         });
                     }
                 },
-                complete: function(result){
+                complete: function (result) {
                 }
             });
 
@@ -327,18 +401,18 @@
             let getLink = $(curr).data('href');
             let linkSplit = getLink.split('/');
             let url = '';
-            for(let i=3; i<linkSplit.length; i++) {
-                url += '/'+linkSplit[i];
+            for (let i = 3; i < linkSplit.length; i++) {
+                url += '/' + linkSplit[i];
             }
 
             let data = {
-                service_id: $('#service_' + getId).val(),
-                klinik_id: $('#klinik_' + getId).val(),
-                date_available: $('#date_' + getId).val(),
+                service: $('#service_' + getId).val(),
+                schedule_type: $('#type').val(),
+                date: $('#date_' + getId).val(),
+                weekday: $('#weekday_' + getId).val(),
                 time_start: $('#time_start_' + getId).val(),
                 time_end: $('#time_end_' + getId).val()
             };
-            console.log(data);
 
             $.ajax({
                 url: url,
@@ -348,12 +422,12 @@
                 headers: {
                     'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                 },
-                success: function(result) {
+                success: function (result) {
                     if (parseInt(result.result) === 1) {
                         $.notify({
                             // options
                             message: result.message
-                        },{
+                        }, {
                             // settings
                             type: 'success',
                             placement: {
@@ -361,12 +435,11 @@
                                 align: "right"
                             },
                         });
-                    }
-                    else {
+                    } else {
                         $.notify({
                             // options
                             message: result.message
-                        },{
+                        }, {
                             // settings
                             type: 'danger',
                             placement: {
@@ -376,15 +449,15 @@
                         });
                     }
                 },
-                error: function(result){
+                error: function (result) {
                     if (typeof result.responseJSON.errors === 'object') {
-                        $.each(result.responseJSON.errors, function(index, item) {
+                        $.each(result.responseJSON.errors, function (index, item) {
 
                             console.log(item);
                             $.notify({
                                 // options
                                 message: item[0]
-                            },{
+                            }, {
                                 // settings
                                 type: 'danger',
                                 placement: {
@@ -395,7 +468,7 @@
                         });
                     }
                 },
-                complete: function(result){
+                complete: function (result) {
                 }
             });
 
@@ -405,11 +478,11 @@
 
         function actionData(link, method, curr) {
 
-            if(confirm('{{ __('general.ask_delete') }}')) {
+            if (confirm('{{ __('general.ask_delete') }}')) {
                 let linkSplit = link.split('/');
                 let url = '';
-                for(let i=3; i<linkSplit.length; i++) {
-                    url += '/'+linkSplit[i];
+                for (let i = 3; i < linkSplit.length; i++) {
+                    url += '/' + linkSplit[i];
                 }
 
                 jQuery.ajax({
@@ -419,13 +492,13 @@
                     headers: {
                         'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                     },
-                    success: function(result) {
+                    success: function (result) {
                         if (parseInt(result.result) === 1) {
 
                             $.notify({
                                 // options
                                 message: result.message
-                            },{
+                            }, {
                                 // settings
                                 type: 'success',
                                 placement: {
@@ -436,12 +509,11 @@
 
                             $(curr).parent().parent().parent().parent().parent().remove();
 
-                        }
-                        else {
+                        } else {
                             $.notify({
                                 // options
                                 message: result.message
-                            },{
+                            }, {
                                 // settings
                                 type: 'danger',
                                 placement: {
@@ -451,10 +523,10 @@
                             });
                         }
                     },
-                    error: function(result){
+                    error: function (result) {
 
                     },
-                    complete: function(){
+                    complete: function () {
 
                     }
                 });

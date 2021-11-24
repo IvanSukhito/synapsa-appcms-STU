@@ -14,6 +14,7 @@ use App\Codes\Models\V1\Lab;
 use App\Codes\Models\V1\Service;
 use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\LabSchedule;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
@@ -113,6 +114,8 @@ class LabClinicScheduleController extends _CrudController
         $this->data['listSet']['service_id'] = $service_id;
         $this->data['listSet']['day'] = get_list_day();
         $this->data['listSet']['book'] = get_list_available();
+        $this->data['listSet']['weekday'] = get_list_weekday();
+        $this->data['listSet']['schedule_type'] = get_list_schedule_type();
         $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.lab_clinic.schedule';
         $this->listView['create2'] = env('ADMIN_TEMPLATE').'.page.lab.forms2';
 
@@ -122,47 +125,118 @@ class LabClinicScheduleController extends _CrudController
     {
         $this->callPermission();
 
-        $adminId = session()->get('admin_id');
+        $adminClinicId = session()->get('admin_clinic_id');
+        if(!$adminClinicId) {
+            session()->flash('message', __('Tidak ada clinic yang di assign'));
+            session()->flash('message_alert', 1);
+            return redirect()->route('admin');
+        }
 
-        $getAdmin = Admin::where('id', $adminId)->first();
+        $listSetCarbonDay = [
+            1 => Carbon::MONDAY,
+            2 => Carbon::TUESDAY,
+            3 => Carbon::WEDNESDAY,
+            4 => Carbon::THURSDAY,
+            5 => Carbon::FRIDAY,
+            6 => Carbon::SATURDAY,
+            7 => Carbon::SUNDAY,
+        ];
 
-        $getTargetDate = strtotime($this->request->get('date')) > 0 ? date('Y-m-d', strtotime($this->request->get('date'))) : date('Y-m-d');
+        $now = Carbon::now();
 
         $getListDate = LabSchedule::select('date_available')
-            ->where('date_available', '>=', date('Y-m-d'))
-            ->where('klinik_id', $getAdmin->klinik_id)
+            ->where('klinik_id', $adminClinicId)
+            ->whereIn('type', [0,2])
+            ->where('date_available', '!=', null)
             ->groupBy('date_available')
-            ->orderBy('date_available', 'DESC')
+            ->orderBy('date_available', 'ASC')
             ->get();
 
+        $getListDay = LabSchedule::select('weekday')
+            ->where('klinik_id', $adminClinicId)
+            ->where('type', 1)
+            ->groupBy('weekday')
+            ->orderBy('weekday', 'ASC')
+            ->get();
+
+        $getListWeekday = $this->data['listSet']['weekday'];
+
+        $getTargetDay = $this->request->get('date') > 0 ? $this->request->get('date') : Carbon::now()->dayOfWeekIso;
+
         $notFound = 1;
-        $findFirstDate = '';
+        $findFirstDay = '';
         $temp = [];
-        foreach ($getListDate as $list) {
-            $temp[$list->date_available] = date('d-F-Y', strtotime($list->date_available));
-            if (strlen($findFirstDate) <= 0) {
-                $findFirstDate = $list->date_available;
+        foreach ($getListDay as $list) {
+            $temp[$list->weekday] = $getListWeekday[$list->weekday];
+            if (strlen($findFirstDay) <= 0) {
+                $findFirstDay = $list->weekday;
             }
-            if ($getTargetDate == $list->date_available) {
+            if ($getTargetDay == $list->weekday) {
                 $notFound = 0;
             }
         }
-        $getListDate = $temp;
 
-        if ($notFound == 1 && strlen($findFirstDate) > 0) {
-            $getTargetDate = $findFirstDate;
+        if(count($getListDate) > 0) {
+            foreach($getListDate as $list) {
+                $startDate = $now->startOfWeek()->format('Y-m-d');
+                $endDate = $now->endOfWeek()->format('Y-m-d');
+                if($list->date_available >= $startDate && $list->date_available <= $endDate) {
+                    $date = Carbon::parse($list->date_available)->dayOfWeekIso;
+                    $temp[$date] = $getListWeekday[$date];
+                    if (strlen($findFirstDay) <= 0) {
+                        $findFirstDay = $date;
+                    }
+                    if ($getTargetDay == $date) {
+                        $notFound = 0;
+                    }
+                }
+            }
         }
 
-        $getData = LabSchedule::where('date_available', $getTargetDate)
-            ->where('klinik_id', $getAdmin->klinik_id)
-            ->orderBy('id','DESC')->get();
+        $getListDay = $temp;
+
+        if ($notFound == 1 && strlen($findFirstDay) > 0) {
+            $getTargetDay = $findFirstDay;
+        }
+
+        $weekStartDate = $now->startOfWeek($listSetCarbonDay[$getTargetDay])->format('Y-m-d');
+
+        $checkGetListSchedule = LabSchedule::where('date_available', $weekStartDate)
+            ->where('klinik_id', $adminClinicId)
+            ->whereIn('type', [0,2])
+            ->get();
+
+        if(count($checkGetListSchedule) > 0) {
+            $getTargetDay = $weekStartDate;
+        }
+
+        if(in_array($getTargetDay, [1,2,3,4,5,6,7])) {
+            $getData = LabSchedule::where('weekday', $getTargetDay)
+                ->where('klinik_id', $adminClinicId)
+                ->orderBy('id', 'DESC')
+                ->get();
+
+            $scheduleType = 1;
+        }
+        else {
+            $getData = LabSchedule::where('date_available', $getTargetDay)
+                ->where('klinik_id', $adminClinicId)
+                ->orderBy('id', 'DESC')
+                ->get();
+
+            $scheduleType = 2;
+
+            $getTargetDay = date('w', strtotime($getTargetDay));
+        }
 
         $data = $this->data;
         $data['parentLabel'] = $data['thisLabel'];
         $data['thisLabel'] = __('general.lab_schedule');
         $data['listSet']['service'] = $this->data['listSet']['service_id'];
-        $data['getListDate'] = $getListDate;
-        $data['getTargetDate'] = $getTargetDate;
+        $data['getListDay'] = $getListDay;
+        $data['getTargetDay'] = $getTargetDay;
+        $data['getListWeekday'] = $getListWeekday;
+        $data['scheduleType'] = $scheduleType;
         $data['getData'] = $getData;
 
         return view($this->listView['index'], $data);
@@ -172,41 +246,58 @@ class LabClinicScheduleController extends _CrudController
 
         $this->callPermission();
 
-        $viewType = 'create';
+        $this->validate($this->request, [
+            'schedule_type' => 'required',
+        ]);
 
-        $adminId = session()->get('admin_id');
+        $adminClinicId = session()->get('admin_clinic_id');
 
-        $getAdmin = Admin::where('id', $adminId)->first();
+        if($this->request->get('schedule_type') == 1) {
+            $data = $this->validate($this->request, [
+                'service' => 'required',
+                'time_start' => 'required',
+                'time_end' => 'required',
+                'weekday' => 'required',
+            ]);
 
-        $getListCollectData = collectPassingData($this->passingData, $viewType);
+            $getWeekday = intval($data['weekday']);
+            $getServiceId = intval($data['service']);
+            $getTimeStart = strtotime($data['time_start']) > 0 ? date('H:i:00', strtotime($data['time_start'])) : date('H:i:00');
+            $getTimeEnd = strtotime($data['time_end']) > 0 ? date('H:i:00', strtotime($data['time_end'])) : date('H:i:00');
 
-        $validate = $this->setValidateData($getListCollectData, $viewType);
-        if (count($validate) > 0)
-        {
-            $data = $this->validate($this->request, $validate);
+            LabSchedule::create([
+                'klinik_id' => $adminClinicId,
+                'service_id' => $getServiceId,
+                'weekday' => $getWeekday,
+                'time_start' => $getTimeStart,
+                'time_end' => $getTimeEnd,
+                'type' => 1,
+                'book' => 80
+            ]);
         }
         else {
-            $data = [];
-            foreach ($getListCollectData as $key => $val) {
-                $data[$key] = $this->request->get($key);
-            }
+            $data = $this->validate($this->request, [
+                'service' => 'required',
+                'time_start' => 'required',
+                'time_end' => 'required',
+                'date' => 'required',
+            ]);
+
+            $getDate = strtotime($data['date']) > 0 ? date('Y-m-d', strtotime($data['date'])) : date('Y-m-d', strtotime("+1 day"));
+            $getServiceId = intval($data['service']);
+            $getTimeStart = strtotime($data['time_start']) > 0 ? date('H:i:00', strtotime($data['time_start'])) : date('H:i:00');
+            $getTimeEnd = strtotime($data['time_end']) > 0 ? date('H:i:00', strtotime($data['time_end'])) : date('H:i:00');
+
+            LabSchedule::create([
+                'klinik_id' => $adminClinicId,
+                'service_id' => $getServiceId,
+                'date_available' => $getDate,
+                'time_start' => $getTimeStart,
+                'time_end' => $getTimeEnd,
+                'type' => 2,
+                'book' => 80
+            ]);
         }
-
-        $getServiceId = intval($data['service_id']);
-        $getDate = strtotime($data['date_available']) > 0 ? date('Y-m-d', strtotime($data['date_available'])) : date('Y-m-d', strtotime("+1 day"));
-        $getTimeStart = strtotime($data['time_start']) > 0 ? date('H:i:00', strtotime($data['time_start'])) : date('H:i:00');
-        $getTimeEnd = strtotime($data['time_end']) > 0 ? date('H:i:00', strtotime($data['time_end'])) : date('H:i:00');
-
-        $data = $this->getCollectedData($getListCollectData, $viewType, $data);
-
-        $data['lab_id'] = 0;
-        $data['date_available'] = $getDate;
-        $data['klinik_id'] = $getAdmin->klinik_id;
-        $data['time_start'] = $getTimeStart;
-        $data['time_end'] = $getTimeEnd;
-        $data['book'] = 80;
-
-        $getData = $this->crud->store($data);
 
         if($this->request->ajax()){
             return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
@@ -221,7 +312,7 @@ class LabClinicScheduleController extends _CrudController
     public function update($id){
         $this->callPermission();
 
-        $viewType = 'edit';
+        $adminClinicId = session()->get('admin_clinic_id');
 
         $adminId = session()->get('admin_id');
 
@@ -235,33 +326,46 @@ class LabClinicScheduleController extends _CrudController
             return redirect()->route($this->rootRoute . '.' . $this->route . '.index');
         }
 
-        $getListCollectData = collectPassingData($this->passingData, $viewType);
+        if($this->request->get('schedule_type') == 1) {
+            $data = $this->validate($this->request, [
+                'service' => 'required',
+                'time_start' => 'required',
+                'time_end' => 'required',
+                'weekday' => 'required',
+            ]);
 
-        $validate = $this->setValidateData($getListCollectData, $viewType, $id);
-        if (count($validate) > 0) {
-            $data = $this->validate($this->request, $validate);
-        } else {
-            $data = [];
-            foreach ($getListCollectData as $key => $val) {
-                $data[$key] = $this->request->get($key);
-            }
+            $getWeekday = intval($data['weekday']);
+            $getServiceId = intval($data['service']);
+            $getTimeStart = strtotime($data['time_start']) > 0 ? date('H:i:00', strtotime($data['time_start'])) : date('H:i:00');
+            $getTimeEnd = strtotime($data['time_end']) > 0 ? date('H:i:00', strtotime($data['time_end'])) : date('H:i:00');
+
+            $getData->klinik_id = $adminClinicId;
+            $getData->service_id = $getServiceId;
+            $getData->weekday = $getWeekday;
+            $getData->time_start = $getTimeStart;
+            $getData->time_end = $getTimeEnd;
+        }
+        else {
+            $data = $this->validate($this->request, [
+                'service' => 'required',
+                'time_start' => 'required',
+                'time_end' => 'required',
+                'date' => 'required',
+            ]);
+
+            $getDate = strtotime($data['date']) > 0 ? date('Y-m-d', strtotime($data['date'])) : date('Y-m-d', strtotime("+1 day"));
+            $getServiceId = intval($data['service']);
+            $getTimeStart = strtotime($data['time_start']) > 0 ? date('H:i:00', strtotime($data['time_start'])) : date('H:i:00');
+            $getTimeEnd = strtotime($data['time_end']) > 0 ? date('H:i:00', strtotime($data['time_end'])) : date('H:i:00');
+
+            $getData->klinik_id = $adminClinicId;
+            $getData->service_id = $getServiceId;
+            $getData->date_available = $getDate;
+            $getData->time_start = $getTimeStart;
+            $getData->time_end = $getTimeEnd;
         }
 
-        $getDate = strtotime($data['date_available']) > 0 ? date('Y-m-d', strtotime($data['date_available'])) : date('Y-m-d', strtotime("+1 day"));
-        $getTimeStart = strtotime($data['time_start']) > 0 ? date('H:i:00', strtotime($data['time_start'])) : date('H:i:00');
-        $getTimeEnd = strtotime($data['time_end']) > 0 ? date('H:i:00', strtotime($data['time_end'])) : date('H:i:00');
-
-        $data = $this->getCollectedData($getListCollectData, $viewType, $data, $getData);
-
-        $data['lab_id'] = 0;
-        $data['date_available'] = $getDate;
-        $data['time_start'] = $getTimeStart;
-        $data['time_end'] = $getTimeEnd;
-        $data['book'] = 80;
-
-        $getData = $this->crud->update($data, $id);
-
-        $id = $getData->id;
+        $getData->save();
 
         if ($this->request->ajax()) {
             return response()->json(['result' => 1, 'message' => __('general.success_edit_', ['field' => $this->data['thisLabel']])]);

@@ -55,6 +55,7 @@
                 <div class="card-header">
                     <h3 class="card-title">{{ __('general.title_home', ['field' => $thisLabel]) }}: {{ $getListWeekday[$getTargetDay] ?? $getTargetDay }}</h3>
                 </div>
+
                 <div class="card-body">
                     <div class="col-md-12">
                         <p class="text-warning">Note:<br />
