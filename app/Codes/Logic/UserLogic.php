@@ -5,6 +5,9 @@ namespace App\Codes\Logic;
 use App\Codes\Models\V1\DeviceToken;
 use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\UsersAddress;
+use App\Codes\Models\V1\UsersCart;
+use App\Codes\Models\V1\UsersCartDetail;
+use Illuminate\Support\Facades\DB;
 
 class UserLogic
 {
@@ -119,14 +122,51 @@ class UserLogic
         return $getUserAddress;
     }
 
-    public function historyTransaction($userId)
+    public function userCart($userId)
     {
+        $getUsersCart = UsersCart::firstOrCreate([
+            'users_id' => $userId
+        ]);
+
+        $getUsersCartDetail = UsersCartDetail::where('users_cart_id', $getUsersCart->id)->get();
+
+        return [
+            'cart_info' => $getUsersCart,
+            'cart' => $getUsersCartDetail
+        ];
 
     }
 
-    public function scheduleAll($userId)
+    public function userCartUpdateQty($usersCartDetailId, $products)
     {
+        $getProductIds = [];
+        foreach ($products as $product => $qty) {
+            $getProductIds[] = $product;
+        }
 
+        DB::beginTransaction();
+        $getUsersCartDetail = UsersCartDetail::where('users_cart_id', $usersCartDetailId)->whereIn('product_id', $getProductIds)->get();
+        foreach ($getUsersCartDetail as $item) {
+            $item->qty = intval($products[$item->product_id]) ?? 1;
+            $item->save();
+        }
+        DB::commit();
+
+        return true;
+    }
+
+    public function userCartChoose($usersCartDetailId, $productIds)
+    {
+        DB::beginTransaction();
+        UsersCartDetail::where('users_cart_id', $usersCartDetailId)->whereIn('product_id', $productIds)->update([
+            'choose' => 1
+        ]);
+        UsersCartDetail::where('users_cart_id', $usersCartDetailId)->whereNotIn('product_id', $productIds)->update([
+            'choose' => 0
+        ]);
+        DB::commit();
+
+        return true;
     }
 
 }
