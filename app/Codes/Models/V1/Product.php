@@ -29,10 +29,18 @@ class Product extends Model
         'desc_details',
         'image_full',
         'price_nice',
+        'type_nice',
     ];
+
     public function getPriceNiceAttribute()
     {
         return intval($this->price) > 0 ? number_format($this->price, 0, ',', '.') : 0;
+    }
+
+    public function getTypeNiceAttribute()
+    {
+        $listType = get_list_type_product();
+        return $listType[$this->type] ?? '';
     }
 
     public function getDescDetailsAttribute()
