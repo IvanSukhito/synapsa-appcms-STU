@@ -2,19 +2,16 @@
 
 namespace App\Http\Controllers\API\V1;
 
-use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Logic\UserLogic;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\Notifications;
-use App\Codes\Models\V1\UsersAddress;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Intervention\Image\Facades\Image;
 
 
 class ProfileController extends Controller
@@ -391,6 +388,56 @@ class ProfileController extends Controller
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
 
+    }
+
+    public function uploadImage()
+    {
+        $user = $this->request->attributes->get('_user');
+
+        $validator = Validator::make($this->request->all(), [
+            'image' => 'required'
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => 0,
+                'message' => $validator->messages()->all(),
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
+        try {
+            $image = base64_to_jpeg($this->request->get('image'));
+            $destinationPath = 'synapsaapps/chat/user_'.$user->id;
+            $set_file_name = md5('image'.strtotime('now').rand(0, 100)).'.jpg';
+            $getFile = Storage::put($destinationPath.'/'.$set_file_name, $image);
+            if ($getFile) {
+                $getImage = $destinationPath.'/'.$set_file_name;
+
+                return response()->json([
+                    'success' => 1,
+                    'data' => env('OSS_URL').'/'.$getImage,
+                    'file' => $getImage,
+                    'token' => $this->request->attributes->get('_refresh_token'),
+                    'message' => ['Berhasil Memasukan Gambar'],
+                ]);
+
+            }
+            else {
+                return response()->json([
+                    'success' => 0,
+                    'token' => $this->request->attributes->get('_refresh_token'),
+                    'message' => ['Gagal Mengunggah Gambar'],
+                ], 422);
+            }
+        }
+        catch (\Exception $e) {
+            return response()->json([
+                'success' => 0,
+                'token' => $this->request->attributes->get('_refresh_token'),
+                'message' => ['Gagal Mengunggah Gambar'],
+                'error' => $e->getMessage(),
+            ], 422);
+        }
     }
 
 }

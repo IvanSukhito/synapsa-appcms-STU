@@ -29,6 +29,7 @@ Route::group(['middleware' => ['jwtToken']], function () use ($router) {
         $router->get('update-verification-email/{id}', ['uses' => 'App\Http\Controllers\API\V1\ProfileController@updateVerifEmail'])->name('api.user.updateVerifEmail');
         $router->post('verification-phone', ['uses' => 'App\Http\Controllers\API\V1\ProfileController@verifPhone'])->name('api.user.verifPhone');
         $router->get('notification', ['uses' => 'App\Http\Controllers\API\V1\ProfileController@notifications'])->name('api.user.notifications');
+        $router->post('upload-image', ['uses' => 'App\Http\Controllers\API\V1\ProfileController@uploadImage'])->name('api.user.uploadImage');
     });
 
     Route::get('home', ['uses' => 'App\Http\Controllers\API\V1\HomeController@home'])->name('api.home');
