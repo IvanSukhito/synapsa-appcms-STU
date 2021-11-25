@@ -343,7 +343,7 @@ class UserLogic
 
         }
         else {
-            if ($getUsersCartDetail->qty <= 0) {
+            if ($qty <= 0) {
                 return [
                     'success' => 92,
                     'message' => 'Product Stock cannot be 0'

@@ -194,15 +194,21 @@ class SynapsaLogic
                     dispatch((new ProcessTransaction($job->id))->onQueue('high'));
                 }
                 else {
-                    $getTransaction = Transaction::where('id', $transactionId)->first();
-                    $getTransaction->payment_id = $payment->id;
-                    $getTransaction->payment_name = $payment->name;
-                    $getTransaction->payment_service = $payment->service;
-                    $getTransaction->type_payment = $payment->type_payment;
-                    $getTransaction->payment_refer_id = $preferId;
-                    $getTransaction->payment_info = json_encode($getInfo);
-                    $getTransaction->send_info = json_encode($additional);
-                    $getTransaction->save();
+                    $getTransaction = Transaction::where('id', '=', $transactionId)->where('status', '=', 2)->first();
+                    if ($getTransaction) {
+                        $getTransaction->payment_id = $payment->id;
+                        $getTransaction->payment_name = $payment->name;
+                        $getTransaction->payment_service = $payment->service;
+                        $getTransaction->type_payment = $payment->type_payment;
+                        $getTransaction->payment_refer_id = $preferId;
+                        $getTransaction->payment_info = json_encode($getInfo);
+                        $getTransaction->send_info = json_encode($additional);
+                        $getTransaction->save();
+                    }
+                    else {
+                        $success = 0;
+                        $message = 'Transaction not found';
+                    }
                 }
 
             }
