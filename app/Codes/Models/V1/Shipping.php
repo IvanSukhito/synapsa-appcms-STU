@@ -20,6 +20,7 @@ class Shipping extends Model
     protected $appends = [
         'shipping_price',
         'shipping_price_nice',
+        'setting_nice',
         'icon_full',
     ];
 
@@ -31,6 +32,11 @@ class Shipping extends Model
     public function getShippingPriceNiceAttribute()
     {
         return $this->price > 0 ? number_format($this->price, 0, ',', '.') : 0;
+    }
+
+    public function getSettingNiceAttribute()
+    {
+        return json_decode($this->settings, TRUE);
     }
 
     public function getIconFullAttribute()

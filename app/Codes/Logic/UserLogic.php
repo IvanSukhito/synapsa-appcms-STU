@@ -6,6 +6,7 @@ use App\Codes\Models\V1\DeviceToken;
 use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\Klinik;
 use App\Codes\Models\V1\Product;
+use App\Codes\Models\V1\Shipping;
 use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\UsersAddress;
 use App\Codes\Models\V1\UsersCart;
@@ -237,7 +238,7 @@ class UserLogic
      * @param $userId
      * @return array
      */
-    public function userCart($userId): array
+    public function userCart($userId, $choose = 0): array
     {
         $getUsersCart = UsersCart::firstOrCreate([
             'users_id' => $userId
@@ -250,7 +251,13 @@ class UserLogic
             product.image, product.price, product.unit, product.stock, product.stock_flag, product.type, product.status, 
             users_cart_detail.qty, users_cart_detail.choose')
             ->join('users_cart_detail', 'users_cart_detail.product_id', '=', 'product.id')
-            ->where('users_cart_detail.users_cart_id', '=', $getUsersCart->id)->get();
+            ->where('users_cart_detail.users_cart_id', '=', $getUsersCart->id);
+
+        if ($choose == 1) {
+            $getUsersCartDetail = $getUsersCartDetail->where('choose', '=', 1);
+        }
+
+        $getUsersCartDetail = $getUsersCartDetail->get();
 
         $totalQty = 0;
         $totalPrice = 0;
@@ -259,7 +266,7 @@ class UserLogic
             $totalPrice += ($list->qty * $list->price);
         }
 
-        return [
+        $result = [
             'shipping_id' => $shippingId,
             'cart_info' => $getUsersCart,
             'cart' => $getUsersCartDetail,
@@ -268,6 +275,22 @@ class UserLogic
             'total_price' => $totalPrice,
             'total_price_nice' => number_format_local($totalPrice)
         ];
+
+        if ($shippingId > 0) {
+            $getShipping = Shipping::where('id', '=', $shippingId)->first();
+            if ($getShipping) {
+                $shippingPrice = $getShipping->price;
+
+                $result['shipping_name'] = $getShipping->name;
+                $result['shipping_price'] = $getShipping->price;
+                $result['shipping_price_nice'] = $getShipping->shipping_price_nice;
+                $result['subtotal'] = $totalPrice;
+                $result['total'] = $totalPrice + $shippingPrice;
+
+            }
+        }
+
+        return $result;
 
     }
 
@@ -472,6 +495,41 @@ class UserLogic
         DB::commit();
 
         return $total;
+
+    }
+
+    /**
+     * @param $userId
+     * @param $shippingId
+     * @return int
+     */
+    public function userCartUpdateShipping($userId, $shippingId): int
+    {
+        $getShipping = Shipping::where('id', $shippingId)->first();
+        if (!$getShipping) {
+            return 0;
+        }
+
+        $getUsersCart = UsersCart::firstOrCreate([
+            'users_id' => $userId
+        ]);
+
+        $getDetailShipping = json_decode($getUsersCart->detail_shipping, true);
+        if (is_array($getDetailShipping)) {
+            $getDetailShipping['shipping_id'] = $getShipping->id;
+            $getDetailShipping['shipping_name'] = $getShipping->name;
+        }
+        else {
+            $getDetailShipping = [
+                'shipping_id' => $getShipping->id,
+                'shipping_name' => $getShipping->name
+            ];
+        }
+
+        $getUsersCart->detail_shipping = json_encode($getDetailShipping);
+        $getUsersCart->save();
+
+        return 1;
 
     }
 

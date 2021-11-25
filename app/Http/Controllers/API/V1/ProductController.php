@@ -425,7 +425,7 @@ class ProductController extends Controller
         $userLogic = new UserLogic();
         $getUserAddress = $userLogic->userAddress($user->id);
 
-        $getUserCart = $userLogic->userCart($user->id);
+        $getUserCart = $userLogic->userCart($user->id, 1);
         $subTotal = $getUserCart['total_price'];
 
         if ($getUserAddress) {
@@ -435,7 +435,7 @@ class ProductController extends Controller
             $getUserAddress['subtotal_nice'] = number_format_local($subTotal);
         }
 
-        $getDataShipping = Shipping::where('status', 80)->get();
+        $getDataShipping = Shipping::where('status', 80)->orderBy('orders', 'ASC')->get();
 
         return response()->json([
             'success' => 1,
@@ -450,7 +450,6 @@ class ProductController extends Controller
 
     public function updateShipping()
     {
-
         $user = $this->request->attributes->get('_user');
 
         $validator = Validator::make($this->request->all(), [
@@ -466,25 +465,16 @@ class ProductController extends Controller
         }
 
         $getShippingId = $this->request->get('shipping_id');
-        $getShipping = Shipping::where('id', $getShippingId)->first();
-        if (!$getShipping) {
+
+        $userLogic = new UserLogic();
+        $getUserAddress = $userLogic->userCartUpdateShipping($user->id, $getShippingId);
+        if ($getUserAddress == 0) {
             return response()->json([
                 'success' => 0,
                 'message' => ['Pengiriman Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
-
-        $getUsersCart = UsersCart::firstOrCreate([
-            'users_id' => $user->id,
-        ]);
-
-        $getUsersCart->detail_shipping = json_encode([
-            'shipping_id' => $getShippingId,
-            'shipping_name' => $getShipping->name
-        ]);
-
-        $getUsersCart->save();
 
         return response()->json([
             'success' => 1,
@@ -498,49 +488,24 @@ class ProductController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $getUsersCart = UsersCart::firstOrCreate([
-            'users_id' => $user->id,
-        ]);
-
-        $getUsersCartDetails = Product::selectRaw('users_cart_detail.id, product.name AS product_name,
-            product.name, product.image, product.unit, product.price, users_cart_detail.qty')
-            ->join('users_cart_detail', 'users_cart_detail.product_id', '=', 'product.id')
-            ->where('users_cart_detail.users_cart_id', '=', $getUsersCart->id)
-            ->where('choose', 1)->get();
-
-        $subTotal = 0;
-        foreach ($getUsersCartDetails as $list) {
-            $subTotal += ($list->qty * $list->price);
-        }
-
-        $getDetailsInformation = json_decode($getUsersCart->detail_information, true);
-        $getDetailsShipping = json_decode($getUsersCart->detail_shipping, true);
-        $shippingId = $getDetailsShipping['shipping_id'] ?? 0;
-        $getShipping = Shipping::where('id', $shippingId)->first();
-        if (!$getShipping) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Pengiriman Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
-
-        $getShippingPrice = $getShipping->price;
+        $userLogic = new UserLogic();
+        $getUserCart = $userLogic->userCart($user->id, 1);
+        $getUserAddress = $userLogic->userAddress($user->id);
 
         return response()->json([
             'success' => 1,
             'data' => [
                 'cart_info' => [
-                    'name' => $getDetailsInformation['receiver'] ?? '',
-                    'address' => $getDetailsInformation['address'] ?? '',
-                    'phone' => $getDetailsInformation['phone'] ?? '',
-                    'shipping_name' => $getShipping->name,
-                    'shipping_price' => $getShippingPrice,
-                    'shipping_price_nice' => $getShipping->shipping_price_nice,
-                    'subtotal' => $subTotal,
-                    'total' => $subTotal + $getShippingPrice
+                    'name' => $getUserAddress->receiver ?? '',
+                    'address' => $getUserAddress->address ?? '',
+                    'phone' => $getUserAddress->phone ?? '',
+                    'shipping_name' => $getUserCart['shipping_name'] ?? '',
+                    'shipping_price' => $getUserCart['shipping_price'] ?? '',
+                    'shipping_price_nice' => $getUserCart['shipping_price_nice'] ?? '',
+                    'subtotal' => $getUserCart['subtotal'] ?? 0,
+                    'total' => $getUserCart['total'] ?? 0
                 ],
-                'cart_details' => $getUsersCartDetails
+                'cart_details' => $getUserCart['cart']
             ],
             'message' => ['Success'],
             'token' => $this->request->attributes->get('_refresh_token'),
@@ -552,56 +517,32 @@ class ProductController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $getUsersCart = UsersCart::firstOrCreate([
-            'users_id' => $user->id,
-        ]);
+        $userLogic = new UserLogic();
+        $getUserCart = $userLogic->userCart($user->id, 1);
+        $getUserAddress = $userLogic->userAddress($user->id);
 
-        $getUsersCartDetails = Product::selectRaw('users_cart_detail.id, product.name AS product_name,
-            product.name, product.image, product.unit, product.price, users_cart_detail.qty')
-            ->join('users_cart_detail', 'users_cart_detail.product_id', '=', 'product.id')
-            ->where('users_cart_detail.users_cart_id', '=', $getUsersCart->id)
-            ->where('choose', 1)->get();
-
-        $subTotal = 0;
-        foreach ($getUsersCartDetails as $list) {
-            $subTotal += ($list->qty * $list->price);
-        }
-
-        $getDetailsInformation = json_decode($getUsersCart->detail_information, true);
-        $getDetailsShipping = json_decode($getUsersCart->detail_shipping, true);
-        $shippingId = $getDetailsShipping['shipping_id'] ?? 0;
-        $getShipping = Shipping::where('id', $shippingId)->first();
-        if (!$getShipping) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Pengiriman Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
-
-        $getShippingPrice = $getShipping->price;
-
-        $getPayment = Payment::where('status', 80)->orderBy('orders', 'ASC')->get();
+        $getPayment = Payment::where('status', '=', 80)->orderBy('orders', 'ASC')->get();
 
         return response()->json([
             'success' => 1,
             'data' => [
                 'cart_info' => [
-                    'name' => $getDetailsInformation['receiver'] ?? '',
-                    'address' => $getDetailsInformation['address'] ?? '',
-                    'phone' => $getDetailsInformation['phone'] ?? '',
-                    'shipping_name' => $getShipping->name,
-                    'shipping_price' => $getShippingPrice,
-                    'shipping_price_nice' => $getShipping->shipping_price_nice,
-                    'subtotal' => $subTotal,
-                    'total' => $subTotal + $getShippingPrice
+                    'name' => $getUserAddress->receiver ?? '',
+                    'address' => $getUserAddress->address ?? '',
+                    'phone' => $getUserAddress->phone ?? '',
+                    'shipping_name' => $getUserCart['shipping_name'] ?? '',
+                    'shipping_price' => $getUserCart['shipping_price'] ?? '',
+                    'shipping_price_nice' => $getUserCart['shipping_price_nice'] ?? '',
+                    'subtotal' => $getUserCart['subtotal'] ?? 0,
+                    'total' => $getUserCart['total'] ?? 0
                 ],
-                'cart_details' => $getUsersCartDetails,
+                'cart_details' => $getUserCart['cart'],
                 'payment' => $getPayment
             ],
             'message' => ['Success'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
+
     }
 
     public function checkout()
@@ -621,6 +562,9 @@ class ProductController extends Controller
         }
 
         $paymentId = intval($this->request->get('payment_id'));
+
+
+
         $getPayment = Payment::where('id', $paymentId)->first();
         if (!$getPayment) {
             return response()->json([
