@@ -45,7 +45,7 @@ class generateLogic
         $listSetGender = get_list_gender();
         $listSetTypeDose = get_list_type_dose();
 
-        $getMedicine = AppointmentDoctorProduct::selectRaw('product_name, product_qty')
+        $getMedicine = AppointmentDoctorProduct::selectRaw('appointment_doctor_product.*')
             ->where('appointment_doctor_id', $getData->id)->get();
 
         //dd($getMedicine);
