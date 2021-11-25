@@ -8,7 +8,6 @@ use App\Codes\Logic\UserLogic;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\Payment;
 use App\Codes\Models\V1\Product;
-use App\Codes\Models\V1\ProductCategory;
 use App\Codes\Models\V1\Shipping;
 use App\Codes\Models\V1\UsersCart;
 use App\Codes\Models\V1\Transaction;
@@ -137,7 +136,7 @@ class ProductController extends Controller
         ]);
     }
 
-    Public function updateCart($id)
+    public function updateCart($id)
     {
         $user = $this->request->attributes->get('_user');
 
@@ -463,10 +462,28 @@ class ProductController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $needPhone = 0;
-        $validator = Validator::make($this->request->all(), [
-            'payment_id' => 'required|numeric'
-        ]);
+        $synapsaLogic = new SynapsaLogic();
+
+        $paymentId = intval($this->request->get('payment_id'));
+        $getPaymentResult = $synapsaLogic->checkPayment($paymentId);
+        if ($getPaymentResult['success'] == 0) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Payment Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
+        $needPhone = intval($getPaymentResult['phone']);
+
+        if ($needPhone == 1) {
+            $validationRule = ['payment_id' => 'required|numeric', 'phone' => 'required|regex:/^(8\d+)/|numeric'];
+        }
+        else {
+            $validationRule = ['payment_id' => 'required|numeric'];
+        }
+
+        $validator = Validator::make($this->request->all(), $validationRule);
         if ($validator->fails()) {
             return response()->json([
                 'success' => 0,
@@ -475,60 +492,12 @@ class ProductController extends Controller
             ], 422);
         }
 
-        $paymentId = intval($this->request->get('payment_id'));
+        $getPhone = $this->request->get('phone');
+        $getPayment = $getPaymentResult['payment'];
 
-
-
-        $getPayment = Payment::where('id', $paymentId)->first();
-        if (!$getPayment) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Payment Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
-
-        if ($getPayment->type == 2 && $getPayment->service == 'xendit' && in_array($getPayment->type_payment, ['ew_ovo', 'ew_dana', 'ew_linkaja'])) {
-            $needPhone = 1;
-            $validator = Validator::make($this->request->all(), [
-                'phone' => 'required|regex:/^(8\d+)/|numeric'
-            ]);
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => 0,
-                    'message' => $validator->messages()->all(),
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ], 422);
-            }
-        }
-
-        $getUsersCart = UsersCart::firstOrCreate([
-            'users_id' => $user->id,
-        ]);
-        $getDetailsShipping = json_decode($getUsersCart->detail_shipping, true);
-        $shippingId = $getDetailsShipping['shipping_id'];
-        $getShipping = Shipping::where('id', $shippingId)->first();
-        if (!$getShipping) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Pengiriman Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
-
-        $getShippingPrice = $getShipping->price;
-
-        $getUsersCartDetails = Product::selectRaw('product.price, users_cart_detail.qty')
-            ->join('users_cart_detail', 'users_cart_detail.product_id', '=', 'product.id')
-            ->where('users_cart_detail.users_cart_id', '=', $getUsersCart->id)
-            ->where('choose', 1)->get();
-        $total = 0;
-        if ($getUsersCartDetails) {
-            foreach ($getUsersCartDetails as $getUsersCartDetail) {
-                $total += $getUsersCartDetail->price * $getUsersCartDetail->qty;
-            }
-        }
-
+        $userLogic = new UserLogic();
+        $getResult = $userLogic->userCart($user->id, 1);
+        $total = $getResult['total'] ?? 0;
         if ($total <= 0) {
             return response()->json([
                 'success' => 0,
@@ -537,14 +506,10 @@ class ProductController extends Controller
             ], 422);
         }
 
-        $total += $getShippingPrice;
-
         $getTotal = Transaction::where('klinik_id', $user->klinik_id)->whereYear('created_at', '=', date('Y'))
             ->whereMonth('created_at', '=', date('m'))->count();
 
-        //dd($getTotal);
         $newCode = str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT).rand(100,199);
-        //dd($newCode);
         $sendData = [
             'job' => [
                 'code' => $newCode,
@@ -559,13 +524,11 @@ class ProductController extends Controller
         ];
 
         if ($needPhone == 1) {
-            $sendData['phone'] = $this->request->get('phone');
+            $sendData['phone'] = $getPhone;
         }
 
-        $setLogic = new SynapsaLogic();
-        $getPaymentInfo = $setLogic->createPayment($getPayment, $sendData);
+        $getPaymentInfo = $synapsaLogic->createPayment($getPayment, $sendData);
         if ($getPaymentInfo['success'] == 1) {
-
             return response()->json([
                 'success' => 1,
                 'data' => [
