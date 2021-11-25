@@ -547,6 +547,11 @@ class DoctorAppointmentController extends Controller
         $validator = Validator::make($this->request->all(), [
             'diagnosis' => 'required',
             'treatment' => 'required',
+            'body_height' => 'numeric',
+            'body_weight' => 'numeric',
+            'blood_pressure' => '',
+            'body_temperature' => 'numeric',
+            'complaint' => 'required',
             'product_ids' => 'array'
         ]);
         if ($validator->fails()) {
@@ -653,9 +658,21 @@ class DoctorAppointmentController extends Controller
             ]);
         }
 
+        $getFormPatient = json_decode($data->form_patient, true);
+
+        $saveFormPatient = [
+            'body_height' => strip_tags($this->request->get('body_height')) ?? $getFormPatient['body_height'],
+            'body_weight' => strip_tags($this->request->get('body_weight')) ?? $getFormPatient['body_weight'],
+            'blood_pressure' => strip_tags($this->request->get('blood_pressure')) ?? $getFormPatient['blood_pressure'],
+            'body_temperature' => strip_tags($this->request->get('body_temperature')) ?? $getFormPatient['body_temperature'],
+            'medical_checkup' => $getFormPatient['medical_checkup'] ?? [],
+            'complaint' => strip_tags($this->request->get('complaint')) ?? $getFormPatient['complaint']
+        ];
+
         $data->diagnosis = strip_tags($this->request->get('diagnosis'));
         $data->treatment = strip_tags($this->request->get('treatment'));
         $data->doctor_prescription = json_encode($listDoctorPrescription);
+        $data->form_patient = json_encode($saveFormPatient);
         $data->status = 80;
         $data->save();
 
