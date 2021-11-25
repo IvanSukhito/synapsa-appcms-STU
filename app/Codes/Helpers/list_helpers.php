@@ -1,4 +1,7 @@
 <?php
+
+use Carbon\Carbon;
+
 if ( ! function_exists('get_list_active_inactive')) {
     function get_list_active_inactive()
     {
@@ -389,6 +392,21 @@ if ( ! function_exists('get_list_weekday')) {
             5 => __('general.friday'),
             6 => __('general.saturday'),
             7 => __('general.sunday'),
+        ];
+    }
+}
+
+if ( ! function_exists('get_list_carbon_day')) {
+    function get_list_carbon_day()
+    {
+        return [
+            1 => Carbon::MONDAY,
+            2 => Carbon::TUESDAY,
+            3 => Carbon::WEDNESDAY,
+            4 => Carbon::THURSDAY,
+            5 => Carbon::FRIDAY,
+            6 => Carbon::SATURDAY,
+            7 => Carbon::SUNDAY,
         ];
     }
 }
