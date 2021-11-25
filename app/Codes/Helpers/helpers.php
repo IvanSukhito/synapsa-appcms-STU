@@ -183,3 +183,10 @@ if (! function_exists('printInitial')) {
         return $getString1.$getString2;
     }
 }
+
+if (! function_exists('number_format_local')) {
+    function number_format_local($number)
+    {
+        return number_format($number, 0, ',', '.');
+    }
+}

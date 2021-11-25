@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\V1;
 
 use App\Codes\Logic\ProductLogic;
 use App\Codes\Logic\SynapsaLogic;
+use App\Codes\Logic\UserLogic;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\Payment;
 use App\Codes\Models\V1\Product;
@@ -56,6 +57,9 @@ class ProductController extends Controller
 
     }
 
+    /**
+     * @deprecated
+     */
     public function getProductRujukan()
     {
         $user = $this->request->attributes->get('_user');
@@ -95,6 +99,9 @@ class ProductController extends Controller
 
     }
 
+    /**
+     * @deprecated
+     */
     public function getProductPriority()
     {
         $user = $this->request->attributes->get('_user');
@@ -159,6 +166,10 @@ class ProductController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
+        $userLogic = new UserLogic();
+
+        $userLogic->userCart($user->id);
+
         $getUsersCart = UsersCart::firstOrCreate([
             'users_id' => $user->id,
         ]);
@@ -180,9 +191,9 @@ class ProductController extends Controller
             'data' => [
                 'cart' => $listProduct,
                 'total_qty' => $totalQty,
-                'total_qty_nice' => number_format($totalQty, 0, ',', '.'),
+                'total_qty_nice' => number_format_local($totalQty),
                 'total_price' => $totalPrice,
-                'total_price_nice' => number_format($totalPrice, 0, ',', '.'),
+                'total_price_nice' => number_format_local($totalPrice),
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
