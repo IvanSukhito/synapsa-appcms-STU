@@ -68,7 +68,7 @@ return [
     'nurse' => 'Nurse',
     'information' => 'Information',
     'indication' => 'Indication',
-    'dosis' => 'Dosis',
+    'dose' => 'Dosis',
     'unlimited' => 'Unlimited',
     'limited' => 'Limited',
     'verification_phone' => 'Verification Phone',
@@ -467,7 +467,7 @@ return [
     'jumlah_dicheckout' => 'Jumlah Dicheckout',
     'sebelum_makan' => 'Sebelum Makan',
     'sesudah_makan' => 'Sesudah Makan',
-    'type_dosis' => 'Type Dosis',
+    'type_dose' => 'Type Dosis',
     'doctor_prescription' => 'Resep Dokter',
 
     'theme_color' => 'Theme Color',
