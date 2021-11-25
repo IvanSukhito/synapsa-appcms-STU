@@ -31,6 +31,8 @@ class generateLogic
                             ->where('appointment_doctor.id', $getData->id)
                             ->first();
 
+        //dd($getData->id);
+
 
         $userLogic = new UserLogic();
 
@@ -226,7 +228,7 @@ class generateLogic
             foreach ($getMedicine as $index => $list ){
 
                 $column = 2;
-                $sheet->setCellValueByColumnAndRow($column, $row, $list->product_name. $list->product_qty_checkout);
+                $sheet->setCellValueByColumnAndRow($column, $row, $list->product_name.' '.$list->product_qty_checkout);
                 $sheet->mergeCellsByColumnAndRow($column, $row, $column + 4, $row);
                 $sheet->getStyleByColumnAndRow($column, $row, $column + 4, $row++)->applyFromArray([
                     'font' => array(
