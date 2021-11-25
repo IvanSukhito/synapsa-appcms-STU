@@ -9,7 +9,7 @@ if ( ! function_exists('get_list_active_inactive')) {
     }
 }
 
-if ( ! function_exists('get_list_active_inactive')) {
+if ( ! function_exists('get_list_available_non_available')) {
     function get_list_available_non_available()
     {
         return [
