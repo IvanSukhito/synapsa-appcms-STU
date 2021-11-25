@@ -168,33 +168,9 @@ class ProductController extends Controller
 
         $userLogic = new UserLogic();
 
-        $userLogic->userCart($user->id);
-
-        $getUsersCart = UsersCart::firstOrCreate([
-            'users_id' => $user->id,
-        ]);
-
-        $listProduct = Product::selectRaw('users_cart_detail.id, product.id as product_id, product.name, product.image,
-            product.price, product.unit, users_cart_detail.qty, users_cart_detail.choose')
-            ->join('users_cart_detail', 'users_cart_detail.product_id', '=', 'product.id')
-            ->where('users_cart_detail.users_cart_id', '=', $getUsersCart->id)->get();
-
-        $totalQty = 0;
-        $totalPrice = 0;
-        foreach ($listProduct as $list) {
-            $totalQty += $list->qty;
-            $totalPrice += ($list->price * $list->qty);
-       }
-
         return response()->json([
             'success' => 1,
-            'data' => [
-                'cart' => $listProduct,
-                'total_qty' => $totalQty,
-                'total_qty_nice' => number_format_local($totalQty),
-                'total_price' => $totalPrice,
-                'total_price_nice' => number_format_local($totalPrice),
-            ],
+            'data' => $userLogic->userCart($user->id),
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
 
@@ -208,7 +184,6 @@ class ProductController extends Controller
           'product_id' => 'required|numeric',
           'qty' => 'required|numeric',
         ]);
-        $productId = $this->request->get('product_id');
         if ($validator->fails()) {
             return response()->json([
                 'success' => 0,
@@ -217,47 +192,35 @@ class ProductController extends Controller
             ], 422);
         }
 
-        $product = Product::where('id', $productId)->first();
-        if(!$product){
+        $productId = $this->request->get('product_id');
+        $qty = $this->request->get('qty');
+
+        $userLogic = new UserLogic();
+        $getResult = $userLogic->userCartAdd($user->id, $productId, $qty);
+        if($getResult['success'] == 90){
             return response()->json([
                 'success' => 0,
                 'message' => ['Produk Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
-        $productId = $this->request->get('product_id');
-        $qty = $this->request->get('qty');
+        else if ($getResult['success'] == 91) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Stock Produk tidak mencukupi'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
 
-        try{
-
-            $UsersCart = UsersCart::firstOrCreate([
-                'users_id' => $user->id,
-            ]);
-
-            $cart = UsersCartDetail::firstOrCreate([
-                'users_cart_id' => $UsersCart->id,
+        return response()->json([
+            'message' => ['Data Berhasil Dimasukan'],
+            'data' => [
                 'product_id' => $productId,
-            ]);
-
-            $cart->qty += $qty;
-            $cart->save();
-
-            return response()->json([
-                'message' => ['Data Berhasil Dimasukan'],
-                'data' => [
-                    'product_id' => $productId,
-                    'qty' => $cart->qty,
-                    'qty_nice' => number_format($cart->qty, 0, ',', '.'),
-                ]
-            ]);
-
-        }
-
-        catch (QueryException $e){
-            return response()->json([
-                'message' => ['Gagal Memasukan']
-            ], 500);
-        }
+                'qty' => $getResult['qty'],
+                'qty_nice' => $getResult['qty_nice'],
+            ],
+            'token' => $this->request->attributes->get('_refresh_token')
+        ]);
     }
 
     Public function updateCart($id)
@@ -278,59 +241,68 @@ class ProductController extends Controller
 
         $getQty = $this->request->get('qty');
 
-        $getUsersCartDetail = UsersCartDetail::selectRaw('users_cart_detail.*')
-            ->join('users_cart', 'users_cart.id', '=', 'users_cart_detail.users_cart_id')
-            ->where('users_cart_detail.id', $id)->where('users_cart.users_id', $user->id)->first();
-        if (!$getUsersCartDetail) {
+        $userLogic = new UserLogic();
+        $getResult = $userLogic->userCartUpdateQty($user->id, $id, $getQty);
+        if($getResult['success'] == 90){
             return response()->json([
                 'success' => 0,
-                'message' => ['Keranjang Tidak Ditemukan'],
+                'message' => ['Produk Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+        else if ($getResult['success'] == 91) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Stock Produk tidak mencukupi'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+        else if ($getResult['success'] == 92) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Stock Produk tidak boleh kosong'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+        else if ($getResult['success'] == 93) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Cart Produk tidak ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
 
-        $getUsersCartDetail->qty = $getQty;
-        $getUsersCartDetail->save();
-
         return response()->json([
-            'success' => 1,
+            'message' => ['Data Berhasil Dimasukan'],
             'data' => [
-                'id' => $id,
-                'product_id' => $getUsersCartDetail->product_id,
-                'qty' => $getUsersCartDetail->qty,
-                'qty_nice' => number_format($getUsersCartDetail->qty, 0, ',', '.'),
+                'product_id' => $getResult['product_id'],
+                'qty' => $getResult['qty'],
+                'qty_nice' => $getResult['qty_nice'],
             ],
-            'token' => $this->request->attributes->get('_refresh_token'),
-            'message' => ['Berhasil Memperbarui Keranjang'],
+            'token' => $this->request->attributes->get('_refresh_token')
         ]);
 
     }
 
     public function deleteCart($id)
     {
-
         $user = $this->request->attributes->get('_user');
 
-        $getUsersCartDetail = UsersCartDetail::selectRaw('users_cart_detail.*')
-            ->join('users_cart', 'users_cart.id', '=', 'users_cart_detail.users_cart_id')
-            ->where('users_cart_detail.id', $id)->where('users_cart.users_id', $user->id)->first();
-
-        if ($getUsersCartDetail) {
-            $getUsersCartDetail->delete();
-            return response()->json([
-                'success' => 1,
-                'message' => ['Produk berhasil dihapus'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-
-            ]);
-        }
-        else {
+        $userLogic = new UserLogic();
+        $getResult = $userLogic->userCartDelete($user->id, $id);
+        if ($getResult['success'] == 93) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Gagal Menghapus'],
-                'token' => $this->request->attributes->get('_refresh_token')
-            ], 422);
+                'message' => ['Cart Produk tidak ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
         }
+
+        return response()->json([
+            'success' => 1,
+            'message' => ['Produk berhasil dihapus'],
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
     }
 
     public function postCartChooseProduct()
@@ -348,34 +320,15 @@ class ProductController extends Controller
             ], 422);
         }
 
-        $getListproductIds = $this->request->get('product_ids');
-        if (!is_array($getListproductIds)) {
-            $getListproductIds = [$getListproductIds];
+        $getListProductIds = $this->request->get('product_ids');
+        if (!is_array($getListProductIds)) {
+            $getListProductIds = [$getListProductIds];
         }
 
-        DB::beginTransaction();
+        $userLogic = new UserLogic();
+        $haveProduct = $userLogic->userCartChoose($user->id, $getListProductIds);
 
-        $getUsersCartDetails = UsersCartDetail::selectRaw('users_cart_detail.id, product_id, choose, users_id')
-            ->join('users_cart', 'users_cart.id', '=', 'users_cart_detail.users_cart_id')
-            ->where('users_id', $user->id)->get();
-
-        $haveProduct = 0;
-        if ($getUsersCartDetails) {
-            foreach ($getUsersCartDetails as $getUsersCartDetail) {
-                if (in_array($getUsersCartDetail->product_id, $getListproductIds)) {
-                    $haveProduct = 1;
-                    $getUsersCartDetail->choose = 1;
-                }
-                else {
-                    $getUsersCartDetail->choose = 0;
-                }
-                $getUsersCartDetail->save();
-            }
-        }
-
-        DB::commit();
-
-        if ($haveProduct == 1) {
+        if ($haveProduct > 0) {
             return response()->json([
                 'success' => 1,
                 'token' => $this->request->attributes->get('_refresh_token'),
@@ -389,7 +342,6 @@ class ProductController extends Controller
                 'message' => ['Tidak ada Produk yang di pilih'],
             ], 422);
         }
-
     }
 
     public function getReceiver()
