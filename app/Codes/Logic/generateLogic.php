@@ -258,7 +258,7 @@ class generateLogic
         ]);
 
         header('Content-Type: application/pdf');
-        header('Content-Disposition: inline;filename="' . $filename . '"');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
         header('Cache-Control: max-age=0');
         header('Cache-Control: max-age=1');
 
