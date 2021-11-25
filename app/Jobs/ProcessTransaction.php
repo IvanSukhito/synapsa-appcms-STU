@@ -35,20 +35,16 @@ class ProcessTransaction implements ShouldQueue
 
     protected $jobId;
     protected $getJob;
-    protected $transactionId;
-    protected $flag;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($jobId, $flag = 0, $transactionId = 0)
+    public function __construct($jobId)
     {
         $this->jobId = $jobId;
         $this->getJob = SetJob::where('id', $this->jobId)->first();
-        $this->transactionId = $transactionId;
-        $this->flag = $flag;
     }
 
     /**

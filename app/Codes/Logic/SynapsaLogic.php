@@ -28,7 +28,11 @@ class SynapsaLogic
     {
     }
 
-    public function checkPayment($paymentId)
+    /**
+     * @param $paymentId
+     * @return array
+     */
+    public function checkPayment($paymentId): array
     {
         $getPayment = Payment::where('id', $paymentId)->first();
         if (!$getPayment) {
@@ -95,7 +99,238 @@ class SynapsaLogic
 
     }
 
-    public function createPayment($payment, $additional, $flag = 0, $transactionId = 0)
+
+    public function createPayment($payment, $additional, $transactionId = 0)
+    {
+        $preferId = 0;
+        $success = 0;
+        $message = 'OK';
+        $getInfo = [];
+        if ($payment->service == 'xendit') {
+            $typePaymentInfo = '';
+            if (substr($payment->type_payment, 0, 3) == 'va_') {
+                $typePaymentInfo = 'Virtual Account';
+            }
+            else if (in_array($payment->type_payment, ['ew_ovo', 'ew_dana', 'ew_linkaja'])) {
+                $typePaymentInfo = 'E-Wallet';
+            }
+            else if ($payment->type_payment == 'qr_qris') {
+                $typePaymentInfo = 'QR Qris';
+            }
+            else {
+                $message = 'Payment Failed';
+            }
+
+            $getData = (object)$this->sendPaymentXendit($payment, $additional);
+            if ($getData->success == 1) {
+                if ($typePaymentInfo == 'Virtual Account' && $getData->result->status == 'PENDING') {
+                    $success = 1;
+                }
+                else if ($typePaymentInfo == 'E-Wallet' && isset($getData->result->ewallet_type) &&
+                    in_array($getData->result->ewallet_type, ['OVO', 'DANA']) ||
+                    $getData->result->status == 'REQUEST_RECEIVED') {
+                    $success = 1;
+                }
+                else if ($typePaymentInfo == 'QR Qris') {
+                    $success = 1;
+                }
+                else {
+                    $message = $getData->result->message;
+                }
+
+                if ($success == 1) {
+                    $preferId = $getData->result->external_id ?? '';
+
+                    $getInfo = [
+                        'price' => $additional['total'],
+                        'price_nice' => number_format_local($additional['total']),
+                        'external_id' => $preferId,
+                        'type' => $typePaymentInfo
+                    ];
+
+                    if ($typePaymentInfo == 'Virtual Account') {
+                        $getInfo['va_number'] = $getData->result->account_number;
+                        $getInfo['va_name'] = $payment->name;
+                        $getInfo['va_payment_image'] = $payment->icon_img_full;
+                        $getInfo['va_user'] = $getData->result->account_number;
+                        $getInfo['va_info'] = json_decode($payment->settings, true);
+                    }
+                    else if($typePaymentInfo == 'E-Wallet') {
+                        $getInfo['business_id'] = $getData->result->business_id ?? '';
+                        $getInfo['ewallet_type'] = $getData->result->ewallet_type ?? '';
+                        $getInfo['phone'] = $getData->result->phone ?? '';
+                        $getInfo['checkout_url'] = $getData->result->checkout_url ?? '';
+                        $getInfo['ewallet_name'] = $payment->name;
+                        $getInfo['ewallet_payment_image'] = $payment->icon_img_full;
+                        $getInfo['ewallet_info'] = json_decode($payment->settings, true);
+                        $getInfo['ewallet_return'] = $getData->result;
+                    }
+                    else if($typePaymentInfo == 'QR Qris') {
+                        $getInfo['id'] = $getData->result->id;
+                        $getInfo['qr_string'] = $getData->result->qr_string;
+                        $getInfo['callback_url'] = $getData->result->callback_url;
+                        $getInfo['qris_name'] = $payment->name;
+                        $getInfo['qris_payment_image'] = $payment->icon_img_full;
+                        $getInfo['qris_info'] = json_decode($payment->settings, true);
+                        $getInfo['qris_result'] = $getData->result;
+                    }
+                }
+
+                if ($transactionId <= 0) {
+
+                    $getTypeService = $additional['job']['type_service'];
+                    $getType = check_list_type_transaction($getTypeService);
+
+                    $job = SetJob::create([
+                        'status' => 1,
+                        'params' => json_encode([
+                            'payment_refer_id' => $preferId,
+                            'type' => $getType,
+                            'payment_info' => $getInfo,
+                            'additional' => $additional
+                        ])
+                    ]);
+
+                    dispatch((new ProcessTransaction($job->id))->onQueue('high'));
+                }
+                else {
+                    $getTransaction = Transaction::where('id', $transactionId)->first();
+                    $getTransaction->payment_id = $payment->id;
+                    $getTransaction->payment_name = $payment->name;
+                    $getTransaction->payment_service = $payment->service;
+                    $getTransaction->type_payment = $payment->type_payment;
+                    $getTransaction->payment_refer_id = $preferId;
+                    $getTransaction->payment_info = json_encode($getInfo);
+                    $getTransaction->send_info = json_encode($additional);
+                    $getTransaction->save();
+                }
+
+            }
+            else {
+                $message = $getData->message;
+            }
+        }
+        else {
+            $message = 'Payment Error';
+        }
+
+        return [
+            'success' => $success,
+            'info' => $getInfo,
+            'transaction_id' => $transactionId,
+            'prefer_id' => $preferId,
+            'message' => $message
+        ];
+
+
+
+
+//        else if ($payment->service == 'xendit' && in_array($payment->type_payment, ['ew_ovo', 'ew_dana', 'ew_linkaja'])) {
+//            $getData = (object)$this->sendPaymentXendit($payment, $additional);
+//            if ($getData->success == 1) {
+//                if (isset($getData->result->ewallet_type) && in_array($getData->result->ewallet_type, ['OVO', 'DANA']) || $getData->result->status == 'REQUEST_RECEIVED') {
+//                    $success = 1;
+//                    $getInfoWallet = json_decode($payment->settings, true);
+//                    $getInfo['price'] = $additional['total'];
+//                    $getInfo['price_nice'] = number_format_local($additional['total']);
+//                    $getInfo['business_id'] = $getData->result->business_id ?? '';
+//                    $getInfo['ewallet_type'] = $getData->result->ewallet_type ?? '';
+//                    $getInfo['phone'] = $getData->result->phone ?? '';
+//                    $getInfo['checkout_url'] = $getData->result->checkout_url ?? '';
+//                    $getInfo['ewallet_name'] = $payment->name;
+//                    $getInfo['ewallet_payment_image'] = $payment->icon_img_full;
+//                    $getInfo['ewallet_info'] = $getInfoWallet;
+//                    $getInfo['ewallet_return'] = $getData->result;
+//                    $preferId = isset($getData->result->external_id) ? $getData->result->external_id : '';
+//
+//                    $getTypeService = $additional['job']['type_service'];
+//                    $getType = check_list_type_transaction($getTypeService);
+//
+//                    $getJobData = $additional['job'];
+//                    $getJobData['payment_refer_id'] = isset($getData->result->external_id) ? $getData->result->external_id : '';
+//                    $getJobData['type'] = $getType;
+//                    $getJobData['payment_info'] = json_encode($getInfo);
+//                    $getJobData['additional'] = json_encode($additional);
+//
+//                    $job = SetJob::create([
+//                        'status' => 1,
+//                        'params' => json_encode($getJobData)
+//                    ]);
+//
+//                    if ($flag == 1) {
+//                        dispatch((new ProcessTransaction($job->id, $flag, $transactionId))->onQueue('high'));
+//                    }
+//                    else {
+//                        dispatch((new ProcessTransaction($job->id))->onQueue('high'));
+//                    }
+//
+//                }
+//                else {
+//                    $message = $getData->result->message;
+//                }
+//            }
+//            else {
+//                $message = $getData->message;
+//            }
+//        }
+//        else if ($payment->service == 'xendit' && in_array($payment->type_payment, ['qr_qris'])) {
+//            $getData = (object)$this->sendPaymentXendit($payment, $additional);
+//
+//            if ($getData->success == 1) {
+//                $success = 1;
+//                $getResultQris = $getData->result;
+//                $getInfoQris = json_decode($payment->settings, true);
+//                $getInfo['price'] = $additional['total'];
+//                $getInfo['price_nice'] = number_format_local($additional['total']);
+//                $getInfo['id'] = $getData->result->id;
+//                $getInfo['external_id'] = $getData->result->external_id;
+//                $getInfo['qr_string'] = $getData->result->qr_string;
+//                $getInfo['callback_url'] = $getData->result->callback_url;
+//                $getInfo['qris_name'] = $payment->name;
+//                $getInfo['qris_payment_image'] = $payment->icon_img_full;
+//                $getInfo['qris_info'] = $getInfoQris;
+//                $getInfo['qris_result'] = $getResultQris;
+//                $preferId = isset($getData->result->external_id) ? $getData->result->external_id : '';
+//
+//                $getTypeService = $additional['job']['type_service'];
+//                $getType = check_list_type_transaction($getTypeService);
+//
+//                $getJobData = $additional['job'];
+//                $getJobData['payment_refer_id'] = isset($getData->result->external_id) ? $getData->result->external_id : '';
+//                $getJobData['type'] = $getType;
+//                $getJobData['additional'] = json_encode($additional);
+//
+//                $job = SetJob::create([
+//                    'status' => 1,
+//                    'params' => json_encode($getJobData)
+//                ]);
+//
+//                if ($flag == 1) {
+//                    dispatch((new ProcessTransaction($job->id, $flag, $transactionId))->onQueue('high'));
+//                }
+//                else {
+//                    dispatch((new ProcessTransaction($job->id))->onQueue('high'));
+//                }
+//            }
+//            else {
+//                $message = $getData->message;
+//            }
+//
+//        }
+//        else {
+//            $message = 'Payment Error';
+//        }
+//
+//        return [
+//            'success' => $success,
+//            'info' => $getInfo,
+//            'transaction_id' => $transactionId,
+//            'prefer_id' => $preferId,
+//            'message' => $message
+//        ];
+    }
+
+    public function createPayment2($payment, $additional, $flag = 0, $transactionId = 0)
     {
         $preferId = 0;
         $success = 0;
