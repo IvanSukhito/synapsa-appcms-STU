@@ -5,6 +5,7 @@ namespace App\Codes\Logic;
 use App\Codes\Models\V1\AppointmentDoctor;
 use App\Codes\Models\V1\AppointmentDoctorProduct;
 use App\Codes\Models\V1\Klinik;
+use App\Codes\Models\V1\Users;
 use PhpOffice\PhpSpreadsheet\Helper\Html;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -30,8 +31,24 @@ class generateLogic
                             ->where('appointment_doctor.id', $getData->id)
                             ->first();
 
+
+        $userLogic = new UserLogic();
+
+        $getUser = $userLogic->userInfo($getData->user_id);
+
+        $tglLahir = date("Y", strtotime($getUser['dob']));
+
+        $dateNow = date("Y-m-d");
+
+        $usia = date("Y", strtotime($dateNow)) - $tglLahir;
+
+        $listSetGender = get_list_gender();
+        $listSetTypeDosis = get_list_type_dosis();
+
         $getMedicine = AppointmentDoctorProduct::selectRaw('product_name, product_qty')
             ->where('appointment_doctor_id', $getData->id)->get();
+
+        //dd($getMedicine);
 
         $getClinic = Klinik::where('id', $getData->klinik_id)->first();
 
@@ -147,7 +164,7 @@ class generateLogic
         ]);
 
         $column = 2;
-        $sheet->setCellValueByColumnAndRow($column, $row, 'Sherwin');
+        $sheet->setCellValueByColumnAndRow($column, $row, $getUser['fullname']);
         $sheet->mergeCellsByColumnAndRow($column, $row, $column + 4, $row);
         $sheet->getStyleByColumnAndRow($column, $row, $column + 4, $row++)->applyFromArray([
             'font' => array(
@@ -156,7 +173,7 @@ class generateLogic
             ),
         ]);
 
-        $sheet->setCellValueByColumnAndRow($column, $row, 'Female, 26 Tahun');
+        $sheet->setCellValueByColumnAndRow($column, $row, $listSetGender[$getUser['gender']].','.' '.$usia.' '.'Tahun');
         $sheet->mergeCellsByColumnAndRow($column, $row, $column + 4, $row);
         $sheet->getStyleByColumnAndRow($column, $row, $column + 4, $row)->applyFromArray([
             'font' => array(
@@ -195,56 +212,55 @@ class generateLogic
 
         $row += 2;
 
-        $column = 2;
-        $sheet->setCellValueByColumnAndRow($column, $row, 'Lansoprazole 30mg 10 Kapsul');
-        $sheet->mergeCellsByColumnAndRow($column, $row, $column + 4, $row);
-        $sheet->getStyleByColumnAndRow($column, $row, $column + 4, $row)->applyFromArray([
-            'font' => array(
-                'size' => 14,
-                'color' => array('argb' => '00000000'),
-            ),
-        ]);
+        if($getMedicine) {
 
-        $column += 7;
 
-        $sheet->setCellValueByColumnAndRow($column, $row, '1 Per Strip');
-        $sheet->mergeCellsByColumnAndRow($column, $row, $column + 1, $row);
-        $sheet->getStyleByColumnAndRow($column, $row, $column + 1, $row++)->applyFromArray([
-            'font' => array(
-                'size' => 12,
-                'color' => array('argb' => '00A9A9A9'),
-            ),
-            'alignment' => array(
-                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT,
-                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
-                'wrapText' => true
-            ),
-        ]);
 
-        $column = 2;
-        $sheet->setCellValueByColumnAndRow($column, $row, '2 x 1.0 Kapsul kali per hari');
-        $sheet->mergeCellsByColumnAndRow($column, $row, $column + 4, $row);
-        $sheet->getStyleByColumnAndRow($column, $row, $column + 4, $row++)->applyFromArray([
-            'font' => array(
-                'size' => 14,
-                'color' => array('argb' => '00000000'),
-            ),
-        ]);
+            foreach ($getMedicine as $index => $list ){
 
-        $sheet->setCellValueByColumnAndRow($column, $row, 'Sebelum makan');
-        $sheet->mergeCellsByColumnAndRow($column, $row, $column + 4, $row);
-        $sheet->getStyleByColumnAndRow($column, $row, $column + 4, $row++)->applyFromArray([
-            'font' => array(
-                'size' => 12,
-                'color' => array('argb' => '00000000'),
-            ),
-        ]);
+                $column = 2;
+                $sheet->setCellValueByColumnAndRow($column, $row, $list->product_name. $list->product_qty_checkout);
+                $sheet->mergeCellsByColumnAndRow($column, $row, $column + 4, $row);
+                $sheet->getStyleByColumnAndRow($column, $row, $column + 4, $row++)->applyFromArray([
+                    'font' => array(
+                        'size' => 14,
+                        'color' => array('argb' => '00000000'),
+                    ),
+                ]);
 
-        $sheet->setCellValueByColumnAndRow($column, $row, $html->toRichTextObject('<font color="#000000">Waktu : </font><font color="#A9A9A9">Pagi, Malam</font>'));
-        $sheet->mergeCellsByColumnAndRow($column, $row, $column + 4, $row++);
 
-        $sheet->setCellValueByColumnAndRow($column, $row, $html->toRichTextObject('<font color="#000000">Catatan : </font><font color="#A9A9A9">20mnt sblm makan ...lambung</font>'));
-        $sheet->mergeCellsByColumnAndRow($column, $row, $column + 4, $row);
+                $column = 2;
+                $sheet->setCellValueByColumnAndRow($column, $row, $list->dosis ?? 'kosong');
+                $sheet->mergeCellsByColumnAndRow($column, $row, $column + 4, $row);
+                $sheet->getStyleByColumnAndRow($column, $row, $column + 4, $row++)->applyFromArray([
+                    'font' => array(
+                        'size' => 14,
+                        'color' => array('argb' => '00000000'),
+                    ),
+                ]);
+
+                $sheet->setCellValueByColumnAndRow($column, $row, $listSetTypeDosis[$list->type_dosis] ?? 'Kosong');
+                $sheet->mergeCellsByColumnAndRow($column, $row, $column + 4, $row);
+                $sheet->getStyleByColumnAndRow($column, $row, $column + 4, $row++)->applyFromArray([
+                    'font' => array(
+                        'size' => 12,
+                        'color' => array('argb' => '00000000'),
+                    ),
+                ]);
+
+                $period = $list->period ?? 'Kosong';
+                $note = $list->note ?? 'Kosong';
+
+                $sheet->setCellValueByColumnAndRow($column, $row, $html->toRichTextObject('<font color="#000000">Waktu : </font><font color="#A9A9A9">'.$period.'</font>'));
+                $sheet->mergeCellsByColumnAndRow($column, $row, $column + 4, $row++);
+
+                $sheet->setCellValueByColumnAndRow($column, $row, $html->toRichTextObject('<font color="#000000">Catatan : </font><font color="#A9A9A9">'.$note.'</font>'));
+                $sheet->mergeCellsByColumnAndRow($column, $row, $column + 4, $row);
+
+
+            }
+
+        }
 
         $row += 2;
 

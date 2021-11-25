@@ -201,6 +201,7 @@ class UserLogic
             'zip_code' => $getUser->zip_code,
             'gender' => intval($getUser->gender) == 1 ? 1 : 2,
             'phone' => $getUser->phone,
+            'dob' => $getUser->dob,
             'email' => $getUser->email,
             'patient' => $getUser->patient,
             'doctor' => $getUser->doctor,
@@ -247,8 +248,8 @@ class UserLogic
         $getDetailShipping = json_decode($getUsersCart->detail_shipping, true);
         $shippingId = $getDetailShipping['shipping_id'] ?? 0;
 
-        $getUsersCartDetail = Product::selectRaw('users_cart_detail.id, product.id as product_id, product.name, 
-            product.image, product.price, product.unit, product.stock, product.stock_flag, product.type, product.status, 
+        $getUsersCartDetail = Product::selectRaw('users_cart_detail.id, product.id as product_id, product.name,
+            product.image, product.price, product.unit, product.stock, product.stock_flag, product.type, product.status,
             users_cart_detail.qty, users_cart_detail.choose')
             ->join('users_cart_detail', 'users_cart_detail.product_id', '=', 'product.id')
             ->where('users_cart_detail.users_cart_id', '=', $getUsersCart->id);
