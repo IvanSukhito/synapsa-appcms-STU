@@ -208,6 +208,7 @@ class UserLogic
             'doctor' => $getUser->doctor,
             'nurse' => $getUser->nurse,
             'status' => $getUser->status,
+            'image' => $getUser->image_full,
             'status_nice' => $getUser->status_nice,
             'gender_nice' => $getUser->gender_nice,
             'join' => date('d F Y', strtotime($getUser->created_at))
