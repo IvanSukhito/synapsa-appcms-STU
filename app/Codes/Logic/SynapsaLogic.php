@@ -80,7 +80,7 @@ class SynapsaLogic
                     $success = 1;
                     $getInfoVa = json_decode($payment->settings, true);
                     $getInfo['price'] = $additional['total'];
-                    $getInfo['price_nice'] = number_format($additional['total'], 0, ',', '.');
+                    $getInfo['price_nice'] = number_format_local($additional['total']);
                     $getInfo['va_number'] = $getData->result->account_number;
                     $getInfo['va_name'] = $payment->name;
                     $getInfo['va_payment_image'] = $payment->icon_img_full;
@@ -124,7 +124,7 @@ class SynapsaLogic
                     $success = 1;
                     $getInfoWallet = json_decode($payment->settings, true);
                     $getInfo['price'] = $additional['total'];
-                    $getInfo['price_nice'] = number_format($additional['total'], 0, ',', '.');
+                    $getInfo['price_nice'] = number_format_local($additional['total']);
                     $getInfo['business_id'] = $getData->result->business_id ?? '';
                     $getInfo['ewallet_type'] = $getData->result->ewallet_type ?? '';
                     $getInfo['phone'] = $getData->result->phone ?? '';
@@ -173,7 +173,7 @@ class SynapsaLogic
                 $getResultQris = $getData->result;
                 $getInfoQris = json_decode($payment->settings, true);
                 $getInfo['price'] = $additional['total'];
-                $getInfo['price_nice'] = number_format($additional['total'], 0, ',', '.');
+                $getInfo['price_nice'] = number_format_local($additional['total']);
                 $getInfo['id'] = $getData->result->id;
                 $getInfo['external_id'] = $getData->result->external_id;
                 $getInfo['qr_string'] = $getData->result->qr_string;

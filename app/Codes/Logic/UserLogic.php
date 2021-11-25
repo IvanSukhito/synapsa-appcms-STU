@@ -5,6 +5,7 @@ namespace App\Codes\Logic;
 use App\Codes\Models\V1\DeviceToken;
 use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\Klinik;
+use App\Codes\Models\V1\Product;
 use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\UsersAddress;
 use App\Codes\Models\V1\UsersCart;
@@ -17,6 +18,10 @@ class UserLogic
     {
     }
 
+    /**
+     * @param $saveData
+     * @return mixed
+     */
     public function userCreatePatient($saveData)
     {
         $getUser = Users::create([
@@ -57,6 +62,12 @@ class UserLogic
 
     }
 
+    /**
+     * @param $userId
+     * @param $saveData
+     * @param null $user
+     * @return false|mixed
+     */
     public function userUpdatePatient($userId, $saveData, $user = null)
     {
         if ($user == null) {
@@ -85,6 +96,11 @@ class UserLogic
 
     }
 
+    /**
+     * @param $userId
+     * @param $saveData
+     * @return false|mixed
+     */
     public function userUpdateAddressPatient($userId, $saveData)
     {
         $getUsersAddress = UsersAddress::firstOrCreate([
@@ -112,6 +128,10 @@ class UserLogic
 
     }
 
+    /**
+     * @param $userId
+     * @param $getToken
+     */
     public function updateToken($userId, $getToken)
     {
         $getDeviceToken = DeviceToken::firstOrCreate([
@@ -120,6 +140,11 @@ class UserLogic
         $getDeviceToken->getUser()->sync([$userId]);
     }
 
+    /**
+     * @param $userId
+     * @param null $user
+     * @return array|false
+     */
     public function userInfo($userId, $user = null)
     {
         if ($user == null) {
@@ -166,6 +191,10 @@ class UserLogic
         return $result;
     }
 
+    /**
+     * @param $userId
+     * @return false|mixed
+     */
     public function userAddress($userId)
     {
         $getUserAddress = UsersAddress::where('user_id', '=', $userId)->first();
@@ -175,18 +204,69 @@ class UserLogic
         return $getUserAddress;
     }
 
+    /**
+     * @param $userId
+     * @return array
+     */
     public function userCart($userId)
     {
         $getUsersCart = UsersCart::firstOrCreate([
             'users_id' => $userId
         ]);
 
-        $getUsersCartDetail = UsersCartDetail::where('users_cart_id', '=', $getUsersCart->id)->get();
+        $getUsersCartDetail = Product::selectRaw('users_cart_detail.id, product.id as product_id, product.name, 
+            product.image, product.price, product.unit, product.stock, product.stock_flag, product.type, product.status, 
+            users_cart_detail.qty, users_cart_detail.choose')
+            ->join('users_cart_detail', 'users_cart_detail.product_id', '=', 'product.id')
+            ->where('users_cart_detail.users_cart_id', '=', $getUsersCart->id)->get();
+
+        $totalQty = 0;
+        $totalPrice = 0;
+        foreach ($getUsersCartDetail as $list) {
+            $totalQty += $list->qty;
+            $totalPrice += ($list->qty * $list->price);
+        }
 
         return [
             'cart_info' => $getUsersCart,
-            'cart' => $getUsersCartDetail
+            'cart' => $getUsersCartDetail,
+            'total_qty' => $totalQty,
+            'total_qty_nice' => number_format_local($totalQty),
+            'total_price' => $totalPrice,
+            'total_price_nice' => number_format_local($totalPrice)
         ];
+
+    }
+
+    /**
+     * @param $userId
+     * @param $productId
+     * @param int $qty
+     * @return int
+     */
+    public function userCartAdd($userId, $productId, int $qty = 1): int
+    {
+        $getProduct = Product::where('id', '=', $productId)->where('status', '=', 80)->first();
+        if(!$getProduct) {
+            return 0;
+        }
+        elseif($getProduct->stock_flag == 2 && $getProduct->stock < $qty) {
+            return 0;
+        }
+
+        $getUsersCart = UsersCart::firstOrCreate([
+            'users_id' => $userId
+        ]);
+
+        $getUsersCartDetail = UsersCartDetail::firstOrCreate([
+            'users_cart_id' => $getUsersCart->id,
+            'product_id' => $productId
+        ]);
+
+        $getUsersCartDetail->qty = $qty;
+        $getUsersCartDetail->save();
+
+        return 1;
 
     }
 
