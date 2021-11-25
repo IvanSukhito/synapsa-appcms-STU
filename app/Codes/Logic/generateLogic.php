@@ -79,8 +79,15 @@ class generateLogic
         $sheet->setCellValueByColumnAndRow($column, $row, $getAppointment->category);
         $sheet->mergeCellsByColumnAndRow($column, $row, $column + 4, $row++);
 
-        $sheet->setCellValueByColumnAndRow($column, $row, $getAppointment->code);
+        $sheet->setCellValueByColumnAndRow($column, $row, $getAppointment->code ?? 'A1922020');
         $sheet->mergeCellsByColumnAndRow($column, $row, $column + 4, $row);
+        $sheet->getStyleByColumnAndRow($column, $row, $column + 4, $row)->applyFromArray([
+            'alignment' => array(
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT,
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                'wrapText' => true
+            ),
+        ]);
 
         $sheet->getStyleByColumnAndRow($column, $firstRow + 1, $column + 4, $row)->applyFromArray([
             'font' => array(
