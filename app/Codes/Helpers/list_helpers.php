@@ -9,6 +9,16 @@ if ( ! function_exists('get_list_active_inactive')) {
     }
 }
 
+if ( ! function_exists('get_list_active_inactive')) {
+    function get_list_available_non_available()
+    {
+        return [
+            80 => __('general.available'),
+            99 => __('general.non_available')
+        ];
+    }
+}
+
 if ( ! function_exists('get_list_status_article')) {
     function get_list_status_article()
     {

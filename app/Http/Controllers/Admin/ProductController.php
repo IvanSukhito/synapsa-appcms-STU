@@ -132,7 +132,7 @@ class ProductController extends _CrudController
 
         $this->data['listSet']['klinik_id'] = $klinik_id;
         $this->data['listSet']['product_category_id'] = $listCategory;
-        $this->data['listSet']['status'] = get_list_active_inactive();
+        $this->data['listSet']['status'] = get_list_available_non_available();
         $this->data['listSet']['stock_flag'] = get_list_stock_flag();
         $this->data['listSet']['type'] = get_list_type_product();
         //$this->listView['index'] = env('ADMIN_TEMPLATE').'.page.product.list';

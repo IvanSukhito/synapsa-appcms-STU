@@ -30,6 +30,7 @@ class Product extends Model
         'image_full',
         'price_nice',
         'stock_flag_nice',
+        'status_nice'
     ];
 
     public function getPriceNiceAttribute()
@@ -41,6 +42,12 @@ class Product extends Model
     {
         $getList = get_list_stock_flag();
         return $getList[$this->stock_flag] ?? '';
+    }
+
+    public function getStatusNiceAttribute()
+    {
+        $getList = get_list_available_non_available();
+        return $getList[$this->status] ?? '';
     }
 
     public function getDescDetailsAttribute()
@@ -66,6 +73,18 @@ class Product extends Model
     public function getTagging()
     {
         return $this->belongsToMany(Tagging::class, 'product_tagging', 'product_id', 'tagging_id');
+    }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        self::updating(function($model){
+            if($model->stock <= 0 && $model->stock_flag == 2) {
+                $model->status = 99;
+            }
+        });
+
     }
 
 }
