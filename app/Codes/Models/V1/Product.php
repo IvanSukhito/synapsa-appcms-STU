@@ -29,10 +29,18 @@ class Product extends Model
         'desc_details',
         'image_full',
         'price_nice',
+        'stock_flag_nice',
     ];
+
     public function getPriceNiceAttribute()
     {
         return intval($this->price) > 0 ? number_format($this->price, 0, ',', '.') : 0;
+    }
+
+    public function getStockFlagNiceAttribute()
+    {
+        $getList = get_list_stock_flag();
+        return $getList[$this->stock_flag] ?? '';
     }
 
     public function getDescDetailsAttribute()
@@ -42,7 +50,6 @@ class Product extends Model
 
     public function getImageFullAttribute()
     {
-
         if (strlen($this->image) > 0) {
             return env('OSS_URL').'/'.$this->image;
         }
@@ -60,6 +67,5 @@ class Product extends Model
     {
         return $this->belongsToMany(Tagging::class, 'product_tagging', 'product_id', 'tagging_id');
     }
-
 
 }
