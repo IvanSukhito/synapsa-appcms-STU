@@ -73,7 +73,7 @@ class AppointmentDoctorVisitClinicController extends _CrudController
         ];
 
         parent::__construct(
-            $request, 'general.doctor-clinic-visit', 'doctor-clinic-visit', 'V1\AppointmentDoctor', 'doctor-clinic-visit',
+            $request, 'general.visit', 'doctor-clinic-visit', 'V1\AppointmentDoctor', 'doctor-clinic-visit',
             $passingData
         );
 
