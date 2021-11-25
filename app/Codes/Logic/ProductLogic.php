@@ -44,9 +44,9 @@ class ProductLogic
     /**
      * @param $clinicId
      * @param $id
-     * @return array
+     * @return mixed
      */
-    public function productInfo($clinicId, $id): array
+    public function productInfo($clinicId, $id)
     {
         return Product::where('klinik_id', '=', $clinicId)->where('id', '=', $id)->where('status', '=', 80)->first();
     }
