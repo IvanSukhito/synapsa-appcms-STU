@@ -29,7 +29,8 @@ class Product extends Model
         'desc_details',
         'image_full',
         'price_nice',
-        'type_nice',
+        'stock_flag_nice',
+        'status_nice'
     ];
 
     public function getPriceNiceAttribute()
@@ -37,10 +38,16 @@ class Product extends Model
         return intval($this->price) > 0 ? number_format($this->price, 0, ',', '.') : 0;
     }
 
-    public function getTypeNiceAttribute()
+    public function getStockFlagNiceAttribute()
     {
-        $listType = get_list_type_product();
-        return $listType[$this->type] ?? '';
+        $getList = get_list_stock_flag();
+        return $getList[$this->stock_flag] ?? '';
+    }
+
+    public function getStatusNiceAttribute()
+    {
+        $getList = get_list_available_non_available();
+        return $getList[$this->status] ?? '';
     }
 
     public function getDescDetailsAttribute()
@@ -50,7 +57,6 @@ class Product extends Model
 
     public function getImageFullAttribute()
     {
-
         if (strlen($this->image) > 0) {
             return env('OSS_URL').'/'.$this->image;
         }
@@ -69,5 +75,16 @@ class Product extends Model
         return $this->belongsToMany(Tagging::class, 'product_tagging', 'product_id', 'tagging_id');
     }
 
+    public static function boot()
+    {
+        parent::boot();
+
+        self::updating(function($model){
+            if($model->stock <= 0 && $model->stock_flag == 2) {
+                $model->status = 99;
+            }
+        });
+
+    }
 
 }

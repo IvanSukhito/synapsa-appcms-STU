@@ -60,7 +60,7 @@ class UserLogic
     public function userUpdatePatient($userId, $saveData, $user = null)
     {
         if ($user == null) {
-            $getUser = Users::where('id', $userId)->first();
+            $getUser = Users::where('id', '=', $userId)->first();
         }
         else {
             $getUser = $user;
@@ -94,7 +94,7 @@ class UserLogic
             return false;
         }
 
-        $getUser = Users::where('id', $userId)->first();
+        $getUser = Users::where('id', '=', $userId)->first();
         if ($getUser) {
             foreach ($saveData as $key => $val) {
                 $getUser->$key = $val;
@@ -123,7 +123,7 @@ class UserLogic
     public function userInfo($userId, $user = null)
     {
         if ($user == null) {
-            $getUser = Users::where('id', $userId)->first();
+            $getUser = Users::where('id', '=', $userId)->first();
         }
         else {
             $getUser = $user;
@@ -133,7 +133,7 @@ class UserLogic
             return false;
         }
 
-        $getKlinik = Klinik::where('id', $getUser->klinik_id)->first();
+        $getKlinik = Klinik::where('id', '=', $getUser->klinik_id)->first();
 
         $result = [
             'user_id' => $getUser->id,
@@ -159,7 +159,7 @@ class UserLogic
         if ($getUser->doctor == 1) {
             $getDoctor = Doctor::selectRaw('formal_edu, nonformal_edu, doctor_category_id, doctor_category.name AS doctor_category')
                 ->join('doctor_category', 'doctor_category.id', '=', 'doctor.doctor_category_id')
-                ->where('user_id', $getUser->id)->first();
+                ->where('user_id', '=', $getUser->id)->first();
             $result['info_doctor'] = $getDoctor;
         }
 
@@ -168,7 +168,7 @@ class UserLogic
 
     public function userAddress($userId)
     {
-        $getUserAddress = UsersAddress::where('user_id', $userId)->first();
+        $getUserAddress = UsersAddress::where('user_id', '=', $userId)->first();
         if (!$getUserAddress) {
             return false;
         }
@@ -181,7 +181,7 @@ class UserLogic
             'users_id' => $userId
         ]);
 
-        $getUsersCartDetail = UsersCartDetail::where('users_cart_id', $getUsersCart->id)->get();
+        $getUsersCartDetail = UsersCartDetail::where('users_cart_id', '=', $getUsersCart->id)->get();
 
         return [
             'cart_info' => $getUsersCart,
@@ -198,7 +198,8 @@ class UserLogic
         }
 
         DB::beginTransaction();
-        $getUsersCartDetail = UsersCartDetail::where('users_cart_id', $usersCartDetailId)->whereIn('product_id', $getProductIds)->get();
+        $getUsersCartDetail = UsersCartDetail::where('users_cart_id', '=', $usersCartDetailId)
+            ->whereIn('product_id', $getProductIds)->get();
         foreach ($getUsersCartDetail as $item) {
             $item->qty = intval($products[$item->product_id]) ?? 1;
             $item->save();
@@ -211,10 +212,10 @@ class UserLogic
     public function userCartChoose($usersCartDetailId, $productIds)
     {
         DB::beginTransaction();
-        UsersCartDetail::where('users_cart_id', $usersCartDetailId)->whereIn('product_id', $productIds)->update([
+        UsersCartDetail::where('users_cart_id', '=', $usersCartDetailId)->whereIn('product_id', $productIds)->update([
             'choose' => 1
         ]);
-        UsersCartDetail::where('users_cart_id', $usersCartDetailId)->whereNotIn('product_id', $productIds)->update([
+        UsersCartDetail::where('users_cart_id', '=', $usersCartDetailId)->whereNotIn('product_id', $productIds)->update([
             'choose' => 0
         ]);
         DB::commit();

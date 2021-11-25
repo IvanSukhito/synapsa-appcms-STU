@@ -59,7 +59,7 @@ class DoctorLogic
         if (!$getDoctorSchedule) {
             $getWeekday = intval(date('w', strtotime($date)));
             $getDoctorSchedule = DoctorSchedule::where('doctor_id', '=', $doctorId)->where('service_id', '=', $serviceId)
-                ->where('weekday', $getWeekday)->get();
+                ->where('weekday', '=', $getWeekday)->get();
         }
 
         $getList = get_list_book();
@@ -166,7 +166,7 @@ class DoctorLogic
      */
     public function appointmentCreate($doctorId, $serviceId, $scheduleId, $date, $getUser, $getDoctor, $getService, $getTransaction, $newCode): int
     {
-        $getData = $this->checkSchedule($doctorId, $serviceId, $scheduleId, $date, 1);
+        $getData = $this->scheduleCheck($doctorId, $serviceId, $scheduleId, $date, 1);
         if ($getData['success'] == 1) {
             $getSchedule = $getData['schedule'];
 
@@ -209,12 +209,12 @@ class DoctorLogic
     public function appointmentInfo($appointmentId, $flag, $userId = null, $doctorId = null): bool
     {
         if ($flag == 1) {
-            $getAppointment = AppointmentDoctor::whereIn('status')->where('id', $appointmentId)
-                ->where('user_id', $userId)->first();
+            $getAppointment = AppointmentDoctor::whereIn('status')->where('id', '=', $appointmentId)
+                ->where('user_id', '=', $userId)->first();
         }
         else {
-            $getAppointment = AppointmentDoctor::whereIn('status', [1,2])->where('id', $appointmentId)
-                ->where('doctor_id', $doctorId)->first();
+            $getAppointment = AppointmentDoctor::whereIn('status', [1,2])->where('id', '=', $appointmentId)
+                ->where('doctor_id', '=', $doctorId)->first();
         }
         if ($getAppointment) {
             return $getAppointment;
@@ -235,15 +235,15 @@ class DoctorLogic
     public function appointmentApprove($appointmentId, $flag, $userId = null, $doctorId = null): int
     {
         if ($flag == 1) {
-            $getAppointment = AppointmentDoctor::whereIn('status', [1,2])->where('id', $appointmentId)
-                ->where('user_id', $userId)->first();
+            $getAppointment = AppointmentDoctor::whereIn('status', [1,2])->where('id', '=', $appointmentId)
+                ->where('user_id', '=', $userId)->first();
         }
         else {
-            $getAppointment = AppointmentDoctor::whereIn('status', [1,2])->where('id', $appointmentId)
-                ->where('doctor_id', $doctorId)->first();
+            $getAppointment = AppointmentDoctor::whereIn('status', [1,2])->where('id', '=', $appointmentId)
+                ->where('doctor_id', '=', $doctorId)->first();
         }
         if ($getAppointment) {
-            $getService = Service::where('id', $getAppointment->service_id)->first();
+            $getService = Service::where('id', '=', $getAppointment->service_id)->first();
             if ($getService && $getService->type == 1) {
                 $getAppointment->video_link = '';
                 $getAppointment->online_meeting = 1;
@@ -271,12 +271,12 @@ class DoctorLogic
     public function appointmentCancel($appointmentId, $flag, $userId = null, $doctorId = null): int
     {
         if ($flag == 1) {
-            $getAppointment = AppointmentDoctor::whereIn('status', [1,2,80])->where('id', $appointmentId)
-                ->where('user_id', $userId)->first();
+            $getAppointment = AppointmentDoctor::whereIn('status', [1,2,80])->where('id', '=', $appointmentId)
+                ->where('user_id', '=', $userId)->first();
         }
         else {
-            $getAppointment = AppointmentDoctor::whereIn('status', [1,2,80])->where('id', $appointmentId)
-                ->where('doctor_id', $doctorId)->first();
+            $getAppointment = AppointmentDoctor::whereIn('status', [1,2,80])->where('id', '=', $appointmentId)
+                ->where('doctor_id', '=', $doctorId)->first();
         }
         if ($getAppointment) {
             $getAppointment->video_link = '';
@@ -300,10 +300,10 @@ class DoctorLogic
      */
     public function appointmentChange($doctorId, $appointmentId, $date, $timeStart, $timeEnd, $getUser, $getDoctor): int
     {
-        $getAppointment = AppointmentDoctor::where('id', $appointmentId)->where('user_id', $getUser->id)
-            ->where('doctor_id', $getDoctor->id)->first();
+        $getAppointment = AppointmentDoctor::where('id', '=', $appointmentId)->where('user_id', '=', $getUser->id)
+            ->where('doctor_id', '=', $getDoctor->id)->first();
         if ($getAppointment) {
-            if ($this->checkAvailableSchedule($doctorId, $date, $timeStart)) {
+            if ($this->scheduleCheckAvailable($doctorId, $date, $timeStart)) {
                 $getAppointment->time_start = $timeStart;
                 $getAppointment->time_end = $timeEnd;
                 $getAppointment->status = $timeEnd;
@@ -325,7 +325,7 @@ class DoctorLogic
      */
     public function appointmentFillForm($appointmentId, $userId, $saveData): int
     {
-        $getAppointment = AppointmentDoctor::where('id', $appointmentId)->where('user_id', $userId)->first();
+        $getAppointment = AppointmentDoctor::where('id', '=', $appointmentId)->where('user_id', '=', $userId)->first();
         if (!$getAppointment) {
             return 0;
         }
@@ -353,8 +353,8 @@ class DoctorLogic
      */
     public function meetingCreate($appointmentId, $doctorId): array
     {
-        $getAppointment = AppointmentDoctor::where('status', '=', 3)->where('id', $appointmentId)
-            ->where('doctor_id', $doctorId)->first();
+        $getAppointment = AppointmentDoctor::where('status', '=', 3)->where('id', '=', $appointmentId)
+            ->where('doctor_id', '=', $doctorId)->first();
         if (!$getAppointment) {
             return [];
         }
@@ -422,8 +422,8 @@ class DoctorLogic
      */
     public function meetingGetInfo($appointmentId, $userId): array
     {
-        $getAppointment = AppointmentDoctor::where('status', '=', 3)->where('id', $appointmentId)
-            ->where('user_id', $userId)->first();
+        $getAppointment = AppointmentDoctor::where('status', '=', 3)->where('id', '=', $appointmentId)
+            ->where('user_id', '=', $userId)->first();
         if (!$getAppointment) {
             return [];
         }
@@ -461,8 +461,8 @@ class DoctorLogic
      */
     public function meetingCallFinish($appointmentId, $doctorId): bool
     {
-        $getAppointment = AppointmentDoctor::where('status', '=', 3)->where('id', $appointmentId)
-            ->where('doctor_id', $doctorId)->first();
+        $getAppointment = AppointmentDoctor::where('status', '=', 3)->where('id', '=', $appointmentId)
+            ->where('doctor_id', '=', $doctorId)->first();
         if (!$getAppointment) {
             return false;
         }
@@ -481,8 +481,8 @@ class DoctorLogic
      */
     public function meetingCallFailed($appointmentId, $doctorId): bool
     {
-        $getAppointment = AppointmentDoctor::where('status', '=', 3)->where('id', $appointmentId)
-            ->where('doctor_id', $doctorId)->first();
+        $getAppointment = AppointmentDoctor::where('status', '=', 3)->where('id', '=', $appointmentId)
+            ->where('doctor_id', '=', $doctorId)->first();
         if (!$getAppointment) {
             return false;
         }
@@ -504,8 +504,8 @@ class DoctorLogic
      */
     public function appointmentDiagnosis($appointmentId, $doctorId, $saveData, $saveProducts): bool
     {
-        $getAppointment = AppointmentDoctor::whereIn('status', [3,4])->where('id', $appointmentId)
-            ->where('doctor_id', $doctorId)->first();
+        $getAppointment = AppointmentDoctor::whereIn('status', [3,4])->where('id', '=', $appointmentId)
+            ->where('doctor_id', '=', $doctorId)->first();
         if (!$getAppointment) {
             return false;
         }

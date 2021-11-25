@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API\V1;
 
+use App\Codes\Logic\ProductLogic;
 use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\Payment;
@@ -39,24 +40,17 @@ class ProductController extends Controller
         $user = $this->request->attributes->get('_user');
 
         $s = strip_tags($this->request->get('s'));
+        $categoryId = intval($this->request->get('category_id'));
         $getLimit = $this->request->get('limit');
         if ($getLimit <= 0) {
             $getLimit = $this->limit;
         }
 
-        $data = Product::selectRaw('id, name, image, unit, price, stock, stock_flag')->where('klinik_id', '=', $user->klinik_id);
-        if (strlen($s) > 0) {
-            $data = $data->where('name', 'LIKE', strip_tags($s))->orWhere('desc', 'LIKE', strip_tags($s));
-        }
-        $data = $data->where('status', 80)->orderBy('id','DESC')->paginate($getLimit);
-        $category = ProductCategory::where('status', 80)->get();
+        $productLogic = new ProductLogic();
 
         return response()->json([
             'success' => 1,
-            'data' => [
-                'product' => $data,
-                'category' => $category
-            ],
+            'data' => $productLogic->productGet($user->klinik_id, $getLimit, $categoryId, $s),
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
 
@@ -142,8 +136,9 @@ class ProductController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $data = Product::where('status', 80)->where('id', $id)->first();
-        if (!$data) {
+        $productLogic = new ProductLogic();
+        $getData = $productLogic->productInfo($user->klinik_id, $id);
+        if (!$getData) {
             return response()->json([
                 'success' => 0,
                 'message' => ['Produk Tidak Ditemukan'],
@@ -153,7 +148,7 @@ class ProductController extends Controller
         else {
             return response()->json([
                 'success' => 1,
-                'data' => $data,
+                'data' => $getData,
                 'token' => $this->request->attributes->get('_refresh_token'),
             ]);
         }
