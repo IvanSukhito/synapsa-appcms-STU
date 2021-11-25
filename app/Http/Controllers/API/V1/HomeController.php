@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\API\V1;
 
 use App\Codes\Logic\UserLogic;
-use App\Codes\Models\V1\Klinik;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Codes\Models\V1\Article;
@@ -55,32 +54,16 @@ class HomeController extends Controller
         }
 
         $totalNotif = Notifications::where('user_id',$user->id)->where('is_read',1)->count();
-        $dataSliders = Sliders::where('status',1)->whereIn('klinik_id', [0, $user->klinik_id])->orderBy('id','DESC')->get();
-        $dataProduct = Product::orderBy('id','DESC')->paginate($limitProduct);
+        $dataSliders = Sliders::where('status', '=', 1)->whereIn('klinik_id', [0, $user->klinik_id])->orderBy('id','DESC')->get();
+        $dataProduct = Product::where('klinik_id', '=', $user->klinik_id)->orderBy('id','DESC')->paginate($limitProduct);
         $dataArticle = Article::orderBy('publish_date','DESC')->where('publish_status', 1)->limit($limitArticle)->get();
-        $getKlinik = Klinik::where('id', $user->klinik_id)->first();
+
+        $userLogic = new UserLogic();
 
         return response()->json([
             'success' => 1,
             'data' => [
-                'user' => [
-                    'user_id' => $user->id,
-                    'klinik_id' => $user->klinik_id,
-                    'klinik_name' => $getKlinik ? $getKlinik->name : '',
-                    'klinik_theme' => $getKlinik ? $getKlinik->theme_color : '',
-                    'fullname' => $user->fullname,
-                    'address' => $user->address,
-                    'address_detail' => $user->address_detail,
-                    'zip_code' => $user->zip_code,
-                    'gender' => $user->gender,
-                    'dob' => $user->dob,
-                    'nik' => $user->nik,
-                    'phone' => $user->phone,
-                    'email' => $user->email,
-                    'patient' => $user->patient,
-                    'doctor' => $user->doctor,
-                    'nurse' => $user->nurse,
-                ],
+                'user' => $userLogic->userInfo($user->id),
                 'totalNotif' => $totalNotif,
                 'sliders' => $dataSliders,
                 'product' => $dataProduct,
