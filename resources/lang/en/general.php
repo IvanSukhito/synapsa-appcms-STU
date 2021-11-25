@@ -471,4 +471,5 @@ return [
     'doctor_prescription' => 'Resep Dokter',
 
     'theme_color' => 'Theme Color',
+    'period' => 'Period'
 ];
