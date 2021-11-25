@@ -30,7 +30,8 @@ class Product extends Model
         'image_full',
         'price_nice',
         'stock_flag_nice',
-        'status_nice'
+        'status_nice',
+        'type_nice'
     ];
 
     public function getPriceNiceAttribute()
@@ -48,6 +49,12 @@ class Product extends Model
     {
         $getList = get_list_available_non_available();
         return $getList[$this->status] ?? '';
+    }
+
+    public function getTypeNiceAttribute()
+    {
+        $getList = get_list_type_product();
+        return $getList[$this->type] ?? '';
     }
 
     public function getDescDetailsAttribute()
