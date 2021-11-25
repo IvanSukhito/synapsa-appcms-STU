@@ -132,15 +132,7 @@ class LabClinicScheduleController extends _CrudController
             return redirect()->route('admin');
         }
 
-        $listSetCarbonDay = [
-            1 => Carbon::MONDAY,
-            2 => Carbon::TUESDAY,
-            3 => Carbon::WEDNESDAY,
-            4 => Carbon::THURSDAY,
-            5 => Carbon::FRIDAY,
-            6 => Carbon::SATURDAY,
-            7 => Carbon::SUNDAY,
-        ];
+        $listSetCarbonDay = get_list_carbon_day();
 
         $now = Carbon::now();
 

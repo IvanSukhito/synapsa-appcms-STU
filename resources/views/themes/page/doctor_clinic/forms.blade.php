@@ -232,7 +232,7 @@ else {
                                 <th>@lang('general.id')</th>
                                 <th>@lang('general.doctor_id')</th>
                                 <th>@lang('general.service_id')</th>
-                                <th>@lang('general.date_available')</th>
+                                <th>@lang('general.weekday')</th>
                                 <th>@lang('general.time_start')</th>
                                 <th>@lang('general.time_end')</th>
                                 <th>@lang('general.book')</th>
@@ -244,7 +244,7 @@ else {
                                     <td>{{ $list->id }}</td>
                                     <td>{{ $list->doctor_id }}</td>
                                     <td>{{ $list->service_id }}</td>
-                                    <td>{{ $list->date_available }}</td>
+                                    <td>{{ $listSet['weekday'][$list->weekday] ?? '' }}</td>
                                     <td>{{ $list->time_start }}</td>
                                     <td>{{ $list->time_end }}</td>
                                     <td>{{ $getListAvailable[$list->book] ?? $list->book }}</td>

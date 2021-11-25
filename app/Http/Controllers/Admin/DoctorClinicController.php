@@ -535,27 +535,54 @@ class DoctorClinicController extends _CrudController
     {
         $this->callPermission();
 
+        $now = Carbon::now();
+
+        $listSetCarbonDay = get_list_carbon_day();
+        $weekStartDate = $now->startOfWeek()->format('Y-m-d');
+        $weekEndDate = $now->endOfWeek()->format('Y-m-d');
+
         $getData = $this->crud->show($id);
         if (!$getData) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
 
-        $getLimit = $this->request->get('limit');
-        if ($getLimit <= 0) {
-            $getLimit = $this->limit;
-        }
-
         $getScheduleData  = DoctorSchedule::selectRaw('doctor_schedule.id, doctor_schedule.date_available,
-         doctor_schedule.time_start,doctor_schedule.time_end, doctor_schedule.book,
+         doctor_schedule.time_start, doctor_schedule.time_end, doctor_schedule.book, doctor_schedule.weekday,
          B.fullname AS doctor_id, C.name AS service_id')
             ->where('doctor_schedule.doctor_id', '=', $id)
             ->leftJoin('users AS B', 'B.id', '=', 'doctor_schedule.doctor_id')
             ->leftJoin('service AS C', 'C.id', '=', 'doctor_schedule.service_id')->get();
 
+        $temp = [];
+        foreach($getScheduleData as $schedule) {
+            if(($weekStartDate <= $schedule->date_available && $weekEndDate >= $schedule->date_available) || $schedule->date_available == null) {
+                $found = 0;
+                if ($schedule->weekday > 0) {
+                    $now = Carbon::now();
+                    $weekDayDate = $now->startOfWeek($listSetCarbonDay[$schedule->weekday])->format('Y-m-d');
 
+                    $findSchedule = DoctorSchedule::where('doctor_schedule.doctor_id', '=', $id)
+                        ->where('date_available', $weekDayDate)
+                        ->get();
+
+                    if (count($findSchedule) > 0) {
+                        $found = 1;
+                    }
+                }
+
+                if ($schedule->date_available != null) {
+                    $schedule->weekday = Carbon::parse($schedule->date_available)->dayOfWeekIso;
+                }
+
+                if ($found == 0) {
+                    $temp[] = $schedule;
+                }
+            }
+        }
+
+        $getScheduleData = $temp;
 
         $data = $this->data;
-        $getProvince = Province::get();
 
         $getDataUser = Users::where('id', $getData->user_id)->first();
         $getDoctorService = DoctorService::where('doctor_id',$id)->get();
@@ -564,7 +591,6 @@ class DoctorClinicController extends _CrudController
         $getCity = City::where('id',$getDataUser->city_id)->first();
         $getDistrict = District::where('id', $getDataUser->district_id)->first();
         $getSubDistrict = SubDistrict::where('id', $getDataUser->sub_district_id)->first();
-
 
         $data['viewType'] = 'show';
         $data['formsTitle'] = __('general.title_show', ['field' => $data['thisLabel']]);
@@ -593,15 +619,7 @@ class DoctorClinicController extends _CrudController
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
 
-        $listSetCarbonDay = [
-            1 => Carbon::MONDAY,
-            2 => Carbon::TUESDAY,
-            3 => Carbon::WEDNESDAY,
-            4 => Carbon::THURSDAY,
-            5 => Carbon::FRIDAY,
-            6 => Carbon::SATURDAY,
-            7 => Carbon::SUNDAY,
-        ];
+        $listSetCarbonDay = get_list_carbon_day();
 
         $now = Carbon::now();
 
