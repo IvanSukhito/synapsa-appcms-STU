@@ -31,7 +31,7 @@ class generateLogic
                             ->where('appointment_doctor.id', $getData->id)
                             ->first();
 
-        dd($getData->id);
+        //dd($getData->id);
 
 
         $userLogic = new UserLogic();
