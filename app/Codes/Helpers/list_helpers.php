@@ -230,8 +230,8 @@ if ( ! function_exists('get_list_available')) {
     }
 }
 
-if ( ! function_exists('get_list_type_dosis')) {
-    function get_list_type_dosis()
+if ( ! function_exists('get_list_type_dose')) {
+    function get_list_type_dose()
     {
         return [
             1 => __('general.sebelum_makan'),

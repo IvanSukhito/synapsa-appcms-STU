@@ -137,7 +137,7 @@ class DoctorAppointmentController extends Controller
         $doctorPrescription = json_decode($data->doctor_prescription, true);
 
         $dataProducts = AppointmentDoctorProduct::selectRaw('appointment_doctor_product.id, product_id, product_name,
-            product_qty, product_qty_checkout, product_price, dosis, type_dosis, period, note, choose,
+            product_qty, product_qty_checkout, product_price, dose, type_dose, period, note, choose,
             CONCAT("'.env('OSS_URL').'/'.'", product.image) AS product_image_full')
             ->leftJoin('product', 'product.id', '=', 'appointment_doctor_product.product_id')->where('appointment_doctor_id', $id)->get();
 
@@ -547,6 +547,11 @@ class DoctorAppointmentController extends Controller
         $validator = Validator::make($this->request->all(), [
             'diagnosis' => 'required',
             'treatment' => 'required',
+            'body_height' => 'numeric',
+            'body_weight' => 'numeric',
+            'blood_pressure' => '',
+            'body_temperature' => 'numeric',
+            'complaint' => 'required',
             'product_ids' => 'array'
         ]);
         if ($validator->fails()) {
@@ -583,8 +588,8 @@ class DoctorAppointmentController extends Controller
 
         $getListProduct = $this->request->get('product_ids');
         $getQty = $this->request->get('qty');
-        $getDosis = $this->request->get('dosis');
-        $getTypeDosis = $this->request->get('type_dosis');
+        $getDose = $this->request->get('dose');
+        $getTypeDose = $this->request->get('type_dose');
         $getPeriod = $this->request->get('period');
         $getNote = $this->request->get('note');
 
@@ -595,10 +600,10 @@ class DoctorAppointmentController extends Controller
             }
         }
 
-        $getListDosis = [];
-        if ($getDosis){
-            foreach ($getDosis as $index => $list){
-                $getListDosis[] = $list;
+        $getListDose = [];
+        if ($getDose){
+            foreach ($getDose as $index => $list){
+                $getListDose[] = $list;
             }
         }
 
@@ -609,10 +614,10 @@ class DoctorAppointmentController extends Controller
             }
         }
 
-        $getListTypeDosis = [];
-        if ($getTypeDosis){
-            foreach ($getTypeDosis as $index => $list){
-                $getListTypeDosis[] = $list;
+        $getListTypeDose = [];
+        if ($getTypeDose){
+            foreach ($getTypeDose as $index => $list){
+                $getListTypeDose[] = $list;
             }
         }
 
@@ -633,8 +638,8 @@ class DoctorAppointmentController extends Controller
         $getProducts = Product::whereIn('id', $getListProductId)->get();
         foreach ($getProducts as $index => $list) {
             $getQty = intval($getListQty[$index]) > 0 ? intval($getListQty[$index]) : 1;
-            $getDosis = isset($getListDosis[$index]) ? strip_tags($getListDosis[$index]) : '';
-            $getTypeDosis = intval($getListTypeDosis[$index]) > 0 ? intval($getListTypeDosis[$index]) : 1;
+            $getDose = isset($getListDose[$index]) ? strip_tags($getListDose[$index]) : '';
+            $getTypeDose = intval($getListTypeDose[$index]) > 0 ? intval($getListTypeDose[$index]) : 1;
             $getPeriod = isset($getListPeriod[$index]) ? $getListPeriod[$index] : '';
             $getNote = isset($getListNote[$index]) ? $getListNote[$index] : '';
 
@@ -644,8 +649,8 @@ class DoctorAppointmentController extends Controller
                 'product_name' => $list->name,
                 'product_qty' => $getQty,
                 'product_price' => $list->price,
-                'dosis' => $getDosis,
-                'type_dosis' => $getTypeDosis,
+                'dose' => $getDose,
+                'type_dose' => $getTypeDose,
                 'period' => $getPeriod,
                 'note' => $getNote,
                 'choose' => 0,
@@ -653,9 +658,21 @@ class DoctorAppointmentController extends Controller
             ]);
         }
 
+        $getFormPatient = json_decode($data->form_patient, true);
+
+        $saveFormPatient = [
+            'body_height' => strip_tags($this->request->get('body_height')) ?? $getFormPatient['body_height'],
+            'body_weight' => strip_tags($this->request->get('body_weight')) ?? $getFormPatient['body_weight'],
+            'blood_pressure' => strip_tags($this->request->get('blood_pressure')) ?? $getFormPatient['blood_pressure'],
+            'body_temperature' => strip_tags($this->request->get('body_temperature')) ?? $getFormPatient['body_temperature'],
+            'medical_checkup' => $getFormPatient['medical_checkup'] ?? [],
+            'complaint' => strip_tags($this->request->get('complaint')) ?? $getFormPatient['complaint']
+        ];
+
         $data->diagnosis = strip_tags($this->request->get('diagnosis'));
         $data->treatment = strip_tags($this->request->get('treatment'));
         $data->doctor_prescription = json_encode($listDoctorPrescription);
+        $data->form_patient = json_encode($saveFormPatient);
         $data->status = 80;
         $data->save();
 

@@ -69,56 +69,77 @@ class ProcessTransaction implements ShouldQueue
             $getUserId = intval($getJob['user_id']) ?? '';
             $getPaymentId = intval($getJob['payment_id']) ?? '';
 
-            if ($getType == 1) {
-                $this->transactionProduct($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getUserId, $getPaymentId, $getPaymentInfo, $additional);
-            }
-
-            return;
-
-            if($this->flag == 1) {
-                if ($getType == 1) {
-                    $this->transactionProduct($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getPaymentInfo, $additional, $this->flag, $this->transactionId);
-                }
-                else if ($getType == 2) {
-                    $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
-                    $getDoctorInfo = isset($getParams['doctor_info']) ? $getParams['doctor_info'] : [];
-                    $this->transactionDoctor($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getDoctorInfo, $getPaymentInfo, $additional, $this->flag, $this->transactionId);
-                }
-                else if ($getType == 3) {
-                    $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
-                    $getLabInfo = isset($getParams['lab_info']) ? $getParams['lab_info'] : [];
-                    $this->transactionLab($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getLabInfo, $getPaymentInfo, $additional, $this->flag, $this->transactionId);
-                }
-                else if ($getType == 4) {
-                    $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
-                    $getNurseInfo = isset($getParams['nurse_info']) ? $getParams['nurse_info'] : [];
-                    $this->transactionNurse($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getNurseInfo, $getPaymentInfo, $getDetailsInfo, $additional, $this->flag, $this->transactionId);
-                }
-                else if ($getType == 5) {
-                    $getAppointmentDoctorId = isset($getParams['appointment_doctor_id']) ? intval($getParams['appointment_doctor_id']) : 0;
-                    $this->transactionProductKlinik($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getShippingId, $getPaymentInfo, $getDetailsInfo, $getAppointmentDoctorId, $additional, $this->flag, $this->transactionId);
-                }
-            }
-            else {
-                if ($getType == 1) {
-                    $this->transactionProduct($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getPaymentInfo, $additional);
-                } else if ($getType == 2) {
+            switch ($getType) {
+                case 1 : $this->transactionProduct($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getUserId, $getPaymentId, $getPaymentInfo, $additional);
+                    break;
+                case 2 :
                     $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
                     $getDoctorInfo = isset($getParams['doctor_info']) ? $getParams['doctor_info'] : [];
                     $this->transactionDoctor($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getDoctorInfo, $getPaymentInfo, $additional);
-                } else if ($getType == 3) {
+                    break;
+                case 3 :
                     $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
                     $getLabInfo = isset($getParams['lab_info']) ? $getParams['lab_info'] : [];
                     $this->transactionLab($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getLabInfo, $getPaymentInfo, $additional);
-                } else if ($getType == 4) {
+                    break;
+                case 4 :
                     $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
                     $getNurseInfo = isset($getParams['nurse_info']) ? $getParams['nurse_info'] : [];
+                    $getDetailsInfo = [];
                     $this->transactionNurse($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getNurseInfo, $getPaymentInfo, $getDetailsInfo, $additional);
-                } else if ($getType == 5) {
+                    break;
+                case 5 :
                     $getAppointmentDoctorId = isset($getParams['appointment_doctor_id']) ? intval($getParams['appointment_doctor_id']) : 0;
+                    $getDetailsInfo = [];
+                    $getShippingId = 0;
                     $this->transactionProductKlinik($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getShippingId, $getPaymentInfo, $getDetailsInfo, $getAppointmentDoctorId, $additional);
-                }
+                    break;
             }
+
+//            if($this->flag == 1) {
+//                if ($getType == 1) {
+//                    $this->transactionProduct($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getPaymentInfo, $additional, $this->flag, $this->transactionId);
+//                }
+//                else if ($getType == 2) {
+//                    $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
+//                    $getDoctorInfo = isset($getParams['doctor_info']) ? $getParams['doctor_info'] : [];
+//                    $this->transactionDoctor($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getDoctorInfo, $getPaymentInfo, $additional, $this->flag, $this->transactionId);
+//                }
+//                else if ($getType == 3) {
+//                    $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
+//                    $getLabInfo = isset($getParams['lab_info']) ? $getParams['lab_info'] : [];
+//                    $this->transactionLab($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getLabInfo, $getPaymentInfo, $additional, $this->flag, $this->transactionId);
+//                }
+//                else if ($getType == 4) {
+//                    $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
+//                    $getNurseInfo = isset($getParams['nurse_info']) ? $getParams['nurse_info'] : [];
+//                    $this->transactionNurse($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getNurseInfo, $getPaymentInfo, $getDetailsInfo, $additional, $this->flag, $this->transactionId);
+//                }
+//                else if ($getType == 5) {
+//                    $getAppointmentDoctorId = isset($getParams['appointment_doctor_id']) ? intval($getParams['appointment_doctor_id']) : 0;
+//                    $this->transactionProductKlinik($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getShippingId, $getPaymentInfo, $getDetailsInfo, $getAppointmentDoctorId, $additional, $this->flag, $this->transactionId);
+//                }
+//            }
+//            else {
+//                if ($getType == 1) {
+//                    $this->transactionProduct($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getPaymentInfo, $additional);
+//                } else if ($getType == 2) {
+//                    $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
+//                    $getDoctorInfo = isset($getParams['doctor_info']) ? $getParams['doctor_info'] : [];
+//                    $this->transactionDoctor($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getDoctorInfo, $getPaymentInfo, $additional);
+//                } else if ($getType == 3) {
+//                    $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
+//                    $getLabInfo = isset($getParams['lab_info']) ? $getParams['lab_info'] : [];
+//                    $this->transactionLab($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getLabInfo, $getPaymentInfo, $additional);
+//                } else if ($getType == 4) {
+//                    $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
+//                    $getNurseInfo = isset($getParams['nurse_info']) ? $getParams['nurse_info'] : [];
+//                    $this->transactionNurse($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getNurseInfo, $getPaymentInfo, $getDetailsInfo, $additional);
+//                } else if ($getType == 5) {
+//                    $getAppointmentDoctorId = isset($getParams['appointment_doctor_id']) ? intval($getParams['appointment_doctor_id']) : 0;
+//                    $this->transactionProductKlinik($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getShippingId, $getPaymentInfo, $getDetailsInfo, $getAppointmentDoctorId, $additional);
+//                }
+//            }
         }
     }
 
