@@ -20,7 +20,7 @@ class ProductLogic
      */
     public function productGet($clinicId, $limit, $categoryId = null, $search = null): array
     {
-        $getData = Product::selectRaw('id, name, image, unit, price, stock, stock_flag')
+        $getData = Product::selectRaw('id, name, image, unit, price, stock, stock_flag, type, status')
             ->where('klinik_id', '=', $clinicId)->where('status', '=', 80);
         if (strlen($search) > 0) {
             $search = strip_tags($search);
