@@ -236,6 +236,7 @@ class UserLogic
 
     /**
      * @param $userId
+     * @param int $choose
      * @return array
      */
     public function userCart($userId, $choose = 0): array
