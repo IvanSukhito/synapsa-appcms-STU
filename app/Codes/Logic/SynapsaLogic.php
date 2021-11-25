@@ -12,6 +12,7 @@ use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\DoctorSchedule;
 use App\Codes\Models\V1\LabSchedule;
 use App\Codes\Models\V1\LogServiceTransaction;
+use App\Codes\Models\V1\Payment;
 use App\Codes\Models\V1\Service;
 use App\Codes\Models\V1\SetJob;
 use App\Codes\Models\V1\Transaction;
@@ -25,6 +26,31 @@ class SynapsaLogic
 {
     public function __construct()
     {
+    }
+
+    public function checkPayment($paymentId)
+    {
+        $getPayment = Payment::where('id', $paymentId)->first();
+        if (!$getPayment) {
+            return [
+                'success' => 0,
+                'message' => 'payment not found'
+            ];
+        }
+        else if ($getPayment->type == 2 && $getPayment->service == 'xendit' && in_array($getPayment->type_payment, ['ew_ovo', 'ew_dana', 'ew_linkaja'])) {
+            return [
+                'success' => 1,
+                'payment' => $getPayment,
+                'phone' => 1
+            ];
+        }
+        else {
+            return [
+                'success' => 1,
+                'payment' => $getPayment,
+                'phone' => 0
+            ];
+        }
     }
 
     /**
@@ -76,7 +102,7 @@ class SynapsaLogic
         $message = 'OK';
         $getInfo = [];
         if ($payment->service == 'xendit' && substr($payment->type_payment, 0, 3) == 'va_') {
-            $getData = (object)$this->sendPayment($payment, $additional);
+            $getData = (object)$this->sendPaymentXendit($payment, $additional);
             if ($getData->success == 1) {
                 if ($getData->result->status == 'PENDING') {
                     $success = 1;
@@ -120,7 +146,7 @@ class SynapsaLogic
             }
         }
         else if ($payment->service == 'xendit' && in_array($payment->type_payment, ['ew_ovo', 'ew_dana', 'ew_linkaja'])) {
-            $getData = (object)$this->sendPayment($payment, $additional);
+            $getData = (object)$this->sendPaymentXendit($payment, $additional);
             if ($getData->success == 1) {
                 if (isset($getData->result->ewallet_type) && in_array($getData->result->ewallet_type, ['OVO', 'DANA']) || $getData->result->status == 'REQUEST_RECEIVED') {
                     $success = 1;
@@ -168,7 +194,7 @@ class SynapsaLogic
             }
         }
         else if ($payment->service == 'xendit' && in_array($payment->type_payment, ['qr_qris'])) {
-            $getData = (object)$this->sendPayment($payment, $additional);
+            $getData = (object)$this->sendPaymentXendit($payment, $additional);
 
             if ($getData->success == 1) {
                 $success = 1;
@@ -224,7 +250,7 @@ class SynapsaLogic
         ];
     }
 
-    public function sendPayment($payment, $additional)
+    public function sendPaymentXendit($payment, $additional)
     {
         $message = 'Error';
         if ($payment->service == 'xendit') {

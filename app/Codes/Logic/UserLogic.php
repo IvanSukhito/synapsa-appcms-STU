@@ -195,6 +195,7 @@ class UserLogic
             'klinik_id' => $getUser->klinik_id,
             'klinik_name' => $getKlinik ? $getKlinik->name : '',
             'klinik_theme' => $getKlinik ? $getKlinik->theme_color : '',
+            'klinik_logo' => $getKlinik ? $getKlinik->logo_full : '',
             'fullname' => $getUser->fullname,
             'address' => $getUser->address,
             'address_detail' => $getUser->address_detail,
@@ -237,6 +238,7 @@ class UserLogic
 
     /**
      * @param $userId
+     * @param int $choose
      * @return array
      */
     public function userCart($userId, $choose = 0): array
