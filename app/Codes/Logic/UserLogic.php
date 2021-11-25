@@ -110,19 +110,48 @@ class UserLogic
             return false;
         }
 
+        $listUser = [
+            'phone',
+            'province_id',
+            'city_id',
+            'district_id',
+            'sub_district_id',
+            'address',
+            'address_detail',
+            'zip_code'
+        ];
+        $listAddress = [
+            'province_id',
+            'city_id',
+            'district_id',
+            'sub_district_id',
+            'address_name',
+            'address',
+            'address_detail',
+            'zip_code'
+        ];
+
+        DB::beginTransaction();
+
         $getUser = Users::where('id', '=', $userId)->first();
         if ($getUser) {
             foreach ($saveData as $key => $val) {
-                $getUser->$key = $val;
+                if (in_array($key, $listUser)) {
+                    $getUser->$key = $val;
+                }
             }
             $getUser->save();
         }
 
         foreach ($saveData as $key => $val) {
-            $getUsersAddress->$key = $val;
+            if (in_array($key, $listAddress)) {
+                $getUsersAddress->$key = $val;
+            }
         }
 
         $getUsersAddress->save();
+
+        DB::commit();
 
         return $getUsersAddress;
 
@@ -214,6 +243,9 @@ class UserLogic
             'users_id' => $userId
         ]);
 
+        $getDetailShipping = json_decode($getUsersCart->detail_shipping, true);
+        $shippingId = $getDetailShipping['shipping_id'] ?? 0;
+
         $getUsersCartDetail = Product::selectRaw('users_cart_detail.id, product.id as product_id, product.name, 
             product.image, product.price, product.unit, product.stock, product.stock_flag, product.type, product.status, 
             users_cart_detail.qty, users_cart_detail.choose')
@@ -228,6 +260,7 @@ class UserLogic
         }
 
         return [
+            'shipping_id' => $shippingId,
             'cart_info' => $getUsersCart,
             'cart' => $getUsersCartDetail,
             'total_qty' => $totalQty,

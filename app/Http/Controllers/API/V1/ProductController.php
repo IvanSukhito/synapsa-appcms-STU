@@ -348,27 +348,22 @@ class ProductController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        UsersCart::firstOrCreate([
-            'users_id' => $user->id,
-        ]);
-
-        $logic = new SynapsaLogic();
-        $getUsersAddress = $logic->getUserAddress($user->id, $user->phone);
-        $getUsersAddress['receiver'] = $getUsersAddress['address_name'] ?? '';
+        $userLogic = new UserLogic();
 
         return response()->json([
             'success' => 1,
-            'data' => $getUsersAddress
+            'data' => $userLogic->userAddress($user->id)
         ]);
     }
 
     public function updateReceiver()
     {
         $user = $this->request->attributes->get('_user');
+
         $validator = Validator::make($this->request->all(), [
             'receiver' => 'required',
             'address' => 'required',
-            'phone' => 'required'
+            'phone' => 'required|regex:/^(8\d+)/|numeric|unique:users,phone,'.$user->id,
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -378,29 +373,36 @@ class ProductController extends Controller
             ], 422);
         }
 
-        $receiver = $this->request->get('receiver');
-        $address = $this->request->get('address');
-        $phone = $this->request->get('phone');
-
-        $getUsersCart = UsersCart::firstOrCreate([
-            'users_id' => $user->id,
-        ]);
-
-        $getInformation = [
-            'receiver' => $receiver,
-            'address' => $address,
-            'phone' => $phone,
+        $saveData = [
+            'receiver' => strip_tags($this->request->get('receiver')),
+            'address_name' => strip_tags($this->request->get('receiver')),
+            'address' => strip_tags($this->request->get('address')),
+            'phone' => strip_tags($this->request->get('phone')),
         ];
-        $getUsersCart->detail_information = json_encode($getInformation);
-        $getUsersCart->save();
 
-        $getData = ['detail_information' => $getInformation];
+        $listValidate = [
+            'phone',
+            'province_id',
+            'city_id',
+            'district_id',
+            'sub_district_id',
+            'address_detail',
+            'zip_code'
+        ];
 
+        foreach ($listValidate as $key) {
+            if ($this->request->get($key)) {
+                $saveData[$key] = $this->request->get($key);
+            }
+        }
+
+        $userLogic = new UserLogic();
+        $userLogic->userUpdateAddressPatient($user->id, $saveData);
 
         return response()->json([
             'success' => 1,
             'message' => ['Detail Informasi Berhasil Diperbarui'],
-            'data' => $getData
+            'data' => $saveData
         ]);
     }
 
@@ -408,71 +410,39 @@ class ProductController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $getData = UsersCart::firstOrCreate([
-            'users_id' => $user->id,
-        ]);
-
-        $getUsersAddress = UsersAddress::where('user_id', $user->id)->first();
-
-        $getAddressName = $getUsersAddress ? $getUsersAddress->address_name : '';
-        $getAddress = $getUsersAddress ? $getUsersAddress->address : '';
-        $getAddress = $getUsersAddress ? $getUsersAddress->province_id : '';
-        $getCity = $getUsersAddress ? $getUsersAddress->city_id : '';
-        $getDistrict = $getUsersAddress ? $getUsersAddress->district_id : '';
-        $getSubDistrict = $getUsersAddress ? $getUsersAddress->sub_district_id : '';
-        $getZipCode = $getUsersAddress ? $getUsersAddress->zip_code : '';
+        $userLogic = new UserLogic();
 
         return response()->json([
             'success' => 1,
-            'data' => [
-                'address_name' => $getAddressName,
-                'address' => $getAddress,
-                'city_id' => $getCity,
-                'district_id' => $getDistrict,
-                'sub_district_id' => $getSubDistrict,
-                'zip_code' => $getZipCode,
-            ]
+            'data' => $userLogic->userAddress($user->id)
         ]);
     }
 
     public function getShipping()
     {
         $user = $this->request->attributes->get('_user');
-        $getData = UsersCart::firstOrCreate([
-            'users_id' => $user->id,
-        ]);
+
+        $userLogic = new UserLogic();
+        $getUserAddress = $userLogic->userAddress($user->id);
+
+        $getUserCart = $userLogic->userCart($user->id);
+        $subTotal = $getUserCart['total_price'];
+
+        if ($getUserAddress) {
+            $getUserAddress = $getUserAddress->toArray();
+            $getUserAddress['name'] = $getUserAddress['receiver'];
+            $getUserAddress['subtotal'] = $subTotal;
+            $getUserAddress['subtotal_nice'] = number_format_local($subTotal);
+        }
 
         $getDataShipping = Shipping::where('status', 80)->get();
-        $getShipping = json_decode($getData->detail_shipping, true);
-
-        $getUsersCart = UsersCart::firstOrCreate([
-            'users_id' => $user->id,
-        ]);
-
-        $getUsersCartDetails = Product::selectRaw('users_cart_detail.id, product.name AS product_name,
-            product.name, product.image, product.unit, product.price, users_cart_detail.qty')
-            ->join('users_cart_detail', 'users_cart_detail.product_id', '=', 'product.id')
-            ->where('users_cart_detail.users_cart_id', '=', $getUsersCart->id)
-            ->where('choose', 1)->get();
-
-        $getDetailsInformation = json_decode($getUsersCart->detail_information, true);
-
-        $subTotal = 0;
-        foreach ($getUsersCartDetails as $list) {
-            $subTotal += ($list->qty * $list->price);
-        }
 
         return response()->json([
             'success' => 1,
             'data' => [
                 'shipping' => $getDataShipping,
-                'choose' => $getShipping ? $getShipping['shipping_id'] : 0,
-                'cart_info' => [
-                    'name' => $getDetailsInformation['receiver'] ?? '',
-                    'address' => $getDetailsInformation['address'] ?? '',
-                    'phone' => $getDetailsInformation['phone'] ?? '',
-                    'subtotal' => $subTotal
-                ],
+                'choose' => $getUserCart['shipping_id'],
+                'cart_info' => $getUserAddress,
             ]
         ]);
 

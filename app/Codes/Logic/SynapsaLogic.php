@@ -28,6 +28,8 @@ class SynapsaLogic
     }
 
     /**
+     * @Deprecated
+     *
      * @param $userId
      * @param null $phone
      * @return array

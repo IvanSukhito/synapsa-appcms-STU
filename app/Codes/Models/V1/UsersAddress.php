@@ -21,6 +21,7 @@ class UsersAddress extends Model
     ];
 
     protected $appends = [
+        'receiver',
         'province',
         'city',
         'district',
@@ -30,6 +31,11 @@ class UsersAddress extends Model
         'district_name',
         'sub_district_name'
     ];
+
+    public function getReceiverAttribute()
+    {
+        return $this->address_name;
+    }
 
     public function getProvinceAttribute()
     {
