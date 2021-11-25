@@ -208,7 +208,7 @@ class UserLogic
      * @param $userId
      * @return array
      */
-    public function userCart($userId)
+    public function userCart($userId): array
     {
         $getUsersCart = UsersCart::firstOrCreate([
             'users_id' => $userId
@@ -239,68 +239,207 @@ class UserLogic
     }
 
     /**
+     * Note:
+     * 90 => Product Not Found
+     * 91 => Product Stock not enough
+     * 92 => Product Stock cannot be 0
      * @param $userId
      * @param $productId
      * @param int $qty
-     * @return int
+     * @return array
      */
-    public function userCartAdd($userId, $productId, int $qty = 1): int
+    public function userCartAdd($userId, $productId, int $qty = 1): array
     {
         $getProduct = Product::where('id', '=', $productId)->where('status', '=', 80)->first();
         if(!$getProduct) {
-            return 0;
-        }
-        elseif($getProduct->stock_flag == 2 && $getProduct->stock < $qty) {
-            return 0;
+            return [
+                'success' => 90,
+                'message' => 'Product Not Found'
+            ];
         }
 
         $getUsersCart = UsersCart::firstOrCreate([
             'users_id' => $userId
         ]);
 
-        $getUsersCartDetail = UsersCartDetail::firstOrCreate([
-            'users_cart_id' => $getUsersCart->id,
-            'product_id' => $productId
+        $getUsersCartDetail = UsersCartDetail::where('users_cart_id', '=', $getUsersCart->id)->where('product_id', '=', $productId)->first();
+        if ($getUsersCartDetail) {
+            $getUsersCartDetail->qty += $qty;
+            if ($getUsersCartDetail->qty <= 0) {
+                return [
+                    'success' => 92,
+                    'message' => 'Product Stock cannot be 0'
+                ];
+            }
+            else if($getProduct->stock_flag == 2 && $getProduct->stock < $getUsersCartDetail->qty) {
+                return [
+                    'success' => 91,
+                    'message' => 'Product Stock not enough'
+                ];
+            }
+
+            $getUsersCartDetail->save();
+
+            $qty = $getUsersCartDetail->qty;
+
+        }
+        else {
+            if ($getUsersCartDetail->qty <= 0) {
+                return [
+                    'success' => 92,
+                    'message' => 'Product Stock cannot be 0'
+                ];
+            }
+            else if($getProduct->stock_flag == 2 && $getProduct->stock < $qty) {
+                return [
+                    'success' => 91,
+                    'message' => 'Product Stock not enough'
+                ];
+            }
+
+            UsersCartDetail::firstOrCreate([
+                'users_cart_id' => $getUsersCart->id,
+                'product_id' => $productId
+            ], [
+                'qty' => $qty,
+                'choose' => 0
+            ]);
+
+        }
+
+        return [
+            'success' => 80,
+            'product_id' => $productId,
+            'qty' => $qty,
+            'qty_nice' => number_format_local($qty),
+            'message' => 'Product Success'
+        ];
+
+    }
+
+    /**
+     * Note:
+     * 90 => Product Not Found
+     * 91 => Product Stock not enough
+     * 92 => Product Stock cannot be 0
+     * 93 => Product Cart Not Found
+     * @param $userId
+     * @param $usersCartDetailId
+     * @param int $qty
+     * @return array
+     */
+    public function userCartUpdateQty($userId, $usersCartDetailId, int $qty = 1): array
+    {
+        $getUsersCart = UsersCart::firstOrCreate([
+            'users_id' => $userId
         ]);
 
-        $getUsersCartDetail->qty = $qty;
+        $getUsersCartDetail = UsersCartDetail::where('users_cart_id', '=', $getUsersCart->id)
+            ->where('id', '=', $usersCartDetailId)->first();
+        if (!$getUsersCartDetail) {
+            return [
+                'success' => 93,
+                'message' => 'Product Cart Not Found'
+            ];
+        }
+
+        $getUsersCartDetail->qty += $qty;
+
+        if ($getUsersCartDetail->qty <= 0) {
+            return [
+                'success' => 92,
+                'message' => 'Product Stock cannot be 0'
+            ];
+        }
+
+        $getProduct = Product::where('id', '=', $getUsersCartDetail->product_id)->where('status', '=', 80)->first();
+        if(!$getProduct) {
+            return [
+                'success' => 90,
+                'message' => 'Product Not Found'
+            ];
+        }
+        else if($getProduct->stock_flag == 2 && $getProduct->stock < $getUsersCartDetail->qty) {
+            return [
+                'success' => 91,
+                'message' => 'Product Stock not enough'
+            ];
+        }
+
         $getUsersCartDetail->save();
 
-        return 1;
+        $qty = $getUsersCartDetail->qty;
+
+        return [
+            'success' => 80,
+            'product_id' => $getUsersCartDetail->product_id,
+            'qty' => $qty,
+            'qty_nice' => number_format_local($qty),
+            'message' => 'Product Success'
+        ];
 
     }
 
-    public function userCartUpdateQty($usersCartDetailId, $products)
+    /**
+     * Note:
+     * 93 => Product Cart Not Found
+     * @param $userId
+     * @param $usersCartDetailId
+     * @return array
+     */
+    public function userCartDelete($userId, $usersCartDetailId): array
     {
-        $getProductIds = [];
-        foreach ($products as $product => $qty) {
-            $getProductIds[] = $product;
-        }
-
-        DB::beginTransaction();
-        $getUsersCartDetail = UsersCartDetail::where('users_cart_id', '=', $usersCartDetailId)
-            ->whereIn('product_id', $getProductIds)->get();
-        foreach ($getUsersCartDetail as $item) {
-            $item->qty = intval($products[$item->product_id]) ?? 1;
-            $item->save();
-        }
-        DB::commit();
-
-        return true;
-    }
-
-    public function userCartChoose($usersCartDetailId, $productIds)
-    {
-        DB::beginTransaction();
-        UsersCartDetail::where('users_cart_id', '=', $usersCartDetailId)->whereIn('product_id', $productIds)->update([
-            'choose' => 1
+        $getUsersCart = UsersCart::firstOrCreate([
+            'users_id' => $userId
         ]);
-        UsersCartDetail::where('users_cart_id', '=', $usersCartDetailId)->whereNotIn('product_id', $productIds)->update([
+
+        $getUsersCartDetail = UsersCartDetail::where('users_cart_id', '=', $getUsersCart->id)
+            ->where('id', '=', $usersCartDetailId)->first();
+        if (!$getUsersCartDetail) {
+            return [
+                'success' => 93,
+                'message' => 'Product Cart Not Found'
+            ];
+        }
+
+        $getUsersCartDetail->delete();
+
+        return [
+            'success' => 80,
+            'message' => 'Product Cart Success Remove'
+        ];
+
+    }
+
+    /**
+     * @param $userId
+     * @param $productIds
+     * @return int
+     */
+    public function userCartChoose($userId, $productIds): int
+    {
+        $getUsersCart = UsersCart::firstOrCreate([
+            'users_id' => $userId
+        ]);
+
+        $total = 0;
+        DB::beginTransaction();
+
+        UsersCartDetail::where('users_cart_id', '=', $getUsersCart->id)->whereNotIn('product_id', $productIds)->update([
             'choose' => 0
         ]);
+
+        $getUsersCartDetail = UsersCartDetail::where('users_cart_id', '=', $getUsersCart->id)->whereIn('product_id', $productIds)->get();
+        foreach ($getUsersCartDetail as $item) {
+            $item->choose = 1;
+            $item->save();
+            $total++;
+        }
+
         DB::commit();
 
-        return true;
+        return $total;
+
     }
 
 }
