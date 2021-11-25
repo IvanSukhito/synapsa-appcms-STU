@@ -72,7 +72,7 @@ class AppointmentDoctorHomecareClinicController extends _CrudController
         ];
 
         parent::__construct(
-            $request, 'general.doctor-clinic-homecare', 'doctor-clinic-homecare', 'V1\AppointmentDoctor', 'doctor-clinic-homecare',
+            $request, 'general.homecare', 'doctor-clinic-homecare', 'V1\AppointmentDoctor', 'doctor-clinic-homecare',
             $passingData
         );
 
@@ -80,7 +80,7 @@ class AppointmentDoctorHomecareClinicController extends _CrudController
         $service_id = [];
         foreach(Service::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
             $service_id[$key] = $val;
-        };
+        }
 
         $status = [0 => 'All'];
         foreach(get_list_appointment() as $key => $val) {
@@ -98,7 +98,7 @@ class AppointmentDoctorHomecareClinicController extends _CrudController
     public function dataTable()
     {
         $this->callPermission();
-        //$userId = session()->get('admin_id');
+
         $adminId = session()->get('admin_id');
 
         $getAdmin = Admin::where('id', $adminId)->first();
@@ -108,18 +108,6 @@ class AppointmentDoctorHomecareClinicController extends _CrudController
         $builder = $this->model::query()->selectRaw('appointment_doctor.*')
             ->where('appointment_doctor.klinik_id', $getAdmin->klinik_id)
             ->where('type_appointment', 'Homecare');
-
-        if ($this->request->get('status') && $this->request->get('status') != 0) {
-            $builder = $builder->where('appointment_lab.status', $this->request->get('status'));
-        }
-        if ($this->request->get('daterange')) {
-            $getDateRange = $this->request->get('daterange');
-            $dateSplit = explode(' | ', $getDateRange);
-            $dateStart = date('Y-m-d 00:00:00', strtotime($dateSplit[0]));
-            $dateEnd = isset($dateSplit[1]) ? date('Y-m-d 23:59:59', strtotime($dateSplit[1])) : date('Y-m-d 23:59:59', strtotime($dateSplit[0]));
-
-            $builder = $builder->whereBetween('appointment_lab.created_at', [$dateStart, $dateEnd]);
-        }
 
         $dataTables = $dataTables->eloquent($builder)
             ->addColumn('action', function ($query) {

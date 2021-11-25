@@ -4,15 +4,16 @@ namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
 use App\Codes\Models\Admin;
-use App\Codes\Models\V1\AppointmentDoctorProduct;
+use App\Codes\Models\V1\Klinik;
 use App\Codes\Models\V1\Service;
+use App\Codes\Models\V1\Transaction;
 use App\Codes\Models\V1\Users;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\DataTables;
 
 
-class AppointmentDoctorTelemedClinicController extends _CrudController
+class AppointmentDoctorVisitController extends _CrudController
 {
     public function __construct(Request $request)
     {
@@ -21,6 +22,12 @@ class AppointmentDoctorTelemedClinicController extends _CrudController
                 'create' => 0,
                 'edit' => 0,
                 'show' => 0
+            ],
+            'klinik_id' => [
+                'create' => 0,
+                'edit' => 0,
+                'type' => 'select',
+                'lang' => 'general.klinik'
             ],
             'patient_name' => [
                 'create' => 0,
@@ -39,11 +46,6 @@ class AppointmentDoctorTelemedClinicController extends _CrudController
                 'edit' => 0,
                 'list' => 0,
             ],
-            'diagnosis' => [
-                'create' => 0,
-                'edit' => 0,
-                'list' => 0,
-            ],
             'date' => [
                 'create' => 0,
                 'edit' => 0,
@@ -58,7 +60,6 @@ class AppointmentDoctorTelemedClinicController extends _CrudController
                 'create' => 0,
                 'edit' => 0,
                 'list' => 0,
-
             ],
             'status' => [
                 'create' => 0,
@@ -78,7 +79,7 @@ class AppointmentDoctorTelemedClinicController extends _CrudController
         ];
 
         parent::__construct(
-            $request, 'general.telemed', 'doctor-clinic-telemed', 'V1\AppointmentDoctor', 'doctor-clinic-telemed',
+            $request, 'general.visit', 'doctor-visit', 'V1\AppointmentDoctor', 'doctor-visit',
             $passingData
         );
 
@@ -93,73 +94,36 @@ class AppointmentDoctorTelemedClinicController extends _CrudController
             $status[$key] = $val;
         }
 
+        $listKlinik = [0 => 'Empty'];
+        foreach (Klinik::where('status', 80)->pluck('name', 'id')->toArray() as $key => $value) {
+            $listKlinik[$key] = $value;
+        }
+
+        $listFilterKlinik = [0 => 'All'];
+        foreach (Klinik::where('status', 80)->pluck('name', 'id')->toArray() as $key => $value) {
+            $listFilterKlinik[$key] = $value;
+        }
 
         $this->data['listSet']['service_id'] = $service_id;
         $this->data['listSet']['status'] = $status;
+        $this->data['listSet']['klinik_id'] = $listKlinik;
+        $this->data['listSet']['filter_klinik_id'] = $listFilterKlinik;
 
-        $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.appointment-doctor-clinic.doctor-clinic-telemed.forms';
+        $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.appointment-doctor.list';
     }
 
-    public function show($id)
-    {
-        $this->callPermission();
-
-        $adminClinicId = session()->get('admin_clinic_id');
-
-        if (!$adminClinicId) {
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
-        }
-
-        $getData = $this->crud->show($id, [
-            'id' => $id,
-            'klinik_id' => $adminClinicId,
-        ]);
-
-        if (!$getData) {
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
-        }
-
-        $data = $this->data;
-
-        $getAppointmentDoctorDetail = AppointmentDoctorProduct::selectRaw('appointment_doctor_product.*, doctor_prescription')
-                                        ->leftJoin('appointment_doctor','appointment_doctor.id','=','appointment_doctor_product.appointment_doctor_id')
-                                        ->where('appointment_doctor_product.appointment_doctor_id', $id)
-                                        ->get();
-
-        $data['viewType'] = 'show';
-        $data['formsTitle'] = __('general.title_show', ['field' => $data['thisLabel']]);
-        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
-        $data['data'] = $getData;
-        $data['doctorProduct'] = $getAppointmentDoctorDetail;
-        $data['listSetTypeDosis'] = get_list_type_dosis();
-
-        return view($this->listView[$data['viewType']], $data);
-    }
 
     public function dataTable()
     {
         $this->callPermission();
-        //$userId = session()->get('admin_id');
-        $adminId = session()->get('admin_id');
-
-        $getAdmin = Admin::where('id', $adminId)->first();
 
         $dataTables = new DataTables();
 
         $builder = $this->model::query()->selectRaw('appointment_doctor.*')
-            ->where('appointment_doctor.klinik_id', $getAdmin->klinik_id)
-            ->where('type_appointment', 'Telemed');
+            ->where('type_appointment', 'Visit');
 
-        if ($this->request->get('status') && $this->request->get('status') != 0) {
-            $builder = $builder->where('appointment_lab.status', $this->request->get('status'));
-        }
-        if ($this->request->get('daterange')) {
-            $getDateRange = $this->request->get('daterange');
-            $dateSplit = explode(' | ', $getDateRange);
-            $dateStart = date('Y-m-d 00:00:00', strtotime($dateSplit[0]));
-            $dateEnd = isset($dateSplit[1]) ? date('Y-m-d 23:59:59', strtotime($dateSplit[1])) : date('Y-m-d 23:59:59', strtotime($dateSplit[0]));
-
-            $builder = $builder->whereBetween('appointment_lab.created_at', [$dateStart, $dateEnd]);
+        if ($this->request->get('klinik_id') && $this->request->get('klinik_id') != 0) {
+            $builder = $builder->where('appointment_doctor.klinik_id', $this->request->get('klinik_id'));
         }
 
         $dataTables = $dataTables->eloquent($builder)
@@ -206,5 +170,4 @@ class AppointmentDoctorTelemedClinicController extends _CrudController
             ->rawColumns($listRaw)
             ->make(true);
     }
-
 }
