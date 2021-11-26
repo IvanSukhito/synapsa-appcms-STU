@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API\V1;
 
+use App\Codes\Logic\DoctorLogic;
 use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\DoctorSchedule;
@@ -44,6 +45,9 @@ class DoctorController extends Controller
 
         $getInterestService = $serviceId > 0 ? $serviceId : $user->interest_service_id;
         $getInterestCategory = $categoryId > 0 ? $categoryId : $user->interest_category_id;
+
+        $doctorLogic = new DoctorLogic();
+        $doctorLogic->doctorList();
 
         $getServiceData = $this->getService($getInterestService);
         $getCategoryData = $this->getCategory($getInterestCategory);

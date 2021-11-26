@@ -745,7 +745,6 @@ class ProcessTransaction implements ShouldQueue
                 $extraInfo[$key] = isset($getUsersAddress->$key) ? $getUsersAddress->$key : '';
             }
         }
-
         DB::beginTransaction();
 
         if($flag == 1) {

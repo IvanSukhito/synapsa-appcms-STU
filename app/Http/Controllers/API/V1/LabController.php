@@ -328,11 +328,7 @@ class LabController extends Controller
             ->where('klinik_id', $user->klinik_id)
             ->get();
 
-        //dd($getServiceData);
-
         $getList = get_list_type_service();
-
-        //dd($getList);
 
         return response()->json([
             'success' => 1,

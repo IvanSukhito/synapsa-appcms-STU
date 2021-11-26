@@ -2,17 +2,166 @@
 
 namespace App\Codes\Logic;
 
+use App\Codes\Models\Settings;
 use App\Codes\Models\V1\AppointmentDoctor;
 use App\Codes\Models\V1\AppointmentDoctorProduct;
 use App\Codes\Models\V1\Doctor;
+use App\Codes\Models\V1\DoctorCategory;
 use App\Codes\Models\V1\DoctorSchedule;
 use App\Codes\Models\V1\Service;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class DoctorLogic
 {
     public function __construct()
     {
+    }
+
+    /**
+     * @param null $serviceId
+     * @return array
+     */
+    public function getService($serviceId = null): array
+    {
+        $setting = Cache::remember('settings', env('SESSION_LIFETIME'), function () {
+            return Settings::pluck('value', 'key')->toArray();
+        });
+
+        $getServiceDoctor = isset($setting['service-doctor']) ? json_decode($setting['service-doctor'], true) : [];
+        if (count($getServiceDoctor) > 0) {
+            $service = Service::whereIn('id', $getServiceDoctor)->where('status', '=', 80)->orderBy('orders', 'ASC')->get();
+        }
+        else {
+            $service = Service::where('status', '=', 80)->orderBy('orders', 'ASC')->get();
+        }
+
+        $result = [];
+        $firstServiceId = 0;
+        $firstServiceName = '';
+        $setServiceId = 0;
+        $setServiceName = '';
+        foreach ($service as $index => $list) {
+            $active = 0;
+            if ($index == 0) {
+                $firstServiceId = $list->id;
+                $firstServiceName = $list->name;
+            }
+
+            if ($list->id == $serviceId) {
+                $active = 1;
+                $setServiceId = $list->id;
+                $setServiceName = $list->name;
+            }
+
+            $result[] = [
+                'id' => $list->id,
+                'name' => $list->name,
+                'type' => $list->type,
+                'type_nice' => $list->type_nice,
+                'active' => $active
+            ];
+
+        }
+
+        if ($setServiceId <= 0) {
+            $setServiceId = $firstServiceId;
+            $setServiceName = $firstServiceName;
+        }
+
+        return [
+            'data' => $result,
+            'getServiceId' => $setServiceId,
+            'getServiceName' => $setServiceName
+        ];
+
+    }
+
+    /**
+     * @param null $categoryId
+     * @return array
+     */
+    public function getCategory($categoryId = null): array
+    {
+        $category = Cache::remember('doctor_category', env('SESSION_LIFETIME'), function () {
+            return DoctorCategory::orderBy('orders', 'ASC')->get();
+        });
+
+        $result = [];
+        $firstCategoryId = 0;
+        $firstCategoryName = '';
+        $setCategoryId = 0;
+        $setCategoryName = '';
+        foreach ($category as $index => $list) {
+            $active = 0;
+            if ($index == 0) {
+                $firstCategoryId = $list->id;
+                $firstCategoryName = $list->name;
+            }
+
+            if ($list->id == $categoryId) {
+                $active = 1;
+                $setCategoryId = $list->id;
+                $setCategoryName = $list->name;
+            }
+
+            $result[] = [
+                'id' => $list->id,
+                'name' => $list->name,
+                'icon_img' => $list->icon_img,
+                'icon_img_full' => $list->icon_img_full,
+                'active' => $active
+            ];
+
+        }
+
+        if ($setCategoryId <= 0) {
+            $setCategoryId = $firstCategoryId;
+            $setCategoryName = $firstCategoryName;
+        }
+
+        return [
+            'data' => $result,
+            'getCategoryId' => $setCategoryId,
+            'getCategoryName' => $setCategoryName
+        ];
+    }
+
+    /**
+     * @param int $serviceId
+     * @param int $categoryId
+     * @param null $search
+     * @param int $getLimit
+     * @return mixed
+     */
+    public function doctorList(int $serviceId = 0, int $categoryId = 0, $search = null, $getLimit = 5)
+    {
+        if ($serviceId) {
+            $getData = Doctor::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
+            phone, gender, doctor_service.price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
+                ->join('users', 'users.id', '=', 'doctor.user_id')
+                ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
+                ->join('doctor_service', 'doctor_service.doctor_id','=','doctor.id')
+                ->where('doctor_service.service_id', '=', $serviceId)
+                ->where('users.doctor','=', 1);
+        }
+        else {
+            $getData = Doctor::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
+            phone, gender, 0 AS price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
+                ->join('users', 'users.id', '=', 'doctor.user_id')
+                ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
+                ->where('users.doctor','=', 1);
+        }
+
+        if ($categoryId > 0) {
+            $getData = $getData->where('doctor.doctor_category_id','=', $categoryId);
+        }
+        if (strlen($search) > 0) {
+            $getData = $getData->where('users.fullname', 'LIKE', "%$search%");
+        }
+
+        return $getData->orderBy('users.fullname', 'ASC')->pagination($getLimit);
+
     }
 
     /**
