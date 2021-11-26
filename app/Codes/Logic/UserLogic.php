@@ -227,7 +227,7 @@ class UserLogic
     /**
      * @param $userId
      * @param null $phone
-     * @return false
+     * @return false|array
      */
     public function userAddress($userId, $phone = null)
     {
@@ -236,12 +236,14 @@ class UserLogic
             return false;
         }
 
+        $getUserAddress = $getUserAddress->toArray();
+
         if ($phone == null) {
             $getUser = Users::where('id', $userId)->first();
-            $getUserAddress->phone = $getUser->phone;
+            $getUserAddress['phone'] = $getUser->phone;
         }
         else {
-            $getUserAddress->phone = $phone;
+            $getUserAddress['phone'] = $phone;
         }
 
         return $getUserAddress;
