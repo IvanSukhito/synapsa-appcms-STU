@@ -34,7 +34,7 @@ class Lab extends Model
 
     public function getService()
     {
-        return $this->belongsToMany(Service::class, 'lab_service', 'service_id', 'lab_id');
+        return $this->belongsToMany(Service::class, 'lab_service', 'lab_id', 'service_id');
     }
 
     public function getLabSchedule()

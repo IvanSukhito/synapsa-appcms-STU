@@ -10,6 +10,7 @@ class Article extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'article_category_id',
+        'klinik_id',
         'title',
         'slugs',
         'thumbnail_img',

@@ -292,6 +292,25 @@ if ( ! function_exists('listAllMenu')) {
                 'type' => 1,
             ],
             [
+                'name' => __('general.article_clinic'),
+                'icon' => '<i class="nav-icon fa fa-newspaper-o"></i>',
+                'title' => __('general.article_clinic'),
+                'active' => [
+                    'admin.article-clinic.',
+                ],
+                'type' => 2,
+                'data' => [
+                    [
+                        'name' => __('general.article_clinic'),
+                        'title' => __('general.article_clinic'),
+                        'active' => ['admin.article-clinic.'],
+                        'route' => 'admin.article-clinic.index',
+                        'key' => 'article-clinic',
+                        'type' => 1,
+                    ],
+                ],
+            ],
+            [
                 'name' => __('general.doctor_clinic'),
                 'icon' => '<i class="nav-icon fa fa-user-md"></i>',
                 'title' => __('general.doctor_clinic'),
@@ -457,9 +476,7 @@ if ( ! function_exists('listAllMenu')) {
                 'icon' => '<i class="nav-icon fa fa-tags"></i>',
                 'title' => __('general.product'),
                 'active' => [
-                    'admin.product.',
                     'admin.product-clinic.',
-                    'admin.product-category.',
                 ],
                 'type' => 2,
                 'data' => [
@@ -932,6 +949,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'users-patient',
                      'role',
                      'article',
+                     'article-clinic',
                      'product',
                      'product-clinic',
                      'lab-clinic',

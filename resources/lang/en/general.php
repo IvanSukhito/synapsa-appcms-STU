@@ -31,6 +31,7 @@ return [
     'zip_code' => 'ZIP Code',
     'nik' => 'NIK',
     'upload_ktp' => 'Upload KTP',
+
     'upload_hasil_lab' => 'Upload Hasil Lab',
     'date_available' => 'Date Available',
     'time_start' => 'Time Start',
@@ -41,6 +42,7 @@ return [
     'thumbnail_img' => 'Thumbnail Image',
     'total_test' => 'Total Test',
     'available' => 'Available',
+    'non_available' => 'Unavailable',
     'interval' => 'Interval',
     'reschedule' => 'Reschedule',
     'meeting' => 'Meeting',
@@ -473,5 +475,6 @@ return [
     'doctor_prescription' => 'Resep Dokter',
 
     'theme_color' => 'Theme Color',
-    'period' => 'Period'
+    'period' => 'Period',
+    'article_clinic' => 'Article Clinic',
 ];

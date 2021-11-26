@@ -4,13 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
 use App\Codes\Models\V1\ArticleCategory;
-use App\Codes\Models\V1\Klinik;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use App\Codes\Models\V1\Article;
+use Yajra\DataTables\DataTables;
 
-class ArticleController extends _CrudController
+class ArticleCLinicController extends _CrudController
 {
     public function __construct(Request $request)
     {
@@ -26,7 +26,7 @@ class ArticleController extends _CrudController
                     'edit' => 'required'
                 ],
                 'type' => 'select2',
-                'lang' => 'general.klinik',
+                'list' => 0,
             ],
             'article_category_id' => [
                 'validate' => [
@@ -89,7 +89,7 @@ class ArticleController extends _CrudController
         ];
 
         parent::__construct(
-            $request, 'general.article', 'article', 'V1\Article', 'article',
+            $request, 'general.article_clinic', 'article-clinic', 'V1\Article', 'article-clinic',
             $passingData
         );
 
@@ -102,14 +102,8 @@ class ArticleController extends _CrudController
             }
         }
 
-        $listKlinik = [0 => 'Empty'];
-        foreach (Klinik::where('status', 80)->pluck('name', 'id')->toArray() as $key => $value) {
-            $listKlinik[$key] = $value;
-        }
-
 
         $this->data['listSet']['article_category_id'] = $listArticleCategory;
-        $this->data['listSet']['klinik_id'] = $listKlinik;
        // $this->data['listSet']['publish_status'] = get_list_status_article();
     }
 
@@ -120,13 +114,11 @@ class ArticleController extends _CrudController
 
         $viewType = 'create';
 
-        if($this->request->get('klinik_id') <= 0) {
-            return redirect()
-                ->back()
-                ->withInput()
-                ->withErrors([
-                    'klinik_id' => __('general.data_empty')
-                ]);
+        $adminClinicId = session()->get('admin_clinic_id');
+        if(!$adminClinicId) {
+            session()->flash('message', __('Tidak ada clinic yang di assign'));
+            session()->flash('message_alert', 1);
+            return redirect()->route('admin');
         }
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
@@ -191,6 +183,7 @@ class ArticleController extends _CrudController
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
         $data['image'] = $dokumentImage;
+        $data['klinik_id'] = $adminClinicId;
         $data['thumbnail_img'] = $dokumentThumbnailImage;
         $data['publish_status'] = $publish;
         $data['slugs'] = create_slugs($title);
@@ -208,24 +201,56 @@ class ArticleController extends _CrudController
         }
     }
 
+    public function edit($id)
+    {
+        $this->callPermission();
+
+        $adminClinicId = session()->get('admin_clinic_id');
+        if(!$adminClinicId) {
+            session()->flash('message', __('Tidak ada clinic yang di assign'));
+            session()->flash('message_alert', 1);
+            return redirect()->route('admin');
+        }
+
+        $getData = $this->crud->show($id,[
+            'id' => $id,
+            'klinik_id' => $adminClinicId,
+        ]);
+
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $data = $this->data;
+
+        $data['viewType'] = 'edit';
+        $data['formsTitle'] = __('general.title_edit', ['field' => $data['thisLabel']]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['data'] = $getData;
+
+        return view($this->listView[$data['viewType']], $data);
+    }
+
     public function update($id)
     {
         $this->callPermission();
 
         $viewType = 'edit';
 
-        $getData = $this->crud->show($id);
-        if (!$getData) {
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        $adminClinicId = session()->get('admin_clinic_id');
+        if(!$adminClinicId) {
+            session()->flash('message', __('Tidak ada clinic yang di assign'));
+            session()->flash('message_alert', 1);
+            return redirect()->route('admin');
         }
 
-        if($this->request->get('klinik_id') <= 0) {
-            return redirect()
-                ->back()
-                ->withInput()
-                ->withErrors([
-                    'klinik_id' => __('general.data_empty')
-                ]);
+        $getData = $this->crud->show($id,[
+            'id' => $id,
+            'klinik_id' => $adminClinicId,
+        ]);
+
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
@@ -319,6 +344,7 @@ class ArticleController extends _CrudController
         }
 
         $data['image'] = $dokumentImage;
+        $data['klinik_id'] = $adminClinicId;
         $data['thumbnail_img'] = $dokumentThumbnailImage;
         $data['publish_status'] = $publish;
         $data['slugs'] = create_slugs($title);
@@ -335,6 +361,60 @@ class ArticleController extends _CrudController
             session()->flash('message_alert', 2);
             return redirect()->route($this->rootRoute.'.' . $this->route . '.show', $id);
         }
+    }
+
+    public function dataTable()
+    {
+        $this->callPermission();
+
+        $adminClinicId = session()->get('admin_clinic_id');
+
+        $dataTables = new DataTables();
+
+        $builder = $this->model::query()->select('*')->where('klinik_id', $adminClinicId);
+
+        $dataTables = $dataTables->eloquent($builder)
+            ->addColumn('action', function ($query) {
+                return view($this->listView['dataTable'], [
+                    'query' => $query,
+                    'thisRoute' => $this->route,
+                    'permission' => $this->permission,
+                    'masterId' => $this->masterId
+                ]);
+            });
+
+        $listRaw = [];
+        $listRaw[] = 'action';
+        foreach (collectPassingData($this->passingData) as $fieldName => $list) {
+            if (in_array($list['type'], ['select', 'select2', 'multiselect2'])) {
+                $dataTables = $dataTables->editColumn($fieldName, function ($query) use ($fieldName) {
+                    $getList = isset($this->data['listSet'][$fieldName]) ? $this->data['listSet'][$fieldName] : [];
+                    return isset($getList[$query->$fieldName]) ? $getList[$query->$fieldName] : $query->$fieldName;
+                });
+            }
+            else if (in_array($list['type'], ['image', 'image_preview'])) {
+                $listRaw[] = $fieldName;
+                $dataTables = $dataTables->editColumn($fieldName, function ($query) use ($fieldName, $list, $listRaw) {
+                    if ($query->{$fieldName.'_full'}) {
+                        return '<img src="' . $query->{$fieldName.'_full'}. '" class="img-responsive max-image-preview"/>';
+                    }
+                    return '<img src="' . asset($list['path'] . $query->$fieldName) . '" class="img-responsive max-image-preview"/>';
+                });
+            }
+            else if (in_array($list['type'], ['code'])) {
+                $listRaw[] = $fieldName;
+                $dataTables = $dataTables->editColumn($fieldName, function ($query) use ($fieldName, $list, $listRaw) {
+                    return '<pre>' . json_encode(json_decode($query->$fieldName, true), JSON_PRETTY_PRINT) . '</pre>';
+                });
+            }
+            else if (in_array($list['type'], ['texteditor'])) {
+                $listRaw[] = $fieldName;
+            }
+        }
+
+        return $dataTables
+            ->rawColumns($listRaw)
+            ->make(true);
     }
 
 
