@@ -24,15 +24,11 @@ class generateLogic
 
         $html = new Html();
 
-        $getAppointment = AppointmentDoctor::selectRaw('appointment_doctor.*, klinik.logo as logo, doctor_category.name as category')
+        $getAppointment = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name as category')
                             ->leftJoin('doctor','doctor.id','=','appointment_doctor.doctor_id')
                             ->leftJoin('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
-                            ->leftJoin('klinik','klinik.id','=','appointment_doctor.klinik_id')
                             ->where('appointment_doctor.id', $getData->id)
                             ->first();
-
-        //dd($getData->id);
-
 
         $userLogic = new UserLogic();
 
@@ -47,10 +43,9 @@ class generateLogic
         $listSetGender = get_list_gender();
         $listSetTypeDose = get_list_type_dose();
 
-        $getMedicine = AppointmentDoctorProduct::selectRaw('appointment_doctor_product.*')
-            ->where('appointment_doctor_id', $getData->id)->get();
-
-        //dd($getMedicine);
+        $getMedicine = AppointmentDoctorProduct::selectRaw('*')
+            ->where('appointment_doctor_id', $getData->id)
+            ->get();
 
         $getClinic = Klinik::where('id', $getData->klinik_id)->first();
 
@@ -173,7 +168,7 @@ class generateLogic
         ]);
 
         $column = 2;
-        $sheet->setCellValueByColumnAndRow($column, $row, $getUser['fullname']);
+        $sheet->setCellValueByColumnAndRow($column, $row, $getUser['fullname'] ?? '');
         $sheet->mergeCellsByColumnAndRow($column, $row, $column + 4, $row);
         $sheet->getStyleByColumnAndRow($column, $row, $column + 4, $row++)->applyFromArray([
             'font' => array(
@@ -182,7 +177,7 @@ class generateLogic
             ),
         ]);
 
-        $sheet->setCellValueByColumnAndRow($column, $row, $listSetGender[$getUser['gender']].','.' '.$usia.' '.'Tahun');
+        $sheet->setCellValueByColumnAndRow($column, $row, $listSetGender[$getUser['gender']] ?? '' . ', '. $usia .' Tahun');
         $sheet->mergeCellsByColumnAndRow($column, $row, $column + 4, $row);
         $sheet->getStyleByColumnAndRow($column, $row, $column + 4, $row)->applyFromArray([
             'font' => array(
@@ -222,9 +217,6 @@ class generateLogic
         $row += 2;
 
         if($getMedicine) {
-
-
-
             foreach ($getMedicine as $index => $list ){
 
                 $column = 2;
@@ -239,7 +231,7 @@ class generateLogic
 
 
                 $column = 2;
-                $sheet->setCellValueByColumnAndRow($column, $row, $list->dose ?? 'kosong');
+                $sheet->setCellValueByColumnAndRow($column, $row, $list->dose ?? '-');
                 $sheet->mergeCellsByColumnAndRow($column, $row, $column + 4, $row);
                 $sheet->getStyleByColumnAndRow($column, $row, $column + 4, $row++)->applyFromArray([
                     'font' => array(
@@ -248,7 +240,7 @@ class generateLogic
                     ),
                 ]);
 
-                $sheet->setCellValueByColumnAndRow($column, $row, $listSetTypeDose[$list->type_dose] ?? 'Kosong');
+                $sheet->setCellValueByColumnAndRow($column, $row, $listSetTypeDose[$list->type_dose] ?? '-');
                 $sheet->mergeCellsByColumnAndRow($column, $row, $column + 4, $row);
                 $sheet->getStyleByColumnAndRow($column, $row, $column + 4, $row++)->applyFromArray([
                     'font' => array(
@@ -257,8 +249,8 @@ class generateLogic
                     ),
                 ]);
 
-                $period = $list->period ?? 'Kosong';
-                $note = $list->note ?? 'Kosong';
+                $period = $list->period ?? '-';
+                $note = $list->note ?? '-';
 
                 $sheet->setCellValueByColumnAndRow($column, $row, $html->toRichTextObject('<font color="#000000">Waktu : </font><font color="#A9A9A9">'.$period.'</font>'));
                 $sheet->mergeCellsByColumnAndRow($column, $row, $column + 4, $row++);
