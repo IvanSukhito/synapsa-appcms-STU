@@ -547,11 +547,11 @@ class DoctorAppointmentController extends Controller
         $validator = Validator::make($this->request->all(), [
             'diagnosis' => 'required',
             'treatment' => 'required',
-            'body_height' => 'numeric',
-            'body_weight' => 'numeric',
+            'body_height' => '',
+            'body_weight' => '',
             'blood_pressure' => '',
-            'body_temperature' => 'numeric',
-            'complaint' => 'required',
+            'body_temperature' => '',
+            'complaint' => '',
             'product_ids' => 'array'
         ]);
         if ($validator->fails()) {
