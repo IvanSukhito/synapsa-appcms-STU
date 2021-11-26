@@ -128,7 +128,6 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
         });
 
         $router->get('/', ['uses' => 'App\Http\Controllers\Admin\DashboardController@dashboard'])->name('admin');
-        $router->get('/download', ['uses' => 'App\Http\Controllers\Admin\DashboardController@download'])->name('admin.download');
 
     });
 });

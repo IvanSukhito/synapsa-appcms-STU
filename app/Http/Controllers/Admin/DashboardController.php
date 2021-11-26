@@ -112,16 +112,4 @@ class DashboardController extends Controller
         return view(env('ADMIN_TEMPLATE').'.page.dashboard', $data);
     }
 
-    public function download()
-    {
-        $data = AppointmentDoctor::where('id', 6)->first();
-        if ($data && $data->status == 80) {
-            $generateLogic = new generateLogic();
-            $generateLogic->generatePdfDiagnosa($data);
-            exit;
-        }
-
-        return '';
-    }
-
 }
