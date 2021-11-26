@@ -108,7 +108,7 @@ return [
     'product-category' => 'Product Category',
     'article-category' => 'Article Category',
     'search_product' => 'Search Product',
-    'search_product_from_synapsa' => 'Search Product From Synapsa',
+    'search_product_from_synapsa' => 'Get Product From Synapsa',
     'apply' => 'Apply',
     'image' => 'Image',
     'image_full' => 'Image',
@@ -477,4 +477,7 @@ return [
     'theme_color' => 'Theme Color',
     'period' => 'Period',
     'article_clinic' => 'Article Clinic',
+    'katalog_product_synapsa' => 'Catalog Product Synapsa',
+    'product_category' => 'Category Product',
+    'flag_stock' => 'Type Stock',
 ];

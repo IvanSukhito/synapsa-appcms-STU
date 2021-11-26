@@ -122,13 +122,70 @@ else {
         </div>
     </section>
 
+    <section class="content">
+        <div class="container-fluid">
+            <div class="card {!! $printCard !!}">
+                <div class="card-header">
+                    <h3 class="card-title">{{ __('general.katalog_product_synapsa') }} </h3>
+                </div>
+
+                <div class="card-body">
+
+                    <table class="table table-bordered table-striped" id="data1">
+
+                        <thead>
+                        <tr>
+                            <th>@lang('general.id')</th>
+                            <th>@lang('general.product_category')</th>
+                            <th>@lang('general.product_name')</th>
+                            <th>@lang('general.stock')</th>
+                            <th>@lang('general.flag_stock')</th>
+                            <th>@lang('general.price')</th>
+                            <th>@lang('general.status')</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach($product as $list)
+                            <tr>
+                                <td>{{ $list->id }}</td>
+                                <td>{{ $list->product_category }}</td>
+                                <td>{{ $list->name }}</td>
+                                <td>{{ $list->stock }}</td>
+                                <td>{{ $getListStock[$list->stock_flag] }}</td>
+                                <td>{{ number_format($list->price, 2) }}</td>
+                                <td>{{ $getListStatus[$list->status] }}</td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
 @stop
 
 @section('script-bottom')
     @parent
     @include(env('ADMIN_TEMPLATE').'._component.generate_forms_script')
     <script>
+
+        'use strict';
+        let table;
+        table = jQuery('#data1').DataTable({
+            pageLength: 5,
+            autoWidth: false,
+            scrollX: true,
+            aaSorting: [ {!! "[0,'desc']" !!}],
+            rowReorder: {
+                selector: 'td:nth-child(2)'
+            },
+            responsive: true
+        });
+
         $(document).ready(function() {
+
             $('#category').change(function() {
 
                 let category = $('#category').val();
