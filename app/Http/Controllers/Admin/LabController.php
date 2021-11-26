@@ -304,6 +304,8 @@ class LabController extends _CrudController
                 }
 
             }
+        }else{
+            $dokumentImage = $getData->image;
         }
 
         $recommend = $data['recommended_for'];
