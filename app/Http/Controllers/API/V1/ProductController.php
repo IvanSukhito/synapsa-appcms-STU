@@ -263,7 +263,7 @@ class ProductController extends Controller
 
         return response()->json([
             'success' => 1,
-            'data' => $userLogic->userAddress($user->id)
+            'data' => $userLogic->userAddress($user->id, $user->phone)
         ]);
     }
 
@@ -325,7 +325,7 @@ class ProductController extends Controller
 
         return response()->json([
             'success' => 1,
-            'data' => $userLogic->userAddress($user->id)
+            'data' => $userLogic->userAddress($user->id, $user->phone)
         ]);
     }
 
@@ -334,13 +334,12 @@ class ProductController extends Controller
         $user = $this->request->attributes->get('_user');
 
         $userLogic = new UserLogic();
-        $getUserAddress = $userLogic->userAddress($user->id);
+        $getUserAddress = $userLogic->userAddress($user->id, $user->phone);
 
         $getUserCart = $userLogic->userCart($user->id, 1);
         $subTotal = $getUserCart['total_price'];
 
         if ($getUserAddress) {
-            $getUserAddress = $getUserAddress->toArray();
             $getUserAddress['name'] = $getUserAddress['receiver'];
             $getUserAddress['subtotal'] = $subTotal;
             $getUserAddress['subtotal_nice'] = number_format_local($subTotal);
@@ -401,15 +400,15 @@ class ProductController extends Controller
 
         $userLogic = new UserLogic();
         $getUserCart = $userLogic->userCart($user->id, 1);
-        $getUserAddress = $userLogic->userAddress($user->id);
+        $getUserAddress = $userLogic->userAddress($user->id, $user->phone);
 
         return response()->json([
             'success' => 1,
             'data' => [
                 'cart_info' => [
-                    'name' => $getUserAddress->receiver ?? '',
-                    'address' => $getUserAddress->address ?? '',
-                    'phone' => $getUserAddress->phone ?? '',
+                    'name' => $getUserAddress['receiver'] ?? '',
+                    'address' => $getUserAddress['address'] ?? '',
+                    'phone' => $getUserAddress['phone'] ?? '',
                     'shipping_name' => $getUserCart['shipping_name'] ?? '',
                     'shipping_price' => $getUserCart['shipping_price'] ?? '',
                     'shipping_price_nice' => $getUserCart['shipping_price_nice'] ?? '',
@@ -430,7 +429,7 @@ class ProductController extends Controller
 
         $userLogic = new UserLogic();
         $getUserCart = $userLogic->userCart($user->id, 1);
-        $getUserAddress = $userLogic->userAddress($user->id);
+        $getUserAddress = $userLogic->userAddress($user->id, $user->phone);
 
         $getPayment = Payment::where('status', '=', 80)->orderBy('orders', 'ASC')->get();
 
@@ -438,9 +437,9 @@ class ProductController extends Controller
             'success' => 1,
             'data' => [
                 'cart_info' => [
-                    'name' => $getUserAddress->receiver ?? '',
-                    'address' => $getUserAddress->address ?? '',
-                    'phone' => $getUserAddress->phone ?? '',
+                    'name' => $getUserAddress['receiver'] ?? '',
+                    'address' => $getUserAddress['address'] ?? '',
+                    'phone' => $getUserAddress['phone'] ?? '',
                     'shipping_name' => $getUserCart['shipping_name'] ?? '',
                     'shipping_price' => $getUserCart['shipping_price'] ?? '',
                     'shipping_price_nice' => $getUserCart['shipping_price_nice'] ?? '',
