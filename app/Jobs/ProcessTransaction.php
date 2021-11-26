@@ -659,8 +659,8 @@ class ProcessTransaction implements ShouldQueue
                 'subtotal' => $subTotal,
                 'total' => $total,
                 'extra_info' => json_encode($extraInfo),
-                'send_info' => $additional,
-                'payment_info' => $getPaymentInfo,
+                'send_info' => json_encode($additional),
+                'payment_info' => json_encode($getPaymentInfo),
                 'status' => 2
             ]);
 
