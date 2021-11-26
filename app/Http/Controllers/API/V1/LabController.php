@@ -324,7 +324,7 @@ class LabController extends Controller
         $getService = Service::where('id', $getInterestService)->where('status', '=', 80)->first();
         $getServiceData = $this->getService($getInterestService);
         $getLabSchedule = LabSchedule::where('service_id', $getData->service_id)
-            ->where('date_available', '=', $getDate)
+            ->where('date_available', $getDate)
             ->where('klinik_id', $user->klinik_id)
             ->get();
 

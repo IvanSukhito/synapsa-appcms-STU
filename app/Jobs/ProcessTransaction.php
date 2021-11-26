@@ -546,8 +546,8 @@ class ProcessTransaction implements ShouldQueue
             'shipping_subdistrict_id' => $getUsersAddress->sub_district_id ?? 0,
             'shipping_subdistrict_name' => $getUsersAddress->sub_district_name ?? '',
             'shipping_zipcode' => $getUsersAddress->zip_code ?? '',
-            'send_info' => $additional,
-            'payment_info' => $getPaymentInfo,
+            'send_info' => json_encode($additional),
+            'payment_info' => json_encode($getPaymentInfo),
             'category_service_id' => 0,
             'category_service_name' => '',
             'type_service' => 1,
@@ -770,7 +770,7 @@ class ProcessTransaction implements ShouldQueue
                 'type_payment' => $getPayment->type_payment,
                 'payment_id' => $getPaymentId,
                 'payment_name' => $getPayment->name,
-                'payment_info' => $getPaymentInfo,
+                'payment_info' => json_encode($getPaymentInfo),
                 'category_service_id' => $getLabSchedule->service_id,
                 'category_service_name' => $getService ? $getService->name : '',
                 'type_service' => 3,
@@ -778,7 +778,7 @@ class ProcessTransaction implements ShouldQueue
                 'subtotal' => $total,
                 'total' => $total,
                 'extra_info' => json_encode($extraInfo),
-                'send_info' => $additional,
+                'send_info' => json_encode($additional),
                 'status' => 2
             ]);
 
@@ -867,8 +867,8 @@ class ProcessTransaction implements ShouldQueue
             $getTransaction->type_payment = $getPayment->type_payment;
             $getTransaction->payment_id = $getPaymentId;
             $getTransaction->payment_name = $getPayment->name;
-            $getTransaction->send_info = $additional;
-            $getTransaction->payment_info = $getPaymentInfo;
+            $getTransaction->send_info = json_encode($additional);
+            $getTransaction->payment_info = json_encode($getPaymentInfo);
             $getTransaction->status = 2;
             $getTransaction->save();
         }
@@ -885,7 +885,7 @@ class ProcessTransaction implements ShouldQueue
                 'receiver_name' => $getReceiver['receiver_name'] ?? '',
                 'receiver_address' => $getReceiver['receiver_address'] ?? '',
                 'receiver_phone' => $getReceiver['receiver_phone'] ?? '',
-                'payment_info' => $getPaymentInfo,
+                'payment_info' => json_encode($getPaymentInfo),
                 'category_service_id' => 0,
                 'category_service_name' => '',
                 'type_service' => 4,
@@ -894,7 +894,7 @@ class ProcessTransaction implements ShouldQueue
                 'subtotal' => $total,
                 'total' => $total,
                 'extra_info' => json_encode($extraInfo),
-                'send_info' => $additional,
+                'send_info' => json_encode($additional),
                 'status' => 2
             ]);
 
