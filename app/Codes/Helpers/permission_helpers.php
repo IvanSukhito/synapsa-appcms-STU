@@ -297,7 +297,6 @@ if ( ! function_exists('listAllMenu')) {
                 'title' => __('general.article_clinic'),
                 'active' => [
                     'admin.article-clinic.',
-                    'admin.article-category.',
                 ],
                 'type' => 2,
                 'data' => [
@@ -307,14 +306,6 @@ if ( ! function_exists('listAllMenu')) {
                         'active' => ['admin.article-clinic.'],
                         'route' => 'admin.article-clinic.index',
                         'key' => 'article-clinic',
-                        'type' => 1,
-                    ],
-                    [
-                        'name' => __('general.article-category'),
-                        'title' => __('general.article-category'),
-                        'active' => ['admin.article-category.'],
-                        'route' => 'admin.article-category.index',
-                        'key' => 'article-category',
                         'type' => 1,
                     ],
                 ],
@@ -958,6 +949,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'users-patient',
                      'role',
                      'article',
+                     'article-clinic',
                      'product',
                      'product-clinic',
                      'lab-clinic',

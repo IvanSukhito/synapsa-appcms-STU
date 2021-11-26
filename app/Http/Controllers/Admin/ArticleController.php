@@ -26,6 +26,7 @@ class ArticleController extends _CrudController
                     'edit' => 'required'
                 ],
                 'type' => 'select2',
+                'lang' => 'general.klinik',
             ],
             'article_category_id' => [
                 'validate' => [

@@ -475,5 +475,6 @@ return [
     'doctor_prescription' => 'Resep Dokter',
 
     'theme_color' => 'Theme Color',
-    'period' => 'Period'
+    'period' => 'Period',
+    'article_clinic' => 'Article Clinic',
 ];
