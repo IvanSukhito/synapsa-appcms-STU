@@ -35,7 +35,7 @@ class UsersPatientController extends _CrudController
                     'edit' => 'required'
                 ],
                 'lang' => 'general.klinik',
-                'type' => 'select',
+                'type' => 'select2',
             ],
             'fullname' => [
                 'validate' => [
