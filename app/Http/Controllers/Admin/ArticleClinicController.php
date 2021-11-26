@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use App\Codes\Models\V1\Article;
 
-class ArticleController extends _CrudController
+class ArticleCLinicController extends _CrudController
 {
     public function __construct(Request $request)
     {
@@ -112,13 +112,11 @@ class ArticleController extends _CrudController
 
         $viewType = 'create';
 
-        if($this->request->get('klinik_id') <= 0) {
-            return redirect()
-                ->back()
-                ->withInput()
-                ->withErrors([
-                    'klinik_id' => __('general.data_empty')
-                ]);
+        $adminClinicId = session()->get('admin_clinic_id');
+        if(!$adminClinicId) {
+            session()->flash('message', __('Tidak ada clinic yang di assign'));
+            session()->flash('message_alert', 1);
+            return redirect()->route('admin');
         }
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
@@ -183,6 +181,7 @@ class ArticleController extends _CrudController
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
         $data['image'] = $dokumentImage;
+        $data['klinik_id'] = $adminClinicId;
         $data['thumbnail_img'] = $dokumentThumbnailImage;
         $data['publish_status'] = $publish;
         $data['slugs'] = create_slugs($title);
@@ -200,24 +199,56 @@ class ArticleController extends _CrudController
         }
     }
 
+    public function edit($id)
+    {
+        $this->callPermission();
+
+        $adminClinicId = session()->get('admin_clinic_id');
+        if(!$adminClinicId) {
+            session()->flash('message', __('Tidak ada clinic yang di assign'));
+            session()->flash('message_alert', 1);
+            return redirect()->route('admin');
+        }
+
+        $getData = $this->crud->show($id,[
+            'id' => $id,
+            'klinik_id' => $adminClinicId,
+        ]);
+
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $data = $this->data;
+
+        $data['viewType'] = 'edit';
+        $data['formsTitle'] = __('general.title_edit', ['field' => $data['thisLabel']]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['data'] = $getData;
+
+        return view($this->listView[$data['viewType']], $data);
+    }
+
     public function update($id)
     {
         $this->callPermission();
 
         $viewType = 'edit';
 
-        $getData = $this->crud->show($id);
-        if (!$getData) {
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        $adminClinicId = session()->get('admin_clinic_id');
+        if(!$adminClinicId) {
+            session()->flash('message', __('Tidak ada clinic yang di assign'));
+            session()->flash('message_alert', 1);
+            return redirect()->route('admin');
         }
 
-        if($this->request->get('klinik_id') <= 0) {
-            return redirect()
-                ->back()
-                ->withInput()
-                ->withErrors([
-                    'klinik_id' => __('general.data_empty')
-                ]);
+        $getData = $this->crud->show($id,[
+            'id' => $id,
+            'klinik_id' => $adminClinicId,
+        ]);
+
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
@@ -311,6 +342,7 @@ class ArticleController extends _CrudController
         }
 
         $data['image'] = $dokumentImage;
+        $data['klinik_id'] = $adminClinicId;
         $data['thumbnail_img'] = $dokumentThumbnailImage;
         $data['publish_status'] = $publish;
         $data['slugs'] = create_slugs($title);
