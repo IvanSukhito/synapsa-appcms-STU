@@ -21,6 +21,7 @@ use App\Codes\Models\V1\UsersAddress;
 use App\Jobs\ProcessTransaction;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class SynapsaLogic
 {
@@ -513,20 +514,26 @@ class SynapsaLogic
 
             if ($result) {
                 $getTypePayment = strtoupper(substr($payment->type_payment, 3));
-                $getLogId = LogServiceTransaction::create([
-                    'transaction_refer_id' => isset($result['external_id']) ? $result['external_id'] : '',
-                    'service' => 'xendit',
-                    'type_payment' => $getTypePayment,
-                    'type_transaction' => 'create',
-                    'params' => json_encode($params),
-                    'results' => json_encode($result)
-                ]);
+                $getLogId = 0;
+                try {
+                    $getLogId = LogServiceTransaction::create([
+                        'transaction_refer_id' => isset($result['external_id']) ? $result['external_id'] : '',
+                        'service' => 'xendit',
+                        'type_payment' => $getTypePayment,
+                        'type_transaction' => 'create',
+                        'params' => json_encode($params),
+                        'results' => json_encode($result)
+                    ]);
+                }
+                catch (\Exception $e) {
+                    Log::info($e->getMessage());
+                }
 
                 return [
                     'success' => 1,
                     'result' => (object)$result,
                     'message' => 'Success',
-                    'log_id' => $getLogId->id
+                    'log_id' => $getLogId ? $getLogId->id : 0
                 ];
             }
 
