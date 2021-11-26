@@ -639,7 +639,7 @@ class DoctorAppointmentController extends Controller
         foreach ($getProducts as $index => $list) {
             $getQty = intval($getListQty[$index]) > 0 ? intval($getListQty[$index]) : 1;
             $getDose = isset($getListDose[$index]) ? strip_tags($getListDose[$index]) : '';
-            $getTypeDose = intval($getListTypeDose[$index]) > 0 ? intval($getListTypeDose[$index]) : 1;
+            $getTypeDose = isset($getListTypeDose[$index]) ? intval($getListTypeDose[$index]) : 1;
             $getPeriod = isset($getListPeriod[$index]) ? $getListPeriod[$index] : '';
             $getNote = isset($getListNote[$index]) ? $getListNote[$index] : '';
 
