@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
 use App\Codes\Models\V1\ArticleCategory;
+use App\Codes\Models\V1\Klinik;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
@@ -100,8 +101,14 @@ class ArticleController extends _CrudController
             }
         }
 
+        $listKlinik = [0 => 'Empty'];
+        foreach (Klinik::where('status', 80)->pluck('name', 'id')->toArray() as $key => $value) {
+            $listKlinik[$key] = $value;
+        }
+
 
         $this->data['listSet']['article_category_id'] = $listArticleCategory;
+        $this->data['listSet']['article_category_id'] = $listKlinik;
        // $this->data['listSet']['publish_status'] = get_list_status_article();
     }
 
