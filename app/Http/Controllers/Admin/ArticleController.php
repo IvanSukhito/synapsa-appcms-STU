@@ -108,7 +108,7 @@ class ArticleController extends _CrudController
 
 
         $this->data['listSet']['article_category_id'] = $listArticleCategory;
-        $this->data['listSet']['article_category_id'] = $listKlinik;
+        $this->data['listSet']['klinik_id'] = $listKlinik;
        // $this->data['listSet']['publish_status'] = get_list_status_article();
     }
 
