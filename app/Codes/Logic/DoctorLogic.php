@@ -160,7 +160,7 @@ class DoctorLogic
             $getData = $getData->where('users.fullname', 'LIKE', "%$search%");
         }
 
-        return $getData->orderBy('users.fullname', 'ASC')->pagination($getLimit);
+        return $getData->orderBy('users.fullname', 'ASC')->paginate($getLimit);
 
     }
 
