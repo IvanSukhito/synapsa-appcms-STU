@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
+use App\Codes\Models\V1\AppointmentDoctor;
+use App\Codes\Models\V1\AppointmentLab;
 use App\Codes\Models\V1\Province;
 use App\Codes\Models\V1\City;
 use App\Codes\Models\V1\District;
 use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\SubDistrict;
+use App\Codes\Models\V1\Transaction;
 use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\UsersAddress;
 use App\Codes\Models\V1\Klinik;
@@ -136,7 +139,7 @@ class UsersPatientController extends _CrudController
 
         $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.users.patient.forms';
         $this->listView['edit'] = env('ADMIN_TEMPLATE').'.page.users.patient.forms';
-        $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.users.patient.forms';
+        $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.users.patient.forms_show';
 
         $getKlinik = Klinik::where('status', 80)->pluck('name', 'id')->toArray();
         if($getKlinik) {
@@ -217,7 +220,11 @@ class UsersPatientController extends _CrudController
     {
         $this->callPermission();
 
-        $getData = $this->crud->show($id);
+        $getData = $this->crud->show($id, [
+            'id' => $id,
+        ]);
+
+        //dd($getData);
         if (!$getData) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
@@ -229,6 +236,46 @@ class UsersPatientController extends _CrudController
         $getDistrict = District::where('id', $getData->district_id)->first();
         $getSubDistrict = SubDistrict::where('id', $getData->sub_district_id)->first();
 
+        //Transaction Product
+        $getDataTransactionProduct =   Transaction::selectRaw('transaction.*, product_name, product_qty, product_price')
+            ->leftJoin('users','users.id','=','transaction.user_id')
+            ->leftJoin('transaction_details','transaction_details.transaction_id','=','transaction.id')
+            ->where('users.id', $id)
+            ->where('transaction.type_service', 1)
+            ->orderBy('transaction.id','DESC')
+            ->get();
+
+        //Transaction Lab
+        $getDataTransactionLab =   Transaction::selectRaw('transaction.*, lab_name, lab_price')
+            ->leftJoin('users','users.id','=','transaction.user_id')
+            ->leftJoin('transaction_details','transaction_details.transaction_id','=','transaction.id')
+            ->where('users.id', $id)
+            ->where('transaction.type_service', 3)
+            ->orderBy('id','DESC')
+            ->get();
+
+        //Transaction Doctor
+        $getDataTransactionDoctor =   Transaction::selectRaw('transaction.*, doctor_name, doctor_price')
+            ->leftJoin('users','users.id','=','transaction.user_id')
+            ->leftJoin('transaction_details','transaction_details.transaction_id','=','transaction.id')
+            ->where('users.id', $id)
+            ->where('transaction.type_service', 2)
+            ->orderBy('id','DESC')
+            ->get();
+
+
+        // Appointment Lab
+        $getAppointmentLab = AppointmentLab::selectRaw('appointment_lab.*, lab_name, lab_price')
+            ->leftJoin('appointment_lab_details','appointment_lab_details.appointment_lab_id', '=' ,'appointment_lab.id')
+            ->leftJoin('users','users.id','=','appointment_lab.user_id')
+            ->where('users.id', $id)
+            ->get();
+//        // Appointment Doctor
+        $getAppointmentDoctor = AppointmentDoctor::selectRaw('appointment_doctor.*, product_name, product_qty_checkout as product_qty, product_price')
+            ->leftJoin('appointment_doctor_product','appointment_doctor_product.appointment_doctor_id', '=', 'appointment_doctor.id')
+            ->leftJoin('users','users.id','=','appointment_doctor.user_id')
+            ->where('users.id', $id)
+            ->get();
 
         $data['viewType'] = 'show';
         $data['formsTitle'] = __('general.title_show', ['field' => $data['thisLabel']]);
@@ -238,6 +285,14 @@ class UsersPatientController extends _CrudController
         $data['city'] = $getCity;
         $data['district'] = $getDistrict;
         $data['subDistrict'] = $getSubDistrict;
+        $data['transactionProduct'] = $getDataTransactionProduct;
+        $data['transactionDoctor'] = $getDataTransactionDoctor;
+        $data['transactionLab'] = $getDataTransactionLab;
+        $data['appointmentDoctor'] = $getAppointmentDoctor;
+        $data['appointmentLab'] = $getAppointmentLab;
+        $data['getListStatus'] = get_list_active_inactive();
+        $data['getListStatusTransaction'] = get_list_transaction();
+        $data['getListStatusAppointment'] = get_list_appointment();
 
         return view($this->listView[$data['viewType']], $data);
     }
