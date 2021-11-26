@@ -154,17 +154,15 @@ class DoctorController extends Controller
         }
         else {
 
-            $getWeekday = intval(date('w', strtotime($getDate)));
-            $getDoctorSchedule = DoctorSchedule::where('service_id', $serviceId)->where('weekday', $getWeekday)->get();
-
             $getDoctorSchedule2 = DoctorSchedule::where('doctor_id', '=', $id)->where('service_id', '=', $serviceId)
-                ->where('date_available', '=', $getDate)
-                ->get();
-
-            if ($getDoctorSchedule2) {
+                ->where('date_available', '=', $getDate)->get();
+            if ($getDoctorSchedule2->count() > 0) {
                 $getSchedule = $getDoctorSchedule2;
             }
             else {
+                $getWeekday = intval(date('w', strtotime($getDate)));
+                $getDoctorSchedule = DoctorSchedule::where('doctor_id', '=', $id)->where('service_id', $serviceId)
+                    ->where('weekday', $getWeekday)->get();
                 $getSchedule = $getDoctorSchedule;
             }
 

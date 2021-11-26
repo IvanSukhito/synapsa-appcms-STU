@@ -176,6 +176,8 @@ return [
     'type' => 'Type',
     'type_payment' => 'Type Payment',
     'proses' => 'Proses',
+    'untuk_klinik' => 'Role Untuk Clinic',
+    'untuk_admin' => 'Role Untuk Admin',
     'proses_pengiriman' => 'Proses Pengiriman',
     'type_appointment' => 'Type Appointment',
     'appointment_lab' => 'Appointment Lab',
