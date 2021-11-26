@@ -523,7 +523,7 @@ class SynapsaLogic
                 $getLogId = 0;
                 try {
                     $getLogId = LogServiceTransaction::create([
-                        'transaction_refer_id' => isset($result['external_id']) ? $result['external_id'] : '',
+                        'transaction_refer_id' => $result->external_id,
                         'service' => 'xendit',
                         'type_payment' => $getTypePayment,
                         'type_transaction' => 'create',
