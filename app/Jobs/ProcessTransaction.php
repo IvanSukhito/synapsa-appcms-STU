@@ -73,18 +73,18 @@ class ProcessTransaction implements ShouldQueue
                 case 1 : $this->transactionProduct($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getUserId, $getPaymentId, $getPaymentInfo, $additional);
                     break;
                 case 2 :
-                    $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
-                    $getDoctorInfo = isset($getParams['doctor_info']) ? $getParams['doctor_info'] : [];
+                    $getScheduleId = isset($getJob['schedule_id']) ? intval($getJob['schedule_id']) : 0;
+                    $getDoctorInfo = isset($getJob['doctor_info']) ? $getJob['doctor_info'] : [];
                     $this->transactionDoctor($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getDoctorInfo, $getPaymentInfo, $additional);
                     break;
                 case 3 :
-                    $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
-                    $getLabInfo = isset($getParams['lab_info']) ? $getParams['lab_info'] : [];
+                    $getScheduleId = isset($getJob['schedule_id']) ? intval($getJob['schedule_id']) : 0;
+                    $getLabInfo = isset($getJob['lab_info']) ? $getJob['lab_info'] : [];
                     $this->transactionLab($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getLabInfo, $getPaymentInfo, $additional);
                     break;
                 case 4 :
-                    $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
-                    $getNurseInfo = isset($getParams['nurse_info']) ? $getParams['nurse_info'] : [];
+                    $getScheduleId = isset($getJob['schedule_id']) ? intval($getJob['schedule_id']) : 0;
+                    $getNurseInfo = isset($getJob['nurse_info']) ? $getJob['nurse_info'] : [];
                     $getDetailsInfo = [];
                     $this->transactionNurse($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getNurseInfo, $getPaymentInfo, $getDetailsInfo, $additional);
                     break;
