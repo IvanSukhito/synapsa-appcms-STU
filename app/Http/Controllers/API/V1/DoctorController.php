@@ -47,36 +47,24 @@ class DoctorController extends Controller
         $getInterestCategory = $categoryId > 0 ? $categoryId : $user->interest_category_id;
 
         $doctorLogic = new DoctorLogic();
-        $doctorLogic->doctorList();
+        $getService = $doctorLogic->getService($getInterestService);
+        $getCategory = $doctorLogic->getCategory($getInterestCategory);
 
-        $getServiceData = $this->getService($getInterestService);
-        $getCategoryData = $this->getCategory($getInterestCategory);
+        $getServiceId = $getService['getServiceId'] ?? 0;
+        $getCategoryId = $getCategory['getCategoryId'] ?? 0;
 
-        $data = Users::selectRaw('doctor.id, users.fullname as doctor_name, image, doctor_service.price, doctor_category.name as category')
-            ->join('doctor', 'doctor.user_id', '=', 'users.id')
-            ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
-            ->join('doctor_service', 'doctor_service.doctor_id','=','doctor.id')
-            ->where('doctor.doctor_category_id','=', $getCategoryData['getCategoryId'])
-            ->where('doctor_service.service_id','=', $getServiceData['getServiceId'])
-            ->where('users.doctor','=', 1)
-            ->where('users.klinik_id','=', $user->klinik_id);
-
-        if (strlen($s) > 0) {
-            $data = $data->where('users.fullname', 'LIKE', "%$s%");
-        }
-
-        $data = $data->orderBy('users.fullname', 'ASC')->paginate($getLimit);
+        $getData = $doctorLogic->doctorList($getServiceId, $getCategoryId, $s, $getLimit);
 
         return response()->json([
             'success' => 1,
             'data' => [
-                'doctor' => $data,
-                'service' => $getServiceData['data'],
+                'doctor' => $getData,
+                'service' => $getService['data'],
                 'active' => [
-                    'service' => $getServiceData['getServiceId'],
-                    'service_name' => $getServiceData['getServiceName'],
-                    'category' => $getCategoryData['getCategoryId'],
-                    'category_name' => $getCategoryData['getCategoryName']
+                    'service' => $getService['getServiceId'],
+                    'service_name' => $getService['getServiceName'],
+                    'category' => $getCategory['getCategoryId'],
+                    'category_name' => $getCategory['getCategoryName']
                 ]
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
