@@ -469,7 +469,7 @@ class ProductController extends _CrudController
         $title = $this->request->get('title');
 //        $productInformation = $this->request->get('information');
 //        $productIndication = $this->request->get('indication');
-//        $productDosis = $this->request->get('dosis');
+//        $productDose = $this->request->get('dose');
         $descProduct = [];
 
         if($productStockFlag != 1){

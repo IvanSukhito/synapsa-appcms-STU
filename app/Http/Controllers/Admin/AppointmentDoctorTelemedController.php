@@ -139,7 +139,7 @@ class AppointmentDoctorTelemedController extends _CrudController
         $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
         $data['data'] = $getData;
         $data['doctorProduct'] = $getAppointmentDoctorDetail;
-        $data['listSetTypeDosis'] = get_list_type_dosis();
+        $data['listSetTypeDose'] = get_list_type_dose();
 
         return view($this->listView[$data['viewType']], $data);
     }

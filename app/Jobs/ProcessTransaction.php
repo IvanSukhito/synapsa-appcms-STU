@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Codes\Logic\UserLogic;
 use App\Codes\Models\V1\AppointmentDoctor;
 use App\Codes\Models\V1\AppointmentDoctorProduct;
 use App\Codes\Models\V1\BookNurse;
@@ -56,234 +57,196 @@ class ProcessTransaction implements ShouldQueue
     {
         if ($this->getJob && $this->getJob->status == 1) {
             $getParams = json_decode($this->getJob->params, TRUE);
-            $getTypeService = isset($getParams['type_service']) ? $getParams['type_service'] : '';
-            $getServiceId = isset($getParams['service_id']) ? intval($getParams['service_id']) : 0;
-            $getUserId = isset($getParams['user_id']) ? intval($getParams['user_id']) : 0;
-            $getPaymentId = isset($getParams['payment_id']) ? intval($getParams['payment_id']) : 0;
-            $getType = isset($getParams['type']) ? intval($getParams['type']) : 0;
             $getPaymentReferId = $getParams['payment_refer_id'] ?? '';
+            $getType = isset($getParams['type']) ? intval($getParams['type']) : 0;
             $getPaymentInfo = $getParams['payment_info'] ?? '';
+            $additional = $getParams['additional'] ?? '';
             $getNewCode = $getParams['code'] ?? '';
-            $getDetailsInfo =  $getParams['detail_info'] ?? '';
-            $getShippingId = isset($getParams['shipping_id']) ? intval($getParams['shipping_id']) : 0;
-            $additional = isset($getParams['additional']) ? $getParams['additional'] : '';
 
-            if($this->flag == 1) {
-                if ($getType == 1) {
-                    $this->transactionProduct($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getPaymentInfo, $additional, $this->flag, $this->transactionId);
-                }
-                else if ($getType == 2) {
-                    $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
-                    $getDoctorInfo = isset($getParams['doctor_info']) ? $getParams['doctor_info'] : [];
-                    $this->transactionDoctor($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getDoctorInfo, $getPaymentInfo, $additional, $this->flag, $this->transactionId);
-                }
-                else if ($getType == 3) {
-                    $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
-                    $getLabInfo = isset($getParams['lab_info']) ? $getParams['lab_info'] : [];
-                    $this->transactionLab($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getLabInfo, $getPaymentInfo, $additional, $this->flag, $this->transactionId);
-                }
-                else if ($getType == 4) {
-                    $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
-                    $getNurseInfo = isset($getParams['nurse_info']) ? $getParams['nurse_info'] : [];
-                    $this->transactionNurse($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getNurseInfo, $getPaymentInfo, $getDetailsInfo, $additional, $this->flag, $this->transactionId);
-                }
-                else if ($getType == 5) {
-                    $getAppointmentDoctorId = isset($getParams['appointment_doctor_id']) ? intval($getParams['appointment_doctor_id']) : 0;
-                    $this->transactionProductKlinik($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getShippingId, $getPaymentInfo, $getDetailsInfo, $getAppointmentDoctorId, $additional, $this->flag, $this->transactionId);
-                }
-            }
-            else {
-                if ($getType == 1) {
-                    $this->transactionProduct($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getPaymentInfo, $additional);
-                } else if ($getType == 2) {
+            $getJob = $additional['job'] ?? [];
+            $getTypeService = $getJob['type_service'] ?? '';
+            $getServiceId = intval($getJob['service_id']) ?? '';
+            $getUserId = intval($getJob['user_id']) ?? '';
+            $getPaymentId = intval($getJob['payment_id']) ?? '';
+
+            switch ($getType) {
+                case 1 : $this->transactionProduct($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getUserId, $getPaymentId, $getPaymentInfo, $additional);
+                    break;
+                case 2 :
                     $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
                     $getDoctorInfo = isset($getParams['doctor_info']) ? $getParams['doctor_info'] : [];
                     $this->transactionDoctor($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getDoctorInfo, $getPaymentInfo, $additional);
-                } else if ($getType == 3) {
+                    break;
+                case 3 :
                     $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
                     $getLabInfo = isset($getParams['lab_info']) ? $getParams['lab_info'] : [];
                     $this->transactionLab($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getLabInfo, $getPaymentInfo, $additional);
-                } else if ($getType == 4) {
+                    break;
+                case 4 :
                     $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
                     $getNurseInfo = isset($getParams['nurse_info']) ? $getParams['nurse_info'] : [];
+                    $getDetailsInfo = [];
                     $this->transactionNurse($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getNurseInfo, $getPaymentInfo, $getDetailsInfo, $additional);
-                } else if ($getType == 5) {
+                    break;
+                case 5 :
                     $getAppointmentDoctorId = isset($getParams['appointment_doctor_id']) ? intval($getParams['appointment_doctor_id']) : 0;
+                    $getDetailsInfo = [];
+                    $getShippingId = 0;
                     $this->transactionProductKlinik($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getShippingId, $getPaymentInfo, $getDetailsInfo, $getAppointmentDoctorId, $additional);
-                }
+                    break;
             }
+
+//            if($this->flag == 1) {
+//                if ($getType == 1) {
+//                    $this->transactionProduct($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getPaymentInfo, $additional, $this->flag, $this->transactionId);
+//                }
+//                else if ($getType == 2) {
+//                    $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
+//                    $getDoctorInfo = isset($getParams['doctor_info']) ? $getParams['doctor_info'] : [];
+//                    $this->transactionDoctor($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getDoctorInfo, $getPaymentInfo, $additional, $this->flag, $this->transactionId);
+//                }
+//                else if ($getType == 3) {
+//                    $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
+//                    $getLabInfo = isset($getParams['lab_info']) ? $getParams['lab_info'] : [];
+//                    $this->transactionLab($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getLabInfo, $getPaymentInfo, $additional, $this->flag, $this->transactionId);
+//                }
+//                else if ($getType == 4) {
+//                    $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
+//                    $getNurseInfo = isset($getParams['nurse_info']) ? $getParams['nurse_info'] : [];
+//                    $this->transactionNurse($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getNurseInfo, $getPaymentInfo, $getDetailsInfo, $additional, $this->flag, $this->transactionId);
+//                }
+//                else if ($getType == 5) {
+//                    $getAppointmentDoctorId = isset($getParams['appointment_doctor_id']) ? intval($getParams['appointment_doctor_id']) : 0;
+//                    $this->transactionProductKlinik($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getShippingId, $getPaymentInfo, $getDetailsInfo, $getAppointmentDoctorId, $additional, $this->flag, $this->transactionId);
+//                }
+//            }
+//            else {
+//                if ($getType == 1) {
+//                    $this->transactionProduct($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getPaymentInfo, $additional);
+//                } else if ($getType == 2) {
+//                    $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
+//                    $getDoctorInfo = isset($getParams['doctor_info']) ? $getParams['doctor_info'] : [];
+//                    $this->transactionDoctor($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getDoctorInfo, $getPaymentInfo, $additional);
+//                } else if ($getType == 3) {
+//                    $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
+//                    $getLabInfo = isset($getParams['lab_info']) ? $getParams['lab_info'] : [];
+//                    $this->transactionLab($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getLabInfo, $getPaymentInfo, $additional);
+//                } else if ($getType == 4) {
+//                    $getScheduleId = isset($getParams['schedule_id']) ? intval($getParams['schedule_id']) : 0;
+//                    $getNurseInfo = isset($getParams['nurse_info']) ? $getParams['nurse_info'] : [];
+//                    $this->transactionNurse($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getNurseInfo, $getPaymentInfo, $getDetailsInfo, $additional);
+//                } else if ($getType == 5) {
+//                    $getAppointmentDoctorId = isset($getParams['appointment_doctor_id']) ? intval($getParams['appointment_doctor_id']) : 0;
+//                    $this->transactionProductKlinik($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getShippingId, $getPaymentInfo, $getDetailsInfo, $getAppointmentDoctorId, $additional);
+//                }
+//            }
         }
     }
 
-    private function transactionProduct($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getPaymentInfo, $additional, $flag = 0, $transactionId = 0)
+    private function transactionProduct($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getUserId, $getPaymentId, $getPaymentInfo, $additional)
     {
+        $userLogic = new UserLogic();
         $getUser = Users::where('id', $getUserId)->first();
-        $getUsersAddress = UsersAddress::where('user_id', $getUserId)->first();
-        $getPayment = Payment::where('id', $getPaymentId)->first();
-        $getUsersCart = UsersCart::firstOrCreate([
-            'users_id' => $getUserId,
-        ]);
+        $getUserAddress = $userLogic->userAddress($getUserId);
+        $getCart = $userLogic->userCart($getUserId, 1);
 
-        $getDetailsInformation = json_decode($getUsersCart->detail_information, true);
-        $getDetailsShipping = json_decode($getUsersCart->detail_shipping, true);
-        $getShippingId = $getDetailsShipping['shipping_id'];
-        $getShipping = Shipping::where('id', $getShippingId)->first();
-        if (!$getShipping) {
+        $getCartInfo = $getCart['cart_info'];
+        $getUsersCartDetail = $getCart['cart'];
+        if ($getUsersCartDetail->count() > 0) {
             $this->getJob->status = 99;
             $this->getJob->response = json_encode([
-                'service' => $getTypeService,
-                'service_id' => $getServiceId,
-                'message' => 'Pengiriman Tidak Ditemukan'
+                'message' => 'Tidak ada Produk yang di pilih'
             ]);
             $this->getJob->save();
             return;
         }
 
-        if($flag == 1) {
-            $getTransaction = Transaction::where('id', $transactionId)->where('status', 2)->first();
-            if (!$getTransaction) {
-                $this->getJob->status = 99;
-                $this->getJob->response = json_encode([
-                    'transaction_id' => $transactionId,
-                    'service' => $getTypeService,
-                    'service_id' => $getServiceId,
-                    'message' => 'Transaksi Tidak Ditemukan'
-                ]);
-                $this->getJob->save();
-                return;
-            }
+        $getShippingId = $getCart['shipping_id'] ?? 0;
+        $getShippingName = $getCart['shipping_name'] ?? '';
+        $getShippingPrice = $getCart['shipping_price'] ?? '';
+        $getTotalQty = $getCart['total_qty'] ?? 0;
+        $getSubTotal = $getCart['subtotal'] ?? 0;
+        $getTotal = $getCart['total'] ?? 0;
+        if ($getShippingId <= 0) {
+            $this->getJob->status = 99;
+            $this->getJob->response = json_encode([
+                'message' => 'Shipping tidak dipilih'
+            ]);
+            $this->getJob->save();
+            return;
         }
-        else {
-            $getUsersCartDetail = UsersCartDetail::where('users_cart_id', '=', $getUsersCart->id)
-                ->where('choose', 1)->count();
-            if ($getUsersCartDetail <= 0) {
-                $this->getJob->status = 99;
-                $this->getJob->response = json_encode([
-                    'service' => $getTypeService,
-                    'service_id' => $getServiceId,
-                    'message' => 'Tidak ada Produk yang di pilih'
-                ]);
-                $this->getJob->save();
-                return;
-            }
+
+        $getPayment = Payment::where('id', '=', $getPaymentId)->first();
+        if (!$getPayment) {
+            $this->getJob->status = 99;
+            $this->getJob->response = json_encode([
+                'message' => 'Payment tidak dipilih'
+            ]);
+            $this->getJob->save();
+            return;
         }
 
         $newCode = date('Ym').$getNewCode;
 
         DB::beginTransaction();
 
-        if($flag == 1) {
-            $getTransaction->code = $newCode;
-            $getTransaction->payment_refer_id = $getPaymentReferId;
-            $getTransaction->payment_service = $getPayment->service;
-            $getTransaction->type_payment = $getPayment->type_payment;
-            $getTransaction->payment_id = $getPaymentId;
-            $getTransaction->payment_name = $getPayment->name;
-            $getTransaction->send_info = $additional;
-            $getTransaction->payment_info = $getPaymentInfo;
-            $getTransaction->status = 2;
-            $getTransaction->save();
-        }
-        else {
-            $getUsersCartDetails = Product::selectRaw('users_cart_detail.id, product.id AS product_id, product.name AS product_name,
-            product.name, product.image, product.unit, product.price, users_cart_detail.qty')
-                ->join('users_cart_detail', 'users_cart_detail.product_id', '=', 'product.id')
-                ->where('users_cart_detail.users_cart_id', '=', $getUsersCart->id)
-                ->where('choose', 1)->get();
+        $getTransaction = Transaction::create([
+            'klinik_id' => $getUser->klinik_id ?? 0,
+            'user_id' => $getUser->id ?? 0,
+            'code' => $newCode,
+            'payment_refer_id' => $getPaymentReferId,
+            'payment_service' => $getPayment->service,
+            'type_payment' => $getPayment->type_payment,
+            'shipping_id' => $getShippingId,
+            'shipping_name' => $getShippingName,
+            'payment_id' => $getPaymentId,
+            'payment_name' => $getPayment->name,
+            'receiver_name' => $getUserAddress['address_name'] ?? '',
+            'receiver_address' => $getUserAddress['address'] ?? '',
+            'receiver_phone' => $getUser->phone ?? '',
+            'shipping_address_name' => $getUserAddress['address_name'] ?? '',
+            'shipping_address' => $getUserAddress['address'] ?? '',
+            'shipping_province_id' => $getUserAddress['province_id'] ?? '',
+            'shipping_province_name' => $getUserAddress['province_name'] ?? '',
+            'shipping_city_id' => $getUserAddress['city_id'] ?? '',
+            'shipping_city_name' => $getUserAddress['city_name'] ?? '',
+            'shipping_district_id' => $getUserAddress['district_id'] ?? '',
+            'shipping_district_name' => $getUserAddress['district_name'] ?? '',
+            'shipping_subdistrict_id' => $getUserAddress['sub_district_id'] ?? '',
+            'shipping_subdistrict_name' => $getUserAddress['sub_district_name'] ?? '',
+            'shipping_zipcode' => $getUserAddress['zip_code'] ?? '',
+            'send_info' => $additional,
+            'payment_info' => $getPaymentInfo,
+            'category_service_id' => 0,
+            'category_service_name' => '',
+            'type_service' => 1,
+            'type_service_name' => $getTypeService,
+            'total_qty' => $getTotalQty,
+            'subtotal' => $getSubTotal,
+            'shipping_price' => $getShippingPrice,
+            'total' => $getTotal,
+            'status' => 2
+        ]);
 
-            $totalQty = 0;
-            $subTotal = 0;
-            $shippingPrice = $getShipping->price;
-            $transactionDetails = [];
-            $productQty = [];
-            $getProductIds = [];
-            foreach ($getUsersCartDetails as $list) {
-                // dd($list->qty);
-                $totalQty += $list->qty;
+        $transactionDetails = [];
+        foreach ($getUsersCartDetail as $item) {
+            $item->stock -= $item->qty;
+            $item->save();
 
-                $subTotal += ($list->qty * $list->price);
-
-                $productQty[] = $list->qty;
-                $getProductIds[] = $list->product_id;
-                $transactionDetails[] = new TransactionDetails([
-                    'product_id' => $list->product_id,
-                    'product_name' => $list->product_name,
-                    'product_qty' => $list->qty,
-                    'product_price' => $list->price
-                ]);
-            }
-
-            $total = $subTotal + $shippingPrice;
-
-            $getProducts = Product::whereIn('id', $getProductIds)->get();
-
-            foreach ($getProducts as $key => $list) {
-
-                $qty = $productQty[$key];
-
-                if ($list->stock_flag == 2) {
-                    $list->stock = $list->stock - $qty;
-                    $list->save();
-
-                    Product::where('parent_id', $list->id)->update([
-                        'stock' => $list->stock,
-                    ]);
-
-                    if ($list->klinik_id > 0 && $list->parent_id > 0) {
-                        $productParent = Product::where('id', $list->parent_id)->first();
-                        $productParent->stock = $list->stock;
-                        $productParent->save();
-
-                        Product::where('parent_id', $productParent->id)->update([
-                            'stock' => $list->stock,
-                        ]);
-                    }
-                }
-            }
-
-            $getTransaction = Transaction::create([
-                'klinik_id' => $getUser->klinik_id,
-                'user_id' => $getUser->id,
-                'code' => $newCode,
-                'payment_refer_id' => $getPaymentReferId,
-                'payment_service' => $getPayment->service,
-                'type_payment' => $getPayment->type_payment,
-                'shipping_id' => $getShippingId,
-                'shipping_name' => $getShipping->name,
-                'payment_id' => $getPaymentId,
-                'payment_name' => $getPayment->name,
-                'receiver_name' => $getDetailsInformation['receiver'] ?? '',
-                'receiver_address' => $getDetailsInformation['address'] ?? '',
-                'receiver_phone' => $getDetailsInformation['phone'] ?? '',
-                'shipping_address_name' => $getUsersAddress->address_name ?? '',
-                'shipping_address' => $getUsersAddress->address ?? '',
-                'shipping_province_id' => $getUsersAddress->province_id ?? 0,
-                'shipping_province_name' => $getUsersAddress->province_name ?? '',
-                'shipping_city_id' => $getUsersAddress->city_id ?? 0,
-                'shipping_city_name' => $getUsersAddress->city_name ?? '',
-                'shipping_district_id' => $getUsersAddress->district_id ?? 0,
-                'shipping_district_name' => $getUsersAddress->district_name ?? '',
-                'shipping_subdistrict_id' => $getUsersAddress->sub_district_id ?? 0,
-                'shipping_subdistrict_name' => $getUsersAddress->sub_district_name ?? '',
-                'shipping_zipcode' => $getUsersAddress->zip_code ?? '',
-                'send_info' => $additional,
-                'payment_info' => $getPaymentInfo,
-                'category_service_id' => 0,
-                'category_service_name' => '',
-                'type_service' => 1,
-                'type_service_name' => $getTypeService,
-                'total_qty' => $totalQty,
-                'subtotal' => $subTotal,
-                'shipping_price' => $shippingPrice,
-                'total' => $total,
-                'status' => 2
+            $transactionDetails[] = new TransactionDetails([
+                'product_id' => $item->product_id,
+                'product_name' => $item->name,
+                'product_qty' => $item->qty,
+                'product_price' => $item->price
             ]);
 
+        }
+
+        if (count($transactionDetails) > 0)
             $getTransaction->getTransactionDetails()->saveMany($transactionDetails);
 
-            UsersCartDetail::where('users_cart_id', '=', $getUsersCart->id)
-                ->where('choose', 1)->delete();
-        }
+        UsersCartDetail::where('users_cart_id', '=', $getCartInfo->id)
+            ->where('choose', 1)->delete();
 
         DB::commit();
 
@@ -295,6 +258,176 @@ class ProcessTransaction implements ShouldQueue
             'message' => 'ok'
         ]);
         $this->getJob->save();
+
+//        $getUser = Users::where('id', $getUserId)->first();
+//        $getUsersAddress = UsersAddress::where('user_id', $getUserId)->first();
+//        $getPayment = Payment::where('id', $getPaymentId)->first();
+//        $getUsersCart = UsersCart::firstOrCreate([
+//            'users_id' => $getUserId,
+//        ]);
+//
+//        $getDetailsInformation = json_decode($getUsersCart->detail_information, true);
+//        $getDetailsShipping = json_decode($getUsersCart->detail_shipping, true);
+//        $getShippingId = $getDetailsShipping['shipping_id'];
+//        $getShipping = Shipping::where('id', $getShippingId)->first();
+//        if (!$getShipping) {
+//            $this->getJob->status = 99;
+//            $this->getJob->response = json_encode([
+//                'service' => $getTypeService,
+//                'service_id' => $getServiceId,
+//                'message' => 'Pengiriman Tidak Ditemukan'
+//            ]);
+//            $this->getJob->save();
+//            return;
+//        }
+//
+//        if($flag == 1) {
+//            $getTransaction = Transaction::where('id', $transactionId)->where('status', 2)->first();
+//            if (!$getTransaction) {
+//                $this->getJob->status = 99;
+//                $this->getJob->response = json_encode([
+//                    'transaction_id' => $transactionId,
+//                    'service' => $getTypeService,
+//                    'service_id' => $getServiceId,
+//                    'message' => 'Transaksi Tidak Ditemukan'
+//                ]);
+//                $this->getJob->save();
+//                return;
+//            }
+//        }
+//        else {
+//            $getUsersCartDetail = UsersCartDetail::where('users_cart_id', '=', $getUsersCart->id)
+//                ->where('choose', 1)->count();
+//            if ($getUsersCartDetail <= 0) {
+//                $this->getJob->status = 99;
+//                $this->getJob->response = json_encode([
+//                    'service' => $getTypeService,
+//                    'service_id' => $getServiceId,
+//                    'message' => 'Tidak ada Produk yang di pilih'
+//                ]);
+//                $this->getJob->save();
+//                return;
+//            }
+//        }
+//
+//        $newCode = date('Ym').$getNewCode;
+//
+//        DB::beginTransaction();
+//
+//        if($flag == 1) {
+//            $getTransaction->code = $newCode;
+//            $getTransaction->payment_refer_id = $getPaymentReferId;
+//            $getTransaction->payment_service = $getPayment->service;
+//            $getTransaction->type_payment = $getPayment->type_payment;
+//            $getTransaction->payment_id = $getPaymentId;
+//            $getTransaction->payment_name = $getPayment->name;
+//            $getTransaction->send_info = $additional;
+//            $getTransaction->payment_info = $getPaymentInfo;
+//            $getTransaction->status = 2;
+//            $getTransaction->save();
+//        }
+//        else {
+//            $getUsersCartDetails = Product::selectRaw('users_cart_detail.id, product.id AS product_id, product.name AS product_name,
+//            product.name, product.image, product.unit, product.price, users_cart_detail.qty')
+//                ->join('users_cart_detail', 'users_cart_detail.product_id', '=', 'product.id')
+//                ->where('users_cart_detail.users_cart_id', '=', $getUsersCart->id)
+//                ->where('choose', 1)->get();
+//
+//            $totalQty = 0;
+//            $subTotal = 0;
+//            $shippingPrice = $getShipping->price;
+//            $transactionDetails = [];
+//            $productQty = [];
+//            $getProductIds = [];
+//            foreach ($getUsersCartDetails as $list) {
+//                // dd($list->qty);
+//                $totalQty += $list->qty;
+//
+//                $subTotal += ($list->qty * $list->price);
+//
+//                $productQty[] = $list->qty;
+//                $getProductIds[] = $list->product_id;
+//                $transactionDetails[] = new TransactionDetails([
+//                    'product_id' => $list->product_id,
+//                    'product_name' => $list->product_name,
+//                    'product_qty' => $list->qty,
+//                    'product_price' => $list->price
+//                ]);
+//            }
+//
+//            $total = $subTotal + $shippingPrice;
+//
+//            $getProducts = Product::whereIn('id', $getProductIds)->get();
+//
+//            foreach ($getProducts as $key => $list) {
+//
+//                $qty = $productQty[$key];
+//
+//                if ($list->stock_flag == 2) {
+//                    $list->stock = $list->stock - $qty;
+//                    $list->save();
+//
+//                    Product::where('parent_id', $list->id)->update([
+//                        'stock' => $list->stock,
+//                    ]);
+//
+//                    if ($list->klinik_id > 0 && $list->parent_id > 0) {
+//                        $productParent = Product::where('id', $list->parent_id)->first();
+//                        $productParent->stock = $list->stock;
+//                        $productParent->save();
+//
+//                        Product::where('parent_id', $productParent->id)->update([
+//                            'stock' => $list->stock,
+//                        ]);
+//                    }
+//                }
+//            }
+//
+//            $getTransaction = Transaction::create([
+//                'klinik_id' => $getUser->klinik_id,
+//                'user_id' => $getUser->id,
+//                'code' => $newCode,
+//                'payment_refer_id' => $getPaymentReferId,
+//                'payment_service' => $getPayment->service,
+//                'type_payment' => $getPayment->type_payment,
+//                'shipping_id' => $getShippingId,
+//                'shipping_name' => $getShipping->name,
+//                'payment_id' => $getPaymentId,
+//                'payment_name' => $getPayment->name,
+//                'receiver_name' => $getDetailsInformation['receiver'] ?? '',
+//                'receiver_address' => $getDetailsInformation['address'] ?? '',
+//                'receiver_phone' => $getDetailsInformation['phone'] ?? '',
+//                'shipping_address_name' => $getUsersAddress->address_name ?? '',
+//                'shipping_address' => $getUsersAddress->address ?? '',
+//                'shipping_province_id' => $getUsersAddress->province_id ?? 0,
+//                'shipping_province_name' => $getUsersAddress->province_name ?? '',
+//                'shipping_city_id' => $getUsersAddress->city_id ?? 0,
+//                'shipping_city_name' => $getUsersAddress->city_name ?? '',
+//                'shipping_district_id' => $getUsersAddress->district_id ?? 0,
+//                'shipping_district_name' => $getUsersAddress->district_name ?? '',
+//                'shipping_subdistrict_id' => $getUsersAddress->sub_district_id ?? 0,
+//                'shipping_subdistrict_name' => $getUsersAddress->sub_district_name ?? '',
+//                'shipping_zipcode' => $getUsersAddress->zip_code ?? '',
+//                'send_info' => $additional,
+//                'payment_info' => $getPaymentInfo,
+//                'category_service_id' => 0,
+//                'category_service_name' => '',
+//                'type_service' => 1,
+//                'type_service_name' => $getTypeService,
+//                'total_qty' => $totalQty,
+//                'subtotal' => $subTotal,
+//                'shipping_price' => $shippingPrice,
+//                'total' => $total,
+//                'status' => 2
+//            ]);
+//
+//            $getTransaction->getTransactionDetails()->saveMany($transactionDetails);
+//
+//            UsersCartDetail::where('users_cart_id', '=', $getUsersCart->id)
+//                ->where('choose', 1)->delete();
+//        }
+//
+//        DB::commit();
 
     }
 

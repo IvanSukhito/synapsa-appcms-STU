@@ -21,10 +21,10 @@ class CreateAppointmentDoctorProductTable extends Migration
             $table->integer('product_qty')->default(0);
             $table->integer('product_qty_checkout')->default(0);
             $table->decimal('product_price', 26, 2)->default(0);
-            $table->string('dosis')->nullable();
-            $table->tinyInteger('type_dosis')->default(0);
-            $table->text('period')->nullable();
-            $table->text('note')->nullable();
+            $table->string('dose')->nullable();
+            $table->tinyInteger('type_dose')->default(0);
+            $table->string('period')->nullable();
+            $table->string('note')->nullable();
             $table->tinyInteger('choose')->default(0);
             $table->tinyInteger('status')->default(1);
             $table->timestamps();

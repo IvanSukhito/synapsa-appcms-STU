@@ -7,9 +7,7 @@ use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Logic\UserLogic;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\Payment;
-use App\Codes\Models\V1\Product;
 use App\Codes\Models\V1\Shipping;
-use App\Codes\Models\V1\UsersCart;
 use App\Codes\Models\V1\Transaction;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -498,6 +496,7 @@ class ProductController extends Controller
         $userLogic = new UserLogic();
         $getResult = $userLogic->userCart($user->id, 1);
         $total = $getResult['total'] ?? 0;
+        $shippingId = intval($getResult['shipping_id']) ?? 0;
         if ($total <= 0) {
             return response()->json([
                 'success' => 0,
@@ -509,12 +508,13 @@ class ProductController extends Controller
         $getTotal = Transaction::where('klinik_id', $user->klinik_id)->whereYear('created_at', '=', date('Y'))
             ->whereMonth('created_at', '=', date('m'))->count();
 
-        $newCode = str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT).rand(100,199);
+        $newCode = str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT).rand(100000,999999);
         $sendData = [
             'job' => [
                 'code' => $newCode,
                 'payment_id' => $paymentId,
                 'user_id' => $user->id,
+                'shipping_id' => $shippingId,
                 'type_service' => 'product',
                 'service_id' => 0
             ],

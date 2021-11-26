@@ -31,6 +31,8 @@ class generateLogic
                             ->where('appointment_doctor.id', $getData->id)
                             ->first();
 
+        //dd($getData->id);
+
 
         $userLogic = new UserLogic();
 
@@ -43,9 +45,9 @@ class generateLogic
         $usia = date("Y", strtotime($dateNow)) - $tglLahir;
 
         $listSetGender = get_list_gender();
-        $listSetTypeDosis = get_list_type_dosis();
+        $listSetTypeDose = get_list_type_dose();
 
-        $getMedicine = AppointmentDoctorProduct::selectRaw('product_name, product_qty')
+        $getMedicine = AppointmentDoctorProduct::selectRaw('appointment_doctor_product.*')
             ->where('appointment_doctor_id', $getData->id)->get();
 
         //dd($getMedicine);
@@ -226,7 +228,7 @@ class generateLogic
             foreach ($getMedicine as $index => $list ){
 
                 $column = 2;
-                $sheet->setCellValueByColumnAndRow($column, $row, $list->product_name. $list->product_qty_checkout);
+                $sheet->setCellValueByColumnAndRow($column, $row, $list->product_name.' '.$list->product_qty_checkout);
                 $sheet->mergeCellsByColumnAndRow($column, $row, $column + 4, $row);
                 $sheet->getStyleByColumnAndRow($column, $row, $column + 4, $row++)->applyFromArray([
                     'font' => array(
@@ -237,7 +239,7 @@ class generateLogic
 
 
                 $column = 2;
-                $sheet->setCellValueByColumnAndRow($column, $row, $list->dosis ?? 'kosong');
+                $sheet->setCellValueByColumnAndRow($column, $row, $list->dose ?? 'kosong');
                 $sheet->mergeCellsByColumnAndRow($column, $row, $column + 4, $row);
                 $sheet->getStyleByColumnAndRow($column, $row, $column + 4, $row++)->applyFromArray([
                     'font' => array(
@@ -246,7 +248,7 @@ class generateLogic
                     ),
                 ]);
 
-                $sheet->setCellValueByColumnAndRow($column, $row, $listSetTypeDosis[$list->type_dosis] ?? 'Kosong');
+                $sheet->setCellValueByColumnAndRow($column, $row, $listSetTypeDose[$list->type_dose] ?? 'Kosong');
                 $sheet->mergeCellsByColumnAndRow($column, $row, $column + 4, $row);
                 $sheet->getStyleByColumnAndRow($column, $row, $column + 4, $row++)->applyFromArray([
                     'font' => array(

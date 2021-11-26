@@ -93,8 +93,8 @@ else {
                                         <th>@lang('general.jumlah_disarankan')</th>
                                         <th>@lang('general.jumlah_dicheckout')</th>
                                         <th>@lang('general.product_price')</th>
-                                        <th>@lang('general.dosis')</th>
-                                        <th>@lang('general.type_dosis')</th>
+                                        <th>@lang('general.dose')</th>
+                                        <th>@lang('general.type_dose')</th>
                                         <th>@lang('general.period')</th>
                                     </tr>
                                     </thead>
@@ -106,8 +106,8 @@ else {
                                             <td>{{ $list->product_qty }}</td>
                                             <td>{{ $list->product_qty_checkout }}</td>
                                             <td>{{ number_format($list->product_price, 2) }}</td>
-                                            <td>{{ $list->dosis }}</td>
-                                            <td>{{ $listSetTypeDosis[$list->type_dosis] ?? 'Tidak Ada'}}</td>
+                                            <td>{{ $list->dose }}</td>
+                                            <td>{{ $listSetTypeDose[$list->type_dose] ?? 'Tidak Ada'}}</td>
                                             <td>{{ $list->period }}</td>
                                         </tr>
                                     @endforeach
