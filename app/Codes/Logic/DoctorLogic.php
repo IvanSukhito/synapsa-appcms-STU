@@ -22,7 +22,7 @@ class DoctorLogic
      * @param null $serviceId
      * @return array
      */
-    public function getService($serviceId = null): array
+    public function getListService($serviceId = null): array
     {
         $setting = Cache::remember('settings', env('SESSION_LIFETIME'), function () {
             return Settings::pluck('value', 'key')->toArray();
@@ -81,7 +81,7 @@ class DoctorLogic
      * @param null $categoryId
      * @return array
      */
-    public function getCategory($categoryId = null): array
+    public function getListCategory($categoryId = null): array
     {
         $category = Cache::remember('doctor_category', env('SESSION_LIFETIME'), function () {
             return DoctorCategory::orderBy('orders', 'ASC')->get();
@@ -200,7 +200,7 @@ class DoctorLogic
      * @param $date
      * @return array
      */
-    public function scheduleGet($doctorId, $serviceId, $date): array
+    public function scheduleDoctorList($doctorId, $serviceId, $date): array
     {
         $getDoctorSchedule = DoctorSchedule::where('doctor_id', '=', $doctorId)->where('service_id', '=', $serviceId)
             ->where('date_available', '=', $date)
@@ -243,45 +243,60 @@ class DoctorLogic
     }
 
     /**
-     * @param $doctorId
-     * @param $serviceId
      * @param $scheduleId
-     * @param $date
+     * @param null $date
+     * @param null $timeStart
+     * @param int $userId
      * @param int $raw
      * @return array|int|int[]
      */
-    public function scheduleCheck($doctorId, $serviceId, $scheduleId, $date, int $raw = 0)
+    public function scheduleCheck($scheduleId, $date = null, $timeStart = null, int $userId = 0, int $raw = 0)
     {
-        $getSchedule = DoctorSchedule::where('doctor_id', '=', $doctorId)->where('service_id', '=', $serviceId)
-            ->where('id', '=', $scheduleId)->first();
+        $getSchedule = DoctorSchedule::where('id', '=', $scheduleId)->first();
         if (!$getSchedule) {
             if ($raw == 1) {
                 return [
-                    'success' => 0
+                    'success' => 90
                 ];
             }
-            return 0;
+            return 90;
+        }
+
+        $doctorId = $getSchedule->doctor_id;
+
+        if ($getSchedule->type == 2) {
+            $date = $getSchedule->date_available;
+            $timeStart = $getSchedule->time_start;
         }
 
         $getAppointmentDoctor = AppointmentDoctor::where('doctor_id', '=', $doctorId)->where('date', '=', $date)
-            ->where('time_start', '=', $getSchedule->time_start)->first();
+            ->where('time_start', '=', $timeStart)->first();
         if ($getAppointmentDoctor) {
+            if ($getAppointmentDoctor->user_id == $userId) {
+                if ($raw == 1) {
+                    return [
+                        'success' => 92
+                    ];
+                }
+                return 92;
+            }
+
             if ($raw == 1) {
                 return [
-                    'success' => 0
+                    'success' => 91
                 ];
             }
-            return 0;
+            return 91;
         }
 
         if ($raw == 1) {
             return [
-                'success' => 1,
+                'success' => 80,
                 'schedule' => $getSchedule
             ];
         }
         else {
-            return 1;
+            return 80;
         }
     }
 
@@ -306,6 +321,7 @@ class DoctorLogic
      * @param $serviceId
      * @param $scheduleId
      * @param $date
+     * @param $timeStart
      * @param $getUser
      * @param $getDoctor
      * @param $getService
@@ -313,9 +329,9 @@ class DoctorLogic
      * @param $newCode
      * @return int
      */
-    public function appointmentCreate($doctorId, $serviceId, $scheduleId, $date, $getUser, $getDoctor, $getService, $getTransaction, $newCode): int
+    public function appointmentCreate($doctorId, $serviceId, $scheduleId, $date, $timeStart, $getUser, $getDoctor, $getService, $getTransaction, $newCode): int
     {
-        $getData = $this->scheduleCheck($doctorId, $serviceId, $scheduleId, $date, 1);
+        $getData = $this->scheduleCheck($scheduleId, $date, $timeStart, 1);
         if ($getData['success'] == 1) {
             $getSchedule = $getData['schedule'];
 
