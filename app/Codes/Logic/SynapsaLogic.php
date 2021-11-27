@@ -196,6 +196,8 @@ class SynapsaLogic
                 else {
                     $getTransaction = Transaction::where('id', '=', $transactionId)->where('status', '=', 2)->first();
                     if ($getTransaction) {
+                        $code = date('Ym').$additional['code'];
+                        $getTransaction->code = $code;
                         $getTransaction->payment_id = $payment->id;
                         $getTransaction->payment_name = $payment->name;
                         $getTransaction->payment_service = $payment->service;

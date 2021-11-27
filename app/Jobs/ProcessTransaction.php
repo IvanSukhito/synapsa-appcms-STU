@@ -640,6 +640,7 @@ class ProcessTransaction implements ShouldQueue
 
         $extraInfo = [
             'service_id' => $serviceId,
+            'service_name' => $getService->name,
             'date' => $getDate,
             'phone' => $getUser->phone ?? '',
             'need_address' => $getService->type == 2 ? 1 : 0

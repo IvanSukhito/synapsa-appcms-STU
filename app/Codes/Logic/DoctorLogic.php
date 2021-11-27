@@ -212,7 +212,7 @@ class DoctorLogic
         }
 
         $getList = get_list_book();
-        $getAppointmentDoctor = AppointmentDoctor::where('date', '=', $date)->get();
+        $getAppointmentDoctor = AppointmentDoctor::where('doctor_id', '=', $doctorId)->where('date', '=', $date)->get();
         $temp = [];
         foreach ($getAppointmentDoctor as $list) {
             $temp[$list->time_start] = 99;
@@ -329,23 +329,21 @@ class DoctorLogic
     }
 
     /**
-     * @param $doctorId
-     * @param $serviceId
      * @param $scheduleId
      * @param $date
-     * @param $timeStart
      * @param $getUser
-     * @param $getDoctor
-     * @param $getService
+     * @param $getDoctorName
+     * @param $getServiceName
      * @param $getTransaction
      * @param $newCode
      * @return int
      */
-    public function appointmentCreate($doctorId, $serviceId, $scheduleId, $date, $timeStart, $getUser, $getDoctor, $getService, $getTransaction, $newCode): int
+    public function appointmentCreate($scheduleId, $date, $getUser, $getDoctorName, $getServiceName, $getTransaction, $newCode): int
     {
         $getData = $this->scheduleCheck($scheduleId, $date, $getUser->id, 1);
-        if ($getData['success'] == 1) {
+        if ($getData['success'] == 80) {
             $getSchedule = $getData['schedule'];
+            $getDate = $getData['date'];
 
             AppointmentDoctor::create([
                 'transaction_id' => $getTransaction->id,
@@ -355,11 +353,11 @@ class DoctorLogic
                 'service_id' => $getSchedule->service_id,
                 'doctor_id' => $getSchedule->doctor_id,
                 'user_id' => $getTransaction->user_id,
-                'type_appointment' => $getService ? $getService->name : '',
+                'type_appointment' => $getServiceName,
                 'patient_name' => $getUser ? $getUser->fullname : '',
                 'patient_email' => $getUser ? $getUser->email : '',
-                'doctor_name' => $getDoctor ? $getDoctor->fullname : '',
-                'date' => $getSchedule->date_available,
+                'doctor_name' => $getDoctorName,
+                'date' => $getDate,
                 'time_start' => $getSchedule->time_start,
                 'time_end' => $getSchedule->time_end,
                 'status' => 1
