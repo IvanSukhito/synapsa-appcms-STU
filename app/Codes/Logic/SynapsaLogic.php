@@ -121,7 +121,6 @@ class SynapsaLogic
             else {
                 $message = 'Payment Failed';
             }
-
             $getData = (object)$this->sendPaymentXendit($payment, $additional);
             if ($getData->success == 1) {
                 if ($typePaymentInfo == 'Virtual Account' && $getData->result->status == 'PENDING') {

@@ -30,6 +30,7 @@ class CreateTransactionDetailsTable extends Migration
             $table->unsignedBigInteger('nurse_id')->default(0);
             $table->integer('nurse_shift')->default(0);
             $table->date('nurse_booked')->nullable();
+            $table->longText('extra_info')->nullable();
             $table->timestamps();
         });
     }

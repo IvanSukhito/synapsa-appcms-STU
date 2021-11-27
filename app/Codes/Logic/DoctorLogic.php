@@ -205,7 +205,7 @@ class DoctorLogic
         $getDoctorSchedule = DoctorSchedule::where('doctor_id', '=', $doctorId)->where('service_id', '=', $serviceId)
             ->where('date_available', '=', $date)
             ->get();
-        if (!$getDoctorSchedule) {
+        if ($getDoctorSchedule->count() <= 0) {
             $getWeekday = intval(date('w', strtotime($date)));
             $getDoctorSchedule = DoctorSchedule::where('doctor_id', '=', $doctorId)->where('service_id', '=', $serviceId)
                 ->where('weekday', '=', $getWeekday)->get();
@@ -245,12 +245,11 @@ class DoctorLogic
     /**
      * @param $scheduleId
      * @param null $date
-     * @param null $timeStart
      * @param int $userId
      * @param int $raw
      * @return array|int|int[]
      */
-    public function scheduleCheck($scheduleId, $date = null, $timeStart = null, int $userId = 0, int $raw = 0)
+    public function scheduleCheck($scheduleId, $date = null, int $userId = 0, int $raw = 0)
     {
         $getSchedule = DoctorSchedule::where('id', '=', $scheduleId)->first();
         if (!$getSchedule) {
@@ -263,10 +262,21 @@ class DoctorLogic
         }
 
         $doctorId = $getSchedule->doctor_id;
+        $timeStart = $getSchedule->time_start;
 
         if ($getSchedule->type == 2) {
             $date = $getSchedule->date_available;
-            $timeStart = $getSchedule->time_start;
+        }
+        else {
+            $getWeekday = intval(date('w', strtotime($date)));
+            if($getWeekday != intval($getSchedule->weekday)) {
+                if ($raw == 1) {
+                    return [
+                        'success' => 93
+                    ];
+                }
+                return 93;
+            }
         }
 
         $getAppointmentDoctor = AppointmentDoctor::where('doctor_id', '=', $doctorId)->where('date', '=', $date)
@@ -292,7 +302,9 @@ class DoctorLogic
         if ($raw == 1) {
             return [
                 'success' => 80,
-                'schedule' => $getSchedule
+                'schedule' => $getSchedule,
+                'date' => $date,
+                'time' => $timeStart
             ];
         }
         else {
@@ -331,7 +343,7 @@ class DoctorLogic
      */
     public function appointmentCreate($doctorId, $serviceId, $scheduleId, $date, $timeStart, $getUser, $getDoctor, $getService, $getTransaction, $newCode): int
     {
-        $getData = $this->scheduleCheck($scheduleId, $date, $timeStart, 1);
+        $getData = $this->scheduleCheck($scheduleId, $date, $getUser->id, 1);
         if ($getData['success'] == 1) {
             $getSchedule = $getData['schedule'];
 

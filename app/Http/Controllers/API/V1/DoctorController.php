@@ -6,11 +6,8 @@ use App\Codes\Logic\DoctorLogic;
 use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Logic\UserLogic;
 use App\Codes\Models\Settings;
-use App\Codes\Models\V1\DoctorSchedule;
-use App\Codes\Models\V1\DoctorCategory;
 use App\Codes\Models\V1\Service;
 use App\Codes\Models\V1\Transaction;
-use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\Payment;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
@@ -124,7 +121,7 @@ class DoctorController extends Controller
             date('Y-m-d', strtotime($this->request->get('date'))) :
             date('Y-m-d', strtotime("+1 day"));
 
-        $getService = Service::where('id', $serviceId)->where('status', '=', 80)->first();
+        $getService = Service::where('id', '=', $serviceId)->where('status', '=', 80)->first();
         if (!$getService) {
             return response()->json([
                 'success' => 0,
@@ -166,8 +163,8 @@ class DoctorController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $getDateTime = strtotime($this->request->get('date'));
-        $getData = $this->getScheduleDetail($user, $scheduleId, $getDateTime);
+        $reqDate = strtotime($this->request->get('date'));
+        $getData = $this->getScheduleDetail($user, $scheduleId, $reqDate);
         if ($getData['success'] == 0) {
             return response()->json([
                 'success' => 0,
@@ -199,8 +196,8 @@ class DoctorController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $getDateTime = strtotime($this->request->get('date'));
-        $getData = $this->getScheduleDetail($user, $scheduleId, $getDateTime);
+        $reqDate = strtotime($this->request->get('date'));
+        $getData = $this->getScheduleDetail($user, $scheduleId, $reqDate);
         if ($getData['success'] == 0) {
             return response()->json([
                 'success' => 0,
@@ -221,8 +218,8 @@ class DoctorController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $getDateTime = strtotime($this->request->get('date'));
-        $getData = $this->getScheduleDetail($user, $scheduleId, $getDateTime);
+        $reqDate = strtotime($this->request->get('date'));
+        $getData = $this->getScheduleDetail($user, $scheduleId, $reqDate);
         if ($getData['success'] == 0) {
             return response()->json([
                 'success' => 0,
@@ -233,7 +230,7 @@ class DoctorController extends Controller
 
         $getResult = $getData['data'];
 
-        $getPayment = Payment::where('status', 80)->get();
+        $getPayment = Payment::where('status', '=', 80)->get();
         $getResult['payment'] = $getPayment;
 
         return response()->json([
@@ -278,11 +275,11 @@ class DoctorController extends Controller
             ], 422);
         }
 
-        $getDateTime = strtotime($this->request->get('date'));
+        $reqDate = strtotime($this->request->get('date'));
         $getPhone = $this->request->get('phone');
         $getPayment = $getPaymentResult['payment'];
 
-        $getData = $this->getScheduleDetail($user, $scheduleId, $getDateTime);
+        $getData = $this->getScheduleDetail($user, $scheduleId, $reqDate);
         if ($getData['success'] == 0) {
             return response()->json([
                 'success' => 0,
@@ -294,12 +291,13 @@ class DoctorController extends Controller
         $getSchedule = $getData['data']['schedule'];
         $getDate = $getData['data']['date'];
         $getTime = $getData['data']['time'];
+        $getDoctor = $getData['data']['doctor'];
         $doctorId = $getSchedule->doctor_id;
         $serviceId = $getSchedule->service_id;
         $scheduleId = $getSchedule->id;
-        $total = $getSchedule->price;
+        $total = $getDoctor->price;
 
-        $getTotal = Transaction::where('klinik_id', $user->klinik_id)->whereYear('created_at', '=', date('Y'))
+        $getTotal = Transaction::where('klinik_id', '=', $user->klinik_id)->whereYear('created_at', '=', date('Y'))
             ->whereMonth('created_at', '=', date('m'))->count();
 
         $newCode = str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT).rand(100000,999999);
@@ -312,7 +310,6 @@ class DoctorController extends Controller
                 'doctor_id' => $doctorId,
                 'service_id' => $serviceId,
                 'schedule_id' => $scheduleId,
-                'date_time' => $getDateTime,
                 'date' => $getDate,
                 'time' => $getTime
             ],
@@ -350,7 +347,6 @@ class DoctorController extends Controller
     private function getScheduleDetail($user, $scheduleId, $getDateTime)
     {
         $getDate = date('Y-m-d', $getDateTime);
-        $getTime = date('H:i:s', $getDateTime);
 
         if ($getDate < date('Y-m-d')) {
             return [
@@ -360,8 +356,28 @@ class DoctorController extends Controller
         }
 
         $doctorLogic = new DoctorLogic();
-        $getDoctorSchedule = $doctorLogic->scheduleCheck($scheduleId, $getDate, $getTime, $user->id, 1);
-        if ($getDoctorSchedule['success'] == 90) {
+        $getDoctorSchedule = $doctorLogic->scheduleCheck($scheduleId, $getDate, $user->id, 1);
+        if ($getDoctorSchedule['success'] == 80) {
+            $getSchedule = $getDoctorSchedule['schedule'];
+            $doctorId = $getSchedule->doctor_id;
+            $serviceId = $getSchedule->service_id;
+            $getTime = $getSchedule->time_start;
+            $getService = Service::where('id', '=', $serviceId)->first();
+            $getList = get_list_type_service();
+
+            return [
+                'success' => 1,
+                'data' => [
+                    'schedule' => $getSchedule,
+                    'address' => $getService->type == 2 ? 1 : 0,
+                    'address_nice' => $getList[$getService->type] ?? '-',
+                    'doctor' => $doctorLogic->doctorInfo($doctorId, $serviceId),
+                    'date' => $getDate,
+                    'time' => $getTime
+                ],
+            ];
+        }
+        else if ($getDoctorSchedule['success'] == 90) {
             return [
                 'success' => 0,
                 'message' => ['Jadwal Tidak Ditemukan'],
@@ -379,24 +395,19 @@ class DoctorController extends Controller
                 'message' => ['Jadwal Sudah Dipesan'],
             ];
         }
+        else if ($getDoctorSchedule['success'] == 93) {
+            return [
+                'success' => 0,
+                'message' => ['Waktu date tidak sama'],
+            ];
+        }
+        else {
+            return [
+                'success' => 0,
+                'message' => ['Doctor Error'],
+            ];
+        }
 
-        $getSchedule = $getDoctorSchedule['schedule'];
-        $doctorId = $getSchedule->doctor_id;
-        $serviceId = $getSchedule->service_id;
-        $getService = Service::where('id', $serviceId)->first();
-        $getList = get_list_type_service();
-
-        return [
-            'success' => 1,
-            'data' => [
-                'schedule' => $getDoctorSchedule,
-                'address' => $getService->type == 2 ? 1 : 0,
-                'address_nice' => $getList[$getService->type] ?? '-',
-                'doctor' => $doctorLogic->doctorInfo($doctorId, $serviceId),
-                'date' => $getDate,
-                'time' => $getTime
-            ],
-        ];
     }
 
 }
