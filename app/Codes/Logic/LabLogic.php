@@ -4,6 +4,7 @@ namespace App\Codes\Logic;
 
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\Lab;
+use App\Codes\Models\V1\LabSchedule;
 use App\Codes\Models\V1\Product;
 use App\Codes\Models\V1\ProductCategory;
 use App\Codes\Models\V1\Service;
@@ -175,6 +176,101 @@ class LabLogic
             'child_lab' => $getDataChild
         ];
 
+    }
+
+    /**
+     * @param $clinicId
+     * @param $serviceId
+     * @param $date
+     * @return array
+     */
+    public function scheduleLabList($clinicId, $serviceId, $date): array
+    {
+        $getLabSchedule = LabSchedule::where('klinik_id', '=', $clinicId)->where('service_id', '=', $serviceId)
+            ->where('date_available', '=', $date)->get();
+        if ($getLabSchedule->count() <= 0) {
+            $getWeekday = intval(date('w', strtotime($date)));
+            if ($getWeekday > 0) {
+                $getLabSchedule = LabSchedule::where('klinik_id', '=', $clinicId)->where('service_id', '=', $serviceId)
+                    ->where('weekday', '=', $getWeekday)->get();
+            }
+            else {
+                $getLabSchedule = [];
+            }
+        }
+
+        $getList = get_list_book();
+
+        $result = [];
+        if ($getLabSchedule) {
+            foreach ($getLabSchedule as $list) {
+                $getBook = 80;
+                $result[] = [
+                    'id' => $list->id,
+                    'klinik_id' => $clinicId,
+                    'service_id' => $serviceId,
+                    'date_available' => $date,
+                    'time_start' => $list->time_start,
+                    'time_end' => $list->time_end,
+                    'type' => $list->type,
+                    'weekday' => $list->weekday,
+                    'book' => $getBook,
+                    'book_nice' => $getList[$getBook] ?? '-'
+                ];
+            }
+        }
+
+        return $result;
+
+    }
+
+    /**
+     * @param $scheduleId
+     * @param null $date
+     * @param int $raw
+     * @return array|int|int[]
+     */
+    public function scheduleCheck($scheduleId, $date = null, int $raw = 0)
+    {
+        $getSchedule = LabSchedule::where('id', '=', $scheduleId)->first();
+        if (!$getSchedule) {
+            if ($raw == 1) {
+                return [
+                    'success' => 90
+                ];
+            }
+            return 90;
+        }
+
+        $timeStart = $getSchedule->time_start;
+
+        if ($getSchedule->type == 1) {
+            $getWeekday = intval(date('w', strtotime($date)));
+            if($getWeekday != intval($getSchedule->weekday)) {
+                if ($raw == 1) {
+                    return [
+                        'success' => 93
+                    ];
+                }
+                return 93;
+            }
+            $getSchedule->date_available = $date;
+        }
+        else {
+            $date = $getSchedule->date_available;
+        }
+
+        if ($raw == 1) {
+            return [
+                'success' => 80,
+                'schedule' => $getSchedule,
+                'date' => $date,
+                'time' => $timeStart
+            ];
+        }
+        else {
+            return 80;
+        }
     }
 
 }

@@ -603,6 +603,7 @@ class UserLogic
             'cart' => $getData,
             'service' => $getService['data'],
             'sub_service' => $getService['sub_service'],
+            'service_id' => $serviceId,
             'total' => $total,
             'total_nice' => number_format_local($total)
         ];
