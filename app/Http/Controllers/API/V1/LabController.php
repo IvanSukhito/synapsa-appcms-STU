@@ -352,14 +352,31 @@ class LabController extends Controller
     public function checkout()
     {
         $user = $this->request->attributes->get('_user');
+        $scheduleId = intval($this->request->get('schedule_id'));
+        $paymentId = intval($this->request->get('payment_id'));
+        $getPhone = $this->request->get('phone');
+        $subServiceId = intval($this->request->get('sub_service_id'));
+        $reqDate = strtotime($this->request->get('date'));
 
-        $userId = $user->id;
+        $synapsaLogic = new SynapsaLogic();
+        $getPaymentResult = $synapsaLogic->checkPayment($paymentId);
+        if ($getPaymentResult['success'] == 0) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Payment Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
 
-        $needPhone = 0;
-        $validator = Validator::make($this->request->all(), [
-            'payment_id' => 'required|numeric',
-            'schedule_id' => 'required|numeric'
-        ]);
+        $needPhone = intval($getPaymentResult['phone']);
+        if ($needPhone == 1) {
+            $validationRule = ['payment_id' => 'required|numeric', 'schedule_id' => 'required', 'date' => 'required', 'phone' => 'required|regex:/^(8\d+)/|numeric'];
+        }
+        else {
+            $validationRule = ['payment_id' => 'required|numeric', 'schedule_id' => 'required', 'date' => 'required'];
+        }
+
+        $validator = Validator::make($this->request->all(), $validationRule);
         if ($validator->fails()) {
             return response()->json([
                 'success' => 0,
@@ -368,97 +385,35 @@ class LabController extends Controller
             ], 422);
         }
 
-        $paymentId = intval($this->request->get('payment_id'));
-        $scheduleId = intval($this->request->get('schedule_id'));
-        $getPayment = Payment::where('id', $paymentId)->first();
-        if (!$getPayment) {
+        $getData = $this->getScheduleDetail($user, $scheduleId, $reqDate);
+        if ($getData['success'] != 1) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Payment Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
-
-        if ($getPayment->type == 2 && $getPayment->service == 'xendit' && in_array($getPayment->type_payment, ['ew_ovo', 'ew_dana', 'ew_linkaja'])) {
-            $needPhone = 1;
-            $validator = Validator::make($this->request->all(), [
-                'phone' => 'required|regex:/^(8\d+)/|numeric'
-            ]);
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => 0,
-                    'message' => $validator->messages()->all(),
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ], 422);
-            }
-        }
-
-        $getCart = LabCart::where('user_id', '=', $user->id)->where('choose', '=', 1)->first();
-        if (!$getCart) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Test Lab Tidak Ditemukan'],
+                'message' => $getData['message'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
 
-        $getLabSchedule = LabSchedule::where('service_id', $getCart->service_id)->where('id', '=', $scheduleId)
-            ->where('book', '=', 80)->where('klinik_id', $user->klinik_id)->first();
-        if (!$getLabSchedule) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Jadwal Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-        else if ($getLabSchedule->book != 80) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Jadwal Sudah Dipesan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-        else if (date('Y-m-d', strtotime($getLabSchedule->date_available)) < date('Y-m-d')) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Jadwal Sudah Lewat Waktunya'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
+        $serviceId = $getData['data']['service_id'];
+        $getDate = $getData['data']['date'];
+        $getTime = $getData['data']['time'];
+        $total = $getData['data']['total'];
 
-        $serviceId = $getCart->service_id;
-        $getData = $this->getLabInfo($userId, $serviceId);
-
-        $getData = $getData->where('choose',1);
-
-        if (!$getData) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Lab Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-
-        $total = 0;
-        foreach ($getData as $list) {
-            $total += $list->price;
-        }
-
-        $getTotal = Transaction::where('klinik_id', $user->klinik_id)->whereYear('created_at', '=', date('Y'))
+        $getTotal = Transaction::where('klinik_id', '=', $user->klinik_id)->whereYear('created_at', '=', date('Y'))
             ->whereMonth('created_at', '=', date('m'))->count();
 
-        $newCode = str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT).rand(100,199);
-
+        $newCode = str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT).rand(100000,999999);
         $sendData = [
             'job' => [
                 'code' => $newCode,
                 'payment_id' => $paymentId,
                 'user_id' => $user->id,
                 'type_service' => 'lab',
-                'lab_id' => $getLabSchedule->lab_id,
-                'service_id' => $getLabSchedule->service_id,
-                'schedule_id' => $getLabSchedule->id,
-                'lab_info' => $getData->toArray()
+                'service_id' => $serviceId,
+                'sub_service_id' => $subServiceId,
+                'schedule_id' => $scheduleId,
+                'date' => $getDate,
+                'time' => $getTime
             ],
             'code' => $newCode,
             'total' => $total,
@@ -466,13 +421,13 @@ class LabController extends Controller
         ];
 
         if ($needPhone == 1) {
-            $sendData['phone'] = $this->request->get('phone');
+            $sendData['phone'] = $getPhone;
         }
 
-        $setLogic = new SynapsaLogic();
-        $getPaymentInfo = $setLogic->createPayment($getPayment, $sendData);
-        if ($getPaymentInfo['success'] == 1) {
+        $getPayment = $getPaymentResult['payment'];
 
+        $getPaymentInfo = $synapsaLogic->createPayment($getPayment, $sendData);
+        if ($getPaymentInfo['success'] == 1) {
             return response()->json([
                 'success' => 1,
                 'data' => [
@@ -490,6 +445,148 @@ class LabController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
+//
+//
+//
+//
+//
+//        $userId = $user->id;
+//
+//        $needPhone = 0;
+//        $validator = Validator::make($this->request->all(), [
+//            'payment_id' => 'required|numeric',
+//            'schedule_id' => 'required|numeric'
+//        ]);
+//        if ($validator->fails()) {
+//            return response()->json([
+//                'success' => 0,
+//                'message' => $validator->messages()->all(),
+//                'token' => $this->request->attributes->get('_refresh_token'),
+//            ], 422);
+//        }
+//
+//        $paymentId = intval($this->request->get('payment_id'));
+//        $scheduleId = intval($this->request->get('schedule_id'));
+//        $getPayment = Payment::where('id', $paymentId)->first();
+//        if (!$getPayment) {
+//            return response()->json([
+//                'success' => 0,
+//                'message' => ['Payment Tidak Ditemukan'],
+//                'token' => $this->request->attributes->get('_refresh_token'),
+//            ], 422);
+//        }
+//
+//        if ($getPayment->type == 2 && $getPayment->service == 'xendit' && in_array($getPayment->type_payment, ['ew_ovo', 'ew_dana', 'ew_linkaja'])) {
+//            $needPhone = 1;
+//            $validator = Validator::make($this->request->all(), [
+//                'phone' => 'required|regex:/^(8\d+)/|numeric'
+//            ]);
+//            if ($validator->fails()) {
+//                return response()->json([
+//                    'success' => 0,
+//                    'message' => $validator->messages()->all(),
+//                    'token' => $this->request->attributes->get('_refresh_token'),
+//                ], 422);
+//            }
+//        }
+//
+//        $getCart = LabCart::where('user_id', '=', $user->id)->where('choose', '=', 1)->first();
+//        if (!$getCart) {
+//            return response()->json([
+//                'success' => 0,
+//                'message' => ['Test Lab Tidak Ditemukan'],
+//                'token' => $this->request->attributes->get('_refresh_token'),
+//            ], 404);
+//        }
+//
+//        $getLabSchedule = LabSchedule::where('service_id', $getCart->service_id)->where('id', '=', $scheduleId)
+//            ->where('book', '=', 80)->where('klinik_id', $user->klinik_id)->first();
+//        if (!$getLabSchedule) {
+//            return response()->json([
+//                'success' => 0,
+//                'message' => ['Jadwal Tidak Ditemukan'],
+//                'token' => $this->request->attributes->get('_refresh_token'),
+//            ], 404);
+//        }
+//        else if ($getLabSchedule->book != 80) {
+//            return response()->json([
+//                'success' => 0,
+//                'message' => ['Jadwal Sudah Dipesan'],
+//                'token' => $this->request->attributes->get('_refresh_token'),
+//            ], 404);
+//        }
+//        else if (date('Y-m-d', strtotime($getLabSchedule->date_available)) < date('Y-m-d')) {
+//            return response()->json([
+//                'success' => 0,
+//                'message' => ['Jadwal Sudah Lewat Waktunya'],
+//                'token' => $this->request->attributes->get('_refresh_token'),
+//            ], 404);
+//        }
+//
+//        $serviceId = $getCart->service_id;
+//        $getData = $this->getLabInfo($userId, $serviceId);
+//
+//        $getData = $getData->where('choose',1);
+//
+//        if (!$getData) {
+//            return response()->json([
+//                'success' => 0,
+//                'message' => ['Lab Tidak Ditemukan'],
+//                'token' => $this->request->attributes->get('_refresh_token'),
+//            ], 404);
+//        }
+//
+//        $total = 0;
+//        foreach ($getData as $list) {
+//            $total += $list->price;
+//        }
+//
+//        $getTotal = Transaction::where('klinik_id', $user->klinik_id)->whereYear('created_at', '=', date('Y'))
+//            ->whereMonth('created_at', '=', date('m'))->count();
+//
+//        $newCode = str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT).rand(100,199);
+//
+//        $sendData = [
+//            'job' => [
+//                'code' => $newCode,
+//                'payment_id' => $paymentId,
+//                'user_id' => $user->id,
+//                'type_service' => 'lab',
+//                'lab_id' => $getLabSchedule->lab_id,
+//                'service_id' => $getLabSchedule->service_id,
+//                'schedule_id' => $getLabSchedule->id,
+//                'lab_info' => $getData->toArray()
+//            ],
+//            'code' => $newCode,
+//            'total' => $total,
+//            'name' => $user->fullname
+//        ];
+//
+//        if ($needPhone == 1) {
+//            $sendData['phone'] = $this->request->get('phone');
+//        }
+//
+//        $setLogic = new SynapsaLogic();
+//        $getPaymentInfo = $setLogic->createPayment($getPayment, $sendData);
+//        if ($getPaymentInfo['success'] == 1) {
+//
+//            return response()->json([
+//                'success' => 1,
+//                'data' => [
+//                    'payment' => 0,
+//                    'info' => $getPaymentInfo['info']
+//                ],
+//                'message' => ['Berhasil'],
+//                'token' => $this->request->attributes->get('_refresh_token'),
+//            ]);
+//        }
+//        else {
+//            return response()->json([
+//                'success' => 0,
+//                'message' => [$getPaymentInfo['message'] ?? '-'],
+//                'token' => $this->request->attributes->get('_refresh_token'),
+//            ], 422);
+//        }
 
     }
 
@@ -506,6 +603,7 @@ class LabController extends Controller
         }
         $total = $getLabCart['total'];
         $totalNice = $getLabCart['total_nice'];
+        $serviceId = $getLabCart['service_id'];
 
         $getLabSchedule = $labLogic->scheduleCheck($scheduleId, $reqDate, 1);
         if ($getLabSchedule['success'] != 80) {
@@ -520,6 +618,7 @@ class LabController extends Controller
             'data' => [
                 'cart' => $getLabCart['cart'],
                 'schedule' => $getLabSchedule['schedule'],
+                'service_id' => $serviceId,
                 'date' => $getLabSchedule['date'],
                 'time' => $getLabSchedule['time'],
                 'total' => $total,
