@@ -646,6 +646,14 @@ class ProcessTransaction implements ShouldQueue
             'need_address' => $getService->type == 2 ? 1 : 0
         ];
 
+        if ($getService->type == 1) {
+            $getJob = $additional['job'] ?? [];
+            $getSubServiceId = intval($getJob['sub_service_id']) ?? 0;
+            $getList = get_list_sub_service2();
+            $extraInfo['sub_service_id'] = $getSubServiceId;
+            $extraInfo['sub_service_name'] = $getList[$getSubServiceId] ?? '';
+        }
+
         $saveData = [
             'klinik_id' => $getUser->klinik_id,
             'user_id' => $getUser->id,

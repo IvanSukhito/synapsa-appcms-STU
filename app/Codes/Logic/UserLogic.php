@@ -254,7 +254,7 @@ class UserLogic
      * @param int $choose
      * @return array
      */
-    public function userCart($userId, $choose = 0): array
+    public function userCart($userId, int $choose = 0): array
     {
         $getUsersCart = UsersCart::firstOrCreate([
             'users_id' => $userId

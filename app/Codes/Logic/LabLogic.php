@@ -2,10 +2,9 @@
 
 namespace App\Codes\Logic;
 
-use App\Codes\Models\V1\Product;
-use App\Codes\Models\V1\ProductCategory;
+use App\Codes\Models\V1\Lab;
 
-class ProductLogic
+class LabLogic
 {
     public function __construct()
     {
@@ -18,9 +17,9 @@ class ProductLogic
      * @param null $search
      * @return array
      */
-    public function productGet($clinicId, $limit, $categoryId = null, $search = null): array
+    public function labGet($clinicId, $limit, $categoryId = null, $search = null): array
     {
-        $getData = Product::selectRaw('id, name, image, unit, price, stock, stock_flag, type, status')
+        $getData = Lab::selectRaw('id, name, image, unit, price, stock, stock_flag, type, status')
             ->where('klinik_id', '=', $clinicId)->where('status', '=', 80);
         if (strlen($search) > 0) {
             $search = strip_tags($search);
@@ -35,7 +34,7 @@ class ProductLogic
         $category = ProductCategory::where('status', '=', 80)->get();
 
         return [
-            'product' => $getData,
+            'lab' => $getData,
             'category' => $category
         ];
 
@@ -46,9 +45,9 @@ class ProductLogic
      * @param $id
      * @return mixed
      */
-    public function productInfo($clinicId, $id)
+    public function labInfo($clinicId, $id)
     {
-        return Product::where('klinik_id', '=', $clinicId)->where('id', '=', $id)->where('status', '=', 80)->first();
+        return Lab::where('klinik_id', '=', $clinicId)->where('id', '=', $id)->where('status', '=', 80)->first();
     }
 
 }

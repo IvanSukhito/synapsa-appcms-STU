@@ -421,3 +421,31 @@ if ( ! function_exists('get_list_schedule_type')) {
     }
 }
 
+if ( ! function_exists('get_list_sub_service')) {
+    function get_list_sub_service()
+    {
+        return [
+            [
+                'id' => 1,
+                'name' => 'Video Call'
+            ],
+            [
+                'id' => 2,
+                'name' => 'Chat'
+            ]
+        ];
+    }
+}
+
+if ( ! function_exists('get_list_sub_service2')) {
+    function get_list_sub_service2()
+    {
+        $getList = get_list_sub_service();
+        $result = [];
+        foreach ($getList as $list) {
+            $result[$list['id']] = $list['name'];
+        }
+        return $result;
+    }
+}
+

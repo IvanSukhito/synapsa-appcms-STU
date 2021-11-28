@@ -58,9 +58,12 @@ class DoctorController extends Controller
             'data' => [
                 'doctor' => $getData,
                 'service' => $getService['data'],
+                'sub_service' => $getService['sub_service'],
                 'active' => [
                     'service' => $getService['getServiceId'],
                     'service_name' => $getService['getServiceName'],
+                    'sub_service' => $getService['getSubServiceId'],
+                    'sub_service_name' => $getService['getSubServiceName'],
                     'category' => $getCategory['getCategoryId'],
                     'category_name' => $getCategory['getCategoryName']
                 ]
@@ -248,6 +251,7 @@ class DoctorController extends Controller
         $synapsaLogic = new SynapsaLogic();
 
         $paymentId = intval($this->request->get('payment_id'));
+        $subServiceId = intval($this->request->get('sub_service_id'));
         $getPaymentResult = $synapsaLogic->checkPayment($paymentId);
         if ($getPaymentResult['success'] == 0) {
             return response()->json([
@@ -309,6 +313,7 @@ class DoctorController extends Controller
                 'type_service' => 'doctor',
                 'doctor_id' => $doctorId,
                 'service_id' => $serviceId,
+                'sub_service_id' => $subServiceId,
                 'schedule_id' => $scheduleId,
                 'date' => $getDate,
                 'time' => $getTime

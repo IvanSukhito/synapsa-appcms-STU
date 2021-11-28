@@ -20,9 +20,10 @@ class DoctorLogic
 
     /**
      * @param null $serviceId
+     * @param null $subServiceId
      * @return array
      */
-    public function getListService($serviceId = null): array
+    public function getListService($serviceId = null, $subServiceId = null): array
     {
         $setting = Cache::remember('settings', env('SESSION_LIFETIME'), function () {
             return Settings::pluck('value', 'key')->toArray();
@@ -37,21 +38,30 @@ class DoctorLogic
         }
 
         $result = [];
+        $subService = [];
         $firstServiceId = 0;
         $firstServiceName = '';
+        $firstServiceType = 0;
         $setServiceId = 0;
         $setServiceName = '';
+        $setServiceType = 0;
+
+        $setSubServiceId = 0;
+        $setSubServiceName = '';
+
         foreach ($service as $index => $list) {
             $active = 0;
             if ($index == 0) {
                 $firstServiceId = $list->id;
                 $firstServiceName = $list->name;
+                $firstServiceType = $list->type;
             }
 
             if ($list->id == $serviceId) {
                 $active = 1;
                 $setServiceId = $list->id;
                 $setServiceName = $list->name;
+                $setServiceType = $list->type;
             }
 
             $result[] = [
@@ -67,12 +77,27 @@ class DoctorLogic
         if ($setServiceId <= 0) {
             $setServiceId = $firstServiceId;
             $setServiceName = $firstServiceName;
+            $setServiceType = $firstServiceType;
+        }
+
+        if ($setServiceType == 1) {
+            $subService = get_list_sub_service();
+
+            $subServiceId = intval($subServiceId);
+            $getList = get_list_sub_service2();
+            if (isset($getList[$subServiceId])) {
+                $setSubServiceId = $subServiceId;
+                $setSubServiceName = $getList[$subServiceId];
+            }
         }
 
         return [
             'data' => $result,
+            'sub_service' => $subService,
             'getServiceId' => $setServiceId,
-            'getServiceName' => $setServiceName
+            'getServiceName' => $setServiceName,
+            'getSubServiceId' => $setSubServiceId,
+            'getSubServiceName' => $setSubServiceName
         ];
 
     }
