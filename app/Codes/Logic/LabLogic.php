@@ -107,17 +107,15 @@ class LabLogic
      * @param int $priority
      * @return array
      */
-    public function labGet($limit, $clinicId = null, $serviceId = null, $search = null, int $priority = 0): array
+    public function labGet($limit, $serviceId = null, $clinicId = null, $search = null, int $priority = 0): array
     {
         if ($serviceId) {
-            $getData = Lab::selectRaw('lab.id ,lab.name, lab_service.price, lab.image, klinik_id')
+            $getData = Lab::selectRaw('lab.id ,lab.name, lab_service.service_id, lab_service.price, lab.image, klinik_id')
                 ->join('lab_service', 'lab_service.lab_id','=','lab.id')
-                ->where('lab.parent_id', '=', 0)
                 ->where('lab_service.service_id','=', $serviceId);
         }
         else {
-            $getData = Lab::selectRaw('lab.id ,lab.name, 0 AS price, lab.image, klinik_id')
-                ->where('lab.parent_id', '=', 0);
+            $getData = Lab::selectRaw('lab.id ,lab.name, 0 AS service_id, 0 AS price, lab.image, klinik_id');
         }
 
         if ($clinicId) {
@@ -133,7 +131,8 @@ class LabLogic
             $getData = $getData->where('priority', 1);
         }
 
-        $getData = $getData->orderBy('lab.name','ASC')->paginate($limit);
+        $getData = $getData->where('lab.parent_id', '=', 0)->where('status', '=', 80)
+            ->orderBy('lab.name','ASC')->paginate($limit);
 
         return [
             'lab' => $getData
@@ -142,13 +141,41 @@ class LabLogic
     }
 
     /**
-     * @param $clinicId
-     * @param $id
-     * @return mixed
+     * @param $labId
+     * @param $serviceId
+     * @param null $clinicId
+     * @return array
      */
-    public function labInfo($clinicId, $id)
+    public function labInfo($labId, $serviceId, $clinicId = null): array
     {
-        return Lab::where('klinik_id', '=', $clinicId)->where('id', '=', $id)->where('status', '=', 80)->first();
+        $getData = Lab::selectRaw('lab.id, lab.name, lab.image, lab.desc_lab, lab.desc_benefit,
+            lab.desc_preparation, lab.recommended_for, lab_service.service_id, lab_service.price')
+            ->join('lab_service', 'lab_service.lab_id','=','lab.id')
+            ->where('lab_service.service_id','=', $serviceId)
+            ->where('lab.id','=', $labId);
+
+        if ($clinicId) {
+            $getData = $getData->where('lab.klinik_id', '=', $clinicId);
+        }
+
+        $getData = $getData->first();
+        $getDataChild = [];
+        $haveChild = 0;
+        if ($getData && $getData->parent == 0) {
+            $haveChild = 1;
+            $getDataChild = Lab::selectRaw('lab.id, lab.parent_id, lab.name, lab.image, lab.desc_lab, lab.desc_benefit,
+                lab.desc_preparation, lab.recommended_for, lab_service.service_id, lab_service.price')
+                ->join('lab_service', 'lab_service.lab_id','=','lab.id')
+                ->where('lab.parent_id','=', $getData->id)
+                ->where('lab_service.service_id','=', $serviceId)->get();
+        }
+
+        return [
+            'lab' => $getData,
+            'have_child' => $haveChild,
+            'child_lab' => $getDataChild
+        ];
+
     }
 
 }

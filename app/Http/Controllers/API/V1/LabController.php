@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\V1;
 
 use App\Codes\Logic\LabLogic;
 use App\Codes\Logic\SynapsaLogic;
+use App\Codes\Logic\UserLogic;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\Lab;
 use App\Codes\Models\V1\LabCart;
@@ -50,7 +51,7 @@ class LabController extends Controller
         $getService = $labLogic->getListService($getInterestService);
 
         $getServiceId = $getService['getServiceId'] ?? 0;
-        $getData = $labLogic->labGet($getLimit, $user->klinik_id, $getServiceId, $s, $priority);
+        $getData = $labLogic->labGet($getLimit, $getServiceId, null, $s, $priority);
 
         return response()->json([
             'success' => 1,
@@ -77,43 +78,18 @@ class LabController extends Controller
 
         $getInterestService = $serviceId > 0 ? $serviceId : $user->interest_service_id;
 
-        $getServiceData = $this->getService($getInterestService);
+        $labLogic = new LabLogic();
+        $getService = $labLogic->getListService($getInterestService);
+        $getServiceId = $getService['getServiceId'] ?? 0;
 
-        $data = Lab::selectRaw('lab.parent_id, lab.name, lab.image, lab.desc_lab,lab.desc_benefit,
-            lab.desc_preparation, lab.recommended_for, lab_service.price')
-            ->join('lab_service', 'lab_service.lab_id','=','lab.id')
-            ->where('lab_service.service_id','=', $getServiceData['getServiceId'])
-            ->where('lab.klinik_id', $user->klinik_id)
-            ->where('id', $id)->first();
-
-        if (!$data) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Test Lab Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-
-        if ($data->parent_id == 0) {
-            $dataLabTerkait = Lab::selectRaw('lab.id ,lab.name, lab_service.price, lab.image')
-                ->join('lab_service', 'lab_service.lab_id','=','lab.id', 'LEFT')
-                ->where('lab_service.service_id','=', $getServiceData['getServiceId'])
-                ->where('lab.parent_id', '=', $id)->get();
-
-            $getData = [
-                'lab' => $data,
-                'lab_terkait' => $dataLabTerkait
-            ];
-        }
-        else {
-            $getData = [
-                'lab' => $data
-            ];
-        }
+        $getData = $labLogic->labInfo($id, $getServiceId);
 
         return response()->json([
             'success' => 1,
-            'data' => $getData,
+            'data' => [
+                'lab' => $getData['lab'],
+                'lab_terkait' => $getData['child_lab']
+            ],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
 
@@ -123,21 +99,25 @@ class LabController extends Controller
 
         $user = $this->request->attributes->get('_user');
 
+        $userLogic = new UserLogic();
+        $getData = $userLogic->userCartLab($user->id);
+
+        return response()->json([
+            'success' => 1,
+            'data' => $getData,
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
+
+
         $getLabCart = LabCart::where('user_id', $user->id)->first();
-
         $userId = $user->id;
-
         $getServiceData = [];
         $getData = [];
         $total = 0;
         if ($getLabCart) {
-
             $getInterestService = $getLabCart->service_id;
-
             $getServiceData = $this->getService($getInterestService);
-
             $getData = $this->getLabInfo($userId, $getInterestService);
-
             foreach ($getData as $list) {
                 $total += $list->price;
             }

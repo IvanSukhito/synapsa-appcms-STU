@@ -155,7 +155,7 @@ class ProcessTransaction implements ShouldQueue
         $getUser = Users::where('id', $getUserId)->first();
         $userLogic = new UserLogic();
         $getUserAddress = $userLogic->userAddress($getUserId, $getUser->phone);
-        $getCart = $userLogic->userCart($getUserId, 1);
+        $getCart = $userLogic->userCartProduct($getUserId, 1);
 
         $getCartInfo = $getCart['cart_info'];
         $getUsersCartDetail = $getCart['cart'];
