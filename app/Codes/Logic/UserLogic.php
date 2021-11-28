@@ -613,10 +613,21 @@ class UserLogic
      * @param $userId
      * @param $labId
      * @param $serviceId
-     * @return array|int
+     * @return int
      */
-    public function userCartLabAdd($userId, $labId, $serviceId): array
+    public function userCartLabAdd($userId, $labId, $serviceId): int
     {
+        $getLab = Lab::where('id', '=', $labId)->first();
+        if (!$getLab) {
+            return 92;
+        }
+        if ($getLab->parent_id > 0) {
+            $haveParent = LabCart::where('user_id', '=', $userId)->where('lab_id', '=', $getLab->parent_id)->first();
+            if (!$haveParent) {
+                return 93;
+            }
+        }
+
         $getLabCart = LabCart::where('user_id', '=', $userId)->first();
         if ($getLabCart) {
             if ($getLabCart->service_id == $serviceId) {
@@ -649,7 +660,13 @@ class UserLogic
     {
         $getLabCart = LabCart::where('user_id', '=', $userId)->where('id', '=', $labCartId)->first();
         if ($getLabCart) {
+            DB::beginTransaction();
+            $getLabChild = Lab::where('parent_id', $getLabCart->lab_id)->pluck('id')->toArray();
+            if (count($getLabChild) > 0) {
+                LabCart::where('user_id', '=', $userId)->whereIn('lab_id', $getLabChild)->delete();
+            }
             $getLabCart->delete();
+            DB::commit();
             return 1;
         }
         return 0;

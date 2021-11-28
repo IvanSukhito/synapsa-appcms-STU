@@ -158,9 +158,18 @@ class LabController extends Controller
         $userLogic = new UserLogic();
         $getResult = $userLogic->userCartLabAdd($userId, $getLabId, $getServiceId);
         if ($getResult != 80) {
+            if ($getResult == 91) {
+                $message = 'Test Lab menggunakan service yang berbeda';
+            }
+            else if ($getResult == 93) {
+                $message = 'Test Lab tidak bisa di pesam bila tidak ada Tes Lab Utama';
+            }
+            else {
+                $message = 'Test Lab tidak ditemukan';
+            }
             return response()->json([
                 'success' => 0,
-                'message' => ['Test Lab menggunakan service yang berbeda'],
+                'message' => [$message],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
