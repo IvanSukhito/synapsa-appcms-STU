@@ -289,10 +289,7 @@ class DoctorLogic
         $doctorId = $getSchedule->doctor_id;
         $timeStart = $getSchedule->time_start;
 
-        if ($getSchedule->type == 2) {
-            $date = $getSchedule->date_available;
-        }
-        else {
+        if ($getSchedule->type == 1) {
             $getWeekday = intval(date('w', strtotime($date)));
             if($getWeekday != intval($getSchedule->weekday)) {
                 if ($raw == 1) {
@@ -302,6 +299,9 @@ class DoctorLogic
                 }
                 return 93;
             }
+        }
+        else {
+            $date = $getSchedule->date_available;
         }
 
         $getAppointmentDoctor = AppointmentDoctor::where('doctor_id', '=', $doctorId)->where('date', '=', $date)
