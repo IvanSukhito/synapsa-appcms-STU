@@ -304,6 +304,7 @@ class DoctorLogic
                 }
                 return 93;
             }
+            $getSchedule->date_available = $date;
         }
         else {
             $date = $getSchedule->date_available;
