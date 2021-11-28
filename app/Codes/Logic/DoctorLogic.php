@@ -232,8 +232,13 @@ class DoctorLogic
             ->get();
         if ($getDoctorSchedule->count() <= 0) {
             $getWeekday = intval(date('w', strtotime($date)));
-            $getDoctorSchedule = DoctorSchedule::where('doctor_id', '=', $doctorId)->where('service_id', '=', $serviceId)
-                ->where('weekday', '=', $getWeekday)->get();
+            if ($getWeekday > 0) {
+                $getDoctorSchedule = DoctorSchedule::where('doctor_id', '=', $doctorId)->where('service_id', '=', $serviceId)
+                    ->where('weekday', '=', $getWeekday)->get();
+            }
+            else {
+                $getDoctorSchedule = [];
+            }
         }
 
         $getList = get_list_book();

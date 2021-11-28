@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API\V1;
 
+use App\Codes\Logic\LabLogic;
 use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\Lab;
@@ -10,7 +11,6 @@ use App\Codes\Models\V1\LabSchedule;
 use App\Codes\Models\V1\Payment;
 use App\Codes\Models\V1\Service;
 use App\Codes\Models\V1\Transaction;
-use App\Codes\Models\V1\UsersAddress;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -33,12 +33,11 @@ class LabController extends Controller
         });
     }
 
-    public function getLab(){
-
+    public function getLab()
+    {
         $user = $this->request->attributes->get('_user');
-
         $serviceId = intval($this->request->get('service_id'));
-
+        $priority = intval($this->request->get('priority'));
         $s = strip_tags($this->request->get('s'));
         $getLimit = $this->request->get('limit');
         if ($getLimit <= 0) {
@@ -47,40 +46,23 @@ class LabController extends Controller
 
         $getInterestService = $serviceId;
 
-        $getServiceData = $this->getService($getInterestService);
+        $labLogic = new LabLogic();
+        $getService = $labLogic->getListService($getInterestService);
 
-        $data = Lab::selectRaw('lab.id ,lab.name, lab_service.price, lab.image, klinik_id')
-            ->join('lab_service', 'lab_service.lab_id','=','lab.id')
-            ->where('lab_service.service_id','=', $getServiceData['getServiceId'])
-            ->where('lab.parent_id', '=', 0)
-            ->where('lab.klinik_id', '=', $user->klinik_id);
-
-        if (strlen($s) > 0) {
-            $data = $data->where('name', 'LIKE', "%$s%");
-        }
-
-        if ($this->request->get('priority')) {
-            $data = $data->where('priority', 1);
-        }
-
-        $data = $data->orderBy('name', 'ASC')->paginate($getLimit);
-
-        if (!$data) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Test Lab Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
+        $getServiceId = $getService['getServiceId'] ?? 0;
+        $getData = $labLogic->labGet($getLimit, $user->klinik_id, $getServiceId, $s, $priority);
 
         return response()->json([
             'success' => 1,
             'data' => [
-                'lab' => $data,
-                'service' => $getServiceData['data'],
+                'lab' => $getData['lab'],
+                'service' => $getService['data'],
+                'sub_service' => $getService['sub_service'],
                 'active' => [
-                    'service' => $getServiceData['getServiceId'],
-                    'service_name' => $getServiceData['getServiceName'],
+                    'service' => $getService['getServiceId'],
+                    'service_name' => $getService['getServiceName'],
+                    'sub_service' => $getService['getSubServiceId'],
+                    'sub_service_name' => $getService['getSubServiceName'],
                 ]
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
@@ -88,10 +70,9 @@ class LabController extends Controller
 
     }
 
-    public function getLabDetail($id){
-
+    public function getLabDetail($id)
+    {
         $user = $this->request->attributes->get('_user');
-
         $serviceId = intval($this->request->get('service_id'));
 
         $getInterestService = $serviceId > 0 ? $serviceId : $user->interest_service_id;
