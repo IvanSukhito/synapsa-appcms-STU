@@ -617,18 +617,20 @@ class UserLogic
      */
     public function userCartLabAdd($userId, $labId, $serviceId): array
     {
-        $insert = 0;
         $getLabCart = LabCart::where('user_id', '=', $userId)->first();
         if ($getLabCart) {
             if ($getLabCart->service_id == $serviceId) {
-                $insert = 1;
+                $insert = 80;
+            }
+            else {
+                $insert = 91;
             }
         }
         else {
-            $insert = 1;
+            $insert = 80;
         }
 
-        if ($insert == 1) {
+        if ($insert == 80) {
             LabCart::firstOrCreate([
                 'user_id' => $userId,
                 'lab_id' => $labId,
@@ -640,12 +642,12 @@ class UserLogic
 
     /**
      * @param $userId
-     * @param $labId
+     * @param $labCartId
      * @return array|int
      */
-    public function userCartLabRemove($userId, $labId): array
+    public function userCartLabRemove($userId, $labCartId): array
     {
-        $getLabCart = LabCart::where('user_id', '=', $userId)->where('lab_id', '=', $labId)->first();
+        $getLabCart = LabCart::where('user_id', '=', $userId)->where('id', '=', $labCartId)->first();
         if ($getLabCart) {
             $getLabCart->delete();
             return 1;

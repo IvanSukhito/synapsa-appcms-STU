@@ -108,31 +108,30 @@ class LabController extends Controller
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
 
-
-        $getLabCart = LabCart::where('user_id', $user->id)->first();
-        $userId = $user->id;
-        $getServiceData = [];
-        $getData = [];
-        $total = 0;
-        if ($getLabCart) {
-            $getInterestService = $getLabCart->service_id;
-            $getServiceData = $this->getService($getInterestService);
-            $getData = $this->getLabInfo($userId, $getInterestService);
-            foreach ($getData as $list) {
-                $total += $list->price;
-            }
-        }
-
-        return response()->json([
-            'success' => 1,
-            'data' => [
-                'cart' => $getData,
-                'service' => $getServiceData,
-                'total' => $total,
-                'total_nice' => number_format($total, 0, ',', '.')
-            ],
-            'token' => $this->request->attributes->get('_refresh_token'),
-        ]);
+//        $getLabCart = LabCart::where('user_id', $user->id)->first();
+//        $userId = $user->id;
+//        $getServiceData = [];
+//        $getData = [];
+//        $total = 0;
+//        if ($getLabCart) {
+//            $getInterestService = $getLabCart->service_id;
+//            $getServiceData = $this->getService($getInterestService);
+//            $getData = $this->getLabInfo($userId, $getInterestService);
+//            foreach ($getData as $list) {
+//                $total += $list->price;
+//            }
+//        }
+//
+//        return response()->json([
+//            'success' => 1,
+//            'data' => [
+//                'cart' => $getData,
+//                'service' => $getServiceData,
+//                'total' => $total,
+//                'total_nice' => number_format($total, 0, ',', '.')
+//            ],
+//            'token' => $this->request->attributes->get('_refresh_token'),
+//        ]);
 
     }
 
@@ -156,8 +155,9 @@ class LabController extends Controller
         $getServiceId = $this->request->get('service_id');
         $userId = $user->id;
 
-        $getLabCart = LabCart::where('user_id', $user->id)->first();
-        if ($getLabCart && $getLabCart->service_id != $getServiceId) {
+        $userLogic = new UserLogic();
+        $getResult = $userLogic->userCartLabAdd($userId, $getLabId, $getServiceId);
+        if ($getResult != 80) {
             return response()->json([
                 'success' => 0,
                 'message' => ['Test Lab menggunakan service yang berbeda'],
@@ -165,29 +165,11 @@ class LabController extends Controller
             ], 422);
         }
 
-        LabCart::firstOrCreate([
-            'user_id' => $user->id,
-            'lab_id' => $getLabId,
-            'service_id' => $getServiceId,
-        ]);
-
-        $total = 0;
-        $getService = Service::where('id', $getServiceId)->where('status', '=', 80)->first();
-
-        $getData = $this->getLabInfo($userId, $getServiceId);
-
-        foreach ($getData as $list) {
-            $total += $list->price;
-        }
+        $getData = $userLogic->userCartLab($user->id);
 
         return response()->json([
             'success' => 1,
-            'data' => [
-                'cart' => $getData,
-                'service' => $getService,
-                'total' => $total,
-                'total_nice' => number_format($total, 0, ',', '.')
-            ],
+            'data' => $getData,
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
 
@@ -197,16 +179,15 @@ class LabController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $getData = LabCart::where('user_id', $user->id)->where('id', $id)->first();
-        if (!$getData) {
+        $userLogic = new UserLogic();
+        $getResult = $userLogic->userCartLabRemove($user->id, $id);
+        if ($getResult == 0) {
             return response()->json([
                 'success' => 0,
                 'message' => ['Test Lab Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
-
-        $getData->delete();
 
         return response()->json([
             'success' => 1,

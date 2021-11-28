@@ -131,8 +131,7 @@ class LabLogic
             $getData = $getData->where('priority', 1);
         }
 
-        $getData = $getData->where('lab.parent_id', '=', 0)->where('status', '=', 80)
-            ->orderBy('lab.name','ASC')->paginate($limit);
+        $getData = $getData->where('lab.parent_id', '=', 0)->orderBy('lab.name','ASC')->paginate($limit);
 
         return [
             'lab' => $getData
