@@ -70,8 +70,10 @@ class ProductLogic
                 $updateParents[$getProduct->parent_id] = $getQty;
             }
 
-            $getProduct->stock -= $getQty;
-            $getProduct->save();
+            if ($getProduct->stock_flag == 2) {
+                $getProduct->stock -= $getQty;
+                $getProduct->save();
+            }
 
         }
 
