@@ -162,6 +162,7 @@ class ProcessTransaction implements ShouldQueue
 
         $getCartInfo = $getCart['cart_info'];
         $getUsersCartDetail = $getCart['cart'];
+        Log::info("cart");
         Log::info($getUsersCartDetail->count());
         if ($getUsersCartDetail->count() > 0) {
             $this->getJob->status = 99;
