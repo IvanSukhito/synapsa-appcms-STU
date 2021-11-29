@@ -235,6 +235,18 @@ class LabController extends Controller
         $getService = Service::where('id', '=', $serviceId)->first();
         $getList = get_list_type_service();
 
+        Log::info(json_encode([
+            'schedule_start' => date('Y-m-d', strtotime("+1 day")),
+            'schedule_end' => date('Y-m-d', strtotime("+366 day")),
+            'address' => $getService->type == 2 ? 1 : 0,
+            'address_nice' => $getList[$getService->type] ?? '-',
+            'date' => $getDate,
+            'schedule' => $getLabSchedule,
+            'service_id' => $serviceId,
+            'service' => $getCart['service'],
+            'sub_service' => $getCart['sub_service']
+        ]));
+
         return response()->json([
             'success' => 1,
             'data' => [
