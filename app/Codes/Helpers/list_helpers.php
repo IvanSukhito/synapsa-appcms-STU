@@ -154,12 +154,14 @@ if ( ! function_exists('get_list_appointment')) {
     function get_list_appointment()
     {
         return [
+            0 => __('general.no_active'),
             1 => __('general.pending'),
             2 => __('general.reschedule'),
             3 => __('general.meeting'),
             4 => __('general.approve'),
             80 => __('general.complete'),
-            90 => __('general.cancel')
+            90 => __('general.cancel'),
+            91 => __('general.reject')
         ];
     }
 }
