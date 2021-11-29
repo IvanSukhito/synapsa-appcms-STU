@@ -238,7 +238,9 @@ class ProcessTransaction implements ShouldQueue
         ]);
 
         $transactionDetails = [];
+        $UsersCartDetailId = [];
         foreach ($getUsersCartDetail as $item) {
+            $UsersCartDetailId[] = $item->id;
             $item->stock -= $item->qty;
             $item->save();
 
@@ -251,11 +253,14 @@ class ProcessTransaction implements ShouldQueue
 
         }
 
-        if (count($transactionDetails) > 0)
+        if (count($transactionDetails) > 0) {
             $getTransaction->getTransactionDetails()->saveMany($transactionDetails);
+        }
 
-        UsersCartDetail::where('users_cart_id', '=', $getCartInfo->id)
-            ->where('choose', 1)->delete();
+        if (count($UsersCartDetailId) > 0) {
+            UsersCartDetail::whereIn('id', '=', $getCartInfo->id)
+                ->where('choose', '=', 1)->delete();
+        }
 
         DB::commit();
 
@@ -569,9 +574,6 @@ class ProcessTransaction implements ShouldQueue
         ]);
 
         $getTransaction->getTransactionDetails()->saveMany($transactionDetails);
-
-        AppointmentDoctorProduct::where('appointment_doctor_id', '=', $getAppointmentDoctorId)
-            ->where('choose', 1)->delete();
 
         DB::commit();
 
