@@ -658,9 +658,9 @@ class UserLogic
     /**
      * @param $userId
      * @param $labCartId
-     * @return array|int
+     * @return int
      */
-    public function userCartLabRemove($userId, $labCartId): array
+    public function userCartLabRemove($userId, $labCartId): int
     {
         $getLabCart = LabCart::where('user_id', '=', $userId)->where('id', '=', $labCartId)->first();
         if ($getLabCart) {

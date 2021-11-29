@@ -419,6 +419,18 @@ class ProcessTransaction implements ShouldQueue
 
     }
 
+    /**
+     * @param $getNewCode
+     * @param $getPaymentReferId
+     * @param $getTypeService
+     * @param $getServiceId
+     * @param $getUserId
+     * @param $getPaymentId
+     * @param $getScheduleId
+     * @param $getDate
+     * @param $getPaymentInfo
+     * @param $additional
+     */
     private function transactionDoctor($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getUserId, $getPaymentId, $getScheduleId, $getDate, $getPaymentInfo, $additional)
     {
         $getUser = Users::where('id', $getUserId)->first();
@@ -561,6 +573,20 @@ class ProcessTransaction implements ShouldQueue
 
     }
 
+    /**
+     * @param $getNewCode
+     * @param $getPaymentReferId
+     * @param $getTypeService
+     * @param $getServiceId
+     * @param $getUserId
+     * @param $getPaymentId
+     * @param $getScheduleId
+     * @param $getDate
+     * @param $getPaymentInfo
+     * @param $additional
+     * @param int $flag
+     * @param int $transactionId
+     */
     private function transactionLab($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getUserId, $getPaymentId, $getScheduleId, $getDate, $getPaymentInfo, $additional, $flag = 0, $transactionId = 0)
     {
         $getUser = Users::where('id', $getUserId)->first();
