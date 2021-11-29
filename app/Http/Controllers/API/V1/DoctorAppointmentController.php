@@ -157,11 +157,7 @@ class DoctorAppointmentController extends Controller
     public function meeting($id)
     {
         $user = $this->request->attributes->get('_user');
-        $getDoctor = Doctor::selectRaw('doctor.*, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
-                    ->leftJoin('users','users.id','=','doctor.user_id')
-                    ->where('doctor.user_id', $user->id)
-                    ->first();
-
+        $getDoctor = Doctor::where('user_id', $user->id)->first();
         if (!$getDoctor) {
             return response()->json([
                 'success' => 1,
@@ -280,7 +276,7 @@ class DoctorAppointmentController extends Controller
                 'video_token' => $agoraTokenDokter,
                 'fcm_token' => $getFcmTokenPatient,
                 'users_image' => $getPatient->image_full,
-                'doctor_image' => $getDoctor->image_full,
+                'doctor_image' => $data->image_full,
             ],
             'message' => ['Sukses'],
             'token' => $this->request->attributes->get('_refresh_token'),
