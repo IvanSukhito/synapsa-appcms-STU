@@ -70,7 +70,7 @@ class ProductLogic
                 $updateParents[$getProduct->parent_id] = $getQty;
             }
 
-            $getProduct->qty -= $getQty;
+            $getProduct->stock -= $getQty;
             $getProduct->save();
 
         }
