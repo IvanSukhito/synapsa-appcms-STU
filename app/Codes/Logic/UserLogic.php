@@ -684,7 +684,7 @@ class UserLogic
     public function userCartLabChoose($userId, $labCartIds): int
     {
         $getLabCarts = LabCart::where('user_id', $userId)->whereIn('id', $labCartIds)->get();
-        if ($getLabCarts) {
+        if ($getLabCarts->count() > 0) {
             DB::beginTransaction();
             foreach ($getLabCarts as $getLabCart) {
                 $getLabCart->choose = 1;
