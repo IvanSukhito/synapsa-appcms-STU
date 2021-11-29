@@ -225,8 +225,8 @@ class ProcessTransaction implements ShouldQueue
             'shipping_subdistrict_id' => $getUserAddress['sub_district_id'] ?? '',
             'shipping_subdistrict_name' => $getUserAddress['sub_district_name'] ?? '',
             'shipping_zipcode' => $getUserAddress['zip_code'] ?? '',
-            'send_info' => $additional,
-            'payment_info' => $getPaymentInfo,
+            'send_info' => json_encode($additional),
+            'payment_info' => json_encode($getPaymentInfo),
             'category_service_id' => 0,
             'category_service_name' => '',
             'type_service' => 1,
@@ -262,9 +262,6 @@ class ProcessTransaction implements ShouldQueue
             UsersCartDetail::whereIn('id', '=', $getCartInfo->id)
                 ->where('choose', '=', 1)->delete();
         }
-
-        Log::info(json_encode($transactionDetails));
-        Log::info(json_encode($UsersCartDetailId));
 
         DB::commit();
 
