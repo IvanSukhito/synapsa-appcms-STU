@@ -595,9 +595,9 @@ class DoctorLogic
                 $getAppointment->status = 4;
             }
             $getAppointment->save();
-            return 1;
+            return 80;
         }
-        return 0;
+        return 91;
     }
 
     /**
