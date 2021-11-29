@@ -16,6 +16,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class LabController extends Controller
@@ -209,7 +210,7 @@ class LabController extends Controller
     public function chooseCart()
     {
         $user = $this->request->attributes->get('_user');
-
+        Log::info(json_encode($this->request->all()));
         $validator = Validator::make($this->request->all(), [
             'cart_ids' => 'required|array'
         ]);

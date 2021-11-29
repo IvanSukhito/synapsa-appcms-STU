@@ -417,7 +417,7 @@ class UserLogic
             ];
         }
 
-        $getUsersCartDetail->qty += $qty;
+        $getUsersCartDetail->qty = $qty;
 
         if ($getUsersCartDetail->qty <= 0) {
             return [
