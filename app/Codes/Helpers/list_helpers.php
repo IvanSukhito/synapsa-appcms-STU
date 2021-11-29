@@ -154,6 +154,7 @@ if ( ! function_exists('get_list_appointment')) {
     function get_list_appointment()
     {
         return [
+            0 => __('general.no_active'),
             1 => __('general.pending'),
             2 => __('general.reschedule'),
             3 => __('general.meeting'),

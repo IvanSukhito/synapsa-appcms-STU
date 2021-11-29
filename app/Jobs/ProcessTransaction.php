@@ -274,176 +274,6 @@ class ProcessTransaction implements ShouldQueue
         ]);
         $this->getJob->save();
 
-//        $getUser = Users::where('id', $getUserId)->first();
-//        $getUsersAddress = UsersAddress::where('user_id', $getUserId)->first();
-//        $getPayment = Payment::where('id', $getPaymentId)->first();
-//        $getUsersCart = UsersCart::firstOrCreate([
-//            'users_id' => $getUserId,
-//        ]);
-//
-//        $getDetailsInformation = json_decode($getUsersCart->detail_information, true);
-//        $getDetailsShipping = json_decode($getUsersCart->detail_shipping, true);
-//        $getShippingId = $getDetailsShipping['shipping_id'];
-//        $getShipping = Shipping::where('id', $getShippingId)->first();
-//        if (!$getShipping) {
-//            $this->getJob->status = 99;
-//            $this->getJob->response = json_encode([
-//                'service' => $getTypeService,
-//                'service_id' => $getServiceId,
-//                'message' => 'Pengiriman Tidak Ditemukan'
-//            ]);
-//            $this->getJob->save();
-//            return;
-//        }
-//
-//        if($flag == 1) {
-//            $getTransaction = Transaction::where('id', $transactionId)->where('status', 2)->first();
-//            if (!$getTransaction) {
-//                $this->getJob->status = 99;
-//                $this->getJob->response = json_encode([
-//                    'transaction_id' => $transactionId,
-//                    'service' => $getTypeService,
-//                    'service_id' => $getServiceId,
-//                    'message' => 'Transaksi Tidak Ditemukan'
-//                ]);
-//                $this->getJob->save();
-//                return;
-//            }
-//        }
-//        else {
-//            $getUsersCartDetail = UsersCartDetail::where('users_cart_id', '=', $getUsersCart->id)
-//                ->where('choose', 1)->count();
-//            if ($getUsersCartDetail <= 0) {
-//                $this->getJob->status = 99;
-//                $this->getJob->response = json_encode([
-//                    'service' => $getTypeService,
-//                    'service_id' => $getServiceId,
-//                    'message' => 'Tidak ada Produk yang di pilih'
-//                ]);
-//                $this->getJob->save();
-//                return;
-//            }
-//        }
-//
-//        $newCode = date('Ym').$getNewCode;
-//
-//        DB::beginTransaction();
-//
-//        if($flag == 1) {
-//            $getTransaction->code = $newCode;
-//            $getTransaction->payment_refer_id = $getPaymentReferId;
-//            $getTransaction->payment_service = $getPayment->service;
-//            $getTransaction->type_payment = $getPayment->type_payment;
-//            $getTransaction->payment_id = $getPaymentId;
-//            $getTransaction->payment_name = $getPayment->name;
-//            $getTransaction->send_info = $additional;
-//            $getTransaction->payment_info = $getPaymentInfo;
-//            $getTransaction->status = 2;
-//            $getTransaction->save();
-//        }
-//        else {
-//            $getUsersCartDetails = Product::selectRaw('users_cart_detail.id, product.id AS product_id, product.name AS product_name,
-//            product.name, product.image, product.unit, product.price, users_cart_detail.qty')
-//                ->join('users_cart_detail', 'users_cart_detail.product_id', '=', 'product.id')
-//                ->where('users_cart_detail.users_cart_id', '=', $getUsersCart->id)
-//                ->where('choose', 1)->get();
-//
-//            $totalQty = 0;
-//            $subTotal = 0;
-//            $shippingPrice = $getShipping->price;
-//            $transactionDetails = [];
-//            $productQty = [];
-//            $getProductIds = [];
-//            foreach ($getUsersCartDetails as $list) {
-//                // dd($list->qty);
-//                $totalQty += $list->qty;
-//
-//                $subTotal += ($list->qty * $list->price);
-//
-//                $productQty[] = $list->qty;
-//                $getProductIds[] = $list->product_id;
-//                $transactionDetails[] = new TransactionDetails([
-//                    'product_id' => $list->product_id,
-//                    'product_name' => $list->product_name,
-//                    'product_qty' => $list->qty,
-//                    'product_price' => $list->price
-//                ]);
-//            }
-//
-//            $total = $subTotal + $shippingPrice;
-//
-//            $getProducts = Product::whereIn('id', $getProductIds)->get();
-//
-//            foreach ($getProducts as $key => $list) {
-//
-//                $qty = $productQty[$key];
-//
-//                if ($list->stock_flag == 2) {
-//                    $list->stock = $list->stock - $qty;
-//                    $list->save();
-//
-//                    Product::where('parent_id', $list->id)->update([
-//                        'stock' => $list->stock,
-//                    ]);
-//
-//                    if ($list->klinik_id > 0 && $list->parent_id > 0) {
-//                        $productParent = Product::where('id', $list->parent_id)->first();
-//                        $productParent->stock = $list->stock;
-//                        $productParent->save();
-//
-//                        Product::where('parent_id', $productParent->id)->update([
-//                            'stock' => $list->stock,
-//                        ]);
-//                    }
-//                }
-//            }
-//
-//            $getTransaction = Transaction::create([
-//                'klinik_id' => $getUser->klinik_id,
-//                'user_id' => $getUser->id,
-//                'code' => $newCode,
-//                'payment_refer_id' => $getPaymentReferId,
-//                'payment_service' => $getPayment->service,
-//                'type_payment' => $getPayment->type_payment,
-//                'shipping_id' => $getShippingId,
-//                'shipping_name' => $getShipping->name,
-//                'payment_id' => $getPaymentId,
-//                'payment_name' => $getPayment->name,
-//                'receiver_name' => $getDetailsInformation['receiver'] ?? '',
-//                'receiver_address' => $getDetailsInformation['address'] ?? '',
-//                'receiver_phone' => $getDetailsInformation['phone'] ?? '',
-//                'shipping_address_name' => $getUsersAddress->address_name ?? '',
-//                'shipping_address' => $getUsersAddress->address ?? '',
-//                'shipping_province_id' => $getUsersAddress->province_id ?? 0,
-//                'shipping_province_name' => $getUsersAddress->province_name ?? '',
-//                'shipping_city_id' => $getUsersAddress->city_id ?? 0,
-//                'shipping_city_name' => $getUsersAddress->city_name ?? '',
-//                'shipping_district_id' => $getUsersAddress->district_id ?? 0,
-//                'shipping_district_name' => $getUsersAddress->district_name ?? '',
-//                'shipping_subdistrict_id' => $getUsersAddress->sub_district_id ?? 0,
-//                'shipping_subdistrict_name' => $getUsersAddress->sub_district_name ?? '',
-//                'shipping_zipcode' => $getUsersAddress->zip_code ?? '',
-//                'send_info' => $additional,
-//                'payment_info' => $getPaymentInfo,
-//                'category_service_id' => 0,
-//                'category_service_name' => '',
-//                'type_service' => 1,
-//                'type_service_name' => $getTypeService,
-//                'total_qty' => $totalQty,
-//                'subtotal' => $subTotal,
-//                'shipping_price' => $shippingPrice,
-//                'total' => $total,
-//                'status' => 2
-//            ]);
-//
-//            $getTransaction->getTransactionDetails()->saveMany($transactionDetails);
-//
-//            UsersCartDetail::where('users_cart_id', '=', $getUsersCart->id)
-//                ->where('choose', 1)->delete();
-//        }
-//
-//        DB::commit();
-
     }
 
     private function transactionProductKlinik($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getShippingId, $getPaymentInfo, $getDetailsInfo, $getAppointmentDoctorId, $additional, $flag = 0, $transactionId = 0)
@@ -712,6 +542,11 @@ class ProcessTransaction implements ShouldQueue
             'doctor_price' => $subTotal,
             'extra_info' => json_encode($extraInfo)
         ]);
+
+        $getDoctorName = $getDoctorInfo->doctor_name;
+        $doctorLogic = new DoctorLogic();
+        $getResult = $doctorLogic->appointmentCreate($getScheduleId, $getDate, $getUser, $getDoctorName,
+            $getTypeService, $getTransaction, $getTransaction->code, $extraInfo);
 
         DB::commit();
 
