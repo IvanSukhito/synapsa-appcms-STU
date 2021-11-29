@@ -480,4 +480,6 @@ return [
     'katalog_product_synapsa' => 'Catalog Product Synapsa',
     'product_category' => 'Category Product',
     'flag_stock' => 'Type Stock',
+
+    'book_time' => 'Waktu Book'
 ];

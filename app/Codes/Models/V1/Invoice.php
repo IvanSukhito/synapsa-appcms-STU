@@ -35,6 +35,7 @@ class Invoice extends Model
 
     protected $appends = [
         'product_image_full',
+        'price_nice_total_price_transaction',
         'price_nice_product_klinik',
         'price_nice_product_synapsa',
     ];
@@ -42,6 +43,11 @@ class Invoice extends Model
     public function getPriceNiceProductKlinikAttribute()
     {
         return intval($this->price_product_klinik) > 0 ? number_format($this->price_product_klinik, 0, ',', '.') : 0;
+    }
+
+    public function getPriceNiceTotalPriceTransactionAttribute()
+    {
+        return intval($this->total_price_transaction) > 0 ? number_format($this->total_price_transaction, 0, ',', '.') : 0;
     }
 
     public function getPriceNiceProductSynapsaAttribute()

@@ -77,7 +77,7 @@ class InvoiceController extends _CrudController
                     'edit' => ['disabled' => true],
                 ],
             ],
-            'total_price_transaction' => [
+            'price_nice_total_price_transaction' => [
                 'extra' => [
                     'edit' => ['disabled' => true],
                 ],
