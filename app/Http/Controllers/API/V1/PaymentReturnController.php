@@ -127,7 +127,6 @@ class PaymentReturnController extends Controller
             $transactionId = $getTransaction->id;
             $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
             if ($getDetail) {
-                $scheduleId = $getDetail->schedule_id;
                 $extraInfo = json_decode($getDetail->extra_info, true);
                 $scheduleId = $getDetail->schedule_id;
                 $getDate = $extraInfo['date'] ?? '';
