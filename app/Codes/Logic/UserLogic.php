@@ -675,16 +675,19 @@ class UserLogic
 
     /**
      * @param $userId
-     * @param $labId
-     * @param $serviceId
+     * @param $labCartIds
      * @return array|int
      */
-    public function userCartLabChoose($userId, $labId, $serviceId): array
+    public function userCartLabChoose($userId, $labCartIds): array
     {
-        $getLabCart = LabCart::where('user_id', $userId)->where('lab_id', $labId)->where('service_id', $serviceId)->first();
-        if ($getLabCart) {
-            $getLabCart->choose = 1;
-            $getLabCart->save();
+        $getLabCarts = LabCart::where('user_id', $userId)->whereIn('id', $labCartIds)->get();
+        if ($getLabCarts) {
+            DB::beginTransaction();
+            foreach ($getLabCarts as $getLabCart) {
+                $getLabCart->choose = 1;
+                $getLabCart->save();
+            }
+            DB::commit();
             return 1;
         }
         return 0;
