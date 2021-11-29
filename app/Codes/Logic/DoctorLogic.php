@@ -565,20 +565,25 @@ class DoctorLogic
      * 2. Doctor
      * @param $appointmentId
      * @param $flag
-     * @param null $userId
-     * @param null $doctorId
+     * @param $userId
      * @return int
      */
-    public function appointmentApprove($appointmentId, $flag, $userId = null, $doctorId = null): int
+    public function appointmentApprove($appointmentId, $flag, $userId): int
     {
         if ($flag == 1) {
             $getAppointment = AppointmentDoctor::whereIn('status', [1,2])->where('id', '=', $appointmentId)
                 ->where('user_id', '=', $userId)->first();
         }
         else {
+            $getDoctor = Doctor::where('user_id', $userId)->first();
+            if (!$getDoctor) {
+                return 90;
+            }
+
             $getAppointment = AppointmentDoctor::whereIn('status', [1,2])->where('id', '=', $appointmentId)
-                ->where('doctor_id', '=', $doctorId)->first();
+                ->where('doctor_id', '=', $getDoctor->id)->first();
         }
+
         if ($getAppointment) {
             $getService = Service::where('id', '=', $getAppointment->service_id)->first();
             if ($getService && $getService->type == 1) {

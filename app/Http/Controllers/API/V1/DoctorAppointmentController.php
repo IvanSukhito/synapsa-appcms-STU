@@ -288,6 +288,10 @@ class DoctorAppointmentController extends Controller
     public function approveMeeting($id)
     {
         $user = $this->request->attributes->get('_user');
+
+        $doctorLogic = new DoctorLogic();
+        $doctorLogic->appointmentApprove();
+
         $getDoctor = Doctor::where('user_id', $user->id)->first();
         if (!$getDoctor) {
             return response()->json([
