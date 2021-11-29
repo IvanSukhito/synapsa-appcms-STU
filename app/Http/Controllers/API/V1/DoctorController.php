@@ -200,7 +200,15 @@ class DoctorController extends Controller
         $user = $this->request->attributes->get('_user');
 
         $reqDate = strtotime($this->request->get('date'));
+        $subServiceId = intval($this->request->get('sub_service_id'));
+
         $getData = $this->getScheduleDetail($user, $scheduleId, $reqDate);
+
+        $serviceId = $getData['data']['service_id'];
+
+        $doctorLogic = new DoctorLogic();
+        $getService = $doctorLogic->getListService($serviceId, $subServiceId);
+
         if ($getData['success'] == 0) {
             return response()->json([
                 'success' => 0,
@@ -212,6 +220,13 @@ class DoctorController extends Controller
         return response()->json([
             'success' => 1,
             'data' => $getData['data'],
+            'active' => [
+                'service' => $getService['getServiceId'],
+                'service_name' => $getService['getServiceName'],
+                'sub_service' => $getService['getSubServiceId'],
+                'sub_service_name' => $getService['getSubServiceName'],
+            ],
+
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
 
@@ -232,6 +247,7 @@ class DoctorController extends Controller
         }
 
         $getResult = $getData['data'];
+
 
         $getPayment = Payment::where('status', '=', 80)->get();
         $getResult['payment'] = $getPayment;
@@ -378,8 +394,10 @@ class DoctorController extends Controller
                     'address_nice' => $getList[$getService->type] ?? '-',
                     'doctor' => $doctorLogic->doctorInfo($doctorId, $serviceId),
                     'date' => $getDate,
-                    'time' => $getTime
+                    'time' => $getTime,
+                    'service_id' => $serviceId
                 ],
+
             ];
         }
         else if ($getDoctorSchedule['success'] == 90) {
