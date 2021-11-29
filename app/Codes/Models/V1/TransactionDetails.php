@@ -24,6 +24,7 @@ class TransactionDetails extends Model
         'nurse_id',
         'nurse_shift',
         'nurse_booked',
+        'extra_info',
     ];
 
     protected $appends = [

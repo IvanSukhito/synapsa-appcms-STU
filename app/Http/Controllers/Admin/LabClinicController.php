@@ -4,13 +4,18 @@ namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
 use App\Codes\Models\Admin;
+use App\Codes\Models\Settings;
 use App\Codes\Models\V1\Lab;
+use App\Codes\Models\V1\LabService;
+use App\Codes\Models\V1\Service;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\DataTables;
 
 class LabClinicController extends _CrudController
 {
+    protected $setting;
     public function __construct(Request $request)
     {
         $passingData = [
@@ -72,6 +77,15 @@ class LabClinicController extends _CrudController
                 'type' => 'multiselect2',
                 'list' => 0,
             ],
+            'service_id' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => ''
+                ],
+                'type' => 'multiselect2',
+                'show' => 0,
+                'list' => 0,
+            ],
             'action' => [
                 'create' => 0,
                 'edit' => 0,
@@ -84,6 +98,27 @@ class LabClinicController extends _CrudController
             $request, 'general.lab_clinic', 'lab-clinic', 'V1\Lab', 'lab-clinic',
             $passingData
         );
+
+        $this->setting = Cache::remember('settings', env('SESSION_LIFETIME'), function () {
+            return Settings::pluck('value', 'key')->toArray();
+        });
+
+        $getServiceLab = isset($this->setting['service-lab']) ? json_decode($this->setting['service-lab'], true) : [];
+
+        //dd($getServiceLab);
+        if (count($getServiceLab) > 0) {
+            $service = Service::whereIn('id', $getServiceLab)->where('status', '=', 80)->pluck('name','id')->toArray();
+        }
+        else {
+            $service = Service::where('status', '=', 80)->orderBy('orders', 'ASC')->pluck('name','id')->toArray();
+        }
+
+        $service_id = [];
+        foreach($service as $key => $val) {
+            $service_id[$key] = $val;
+        }
+
+
         $getParent = Lab::get();
         $listParent = [0 => 'Tidak memiliki Parent'];
         if($getParent) {
@@ -93,8 +128,12 @@ class LabClinicController extends _CrudController
         }
 
         $this->data['listSet']['parent_id'] = $listParent;
+        $this->data['listSet']['service_id'] = $service_id;
 
         $this->data['listSet']['recommended_for'] = get_list_recommended_for();
+        $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.lab_clinic.forms';
+        $this->listView['edit'] = env('ADMIN_TEMPLATE').'.page.lab_clinic.forms_edit';
+        $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.lab_clinic.forms_edit';
     }
 
     public function store(){
@@ -110,9 +149,14 @@ class LabClinicController extends _CrudController
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
 
+        $this->validate($this->request, [
+            'service_id' => 'required',
+            'price' => 'required'
+        ]);
+
         $getListCollectData = collectPassingData($this->passingData, $viewType);
 
-        unset($getListCollectData['image_full']);
+        unset($getListCollectData['service_id']);
 
         $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
@@ -125,6 +169,10 @@ class LabClinicController extends _CrudController
                 $data[$key] = $this->request->get($key);
             }
         }
+
+        unset($data['image_full']);
+        unset($getListCollectData['image_full']);
+
 
         $dokument = $this->request->file('image_full');
         if ($dokument) {
@@ -153,6 +201,18 @@ class LabClinicController extends _CrudController
 
         $getData = $this->crud->store($data);
 
+        $serviceId = $this->request->get('service_id');
+        $price = clear_money_format($this->request->get('price'));
+
+        foreach($serviceId as $key => $list){
+
+            LabService::create([
+                'lab_id' => $getData->id,
+                'service_id' => $list,
+                'price' => $price[$key] != null ? $price[$key] : 0
+            ]);
+        }
+
         $id = $getData->id;
 
         if($this->request->ajax()){
@@ -178,9 +238,14 @@ class LabClinicController extends _CrudController
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
 
+        $getData = $this->crud->show($id);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
         $getListCollectData = collectPassingData($this->passingData, $viewType);
 
-        unset($getListCollectData['image_full']);
+        unset($getListCollectData['service_id']);
 
         $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
@@ -193,6 +258,9 @@ class LabClinicController extends _CrudController
                 $data[$key] = $this->request->get($key);
             }
         }
+
+        unset($getListCollectData['image_full']);
+        unset($data['image_full']);
 
         $dokument = $this->request->file('image_full');
         $dokumentImage = null;
@@ -209,6 +277,8 @@ class LabClinicController extends _CrudController
                 }
 
             }
+        }else{
+            $dokumentImage = $getData->image;
         }
 
         $recommend = $data['recommended_for'];
@@ -220,6 +290,22 @@ class LabClinicController extends _CrudController
         $data['recommended_for'] = json_encode($recommend);
 
         $getData = $this->crud->update($data, $id);
+
+        $serviceId = $this->request->get('service_id');
+        $price = clear_money_format($this->request->get('price'));
+
+        if($serviceId){
+            $saveDataTemp = [];
+            $lab = Lab::where('id', $id)->first();
+            foreach($serviceId as $key => $list){
+                $prices = $price[$key] != null ? $price[$key] : 0;
+
+                $saveDataTemp[$list] = [
+                    'price' => $prices
+                ];
+            }
+            $lab->getService()->sync($saveDataTemp);
+        }
 
         $id = $getData->id;
 
@@ -244,12 +330,15 @@ class LabClinicController extends _CrudController
 
         $getData->recommended_for = json_decode($getData->recommended_for);
 
+        $getLabService = LabService::where('lab_id',$id)->get();
+
         $data = $this->data;
 
         $data['viewType'] = 'show';
         $data['formsTitle'] = __('general.title_show', ['field' => $data['thisLabel']]);
         $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
         $data['data'] = $getData;
+        $data['labService'] = $getLabService;
 
         return view($this->listView[$data['viewType']], $data);
     }
@@ -265,12 +354,15 @@ class LabClinicController extends _CrudController
 
         $getData->recommended_for = json_decode($getData->recommended_for);
 
+        $getLabService = LabService::where('lab_id',$id)->get();
+
         $data = $this->data;
 
         $data['viewType'] = 'edit';
         $data['formsTitle'] = __('general.title_edit', ['field' => $data['thisLabel']]);
         $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
         $data['data'] = $getData;
+        $data['labService'] = $getLabService;
 
         return view($this->listView[$data['viewType']], $data);
     }

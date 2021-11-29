@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\API\V1;
 
+use App\Codes\Logic\DoctorLogic;
 use App\Codes\Logic\SynapsaLogic;
+use App\Codes\Logic\UserLogic;
 use App\Codes\Models\Settings;
-use App\Codes\Models\V1\DoctorSchedule;
-use App\Codes\Models\V1\DoctorCategory;
 use App\Codes\Models\V1\Service;
 use App\Codes\Models\V1\Transaction;
-use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\Payment;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
@@ -45,34 +44,28 @@ class DoctorController extends Controller
         $getInterestService = $serviceId > 0 ? $serviceId : $user->interest_service_id;
         $getInterestCategory = $categoryId > 0 ? $categoryId : $user->interest_category_id;
 
-        $getServiceData = $this->getService($getInterestService);
-        $getCategoryData = $this->getCategory($getInterestCategory);
+        $doctorLogic = new DoctorLogic();
+        $getService = $doctorLogic->getListService($getInterestService);
+        $getCategory = $doctorLogic->getListCategory($getInterestCategory);
 
-        $data = Users::selectRaw('doctor.id, users.fullname as doctor_name, image, doctor_service.price, doctor_category.name as category')
-            ->join('doctor', 'doctor.user_id', '=', 'users.id')
-            ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
-            ->join('doctor_service', 'doctor_service.doctor_id','=','doctor.id')
-            ->where('doctor.doctor_category_id','=', $getCategoryData['getCategoryId'])
-            ->where('doctor_service.service_id','=', $getServiceData['getServiceId'])
-            ->where('users.doctor','=', 1)
-            ->where('users.klinik_id','=', $user->klinik_id);
+        $getServiceId = $getService['getServiceId'] ?? 0;
+        $getCategoryId = $getCategory['getCategoryId'] ?? 0;
 
-        if (strlen($s) > 0) {
-            $data = $data->where('users.fullname', 'LIKE', "%$s%");
-        }
-
-        $data = $data->orderBy('users.fullname', 'ASC')->paginate($getLimit);
+        $getData = $doctorLogic->doctorList($getServiceId, $getCategoryId, $s, $getLimit);
 
         return response()->json([
             'success' => 1,
             'data' => [
-                'doctor' => $data,
-                'service' => $getServiceData['data'],
+                'doctor' => $getData,
+                'service' => $getService['data'],
+                'sub_service' => $getService['sub_service'],
                 'active' => [
-                    'service' => $getServiceData['getServiceId'],
-                    'service_name' => $getServiceData['getServiceName'],
-                    'category' => $getCategoryData['getCategoryId'],
-                    'category_name' => $getCategoryData['getCategoryName']
+                    'service' => $getService['getServiceId'],
+                    'service_name' => $getService['getServiceName'],
+                    'sub_service' => $getService['getSubServiceId'],
+                    'sub_service_name' => $getService['getSubServiceName'],
+                    'category' => $getCategory['getCategoryId'],
+                    'category_name' => $getCategory['getCategoryName']
                 ]
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
@@ -82,24 +75,22 @@ class DoctorController extends Controller
 
     public function doctorCategory()
     {
-        $getDoctorCategory = Cache::remember('doctor_category', env('SESSION_LIFETIME'), function () {
-            return DoctorCategory::orderBy('orders', 'ASC')->get();
-        });
+        $doctorLogic = new DoctorLogic();
+        $getCategory = $doctorLogic->getListCategory();
 
         return response()->json([
             'success' => 1,
             'data' => [
-                'category' => $getDoctorCategory,
+                'category' => $getCategory,
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
     }
 
-    public function getDoctorDetail($id)
+    public function getDoctorDetail($doctorId)
     {
-        $serviceId = $this->request->get('service_id');
-        $getService = Service::where('id', $serviceId)->where('status', '=', 80)->first();
-        if (!$getService) {
+        $serviceId = intval($this->request->get('service_id'));
+        if ($serviceId <= 0) {
             return response()->json([
                 'success' => 0,
                 'message' => ['Service Tidak Ditemukan'],
@@ -107,8 +98,8 @@ class DoctorController extends Controller
             ], 404);
         }
 
-        $data = $this->getDoctorInfo($id, $serviceId);
-
+        $doctorLogic = new DoctorLogic();
+        $data = $doctorLogic->doctorInfo($doctorId, $serviceId);
         if (!$data) {
             return response()->json([
                 'success' => 0,
@@ -126,14 +117,14 @@ class DoctorController extends Controller
 
     }
 
-    public function listBookDoctor($id)
+    public function listBookDoctor($doctorId)
     {
         $serviceId = $this->request->get('service_id');
         $getDate = strtotime($this->request->get('date')) > 0 ?
             date('Y-m-d', strtotime($this->request->get('date'))) :
             date('Y-m-d', strtotime("+1 day"));
 
-        $getService = Service::where('id', $serviceId)->where('status', '=', 80)->first();
+        $getService = Service::where('id', '=', $serviceId)->where('status', '=', 80)->first();
         if (!$getService) {
             return response()->json([
                 'success' => 0,
@@ -142,9 +133,8 @@ class DoctorController extends Controller
             ], 404);
         }
 
-        $data = $this->getDoctorInfo($id, $serviceId);
-//        $data = $this->getDoctorInfo(13, $serviceId);
-
+        $doctorLogic = new DoctorLogic();
+        $data = $doctorLogic->doctorInfo($doctorId, $serviceId);
         if (!$data) {
             return response()->json([
                 'success' => 0,
@@ -152,94 +142,43 @@ class DoctorController extends Controller
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
-        else {
 
-            $getWeekday = intval(date('w', strtotime($getDate)));
-            $getDoctorSchedule = DoctorSchedule::where('service_id', $serviceId)->where('weekday', $getWeekday)->get();
-
-            $getDoctorSchedule2 = DoctorSchedule::where('doctor_id', '=', $id)->where('service_id', '=', $serviceId)
-                ->where('date_available', '=', $getDate)
-                ->get();
-
-            if ($getDoctorSchedule2) {
-                $getSchedule = $getDoctorSchedule2;
-            }
-            else {
-                $getSchedule = $getDoctorSchedule;
-            }
-
-            $temp = [];
-            foreach ($getSchedule as $list) {
-                $temp[] = [
-                    'id' => $list->id,
-                    'doctor_id' => $id,
-                    'service_id' => $serviceId,
-                    'date_available' => $getDate,
-                    'time_start' => $list->time_start,
-                    'time_end' => $list->time_end,
-                    'type' => $list->type,
-                    'weekday' => $list->weekday,
-                    'book' => $list->book,
-                    'book_nice' => $list->book_nice
-                ];
-            }
-            $getDoctorSchedule = $temp;
-
-            $getList = get_list_type_service();
-
-            return response()->json([
-                'success' => 1,
-                'data' => [
-                    'schedule_start' => date('Y-m-d', strtotime("now")),
-                    'schedule_end' => date('Y-m-d', strtotime("+1 year")),
-                    'address' => $getService->type == 2 ? 1 : 0,
-                    'address_nice' => $getList[$getService->type] ?? '-',
-                    'date' => $getDate,
-                    'schedule' => $getDoctorSchedule,
-                    'doctor' => $data,
-                ],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ]);
-
-        }
-    }
-
-    public function checkSchedule($id)
-    {
-        $getDoctorSchedule = DoctorSchedule::where('id', '=', $id)->first();
-
-        if (!$getDoctorSchedule) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Jadwal Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-        else if ($getDoctorSchedule->book != 80) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Jadwal Sudah Dipesan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
-        else if (date('Y-m-d', strtotime($getDoctorSchedule->date_available)) < date('Y-m-d')) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Jadwal Sudah Lewat Waktunya'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
-
-        $getService = Service::where('id', $getDoctorSchedule->service_id)->where('status', '=', 80)->first();
+        $getSchedule = $doctorLogic->scheduleDoctorList($doctorId, $serviceId, $getDate);
         $getList = get_list_type_service();
 
         return response()->json([
             'success' => 1,
             'data' => [
-                'schedule' => $getDoctorSchedule,
+                'schedule_start' => date('Y-m-d', strtotime("now")),
+                'schedule_end' => date('Y-m-d', strtotime("+1 year")),
                 'address' => $getService->type == 2 ? 1 : 0,
                 'address_nice' => $getList[$getService->type] ?? '-',
+                'date' => $getDate,
+                'schedule' => $getSchedule,
+                'doctor' => $data,
             ],
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
+
+    }
+
+    public function checkSchedule($scheduleId)
+    {
+        $user = $this->request->attributes->get('_user');
+
+        $reqDate = strtotime($this->request->get('date'));
+        $getData = $this->getScheduleDetail($user, $scheduleId, $reqDate);
+        if ($getData['success'] == 0) {
+            return response()->json([
+                'success' => 0,
+                'message' => $getData,
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
+        return response()->json([
+            'success' => 1,
+            'data' => $getData['data'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
     }
@@ -248,120 +187,106 @@ class DoctorController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
+        $userLogic = new UserLogic();
+
         return response()->json([
             'success' => 1,
-            'data' => $this->getUserAddress($user->id)
+            'data' => $userLogic->userAddress($user->id, $user->phone)
         ]);
     }
 
-    public function scheduleSummary($id)
+    public function scheduleSummary($scheduleId)
     {
         $user = $this->request->attributes->get('_user');
 
-        $getDoctorSchedule = DoctorSchedule::where('id', '=', $id)->first();
-        if (!$getDoctorSchedule) {
+        $reqDate = strtotime($this->request->get('date'));
+        $subServiceId = intval($this->request->get('sub_service_id'));
 
-            return response()->json([
-                'success' => 0,
-                'message' => ['Jadwal Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
+        $getData = $this->getScheduleDetail($user, $scheduleId, $reqDate);
 
-        }
-        else if ($getDoctorSchedule->book != 80) {
+        $serviceId = $getData['data']['service_id'];
+
+        $doctorLogic = new DoctorLogic();
+        $getService = $doctorLogic->getListService($serviceId, $subServiceId);
+
+        if ($getData['success'] == 0) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Jadwal Sudah Dipesan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
-        else if (date('Y-m-d', strtotime($getDoctorSchedule->date_available)) < date('Y-m-d')) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Jadwal Sudah Lewat Waktunya'],
+                'message' => $getData,
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
-        }
-
-        $getService = Service::where('id', $getDoctorSchedule->service_id)->where('status', '=', 80)->first();
-
-        $doctorId = $getDoctorSchedule->doctor_id;
-        $serviceId = $getDoctorSchedule->service_id;
-
-        $data = $this->getDoctorInfo($doctorId, $serviceId);
-
-        $result = [
-            'schedule' => $getDoctorSchedule,
-            'doctor' => $data,
-            'service' => $getService
-        ];
-
-        if ($getService->type == 2) {
-            $result['address'] = $this->getUserAddress($user->id);
         }
 
         return response()->json([
             'success' => 1,
-            'data' => $result,
-            'token' => $this->request->attributes->get('_refresh_token'),
-        ]);
-
-    }
-
-    public function getPayment($id)
-    {
-        $getDoctorSchedule = DoctorSchedule::where('id', '=', $id)->first();
-        if (!$getDoctorSchedule) {
-
-            return response()->json([
-                'success' => 0,
-                'message' => ['Jadwal Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-
-        }
-        else if ($getDoctorSchedule->book != 80) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Jadwal Sudah Dipesan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
-        else if (date('Y-m-d', strtotime($getDoctorSchedule->date_available)) < date('Y-m-d')) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Jadwal Sudah Lewat Waktunya'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
-
-        $doctorId = $getDoctorSchedule->doctor_id;
-        $serviceId = $getDoctorSchedule->service_id;
-
-        $data = $this->getDoctorInfo($doctorId, $serviceId);
-
-        $getPayment = Payment::where('status', 80)->get();
-
-        return response()->json([
-            'success' => 1,
-            'data' => [
-                'schedule' => $getDoctorSchedule,
-                'doctor' => $data,
-                'payment' => $getPayment
+            'data' => $getData['data'],
+            'active' => [
+                'service' => $getService['getServiceId'],
+                'service_name' => $getService['getServiceName'],
+                'sub_service' => $getService['getSubServiceId'],
+                'sub_service_name' => $getService['getSubServiceName'],
             ],
+
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
 
     }
 
-    public function checkout($id)
+    public function getPayment($scheduleId)
     {
         $user = $this->request->attributes->get('_user');
 
-        $needPhone = 0;
-        $validator = Validator::make($this->request->all(), [
-            'payment_id' => 'required|numeric'
+        $reqDate = strtotime($this->request->get('date'));
+        $getData = $this->getScheduleDetail($user, $scheduleId, $reqDate);
+        if ($getData['success'] == 0) {
+            return response()->json([
+                'success' => 0,
+                'message' => $getData,
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
+        $getResult = $getData['data'];
+
+
+        $getPayment = Payment::where('status', '=', 80)->get();
+        $getResult['payment'] = $getPayment;
+
+        return response()->json([
+            'success' => 1,
+            'data' => $getResult,
+            'token' => $this->request->attributes->get('_refresh_token'),
         ]);
+
+    }
+
+    public function checkout($scheduleId)
+    {
+        $user = $this->request->attributes->get('_user');
+
+        $synapsaLogic = new SynapsaLogic();
+
+        $paymentId = intval($this->request->get('payment_id'));
+        $subServiceId = intval($this->request->get('sub_service_id'));
+        $getPaymentResult = $synapsaLogic->checkPayment($paymentId);
+        if ($getPaymentResult['success'] == 0) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Payment Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
+        $needPhone = intval($getPaymentResult['phone']);
+
+        if ($needPhone == 1) {
+            $validationRule = ['payment_id' => 'required|numeric', 'date' => 'required', 'phone' => 'required|regex:/^(8\d+)/|numeric'];
+        }
+        else {
+            $validationRule = ['payment_id' => 'required|numeric', 'date' => 'required'];
+        }
+
+        $validator = Validator::make($this->request->all(), $validationRule);
         if ($validator->fails()) {
             return response()->json([
                 'success' => 0,
@@ -370,85 +295,44 @@ class DoctorController extends Controller
             ], 422);
         }
 
-        $paymentId = intval($this->request->get('payment_id'));
-        $getPayment = Payment::where('id', $paymentId)->first();
-        if (!$getPayment) {
+        $reqDate = strtotime($this->request->get('date'));
+        $getPhone = $this->request->get('phone');
+        $getPayment = $getPaymentResult['payment'];
+
+        $getData = $this->getScheduleDetail($user, $scheduleId, $reqDate);
+        if ($getData['success'] == 0) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Payment Tidak Ditemukan'],
+                'message' => $getData,
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
 
-        if ($getPayment->type == 2 && $getPayment->service == 'xendit' && in_array($getPayment->type_payment, ['ew_ovo', 'ew_dana', 'ew_linkaja'])) {
-            $needPhone = 1;
-            $validator = Validator::make($this->request->all(), [
-                'phone' => 'required|regex:/^(8\d+)/|numeric'
-            ]);
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => 0,
-                    'message' => $validator->messages()->all(),
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ], 422);
-            }
-        }
+        $getSchedule = $getData['data']['schedule'];
+        $getDate = $getData['data']['date'];
+        $getTime = $getData['data']['time'];
+        $getDoctor = $getData['data']['doctor'];
+        $doctorId = $getSchedule->doctor_id;
+        $serviceId = $getSchedule->service_id;
+        $scheduleId = $getSchedule->id;
+        $total = $getDoctor->price;
 
-        $getDoctorSchedule = DoctorSchedule::where('id', '=', $id)->first();
-        if (!$getDoctorSchedule) {
-
-            return response()->json([
-                'success' => 0,
-                'message' => ['Jadwal Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-
-        }
-        else if ($getDoctorSchedule->book != 80) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Jadwal Sudah Dipesan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
-        else if (date('Y-m-d', strtotime($getDoctorSchedule->date_available)) < date('Y-m-d')) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Jadwal Sudah Lewat Waktunya'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
-
-        $paymentId = $this->request->get('payment_id');
-        $doctorId = $getDoctorSchedule->doctor_id;
-        $serviceId = $getDoctorSchedule->service_id;
-
-        $data = $this->getDoctorInfo($doctorId, $serviceId);
-        if (!$data) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Doktor Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-
-        $total = $data->price;
-
-        $getTotal = Transaction::where('klinik_id', $user->klinik_id)->whereYear('created_at', '=', date('Y'))
+        $getTotal = Transaction::where('klinik_id', '=', $user->klinik_id)->whereYear('created_at', '=', date('Y'))
             ->whereMonth('created_at', '=', date('m'))->count();
 
-        $newCode = str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT).rand(100,199);
-
+        $newCode = str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT).rand(100000,999999);
         $sendData = [
             'job' => [
                 'code' => $newCode,
                 'payment_id' => $paymentId,
                 'user_id' => $user->id,
                 'type_service' => 'doctor',
-                'doctor_id' => $getDoctorSchedule->doctor_id,
-                'service_id' => $getDoctorSchedule->service_id,
-                'schedule_id' => $getDoctorSchedule->id,
-                'doctor_info' => $data->toArray()
+                'doctor_id' => $doctorId,
+                'service_id' => $serviceId,
+                'sub_service_id' => $subServiceId,
+                'schedule_id' => $scheduleId,
+                'date' => $getDate,
+                'time' => $getTime
             ],
             'code' => $newCode,
             'total' => $total,
@@ -456,14 +340,11 @@ class DoctorController extends Controller
         ];
 
         if ($needPhone == 1) {
-            $sendData['phone'] = $this->request->get('phone');
+            $sendData['phone'] = $getPhone;
         }
 
-        $setLogic = new SynapsaLogic();
-        $getPaymentInfo = $setLogic->createPayment($getPayment, $sendData);
-
+        $getPaymentInfo = $synapsaLogic->createPayment($getPayment, $sendData);
         if ($getPaymentInfo['success'] == 1) {
-
             return response()->json([
                 'success' => 1,
                 'data' => [
@@ -482,157 +363,74 @@ class DoctorController extends Controller
             ], 422);
         }
 
-//        $job = SetJob::create([
-//            'status' => 1,
-//            'params' => json_encode([
-//                'payment_id' => $paymentId,
-//                'user_id' => $user->id,
-//                'type_service' => 'doctor',
-//                'doctor_id' => $getDoctorSchedule->doctor_id,
-//                'service_id' => $getDoctorSchedule->service_id,
-//                'schedule_id' => $getDoctorSchedule->id,
-//                'doctor_info' => $data->toArray()
-//            ])
-//        ]);
-//
-//        dispatch((new ProcessTransaction($job->id))->onQueue('high'));
-//
-//        return response()->json([
-//            'success' => 1,
-//            'data' => [
-//                'job_id' => $job->id
-//            ],
-//            'message' => ['Berhasil'],
-//            'token' => $this->request->attributes->get('_refresh_token'),
-//        ]);
-
     }
 
-    private function getService($getInterestService)
+    private function getScheduleDetail($user, $scheduleId, $getDateTime)
     {
+        $getDate = date('Y-m-d', $getDateTime);
 
-        $getServiceDoctor = isset($this->setting['service-doctor']) ? json_decode($this->setting['service-doctor'], true) : [];
-        if (count($getServiceDoctor) > 0) {
-            $service = Service::whereIn('id', $getServiceDoctor)->where('status', '=', 80)->orderBy('orders', 'ASC')->get();
+        if ($getDate < date('Y-m-d')) {
+            return [
+                'success' => 0,
+                'message' => ['Jadwal Sudah Lewat Waktunya'],
+            ];
+        }
+
+        $doctorLogic = new DoctorLogic();
+        $getDoctorSchedule = $doctorLogic->scheduleCheck($scheduleId, $getDate, $user->id, 1);
+        if ($getDoctorSchedule['success'] == 80) {
+            $getSchedule = $getDoctorSchedule['schedule'];
+            $doctorId = $getSchedule->doctor_id;
+            $serviceId = $getSchedule->service_id;
+            $getTime = $getSchedule->time_start;
+            $getService = Service::where('id', '=', $serviceId)->first();
+            $getList = get_list_type_service();
+
+            return [
+                'success' => 1,
+                'data' => [
+                    'schedule' => $getSchedule,
+                    'address' => $getService->type == 2 ? 1 : 0,
+                    'address_nice' => $getList[$getService->type] ?? '-',
+                    'doctor' => $doctorLogic->doctorInfo($doctorId, $serviceId),
+                    'date' => $getDate,
+                    'time' => $getTime,
+                    'service_id' => $serviceId
+                ],
+
+            ];
+        }
+        else if ($getDoctorSchedule['success'] == 90) {
+            return [
+                'success' => 0,
+                'message' => ['Jadwal Tidak Ditemukan'],
+            ];
+        }
+        else if ($getDoctorSchedule['success'] == 91) {
+            return [
+                'success' => 0,
+                'message' => ['Jadwal Tidak tersedia'],
+            ];
+        }
+        else if ($getDoctorSchedule['success'] == 92) {
+            return [
+                'success' => 0,
+                'message' => ['Jadwal Sudah Dipesan'],
+            ];
+        }
+        else if ($getDoctorSchedule['success'] == 93) {
+            return [
+                'success' => 0,
+                'message' => ['Waktu date tidak sama'],
+            ];
         }
         else {
-            $service = Service::where('status', '=', 80)->orderBy('orders', 'ASC')->get();
-        }
-
-        $tempService = [];
-        $firstService = 0;
-        $getServiceId = 0;
-        $getServiceDataTemp = false;
-        $getServiceData = false;
-        foreach ($service as $index => $list) {
-            $temp = [
-                'id' => $list->id,
-                'name' => $list->name,
-                'type' => $list->type,
-                'type_nice' => $list->type_nice,
-                'active' => 0
+            return [
+                'success' => 0,
+                'message' => ['Doctor Error'],
             ];
-
-            if ($index == 0) {
-                $firstService = $list->id;
-                $getServiceDataTemp = $list;
-            }
-
-            if ($list->id == $getInterestService) {
-                $temp['active'] = 1;
-                $getServiceId = $list->id;
-                $getServiceData = $list;
-            }
-
-            $tempService[] = $temp;
         }
 
-        $service = $tempService;
-        if ($getServiceId == 0) {
-            if ($firstService > 0) {
-                $service[0]['active'] = 1;
-            }
-            $getServiceId = $firstService;
-            $getServiceData = $getServiceDataTemp;
-        }
-
-        return [
-            'data' => $service,
-            'getServiceId' => $getServiceId,
-            'getServiceName' => $getServiceData ? $getServiceData->name : ''
-        ];
-
-    }
-
-    private function getCategory($getInterestCategory)
-    {
-        $category = Cache::remember('doctor_category', env('SESSION_LIFETIME'), function () {
-            return DoctorCategory::orderBy('orders', 'ASC')->get();
-        });
-
-        $tempCategory = [];
-        $firstCategory = 0;
-        $getCategoryId = 0;
-        $getCategoryDataTemp = false;
-        $getCategoryData = false;
-        foreach ($category as $index => $list) {
-            $temp = [
-                'id' => $list->id,
-                'name' => $list->name,
-                'active' => 0
-            ];
-
-            if ($index == 0) {
-                $firstCategory = $list->id;
-                $getCategoryDataTemp = $list;
-            }
-
-            if ($list->id == $getInterestCategory) {
-                $temp['active'] = 1;
-                $getCategoryId = $list->id;
-                $getCategoryData = $list;
-            }
-
-            $tempCategory[] = $temp;
-        }
-
-        $category = $tempCategory;
-        if ($getCategoryId == 0) {
-            if ($firstCategory > 0) {
-                $category[0]['active'] = 1;
-            }
-            $getCategoryId = $firstCategory;
-            $getCategoryData = $getCategoryDataTemp;
-        }
-
-        return [
-            'data' => $category,
-            'getCategoryId' => $getCategoryId,
-            'getCategoryName' => $getCategoryData ? $getCategoryData->name : ''
-        ];
-
-    }
-
-    private function getDoctorInfo($doctorId, $serviceId)
-    {
-        return Users::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
-            phone, gender, doctor_service.price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
-            ->join('doctor', 'doctor.user_id', '=', 'users.id')
-            ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
-            ->join('doctor_service', 'doctor_service.doctor_id','=','doctor.id')
-            ->where('doctor_service.service_id', '=', $serviceId)
-            ->where('doctor.id', '=', $doctorId)
-            ->where('users.doctor','=', 1)->first();
-    }
-
-    private function getUserAddress($userId)
-    {
-        $user = $this->request->attributes->get('_user');
-
-        $getPhone = $user->phone ?? '';
-
-        $logic = new SynapsaLogic();
-        return $logic->getUserAddress($user->id, $getPhone);
     }
 
 }

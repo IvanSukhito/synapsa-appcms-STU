@@ -795,6 +795,11 @@ class ProductClinicController extends _CrudController
 
         $getCategory = ProductCategory::where('status', 80)->get();
 
+        $getProduct = Product::selectRaw('product.*, product_category.name as product_category')
+                        ->leftJoin('product_category','product_category.id','=', 'product.product_category_id')
+                        ->where('klinik_id', 0)
+                        ->get();
+
         $getData = $this->data;
 
         $data['thisLabel'] = __('general.product');
@@ -802,7 +807,10 @@ class ProductClinicController extends _CrudController
         $data['formsTitle'] = __('general.search_product_from_synapsa');
         //$data['passing'] = collectPassingData($this->passingData, $data['viewType']);
         $data['data'] = $getData;
+        $data['product'] = $getProduct;
         $data['category'] = $getCategory;
+        $data['getListStatus'] = get_list_active_inactive();
+        $data['getListStock'] = get_list_stock_flag();
 
         return view($this->listView['find-product-synapsa'], $data);
     }

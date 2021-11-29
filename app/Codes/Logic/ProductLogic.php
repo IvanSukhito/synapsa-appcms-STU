@@ -4,7 +4,6 @@ namespace App\Codes\Logic;
 
 use App\Codes\Models\V1\Product;
 use App\Codes\Models\V1\ProductCategory;
-use App\Codes\Models\V1\UsersCart;
 
 class ProductLogic
 {

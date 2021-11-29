@@ -20,8 +20,15 @@ class DoctorSchedule extends Model
     ];
 
     protected $appends = [
+        'type_nice',
         'book_nice'
     ];
+
+    public function getTypeNiceAttribute()
+    {
+        $getList = get_list_schedule_type();
+        return $getList[$this->type] ?? $this->type;
+    }
 
     public function getBookNiceAttribute()
     {

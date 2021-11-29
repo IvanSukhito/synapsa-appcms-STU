@@ -31,6 +31,7 @@ return [
     'zip_code' => 'ZIP Code',
     'nik' => 'NIK',
     'upload_ktp' => 'Upload KTP',
+
     'upload_hasil_lab' => 'Upload Hasil Lab',
     'date_available' => 'Date Available',
     'time_start' => 'Time Start',
@@ -41,6 +42,7 @@ return [
     'thumbnail_img' => 'Thumbnail Image',
     'total_test' => 'Total Test',
     'available' => 'Available',
+    'non_available' => 'Unavailable',
     'interval' => 'Interval',
     'reschedule' => 'Reschedule',
     'meeting' => 'Meeting',
@@ -106,7 +108,7 @@ return [
     'product-category' => 'Product Category',
     'article-category' => 'Article Category',
     'search_product' => 'Search Product',
-    'search_product_from_synapsa' => 'Search Product From Synapsa',
+    'search_product_from_synapsa' => 'Get Product From Synapsa',
     'apply' => 'Apply',
     'image' => 'Image',
     'image_full' => 'Image',
@@ -176,6 +178,8 @@ return [
     'type' => 'Type',
     'type_payment' => 'Type Payment',
     'proses' => 'Proses',
+    'untuk_klinik' => 'Role Untuk Clinic',
+    'untuk_admin' => 'Role Untuk Admin',
     'proses_pengiriman' => 'Proses Pengiriman',
     'type_appointment' => 'Type Appointment',
     'appointment_lab' => 'Appointment Lab',
@@ -471,5 +475,9 @@ return [
     'doctor_prescription' => 'Resep Dokter',
 
     'theme_color' => 'Theme Color',
-    'period' => 'Period'
+    'period' => 'Period',
+    'article_clinic' => 'Article Clinic',
+    'katalog_product_synapsa' => 'Catalog Product Synapsa',
+    'product_category' => 'Category Product',
+    'flag_stock' => 'Type Stock',
 ];

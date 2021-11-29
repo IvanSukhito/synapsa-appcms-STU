@@ -238,8 +238,8 @@ class HistoryController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $getData = Transaction::where('id', $id)
-            ->where('user_id',$user->id)
+        $getData = Transaction::where('id', '=', $id)
+            ->where('user_id', '=', $user->id)
             ->first();
         if (!$getData) {
             return response()->json([
@@ -251,7 +251,7 @@ class HistoryController extends Controller
 
         if ($getData->status == 2) {
 
-            $getCode = str_pad(($getData->id), 6, '0', STR_PAD_LEFT).rand(100,199);
+            $getCode = str_pad(($getData->id), 6, '0', STR_PAD_LEFT).rand(100000,999999);
 
             $getAdditional = json_decode($getData->send_info, true);
             $getAdditional['code'] = $getCode;
@@ -259,15 +259,10 @@ class HistoryController extends Controller
 
             $newLogic = new SynapsaLogic();
             $getPayment = Payment::where('id', $getData->payment_id)->first();
-            $getResult = $newLogic->createPayment($getPayment, $getAdditional, 1, $id);
+            $getResult = $newLogic->createPayment($getPayment, $getAdditional, $id);
             if ($getResult['success'] == 1) {
 
                 $getInfo = isset($getResult['info']) ? $getResult['info'] : '';
-//
-//                $getData->payment_refer_id = $getResult['prefer_id'] ?? '';
-//                $getData->send_info = json_encode($getAdditional);
-//                $getData->payment_info = json_encode($getInfo);
-//                $getData->save();
 
                 return response()->json([
                     'success' => 1,

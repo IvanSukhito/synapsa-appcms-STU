@@ -11,6 +11,7 @@ use App\Codes\Models\V1\Shipping;
 use App\Codes\Models\V1\Transaction;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Cache;
 
@@ -81,7 +82,7 @@ class ProductController extends Controller
 
         return response()->json([
             'success' => 1,
-            'data' => $userLogic->userCart($user->id),
+            'data' => $userLogic->userCartProduct($user->id),
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
 
@@ -107,7 +108,7 @@ class ProductController extends Controller
         $qty = $this->request->get('qty');
 
         $userLogic = new UserLogic();
-        $getResult = $userLogic->userCartAdd($user->id, $productId, $qty);
+        $getResult = $userLogic->userCartProductAdd($user->id, $productId, $qty);
         if($getResult['success'] == 90){
             return response()->json([
                 'success' => 0,
@@ -153,7 +154,7 @@ class ProductController extends Controller
         $getQty = $this->request->get('qty');
 
         $userLogic = new UserLogic();
-        $getResult = $userLogic->userCartUpdateQty($user->id, $id, $getQty);
+        $getResult = $userLogic->userCartProductUpdateQty($user->id, $id, $getQty);
         if($getResult['success'] == 90){
             return response()->json([
                 'success' => 0,
@@ -200,7 +201,7 @@ class ProductController extends Controller
         $user = $this->request->attributes->get('_user');
 
         $userLogic = new UserLogic();
-        $getResult = $userLogic->userCartDelete($user->id, $id);
+        $getResult = $userLogic->userCartProductDelete($user->id, $id);
         if ($getResult['success'] == 93) {
             return response()->json([
                 'success' => 0,
@@ -237,7 +238,7 @@ class ProductController extends Controller
         }
 
         $userLogic = new UserLogic();
-        $haveProduct = $userLogic->userCartChoose($user->id, $getListProductIds);
+        $haveProduct = $userLogic->userCartProductChoose($user->id, $getListProductIds);
 
         if ($haveProduct > 0) {
             return response()->json([
@@ -263,7 +264,7 @@ class ProductController extends Controller
 
         return response()->json([
             'success' => 1,
-            'data' => $userLogic->userAddress($user->id)
+            'data' => $userLogic->userAddress($user->id, $user->phone)
         ]);
     }
 
@@ -285,8 +286,8 @@ class ProductController extends Controller
         }
 
         $saveData = [
-            'receiver' => strip_tags($this->request->get('receiver')),
-            'address_name' => strip_tags($this->request->get('receiver')),
+//            'receiver' => strip_tags($this->request->get('receiver')),
+//            'address_name' => strip_tags($this->request->get('receiver')),
             'address' => strip_tags($this->request->get('address')),
             'phone' => strip_tags($this->request->get('phone')),
         ];
@@ -325,7 +326,7 @@ class ProductController extends Controller
 
         return response()->json([
             'success' => 1,
-            'data' => $userLogic->userAddress($user->id)
+            'data' => $userLogic->userAddress($user->id, $user->phone)
         ]);
     }
 
@@ -334,13 +335,12 @@ class ProductController extends Controller
         $user = $this->request->attributes->get('_user');
 
         $userLogic = new UserLogic();
-        $getUserAddress = $userLogic->userAddress($user->id);
+        $getUserAddress = $userLogic->userAddress($user->id, $user->phone);
 
-        $getUserCart = $userLogic->userCart($user->id, 1);
+        $getUserCart = $userLogic->userCartProduct($user->id, 1);
         $subTotal = $getUserCart['total_price'];
 
         if ($getUserAddress) {
-            $getUserAddress = $getUserAddress->toArray();
             $getUserAddress['name'] = $getUserAddress['receiver'];
             $getUserAddress['subtotal'] = $subTotal;
             $getUserAddress['subtotal_nice'] = number_format_local($subTotal);
@@ -378,7 +378,7 @@ class ProductController extends Controller
         $getShippingId = $this->request->get('shipping_id');
 
         $userLogic = new UserLogic();
-        $getUserAddress = $userLogic->userCartUpdateShipping($user->id, $getShippingId);
+        $getUserAddress = $userLogic->userCartProductUpdateShipping($user->id, $getShippingId);
         if ($getUserAddress == 0) {
             return response()->json([
                 'success' => 0,
@@ -400,16 +400,16 @@ class ProductController extends Controller
         $user = $this->request->attributes->get('_user');
 
         $userLogic = new UserLogic();
-        $getUserCart = $userLogic->userCart($user->id, 1);
-        $getUserAddress = $userLogic->userAddress($user->id);
+        $getUserCart = $userLogic->userCartProduct($user->id, 1);
+        $getUserAddress = $userLogic->userAddress($user->id, $user->phone);
 
         return response()->json([
             'success' => 1,
             'data' => [
                 'cart_info' => [
-                    'name' => $getUserAddress->receiver ?? '',
-                    'address' => $getUserAddress->address ?? '',
-                    'phone' => $getUserAddress->phone ?? '',
+                    'name' => $getUserAddress['receiver'] ?? '',
+                    'address' => $getUserAddress['address'] ?? '',
+                    'phone' => $getUserAddress['phone'] ?? '',
                     'shipping_name' => $getUserCart['shipping_name'] ?? '',
                     'shipping_price' => $getUserCart['shipping_price'] ?? '',
                     'shipping_price_nice' => $getUserCart['shipping_price_nice'] ?? '',
@@ -429,8 +429,8 @@ class ProductController extends Controller
         $user = $this->request->attributes->get('_user');
 
         $userLogic = new UserLogic();
-        $getUserCart = $userLogic->userCart($user->id, 1);
-        $getUserAddress = $userLogic->userAddress($user->id);
+        $getUserCart = $userLogic->userCartProduct($user->id, 1);
+        $getUserAddress = $userLogic->userAddress($user->id, $user->phone);
 
         $getPayment = Payment::where('status', '=', 80)->orderBy('orders', 'ASC')->get();
 
@@ -438,9 +438,9 @@ class ProductController extends Controller
             'success' => 1,
             'data' => [
                 'cart_info' => [
-                    'name' => $getUserAddress->receiver ?? '',
-                    'address' => $getUserAddress->address ?? '',
-                    'phone' => $getUserAddress->phone ?? '',
+                    'name' => $getUserAddress['receiver'] ?? '',
+                    'address' => $getUserAddress['address'] ?? '',
+                    'phone' => $getUserAddress['phone'] ?? '',
                     'shipping_name' => $getUserCart['shipping_name'] ?? '',
                     'shipping_price' => $getUserCart['shipping_price'] ?? '',
                     'shipping_price_nice' => $getUserCart['shipping_price_nice'] ?? '',
@@ -494,7 +494,7 @@ class ProductController extends Controller
         $getPayment = $getPaymentResult['payment'];
 
         $userLogic = new UserLogic();
-        $getResult = $userLogic->userCart($user->id, 1);
+        $getResult = $userLogic->userCartProduct($user->id, 1);
         $total = $getResult['total'] ?? 0;
         $shippingId = intval($getResult['shipping_id']) ?? 0;
         if ($total <= 0) {

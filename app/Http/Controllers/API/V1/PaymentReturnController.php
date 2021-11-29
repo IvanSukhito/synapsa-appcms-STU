@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API\V1;
 
 use App\Codes\Logic\AccessLogin;
+use App\Codes\Logic\DoctorLogic;
+use App\Codes\Logic\LabLogic;
 use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\City;
@@ -54,17 +56,14 @@ class PaymentReturnController extends Controller
                 $getTransaction = Transaction::where('payment_refer_id', $getExternalId)->first();
                 if ($getTransaction) {
                     if ($getAmount >= $getTransaction->total) {
-                        $this->updateTransaction($getTransaction);
-                        return 1;
+                        return $this->updateTransaction($getTransaction);
                     }
                 }
-            }
-            else if (substr($getExternalId, 0, 3) == 'ew-' && $getAmount && $getStatus && $getStatus == 'COMPLETED') {
+            } else if (substr($getExternalId, 0, 3) == 'ew-' && $getAmount && $getStatus && $getStatus == 'COMPLETED') {
                 $getTransaction = Transaction::where('payment_refer_id', $getExternalId)->first();
                 if ($getTransaction) {
                     if ($getAmount >= $getTransaction->total) {
-                        $this->updateTransaction($getTransaction);
-                        return 1;
+                        return $this->updateTransaction($getTransaction);
                     }
                 }
             }
@@ -80,11 +79,9 @@ class PaymentReturnController extends Controller
 
         $getTransaction = Transaction::where('payment_refer_id', $getCode)->first();
         if ($getTransaction) {
-
-            $this->updateTransaction($getTransaction);
-
+            return $this->updateTransaction($getTransaction);
         }
-
+        return 0;
     }
 
     public function approveTransaction()
@@ -93,64 +90,68 @@ class PaymentReturnController extends Controller
 
         $getTransaction = Transaction::where('id', $getCode)->first();
         if ($getTransaction) {
-
-            $this->updateTransaction($getTransaction);
-
-            return 1;
-
+            return $this->updateTransaction($getTransaction);
         }
-
         return 0;
-
     }
 
     public function updateTransaction($getTransaction)
     {
-        if ($getTransaction->status == 80) {
+        if ($getTransaction->status != 2) {
             return 0;
         }
+        $getResult = 0;
 
         $getType = $getTransaction->type_service;
-        if ($getType == 1){
-            $getTransaction->status = 81;
-            $getTransaction->save();
+        $getTransaction->status = 81;
+        $getTransaction->save();
 
-        } else {
+        if ($getType == 2) {
+            $transactionId = $getTransaction->id;
+            $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
+            if ($getDetail) {
+                $extraInfo = json_decode($getDetail->extra_info, true);
+                $scheduleId = $getDetail->schedule_id;
+                $getDate = $extraInfo['date'] ?? '';
+                $getServiceName = $extraInfo['service_name'] ?? '';
 
-            $getTransaction->status = 80;
-            $getTransaction->save();
-
-            if ($getType == 2) {
-                $transactionId = $getTransaction->id;
-                $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
-                if ($getDetail) {
-                    $logic = new SynapsaLogic();
-                    $logic->setupAppointmentDoctor($getTransaction, $getDetail, $getDetail->schedule_id);
-                }
-            } else if ($getType == 3) {
-                $transactionId = $getTransaction->id;
-                $scheduleId = 0;
-                $getDetails = TransactionDetails::where('transaction_id', $transactionId)->get();
-                foreach ($getDetails as $getDetail) {
-                    $scheduleId = $getDetail->schedule_id;
-                }
-                if ($getDetails) {
-                    $logic = new SynapsaLogic();
-                    $logic->setupAppointmentLab($getTransaction, $getDetails, $scheduleId);
-                }
-            } else if ($getType == 4) {
-                $transactionId = $getTransaction->id;
-                $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
-                if ($getDetail) {
-                    $logic = new SynapsaLogic();
-                    $logic->setupAppointmentNurse($getTransaction, $getDetail->schedule_id, $transactionId);
-                }
-            } else if ($getType == 5) {
-                // Product Klinik
+                $getUser = Users::where('id', $getTransaction->user_id)->first();
+                $getDoctorName = $getDetail->doctor_name;
+                $doctorLogic = new DoctorLogic();
+                $getResult = $doctorLogic->appointmentCreate($scheduleId, $getDate, $getUser, $getDoctorName,
+                    $getServiceName, $getTransaction, $getTransaction->code, $extraInfo);
             }
 
         }
+        else if ($getType == 3) {
+            $transactionId = $getTransaction->id;
+            $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
+            if ($getDetail) {
+                $extraInfo = json_decode($getDetail->extra_info, true);
+                $scheduleId = $getDetail->schedule_id;
+                $getDate = $extraInfo['date'] ?? '';
+                $getServiceName = $extraInfo['service_name'] ?? '';
 
+                $getUser = Users::where('id', $getTransaction->user_id)->first();
+
+                $labLogic = new LabLogic();
+                $getResult = $labLogic->appointmentCreate($scheduleId, $getDate, $getUser,
+                    $getServiceName, $getTransaction, $getTransaction->code, $extraInfo);
+            }
+        }
+        else if ($getType == 4) {
+            $transactionId = $getTransaction->id;
+            $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
+            if ($getDetail) {
+                $logic = new SynapsaLogic();
+                $logic->setupAppointmentNurse($getTransaction, $getDetail->schedule_id, $transactionId);
+            }
+        }
+        else if ($getType == 5) {
+            // Product Klinik
+        }
+
+        return $getResult;
 
     }
 

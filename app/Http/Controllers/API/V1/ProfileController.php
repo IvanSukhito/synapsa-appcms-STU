@@ -181,7 +181,7 @@ class ProfileController extends Controller
 
         return response()->json([
             'success' => 1,
-            'data' => $userLogic->userAddress($user->id),
+            'data' => $userLogic->userAddress($user->id, $user->phone),
             'token' => $this->request->attributes->get('_refresh_token')
         ]);
 

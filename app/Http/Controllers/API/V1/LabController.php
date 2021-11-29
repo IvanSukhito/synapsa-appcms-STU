@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\API\V1;
 
+use App\Codes\Logic\LabLogic;
 use App\Codes\Logic\SynapsaLogic;
+use App\Codes\Logic\UserLogic;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\Lab;
 use App\Codes\Models\V1\LabCart;
@@ -10,7 +12,6 @@ use App\Codes\Models\V1\LabSchedule;
 use App\Codes\Models\V1\Payment;
 use App\Codes\Models\V1\Service;
 use App\Codes\Models\V1\Transaction;
-use App\Codes\Models\V1\UsersAddress;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -33,12 +34,11 @@ class LabController extends Controller
         });
     }
 
-    public function getLab(){
-
+    public function getLab()
+    {
         $user = $this->request->attributes->get('_user');
-
         $serviceId = intval($this->request->get('service_id'));
-
+        $priority = intval($this->request->get('priority'));
         $s = strip_tags($this->request->get('s'));
         $getLimit = $this->request->get('limit');
         if ($getLimit <= 0) {
@@ -47,40 +47,23 @@ class LabController extends Controller
 
         $getInterestService = $serviceId;
 
-        $getServiceData = $this->getService($getInterestService);
+        $labLogic = new LabLogic();
+        $getService = $labLogic->getListService($getInterestService);
 
-        $data = Lab::selectRaw('lab.id ,lab.name, lab_service.price, lab.image, klinik_id')
-            ->join('lab_service', 'lab_service.lab_id','=','lab.id')
-            ->where('lab_service.service_id','=', $getServiceData['getServiceId'])
-            ->where('lab.parent_id', '=', 0)
-            ->where('lab.klinik_id', '=', $user->klinik_id);
-
-        if (strlen($s) > 0) {
-            $data = $data->where('name', 'LIKE', "%$s%");
-        }
-
-        if ($this->request->get('priority')) {
-            $data = $data->where('priority', 1);
-        }
-
-        $data = $data->orderBy('name', 'ASC')->paginate($getLimit);
-
-        if (!$data) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Test Lab Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
+        $getServiceId = $getService['getServiceId'] ?? 0;
+        $getData = $labLogic->labGet($getLimit, $getServiceId, null, $s, $priority);
 
         return response()->json([
             'success' => 1,
             'data' => [
-                'lab' => $data,
-                'service' => $getServiceData['data'],
+                'lab' => $getData['lab'],
+                'service' => $getService['data'],
+                'sub_service' => $getService['sub_service'],
                 'active' => [
-                    'service' => $getServiceData['getServiceId'],
-                    'service_name' => $getServiceData['getServiceName'],
+                    'service' => $getService['getServiceId'],
+                    'service_name' => $getService['getServiceName'],
+                    'sub_service' => $getService['getSubServiceId'],
+                    'sub_service_name' => $getService['getSubServiceName'],
                 ]
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
@@ -88,51 +71,25 @@ class LabController extends Controller
 
     }
 
-    public function getLabDetail($id){
-
+    public function getLabDetail($labId)
+    {
         $user = $this->request->attributes->get('_user');
-
         $serviceId = intval($this->request->get('service_id'));
 
         $getInterestService = $serviceId > 0 ? $serviceId : $user->interest_service_id;
 
-        $getServiceData = $this->getService($getInterestService);
+        $labLogic = new LabLogic();
+        $getService = $labLogic->getListService($getInterestService);
+        $getServiceId = $getService['getServiceId'] ?? 0;
 
-        $data = Lab::selectRaw('lab.parent_id, lab.name, lab.image, lab.desc_lab,lab.desc_benefit,
-            lab.desc_preparation, lab.recommended_for, lab_service.price')
-            ->join('lab_service', 'lab_service.lab_id','=','lab.id')
-            ->where('lab_service.service_id','=', $getServiceData['getServiceId'])
-            ->where('lab.klinik_id', $user->klinik_id)
-            ->where('id', $id)->first();
-
-        if (!$data) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Test Lab Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-
-        if ($data->parent_id == 0) {
-            $dataLabTerkait = Lab::selectRaw('lab.id ,lab.name, lab_service.price, lab.image')
-                ->join('lab_service', 'lab_service.lab_id','=','lab.id', 'LEFT')
-                ->where('lab_service.service_id','=', $getServiceData['getServiceId'])
-                ->where('lab.parent_id', '=', $id)->get();
-
-            $getData = [
-                'lab' => $data,
-                'lab_terkait' => $dataLabTerkait
-            ];
-        }
-        else {
-            $getData = [
-                'lab' => $data
-            ];
-        }
+        $getData = $labLogic->labInfo($labId, $getServiceId);
 
         return response()->json([
             'success' => 1,
-            'data' => $getData,
+            'data' => [
+                'lab' => $getData['lab'],
+                'lab_terkait' => $getData['child_lab']
+            ],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
 
@@ -142,36 +99,39 @@ class LabController extends Controller
 
         $user = $this->request->attributes->get('_user');
 
-        $getLabCart = LabCart::where('user_id', $user->id)->first();
-
-        $userId = $user->id;
-
-        $getServiceData = [];
-        $getData = [];
-        $total = 0;
-        if ($getLabCart) {
-
-            $getInterestService = $getLabCart->service_id;
-
-            $getServiceData = $this->getService($getInterestService);
-
-            $getData = $this->getLabInfo($userId, $getInterestService);
-
-            foreach ($getData as $list) {
-                $total += $list->price;
-            }
-        }
+        $userLogic = new UserLogic();
+        $getData = $userLogic->userCartLab($user->id);
 
         return response()->json([
             'success' => 1,
-            'data' => [
-                'cart' => $getData,
-                'service' => $getServiceData,
-                'total' => $total,
-                'total_nice' => number_format($total, 0, ',', '.')
-            ],
+            'data' => $getData,
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
+
+//        $getLabCart = LabCart::where('user_id', $user->id)->first();
+//        $userId = $user->id;
+//        $getServiceData = [];
+//        $getData = [];
+//        $total = 0;
+//        if ($getLabCart) {
+//            $getInterestService = $getLabCart->service_id;
+//            $getServiceData = $this->getService($getInterestService);
+//            $getData = $this->getLabInfo($userId, $getInterestService);
+//            foreach ($getData as $list) {
+//                $total += $list->price;
+//            }
+//        }
+//
+//        return response()->json([
+//            'success' => 1,
+//            'data' => [
+//                'cart' => $getData,
+//                'service' => $getServiceData,
+//                'total' => $total,
+//                'total_nice' => number_format($total, 0, ',', '.')
+//            ],
+//            'token' => $this->request->attributes->get('_refresh_token'),
+//        ]);
 
     }
 
@@ -195,57 +155,48 @@ class LabController extends Controller
         $getServiceId = $this->request->get('service_id');
         $userId = $user->id;
 
-        $getLabCart = LabCart::where('user_id', $user->id)->first();
-        if ($getLabCart && $getLabCart->service_id != $getServiceId) {
+        $userLogic = new UserLogic();
+        $getResult = $userLogic->userCartLabAdd($userId, $getLabId, $getServiceId);
+        if ($getResult != 80) {
+            if ($getResult == 91) {
+                $message = 'Test Lab menggunakan service yang berbeda';
+            }
+            else if ($getResult == 93) {
+                $message = 'Test Lab tidak bisa di pesam bila tidak ada Tes Lab Utama';
+            }
+            else {
+                $message = 'Test Lab tidak ditemukan';
+            }
             return response()->json([
                 'success' => 0,
-                'message' => ['Test Lab menggunakan service yang berbeda'],
+                'message' => [$message],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
 
-        LabCart::firstOrCreate([
-            'user_id' => $user->id,
-            'lab_id' => $getLabId,
-            'service_id' => $getServiceId,
-        ]);
-
-        $total = 0;
-        $getService = Service::where('id', $getServiceId)->where('status', '=', 80)->first();
-
-        $getData = $this->getLabInfo($userId, $getServiceId);
-
-        foreach ($getData as $list) {
-            $total += $list->price;
-        }
+        $getData = $userLogic->userCartLab($user->id);
 
         return response()->json([
             'success' => 1,
-            'data' => [
-                'cart' => $getData,
-                'service' => $getService,
-                'total' => $total,
-                'total_nice' => number_format($total, 0, ',', '.')
-            ],
+            'data' => $getData,
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
 
     }
 
-    public function deleteCart($id)
+    public function deleteCart($labCartId)
     {
         $user = $this->request->attributes->get('_user');
 
-        $getData = LabCart::where('user_id', $user->id)->where('id', $id)->first();
-        if (!$getData) {
+        $userLogic = new UserLogic();
+        $getResult = $userLogic->userCartLabRemove($user->id, $labCartId);
+        if ($getResult == 0) {
             return response()->json([
                 'success' => 0,
                 'message' => ['Test Lab Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
-
-        $getData->delete();
 
         return response()->json([
             'success' => 1,
@@ -311,28 +262,14 @@ class LabController extends Controller
             date('Y-m-d', strtotime($this->request->get('date'))) :
             date('Y-m-d', strtotime("+1 day"));
 
-        $getData = LabCart::where('user_id', '=', $user->id)->where('choose', '=', 1)->first();
-        if (!$getData) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Tidak ada Test Lab yang di pilih'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
+        $userLogic = new UserLogic();
+        $labLogic = new LabLogic();
 
-        $getInterestService = $getData->service_id;
-        $getService = Service::where('id', $getInterestService)->where('status', '=', 80)->first();
-        $getServiceData = $this->getService($getInterestService);
-        $getLabSchedule = LabSchedule::where('service_id', $getData->service_id)
-            ->where('date_available', '=', $getDate)
-            ->where('klinik_id', $user->klinik_id)
-            ->get();
-
-        //dd($getServiceData);
-
+        $getCart = $userLogic->userCartLab($user->id, 1);
+        $serviceId = $getCart['service_id'];
+        $getLabSchedule = $labLogic->scheduleLabList($user->klinik_id, $serviceId, $getDate);
+        $getService = Service::where('id', '=', $serviceId)->first();
         $getList = get_list_type_service();
-
-        //dd($getList);
 
         return response()->json([
             'success' => 1,
@@ -343,7 +280,9 @@ class LabController extends Controller
                 'address_nice' => $getList[$getService->type] ?? '-',
                 'date' => $getDate,
                 'schedule' => $getLabSchedule,
-                'service' => $getServiceData
+                'service_id' => $serviceId,
+                'service' => $getCart['service'],
+                'sub_service' => $getCart['sub_service']
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
@@ -354,114 +293,58 @@ class LabController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $logic = new SynapsaLogic();
-        $getUsersAddress = $logic->getUserAddress($user->id, $user->phone);
+        $userLogic = new UserLogic();
 
         return response()->json([
             'success' => 1,
-            'data' => $getUsersAddress
+            'data' => $userLogic->userAddress($user->id, $user->phone)
         ]);
     }
 
-    public function scheduleSummary($id)
+    public function scheduleSummary($scheduleId)
     {
         $user = $this->request->attributes->get('_user');
+        $reqDate = strtotime($this->request->get('date'));
 
-        $userId = $user->id;
-        $getCart = LabCart::where('user_id', '=', $user->id)->where('choose', '=', 1)->first();
-        if (!$getCart) {
+        $getData = $this->getScheduleDetail($user, $scheduleId, $reqDate);
+        if ($getData['success'] != 1) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Test Lab Tidak Ditemukan'],
+                'message' => $getData['message'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
-
-        $getLabSchedule = LabSchedule::where('service_id', $getCart->service_id)->where('id', '=', $id)
-            ->where('book', '=', 80)->where('klinik_id', $user->klinik_id)->first();
-        if (!$getLabSchedule) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Jadwal Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-
-        $total = 0;
-
-        $serviceId = $getCart->service_id;
-
-        $getData = $this->getLabInfo($userId, $serviceId);
-
-        $getData = $getData->where('choose',1);
-
-        $temp = [];
-        foreach ($getData as $list) {
-            $total += $list->price;
-            $temp[] = $list;
-        }
-        $getData = $temp;
 
         return response()->json([
             'success' => 1,
-            'data' => [
-                'cart' => $getData,
-                'schedule' => $getLabSchedule,
-                'total' => $total,
-                'total_nice' => number_format($total, 0, ',', '.')
-            ],
+            'data' => $getData['data'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
     }
 
-    public function getPayment($id)
+    public function getPayment($scheduleId)
     {
         $user = $this->request->attributes->get('_user');
+        $reqDate = strtotime($this->request->get('date'));
 
-        $userId = $user->id;
-
-        $getCart = LabCart::where('user_id', '=', $user->id)->where('choose', '=', 1)->first();
-        if (!$getCart) {
+        $getData = $this->getScheduleDetail($user, $scheduleId, $reqDate);
+        if ($getData['success'] != 1) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Test Lab Tidak Ditemukan'],
+                'message' => $getData['message'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
 
-        $getLabSchedule = LabSchedule::where('service_id', $getCart->service_id)->where('id', '=', $id)
-            ->where('book', '=', 80)->where('klinik_id', $user->klinik_id)->first();
-        if (!$getLabSchedule) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Jadwal Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-
-        $total = 0;
-
-        $serviceId = $getCart->service_id;
-
-        $getData = $this->getLabInfo($userId, $serviceId);
-
-        $getData = $getData->where('choose',1);
-
-        foreach ($getData as $list) {
-            $total += $list->price;
-        }
+        $getResult = $getData['data'];
 
         $getPayment = Payment::where('status', 80)->get();
 
+        $getResult['payment'] = $getPayment;
+
         return response()->json([
             'success' => 1,
-            'data' => [
-                'cart' => $getData,
-                'schedule' => $getLabSchedule,
-                'total' => $total,
-                'total_nice' => number_format($total, 0, ',', '.'),
-                'payment' => $getPayment
-            ],
+            'data' => $getResult,
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
     }
@@ -469,14 +352,31 @@ class LabController extends Controller
     public function checkout()
     {
         $user = $this->request->attributes->get('_user');
+        $scheduleId = intval($this->request->get('schedule_id'));
+        $paymentId = intval($this->request->get('payment_id'));
+        $getPhone = $this->request->get('phone');
+        $subServiceId = intval($this->request->get('sub_service_id'));
+        $reqDate = strtotime($this->request->get('date'));
 
-        $userId = $user->id;
+        $synapsaLogic = new SynapsaLogic();
+        $getPaymentResult = $synapsaLogic->checkPayment($paymentId);
+        if ($getPaymentResult['success'] == 0) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Payment Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
 
-        $needPhone = 0;
-        $validator = Validator::make($this->request->all(), [
-            'payment_id' => 'required|numeric',
-            'schedule_id' => 'required|numeric'
-        ]);
+        $needPhone = intval($getPaymentResult['phone']);
+        if ($needPhone == 1) {
+            $validationRule = ['payment_id' => 'required|numeric', 'schedule_id' => 'required', 'date' => 'required', 'phone' => 'required|regex:/^(8\d+)/|numeric'];
+        }
+        else {
+            $validationRule = ['payment_id' => 'required|numeric', 'schedule_id' => 'required', 'date' => 'required'];
+        }
+
+        $validator = Validator::make($this->request->all(), $validationRule);
         if ($validator->fails()) {
             return response()->json([
                 'success' => 0,
@@ -485,97 +385,35 @@ class LabController extends Controller
             ], 422);
         }
 
-        $paymentId = intval($this->request->get('payment_id'));
-        $scheduleId = intval($this->request->get('schedule_id'));
-        $getPayment = Payment::where('id', $paymentId)->first();
-        if (!$getPayment) {
+        $getData = $this->getScheduleDetail($user, $scheduleId, $reqDate);
+        if ($getData['success'] != 1) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Payment Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
-
-        if ($getPayment->type == 2 && $getPayment->service == 'xendit' && in_array($getPayment->type_payment, ['ew_ovo', 'ew_dana', 'ew_linkaja'])) {
-            $needPhone = 1;
-            $validator = Validator::make($this->request->all(), [
-                'phone' => 'required|regex:/^(8\d+)/|numeric'
-            ]);
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => 0,
-                    'message' => $validator->messages()->all(),
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ], 422);
-            }
-        }
-
-        $getCart = LabCart::where('user_id', '=', $user->id)->where('choose', '=', 1)->first();
-        if (!$getCart) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Test Lab Tidak Ditemukan'],
+                'message' => $getData['message'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
 
-        $getLabSchedule = LabSchedule::where('service_id', $getCart->service_id)->where('id', '=', $scheduleId)
-            ->where('book', '=', 80)->where('klinik_id', $user->klinik_id)->first();
-        if (!$getLabSchedule) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Jadwal Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-        else if ($getLabSchedule->book != 80) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Jadwal Sudah Dipesan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-        else if (date('Y-m-d', strtotime($getLabSchedule->date_available)) < date('Y-m-d')) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Jadwal Sudah Lewat Waktunya'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
+        $serviceId = $getData['data']['service_id'];
+        $getDate = $getData['data']['date'];
+        $getTime = $getData['data']['time'];
+        $total = $getData['data']['total'];
 
-        $serviceId = $getCart->service_id;
-        $getData = $this->getLabInfo($userId, $serviceId);
-
-        $getData = $getData->where('choose',1);
-
-        if (!$getData) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Lab Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-
-        $total = 0;
-        foreach ($getData as $list) {
-            $total += $list->price;
-        }
-
-        $getTotal = Transaction::where('klinik_id', $user->klinik_id)->whereYear('created_at', '=', date('Y'))
+        $getTotal = Transaction::where('klinik_id', '=', $user->klinik_id)->whereYear('created_at', '=', date('Y'))
             ->whereMonth('created_at', '=', date('m'))->count();
 
-        $newCode = str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT).rand(100,199);
-
+        $newCode = str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT).rand(100000,999999);
         $sendData = [
             'job' => [
                 'code' => $newCode,
                 'payment_id' => $paymentId,
                 'user_id' => $user->id,
                 'type_service' => 'lab',
-                'lab_id' => $getLabSchedule->lab_id,
-                'service_id' => $getLabSchedule->service_id,
-                'schedule_id' => $getLabSchedule->id,
-                'lab_info' => $getData->toArray()
+                'service_id' => $serviceId,
+                'sub_service_id' => $subServiceId,
+                'schedule_id' => $scheduleId,
+                'date' => $getDate,
+                'time' => $getTime
             ],
             'code' => $newCode,
             'total' => $total,
@@ -583,13 +421,13 @@ class LabController extends Controller
         ];
 
         if ($needPhone == 1) {
-            $sendData['phone'] = $this->request->get('phone');
+            $sendData['phone'] = $getPhone;
         }
 
-        $setLogic = new SynapsaLogic();
-        $getPaymentInfo = $setLogic->createPayment($getPayment, $sendData);
-        if ($getPaymentInfo['success'] == 1) {
+        $getPayment = $getPaymentResult['payment'];
 
+        $getPaymentInfo = $synapsaLogic->createPayment($getPayment, $sendData);
+        if ($getPaymentInfo['success'] == 1) {
             return response()->json([
                 'success' => 1,
                 'data' => [
@@ -608,84 +446,42 @@ class LabController extends Controller
             ], 422);
         }
 
-//        $job = SetJob::create([
-//            'status' => 1,
-//            'params' => json_encode([
-//                'payment_id' => $paymentId,
-//                'user_id' => $user->id,
-//                'type_service' => 'lab',
-//                'lab_id' => $getLabSchedule->lab_id,
-//                'service_id' => $getLabSchedule->service_id,
-//                'schedule_id' => $getLabSchedule->id,
-//                'lab_info' => $getData->toArray()
-//            ])
-//        ]);
-//
-//        dispatch((new ProcessTransaction($job->id))->onQueue('high'));
-////        ProcessTransaction::dispatch($job->id);
-//
-//        return response()->json([
-//            'success' => 1,
-//            'data' => [
-//                'job_id' => $job->id
-//            ],
-//            'message' => ['Berhasil'],
-//            'token' => $this->request->attributes->get('_refresh_token'),
-//        ]);
-
     }
 
-    private function getService($getInterestService = 0) {
-
-        $getServiceLab = isset($this->setting['service-lab']) ? json_decode($this->setting['service-lab'], true) : [];
-        if (count($getServiceLab) > 0) {
-            $service = Service::whereIn('id', $getServiceLab)->where('status', '=', 80)->orderBy('orders', 'ASC')->get();
-        }
-        else {
-            $service = Service::where('status', '=', 80)->orderBy('orders', 'ASC')->get();
-        }
-
-        $tempService = [];
-        $firstService = 0;
-        $getServiceId = 0;
-        $getServiceDataTemp = false;
-        $getServiceData = false;
-        foreach ($service as $index => $list) {
-            $temp = [
-                'id' => $list->id,
-                'name' => $list->name,
-                'type' => $list->type,
-                'type_nice' => $list->type_nice,
-                'active' => 0
+    private function getScheduleDetail($user, $scheduleId, $reqDate)
+    {
+        $userLogic = new UserLogic();
+        $labLogic = new LabLogic();
+        $getLabCart = $userLogic->userCartLab($user->id, 1);
+        if (count($getLabCart['cart']) <= 0) {
+            return [
+                'success' => 0,
+                'message' => ['Test Lab Tidak Ditemukan'],
             ];
-
-            if ($index == 0) {
-                $firstService = $list->id;
-                $getServiceDataTemp = $list;
-            }
-
-            if ($list->id == $getInterestService) {
-                $temp['active'] = 1;
-                $getServiceId = $list->id;
-                $getServiceData = $list;
-            }
-
-            $tempService[] = $temp;
         }
+        $total = $getLabCart['total'];
+        $totalNice = $getLabCart['total_nice'];
+        $serviceId = $getLabCart['service_id'];
 
-        $service = $tempService;
-        if ($getServiceId == 0) {
-            if ($firstService > 0) {
-                $service[0]['active'] = 1;
-            }
-            $getServiceId = $firstService;
-            $getServiceData = $getServiceDataTemp;
+        $getLabSchedule = $labLogic->scheduleCheck($scheduleId, $reqDate, 1);
+        if ($getLabSchedule['success'] != 80) {
+            return [
+                'success' => 0,
+                'message' => ['Jadwal Tidak Ditemukan'],
+            ];
         }
 
         return [
-            'data' => $service,
-            'getServiceId' => $getServiceId,
-            'getServiceName' => $getServiceData ? $getServiceData->name : ''
+            'success' => 1,
+            'data' => [
+                'cart' => $getLabCart['cart'],
+                'schedule' => $getLabSchedule['schedule'],
+                'service_id' => $serviceId,
+                'date' => $getLabSchedule['date'],
+                'time' => $getLabSchedule['time'],
+                'total' => $total,
+                'total_nice' => $totalNice
+            ]
         ];
 
     }

@@ -2,16 +2,16 @@
 
 namespace App\Jobs;
 
+use App\Codes\Logic\DoctorLogic;
+use App\Codes\Logic\LabLogic;
 use App\Codes\Logic\UserLogic;
 use App\Codes\Models\V1\AppointmentDoctor;
 use App\Codes\Models\V1\AppointmentDoctorProduct;
 use App\Codes\Models\V1\BookNurse;
 use App\Codes\Models\V1\DoctorSchedule;
-use App\Codes\Models\V1\Klinik;
 use App\Codes\Models\V1\LabSchedule;
 use App\Codes\Models\V1\Payment;
 use App\Codes\Models\V1\Product;
-use App\Codes\Models\V1\ProductCategory;
 use App\Codes\Models\V1\Service;
 use App\Codes\Models\V1\SetJob;
 use App\Codes\Models\V1\Shipping;
@@ -19,12 +19,10 @@ use App\Codes\Models\V1\Transaction;
 use App\Codes\Models\V1\TransactionDetails;
 use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\UsersAddress;
-use App\Codes\Models\V1\UsersCart;
 use App\Codes\Models\V1\LabCart;
 use App\Codes\Models\V1\UsersCartDetail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -61,26 +59,27 @@ class ProcessTransaction implements ShouldQueue
             $getType = isset($getParams['type']) ? intval($getParams['type']) : 0;
             $getPaymentInfo = $getParams['payment_info'] ?? '';
             $additional = $getParams['additional'] ?? '';
-            $getNewCode = $getParams['code'] ?? '';
+            $getNewCode = $additional['code'] ?? '';
 
             $getJob = $additional['job'] ?? [];
             $getTypeService = $getJob['type_service'] ?? '';
-            $getServiceId = intval($getJob['service_id']) ?? '';
-            $getUserId = intval($getJob['user_id']) ?? '';
-            $getPaymentId = intval($getJob['payment_id']) ?? '';
+            $getUserId = intval($getJob['user_id']) ?? 0;
+            $getPaymentId = intval($getJob['payment_id']) ?? 0;
+            $getServiceId = intval($getJob['service_id']) ?? 0;
 
             switch ($getType) {
                 case 1 : $this->transactionProduct($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getUserId, $getPaymentId, $getPaymentInfo, $additional);
                     break;
                 case 2 :
-                    $getScheduleId = isset($getJob['schedule_id']) ? intval($getJob['schedule_id']) : 0;
-                    $getDoctorInfo = isset($getJob['doctor_info']) ? $getJob['doctor_info'] : [];
-                    $this->transactionDoctor($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getDoctorInfo, $getPaymentInfo, $additional);
+                    $getScheduleId = intval($getJob['schedule_id']) ?? 0;
+                    $getDate = isset($getJob['date']) ? $getJob['date'] : date('Y-m-d');
+                    $this->transactionDoctor($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getUserId, $getPaymentId, $getScheduleId, $getDate, $getPaymentInfo, $additional);
                     break;
                 case 3 :
                     $getScheduleId = isset($getJob['schedule_id']) ? intval($getJob['schedule_id']) : 0;
-                    $getLabInfo = isset($getJob['lab_info']) ? $getJob['lab_info'] : [];
-                    $this->transactionLab($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getLabInfo, $getPaymentInfo, $additional);
+                    $getDate = isset($getJob['date']) ? $getJob['date'] : date('Y-m-d');
+                    $this->transactionLab($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getUserId, $getPaymentId, $getScheduleId, $getDate, $getPaymentInfo, $additional);
+//                    $this->transactionLab($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getLabInfo, $getPaymentInfo, $additional);
                     break;
                 case 4 :
                     $getScheduleId = isset($getJob['schedule_id']) ? intval($getJob['schedule_id']) : 0;
@@ -143,12 +142,22 @@ class ProcessTransaction implements ShouldQueue
         }
     }
 
+    /**
+     * @param $getNewCode
+     * @param $getPaymentReferId
+     * @param $getTypeService
+     * @param $getServiceId
+     * @param $getUserId
+     * @param $getPaymentId
+     * @param $getPaymentInfo
+     * @param $additional
+     */
     private function transactionProduct($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getUserId, $getPaymentId, $getPaymentInfo, $additional)
     {
-        $userLogic = new UserLogic();
         $getUser = Users::where('id', $getUserId)->first();
-        $getUserAddress = $userLogic->userAddress($getUserId);
-        $getCart = $userLogic->userCart($getUserId, 1);
+        $userLogic = new UserLogic();
+        $getUserAddress = $userLogic->userAddress($getUserId, $getUser->phone);
+        $getCart = $userLogic->userCartProduct($getUserId, 1);
 
         $getCartInfo = $getCart['cart_info'];
         $getUsersCartDetail = $getCart['cart'];
@@ -229,7 +238,9 @@ class ProcessTransaction implements ShouldQueue
         ]);
 
         $transactionDetails = [];
+        $UsersCartDetailId = [];
         foreach ($getUsersCartDetail as $item) {
+            $UsersCartDetailId[] = $item->id;
             $item->stock -= $item->qty;
             $item->save();
 
@@ -242,11 +253,14 @@ class ProcessTransaction implements ShouldQueue
 
         }
 
-        if (count($transactionDetails) > 0)
+        if (count($transactionDetails) > 0) {
             $getTransaction->getTransactionDetails()->saveMany($transactionDetails);
+        }
 
-        UsersCartDetail::where('users_cart_id', '=', $getCartInfo->id)
-            ->where('choose', 1)->delete();
+        if (count($UsersCartDetailId) > 0) {
+            UsersCartDetail::whereIn('id', '=', $getCartInfo->id)
+                ->where('choose', '=', 1)->delete();
+        }
 
         DB::commit();
 
@@ -546,8 +560,8 @@ class ProcessTransaction implements ShouldQueue
             'shipping_subdistrict_id' => $getUsersAddress->sub_district_id ?? 0,
             'shipping_subdistrict_name' => $getUsersAddress->sub_district_name ?? '',
             'shipping_zipcode' => $getUsersAddress->zip_code ?? '',
-            'send_info' => $additional,
-            'payment_info' => $getPaymentInfo,
+            'send_info' => json_encode($additional),
+            'payment_info' => json_encode($getPaymentInfo),
             'category_service_id' => 0,
             'category_service_name' => '',
             'type_service' => 1,
@@ -561,7 +575,279 @@ class ProcessTransaction implements ShouldQueue
 
         $getTransaction->getTransactionDetails()->saveMany($transactionDetails);
 
-        AppointmentDoctorProduct::where('appointment_doctor_id', '=', $getAppointmentDoctorId)
+        DB::commit();
+
+        $this->getJob->status = 80;
+        $this->getJob->response = json_encode([
+            'service' => $getTypeService,
+            'service_id' => $getServiceId,
+            'transaction_id' => $getTransaction->id,
+            'message' => 'ok'
+        ]);
+        $this->getJob->save();
+
+    }
+
+    private function transactionDoctor($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getUserId, $getPaymentId, $getScheduleId, $getDate, $getPaymentInfo, $additional)
+    {
+        $getUser = Users::where('id', $getUserId)->first();
+        $doctorLogic = new DoctorLogic();
+        $getDoctorSchedule = $doctorLogic->scheduleCheck($getScheduleId, $getDate, $getUserId, 1);
+        if ($getDoctorSchedule['success'] != 80) {
+            if ($getDoctorSchedule['success'] == 90) {
+                $message = 'Jadwal Tidak Ditemukan';
+            }
+            else if ($getDoctorSchedule['success'] == 91) {
+                $message = 'Jadwal Tidak tersedia';
+            }
+            else if ($getDoctorSchedule['success'] == 92) {
+                $message = 'Jadwal Sudah Dipesan';
+            }
+            else if ($getDoctorSchedule['success'] == 93) {
+                $message = 'Waktu date tidak sama';
+            }
+            else {
+                $message = 'Doctor Error';
+            }
+
+            $this->getJob->status = 99;
+            $this->getJob->response = json_encode([
+                'service' => $getTypeService,
+                'service_id' => $getServiceId,
+                'message' => $message
+            ]);
+            $this->getJob->save();
+            return;
+
+        }
+
+        $getSchedule = $getDoctorSchedule['schedule'];
+        $doctorId = $getSchedule->doctor_id;
+        $serviceId = $getSchedule->service_id;
+        $getDoctorInfo = $doctorLogic->doctorInfo($doctorId, $serviceId);
+        $getService = Service::where('id', '=', $serviceId)->first();
+
+        $subTotal = $getDoctorInfo->price;
+        $total = $subTotal;
+
+        $getPayment = Payment::where('id', '=', $getPaymentId)->first();
+        if (!$getPayment) {
+            $this->getJob->status = 99;
+            $this->getJob->response = json_encode([
+                'message' => 'Payment tidak dipilih'
+            ]);
+            $this->getJob->save();
+            return;
+        }
+
+        $newCode = date('Ym').$getNewCode;
+
+        $extraInfo = [
+            'service_id' => $serviceId,
+            'service_name' => $getService->name,
+            'date' => $getDate,
+            'phone' => $getUser->phone ?? '',
+            'need_address' => $getService->type == 2 ? 1 : 0
+        ];
+
+        if ($getService->type == 1) {
+            $getJob = $additional['job'] ?? [];
+            $getSubServiceId = intval($getJob['sub_service_id']) ?? 0;
+            $getList = get_list_sub_service2();
+            $extraInfo['sub_service_id'] = $getSubServiceId;
+            $extraInfo['sub_service_name'] = $getList[$getSubServiceId] ?? '';
+        }
+
+        $saveData = [
+            'klinik_id' => $getUser->klinik_id,
+            'user_id' => $getUser->id,
+            'code' => $newCode,
+            'payment_refer_id' => $getPaymentReferId,
+            'payment_service' => $getPayment->service,
+            'type_payment' => $getPayment->type_payment,
+            'payment_id' => $getPaymentId,
+            'payment_name' => $getPayment->name,
+            'receiver_name' => $getUser->fullname,
+            'receiver_address' => $getUser->address ?? '',
+            'receiver_phone' => $getUser->phone ?? '',
+            'extra_info' => json_encode($extraInfo),
+            'send_info' => json_encode($additional),
+            'payment_info' => json_encode($getPaymentInfo),
+            'category_service_id' => $serviceId,
+            'category_service_name' => $getService ? $getService->name : '',
+            'type_service' => 2,
+            'type_service_name' => $getTypeService,
+            'total_qty' => 1,
+            'subtotal' => $subTotal,
+            'total' => $total,
+            'status' => 2
+        ];
+
+        if ($getService->type == 2) {
+            $userLogic = new UserLogic();
+            $getUserAddress = $userLogic->userAddress($getUserId, $getUser->phone);
+            $saveData['shipping_address_name'] = $getUserAddress['address_name'] ?? '';
+            $saveData['shipping_address'] = $getUserAddress['address'] ?? '';
+            $saveData['shipping_province_id'] = $getUserAddress['province_id'] ?? '';
+            $saveData['shipping_province_name'] = $getUserAddress['province_name'] ?? '';
+            $saveData['shipping_city_id'] = $getUserAddress['city_id'] ?? '';
+            $saveData['shipping_city_name'] = $getUserAddress['city_name'] ?? '';
+            $saveData['shipping_district_id'] = $getUserAddress['district_id'] ?? '';
+            $saveData['shipping_district_name'] = $getUserAddress['district_name'] ?? '';
+            $saveData['shipping_subdistrict_id'] = $getUserAddress['sub_district_id'] ?? '';
+            $saveData['shipping_subdistrict_name'] = $getUserAddress['sub_district_name'] ?? '';
+            $saveData['shipping_zipcode'] = $getUserAddress['zip_code'] ?? '';
+        }
+
+        DB::beginTransaction();
+
+        $getTransaction = Transaction::create($saveData);
+
+        TransactionDetails::create([
+            'transaction_id' => $getTransaction->id,
+            'schedule_id' => $getScheduleId,
+            'doctor_id' => $doctorId,
+            'doctor_name' => $getDoctorInfo->doctor_name,
+            'doctor_price' => $subTotal,
+            'extra_info' => json_encode($extraInfo)
+        ]);
+
+        DB::commit();
+
+        $this->getJob->status = 80;
+        $this->getJob->response = json_encode([
+            'service' => $getTypeService,
+            'service_id' => $getServiceId,
+            'transaction_id' => $getTransaction->id,
+            'message' => 'ok'
+        ]);
+        $this->getJob->save();
+
+    }
+
+    private function transactionLab($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getUserId, $getPaymentId, $getScheduleId, $getDate, $getPaymentInfo, $additional, $flag = 0, $transactionId = 0)
+    {
+        $getUser = Users::where('id', $getUserId)->first();
+        $labLogic = new LabLogic();
+        $userLogic = new UserLogic();
+        $getLabSchedule = $labLogic->scheduleCheck($getScheduleId, $getDate, 1);
+        if ($getLabSchedule['success'] != 80) {
+            if ($getLabSchedule['success'] == 90) {
+                $message = 'Jadwal Tidak Ditemukan';
+            }
+            else if ($getLabSchedule['success'] == 93) {
+                $message = 'Waktu date tidak sama';
+            }
+            else {
+                $message = 'Lab Error';
+            }
+
+            $this->getJob->status = 99;
+            $this->getJob->response = json_encode([
+                'service' => $getTypeService,
+                'service_id' => $getServiceId,
+                'message' => $message
+            ]);
+            $this->getJob->save();
+            return;
+
+        }
+
+        $getSchedule = $getLabSchedule['schedule'];
+        $getDate = $getLabSchedule['date'];
+        $getTime = $getLabSchedule['time'];
+        $getService = Service::where('id', '=', $getServiceId)->first();
+
+        $getLabCart = $userLogic->userCartLab($getUserId, 1);
+        $getCart = $getLabCart['cart'];
+        $subTotal = $getLabCart['total'];
+        $total = $subTotal;
+
+        $getPayment = Payment::where('id', '=', $getPaymentId)->first();
+        if (!$getPayment) {
+            $this->getJob->status = 99;
+            $this->getJob->response = json_encode([
+                'message' => 'Payment tidak dipilih'
+            ]);
+            $this->getJob->save();
+            return;
+        }
+
+        $newCode = date('Ym').$getNewCode;
+
+        $extraInfo = [
+            'service_id' => $getServiceId,
+            'service_name' => $getService->name,
+            'date' => $getDate,
+            'phone' => $getUser->phone ?? '',
+            'need_address' => $getService->type == 2 ? 1 : 0
+        ];
+
+        if ($getService->type == 1) {
+            $getJob = $additional['job'] ?? [];
+            $getSubServiceId = intval($getJob['sub_service_id']) ?? 0;
+            $getList = get_list_sub_service2();
+            $extraInfo['sub_service_id'] = $getSubServiceId;
+            $extraInfo['sub_service_name'] = $getList[$getSubServiceId] ?? '';
+        }
+
+        $saveData = [
+            'klinik_id' => $getUser->klinik_id,
+            'user_id' => $getUser->id,
+            'code' => $newCode,
+            'payment_refer_id' => $getPaymentReferId,
+            'payment_service' => $getPayment->service,
+            'type_payment' => $getPayment->type_payment,
+            'payment_id' => $getPaymentId,
+            'payment_name' => $getPayment->name,
+            'receiver_name' => $getUser->fullname,
+            'receiver_address' => $getUser->address ?? '',
+            'receiver_phone' => $getUser->phone ?? '',
+            'extra_info' => json_encode($extraInfo),
+            'send_info' => json_encode($additional),
+            'payment_info' => json_encode($getPaymentInfo),
+            'category_service_id' => $getServiceId,
+            'category_service_name' => $getService ? $getService->name : '',
+            'type_service' => 2,
+            'type_service_name' => $getTypeService,
+            'total_qty' => 1,
+            'subtotal' => $subTotal,
+            'total' => $total,
+            'status' => 2
+        ];
+
+        if ($getService->type == 2) {
+            $userLogic = new UserLogic();
+            $getUserAddress = $userLogic->userAddress($getUserId, $getUser->phone);
+            $saveData['shipping_address_name'] = $getUserAddress['address_name'] ?? '';
+            $saveData['shipping_address'] = $getUserAddress['address'] ?? '';
+            $saveData['shipping_province_id'] = $getUserAddress['province_id'] ?? '';
+            $saveData['shipping_province_name'] = $getUserAddress['province_name'] ?? '';
+            $saveData['shipping_city_id'] = $getUserAddress['city_id'] ?? '';
+            $saveData['shipping_city_name'] = $getUserAddress['city_name'] ?? '';
+            $saveData['shipping_district_id'] = $getUserAddress['district_id'] ?? '';
+            $saveData['shipping_district_name'] = $getUserAddress['district_name'] ?? '';
+            $saveData['shipping_subdistrict_id'] = $getUserAddress['sub_district_id'] ?? '';
+            $saveData['shipping_subdistrict_name'] = $getUserAddress['sub_district_name'] ?? '';
+            $saveData['shipping_zipcode'] = $getUserAddress['zip_code'] ?? '';
+        }
+
+        DB::beginTransaction();
+
+        $getTransaction = Transaction::create($saveData);
+
+        foreach ($getCart as $list) {
+            TransactionDetails::create([
+                'transaction_id' => $getTransaction->id,
+                'schedule_id' => $getScheduleId,
+                'lab_id' => $list['id'],
+                'lab_name' => $list['name'],
+                'lab_price' => $list['price'],
+                'extra_info' => json_encode($extraInfo)
+            ]);
+        }
+
+        LabCart::where('user_id', '=', $getUserId)
             ->where('choose', 1)->delete();
 
         DB::commit();
@@ -575,238 +861,124 @@ class ProcessTransaction implements ShouldQueue
         ]);
         $this->getJob->save();
 
-    }
-
-    private function transactionDoctor($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getDoctorInfo, $getPaymentInfo, $additional, $flag = 0, $transactionId = 0)
-    {
-        $getDoctorSchedule = DoctorSchedule::where('id', $getScheduleId)->first();
-        if (!$getDoctorSchedule) {
-            $this->getJob->status = 99;
-            $this->getJob->response = json_encode([
-                'service' => $getTypeService,
-                'service_id' => $getServiceId,
-                'message' => 'Jadwal Tidak Ditemukan'
-            ]);
-            $this->getJob->save();
-            return;
-        }
-
-        if($flag == 1) {
-            $getTransaction = Transaction::where('id', $transactionId)->where('status', 2)->first();
-            if (!$getTransaction) {
-                $this->getJob->status = 99;
-                $this->getJob->response = json_encode([
-                    'transaction_id' => $transactionId,
-                    'service' => $getTypeService,
-                    'service_id' => $getServiceId,
-                    'message' => 'Transaksi Tidak Ditemukan'
-                ]);
-                $this->getJob->save();
-                return;
-            }
-        }
-
-        $getUsersAddress = UsersAddress::where('user_id', $getUserId)->first();
-        $getPayment = Payment::where('id', $getPaymentId)->first();
-        $getUser = Users::where('id', $getUserId)->first();
-        $getService = Service::where('id', $getDoctorSchedule->service_id)->first();
-
-        $subTotal = $getDoctorInfo['price'];
-        $total = $subTotal;
-
-        $newCode = date('Ym').$getNewCode;
-
-        $extraInfo = [
-            'service_id' => $getDoctorSchedule->service_id,
-            'phone' => $getUser->phone ?? ''
-        ];
-
-        if ($getUsersAddress) {
-            foreach (['address_name', 'address', 'province_id','city_id', 'city_name', 'district_id', 'district_name',
-                         'sub_district_id', 'sub_district_name', 'zip_code'] as $key) {
-                $extraInfo[$key] = isset($getUsersAddress->$key) ? $getUsersAddress->$key : '';
-            }
-        }
-
-        DB::beginTransaction();
-
-        if($flag == 1) {
-            $getTransaction->code = $newCode;
-            $getTransaction->payment_refer_id = $getPaymentReferId;
-            $getTransaction->payment_service = $getPayment->service;
-            $getTransaction->type_payment = $getPayment->type_payment;
-            $getTransaction->payment_id = $getPaymentId;
-            $getTransaction->payment_name = $getPayment->name;
-            $getTransaction->send_info = $additional;
-            $getTransaction->payment_info = $getPaymentInfo;
-            $getTransaction->status = 2;
-            $getTransaction->save();
-        }
-        else {
-            $getTransaction = Transaction::create([
-                'klinik_id' => $getUser->klinik_id,
-                'user_id' => $getUser->id,
-                'payment_service' => $getPayment->service,
-                'type_payment' => $getPayment->type_payment,
-                'code' => $newCode,
-                'payment_refer_id' => $getPaymentReferId,
-                'payment_id' => $getPaymentId,
-                'payment_name' => $getPayment->name,
-                'category_service_id' => $getDoctorSchedule->service_id,
-                'category_service_name' => $getService ? $getService->name : '',
-                'type_service' => 2,
-                'type_service_name' => $getTypeService,
-                'subtotal' => $subTotal,
-                'total' => $total,
-                'extra_info' => json_encode($extraInfo),
-                'send_info' => json_encode($additional),
-                'payment_info' => json_encode($getPaymentInfo),
-                'status' => 2
-            ]);
-
-            TransactionDetails::create([
-                'transaction_id' => $getTransaction->id,
-                'schedule_id' => $getScheduleId,
-                'doctor_id' => $getDoctorInfo['id'],
-                'doctor_name' => $getDoctorInfo['doctor_name'],
-                'doctor_price' => $subTotal
-            ]);
-
-            DoctorSchedule::where('id', $getScheduleId)->update([
-                'book' => 99
-            ]);
-        }
-
-        DB::commit();
-
-        $this->getJob->status = 80;
-        $this->getJob->response = json_encode([
-            'service' => $getTypeService,
-            'service_id' => $getServiceId,
-            'transaction_id' => $getTransaction->id,
-            'message' => 'ok'
-        ]);
-        $this->getJob->save();
-
-    }
-
-    private function transactionLab($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getType, $getUserId, $getPaymentId, $getScheduleId, $getLabInfo, $getPaymentInfo, $additional, $flag = 0, $transactionId = 0)
-    {
-        $getLabSchedule = LabSchedule::where('id', $getScheduleId)->first();
-        if (!$getLabSchedule) {
-            $this->getJob->status = 99;
-            $this->getJob->response = json_encode([
-                'service' => $getTypeService,
-                'service_id' => $getServiceId,
-                'message' => 'Jadwal Tidak Ditemukan'
-            ]);
-            $this->getJob->save();
-            return;
-        }
-
-        if($flag == 1) {
-            $getTransaction = Transaction::where('id', $transactionId)->where('status', 2)->first();
-            if (!$getTransaction) {
-                $this->getJob->status = 99;
-                $this->getJob->response = json_encode([
-                    'transaction_id' => $transactionId,
-                    'service' => $getTypeService,
-                    'service_id' => $getServiceId,
-                    'message' => 'Transaksi Tidak Ditemukan'
-                ]);
-                $this->getJob->save();
-                return;
-            }
-        }
-
-        $getData = $getLabInfo;
-        $total = 0;
-        $klinikId = 0;
-        foreach ($getData as $list) {
-            $total += $list['price'];
-            $klinikId = $list['klinik_id'];
-        }
-
-        $getUsersAddress = UsersAddress::where('user_id', $getUserId)->first();
-        $getPayment = Payment::where('id', $getPaymentId)->first();
-        $getUser = Users::where('id', $getUserId)->first();
-        $getService = Service::where('id', $getLabSchedule->service_id)->first();
-
-        $newCode = date('Ym').$getNewCode;
-
-        $extraInfo = [
-            'service_id' => $getLabSchedule->service_id,
-            'phone' => $getUser->phone ?? ''
-        ];
-
-        if ($getUsersAddress) {
-            foreach (['address_name', 'address', 'city_id', 'city_name', 'district_id', 'district_name',
-                         'sub_district_id', 'sub_district_name', 'zip_code'] as $key) {
-                $extraInfo[$key] = isset($getUsersAddress->$key) ? $getUsersAddress->$key : '';
-            }
-        }
-
-        DB::beginTransaction();
-
-        if($flag == 1) {
-            $getTransaction->code = $newCode;
-            $getTransaction->payment_refer_id = $getPaymentReferId;
-            $getTransaction->payment_service = $getPayment->service;
-            $getTransaction->type_payment = $getPayment->type_payment;
-            $getTransaction->payment_id = $getPaymentId;
-            $getTransaction->payment_name = $getPayment->name;
-            $getTransaction->send_info = $additional;
-            $getTransaction->payment_info = $getPaymentInfo;
-            $getTransaction->status = 2;
-            $getTransaction->save();
-        }
-        else {
-            $getTransaction = Transaction::create([
-                'klinik_id' => $klinikId ?? $getUser->klinik_id,
-                'user_id' => $getUser->id,
-                'code' => $newCode,
-                'payment_refer_id' => $getPaymentReferId,
-                'payment_service' => $getPayment->service,
-                'type_payment' => $getPayment->type_payment,
-                'payment_id' => $getPaymentId,
-                'payment_name' => $getPayment->name,
-                'payment_info' => $getPaymentInfo,
-                'category_service_id' => $getLabSchedule->service_id,
-                'category_service_name' => $getService ? $getService->name : '',
-                'type_service' => 3,
-                'type_service_name' => $getTypeService,
-                'subtotal' => $total,
-                'total' => $total,
-                'extra_info' => json_encode($extraInfo),
-                'send_info' => $additional,
-                'status' => 2
-            ]);
-
-            $listTransactionDetails = [];
-            foreach ($getData as $list) {
-                $getTransactionDetails = TransactionDetails::create([
-                    'transaction_id' => $getTransaction->id,
-                    'schedule_id' => $getScheduleId,
-                    'lab_id' => $list['lab_id'],
-                    'lab_name' => $list['name'],
-                    'lab_price' => $list['price']
-                ]);
-                $listTransactionDetails[] = $getTransactionDetails;
-            }
-
-            LabCart::where('user_id', $getUser->id)->where('choose', '=', 1)->delete();
-        }
-
-        DB::commit();
-
-        $this->getJob->status = 80;
-        $this->getJob->response = json_encode([
-            'service' => $getTypeService,
-            'service_id' => $getServiceId,
-            'transaction_id' => $getTransaction->id,
-            'message' => 'ok'
-        ]);
-        $this->getJob->save();
+        return;
+//
+//
+//
+//        $getLabSchedule = LabSchedule::where('id', $getScheduleId)->first();
+//        if (!$getLabSchedule) {
+//            $this->getJob->status = 99;
+//            $this->getJob->response = json_encode([
+//                'service' => $getTypeService,
+//                'service_id' => $getServiceId,
+//                'message' => 'Jadwal Tidak Ditemukan'
+//            ]);
+//            $this->getJob->save();
+//            return;
+//        }
+//
+//        if($flag == 1) {
+//            $getTransaction = Transaction::where('id', $transactionId)->where('status', 2)->first();
+//            if (!$getTransaction) {
+//                $this->getJob->status = 99;
+//                $this->getJob->response = json_encode([
+//                    'transaction_id' => $transactionId,
+//                    'service' => $getTypeService,
+//                    'service_id' => $getServiceId,
+//                    'message' => 'Transaksi Tidak Ditemukan'
+//                ]);
+//                $this->getJob->save();
+//                return;
+//            }
+//        }
+//
+//        $getData = $getLabInfo;
+//        $total = 0;
+//        $klinikId = 0;
+//        foreach ($getData as $list) {
+//            $total += $list['price'];
+//            $klinikId = $list['klinik_id'];
+//        }
+//
+//        $getUsersAddress = UsersAddress::where('user_id', $getUserId)->first();
+//        $getPayment = Payment::where('id', $getPaymentId)->first();
+//        $getUser = Users::where('id', $getUserId)->first();
+//        $getService = Service::where('id', $getLabSchedule->service_id)->first();
+//
+//        $newCode = date('Ym').$getNewCode;
+//
+//        $extraInfo = [
+//            'service_id' => $getLabSchedule->service_id,
+//            'phone' => $getUser->phone ?? ''
+//        ];
+//
+//        if ($getUsersAddress) {
+//            foreach (['address_name', 'address', 'city_id', 'city_name', 'district_id', 'district_name',
+//                         'sub_district_id', 'sub_district_name', 'zip_code'] as $key) {
+//                $extraInfo[$key] = isset($getUsersAddress->$key) ? $getUsersAddress->$key : '';
+//            }
+//        }
+//        DB::beginTransaction();
+//
+//        if($flag == 1) {
+//            $getTransaction->code = $newCode;
+//            $getTransaction->payment_refer_id = $getPaymentReferId;
+//            $getTransaction->payment_service = $getPayment->service;
+//            $getTransaction->type_payment = $getPayment->type_payment;
+//            $getTransaction->payment_id = $getPaymentId;
+//            $getTransaction->payment_name = $getPayment->name;
+//            $getTransaction->send_info = $additional;
+//            $getTransaction->payment_info = $getPaymentInfo;
+//            $getTransaction->status = 2;
+//            $getTransaction->save();
+//        }
+//        else {
+//            $getTransaction = Transaction::create([
+//                'klinik_id' => $klinikId ?? $getUser->klinik_id,
+//                'user_id' => $getUser->id,
+//                'code' => $newCode,
+//                'payment_refer_id' => $getPaymentReferId,
+//                'payment_service' => $getPayment->service,
+//                'type_payment' => $getPayment->type_payment,
+//                'payment_id' => $getPaymentId,
+//                'payment_name' => $getPayment->name,
+//                'payment_info' => json_encode($getPaymentInfo),
+//                'category_service_id' => $getLabSchedule->service_id,
+//                'category_service_name' => $getService ? $getService->name : '',
+//                'type_service' => 3,
+//                'type_service_name' => $getTypeService,
+//                'subtotal' => $total,
+//                'total' => $total,
+//                'extra_info' => json_encode($extraInfo),
+//                'send_info' => json_encode($additional),
+//                'status' => 2
+//            ]);
+//
+//            $listTransactionDetails = [];
+//            foreach ($getData as $list) {
+//                $getTransactionDetails = TransactionDetails::create([
+//                    'transaction_id' => $getTransaction->id,
+//                    'schedule_id' => $getScheduleId,
+//                    'lab_id' => $list['lab_id'],
+//                    'lab_name' => $list['name'],
+//                    'lab_price' => $list['price']
+//                ]);
+//                $listTransactionDetails[] = $getTransactionDetails;
+//            }
+//
+//            LabCart::where('user_id', $getUser->id)->where('choose', '=', 1)->delete();
+//        }
+//
+//        DB::commit();
+//
+//        $this->getJob->status = 80;
+//        $this->getJob->response = json_encode([
+//            'service' => $getTypeService,
+//            'service_id' => $getServiceId,
+//            'transaction_id' => $getTransaction->id,
+//            'message' => 'ok'
+//        ]);
+//        $this->getJob->save();
     }
 
     private function transactionNurse($getNewCode, $getPaymentReferId, $getTypeService,$getServiceId,  $getType, $getUserId, $getPaymentId, $getScheduleId, $getNurseInfo, $getPaymentInfo, $getDetailsInfo, $additional, $flag = 0, $transactionId = 0)
@@ -867,8 +1039,8 @@ class ProcessTransaction implements ShouldQueue
             $getTransaction->type_payment = $getPayment->type_payment;
             $getTransaction->payment_id = $getPaymentId;
             $getTransaction->payment_name = $getPayment->name;
-            $getTransaction->send_info = $additional;
-            $getTransaction->payment_info = $getPaymentInfo;
+            $getTransaction->send_info = json_encode($additional);
+            $getTransaction->payment_info = json_encode($getPaymentInfo);
             $getTransaction->status = 2;
             $getTransaction->save();
         }
@@ -885,7 +1057,7 @@ class ProcessTransaction implements ShouldQueue
                 'receiver_name' => $getReceiver['receiver_name'] ?? '',
                 'receiver_address' => $getReceiver['receiver_address'] ?? '',
                 'receiver_phone' => $getReceiver['receiver_phone'] ?? '',
-                'payment_info' => $getPaymentInfo,
+                'payment_info' => json_encode($getPaymentInfo),
                 'category_service_id' => 0,
                 'category_service_name' => '',
                 'type_service' => 4,
@@ -894,7 +1066,7 @@ class ProcessTransaction implements ShouldQueue
                 'subtotal' => $total,
                 'total' => $total,
                 'extra_info' => json_encode($extraInfo),
-                'send_info' => $additional,
+                'send_info' => json_encode($additional),
                 'status' => 2
             ]);
 

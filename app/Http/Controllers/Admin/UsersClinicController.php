@@ -73,7 +73,7 @@ class UsersClinicController extends _CrudController
                     'create' => 'required',
                 ],
                 'type' => 'image',
-                'lang' => 'ktp',
+                'lang' => 'KTP',
                 'list' => 0,
             ],
             'phone' => [

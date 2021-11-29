@@ -5,6 +5,8 @@ namespace App\Codes\Logic;
 use App\Codes\Models\V1\DeviceToken;
 use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\Klinik;
+use App\Codes\Models\V1\Lab;
+use App\Codes\Models\V1\LabCart;
 use App\Codes\Models\V1\Product;
 use App\Codes\Models\V1\Shipping;
 use App\Codes\Models\V1\Users;
@@ -226,14 +228,26 @@ class UserLogic
 
     /**
      * @param $userId
-     * @return false|mixed
+     * @param null $phone
+     * @return false|array
      */
-    public function userAddress($userId)
+    public function userAddress($userId, $phone = null)
     {
         $getUserAddress = UsersAddress::where('user_id', '=', $userId)->first();
         if (!$getUserAddress) {
             return false;
         }
+
+        $getUserAddress = $getUserAddress->toArray();
+
+        if ($phone == null) {
+            $getUser = Users::where('id', $userId)->first();
+            $getUserAddress['phone'] = $getUser->phone;
+        }
+        else {
+            $getUserAddress['phone'] = $phone;
+        }
+
         return $getUserAddress;
     }
 
@@ -242,7 +256,7 @@ class UserLogic
      * @param int $choose
      * @return array
      */
-    public function userCart($userId, $choose = 0): array
+    public function userCartProduct($userId, int $choose = 0): array
     {
         $getUsersCart = UsersCart::firstOrCreate([
             'users_id' => $userId
@@ -308,7 +322,7 @@ class UserLogic
      * @param int $qty
      * @return array
      */
-    public function userCartAdd($userId, $productId, int $qty = 1): array
+    public function userCartProductAdd($userId, $productId, int $qty = 1): array
     {
         $getProduct = Product::where('id', '=', $productId)->where('status', '=', 80)->first();
         if(!$getProduct) {
@@ -388,7 +402,7 @@ class UserLogic
      * @param int $qty
      * @return array
      */
-    public function userCartUpdateQty($userId, $usersCartDetailId, int $qty = 1): array
+    public function userCartProductUpdateQty($userId, $usersCartDetailId, int $qty = 1): array
     {
         $getUsersCart = UsersCart::firstOrCreate([
             'users_id' => $userId
@@ -447,7 +461,7 @@ class UserLogic
      * @param $usersCartDetailId
      * @return array
      */
-    public function userCartDelete($userId, $usersCartDetailId): array
+    public function userCartProductDelete($userId, $usersCartDetailId): array
     {
         $getUsersCart = UsersCart::firstOrCreate([
             'users_id' => $userId
@@ -476,7 +490,7 @@ class UserLogic
      * @param $productIds
      * @return int
      */
-    public function userCartChoose($userId, $productIds): int
+    public function userCartProductChoose($userId, $productIds): int
     {
         $getUsersCart = UsersCart::firstOrCreate([
             'users_id' => $userId
@@ -507,7 +521,7 @@ class UserLogic
      * @param $shippingId
      * @return int
      */
-    public function userCartUpdateShipping($userId, $shippingId): int
+    public function userCartProductUpdateShipping($userId, $shippingId): int
     {
         $getShipping = Shipping::where('id', $shippingId)->first();
         if (!$getShipping) {
@@ -535,6 +549,145 @@ class UserLogic
 
         return 1;
 
+    }
+
+    /**
+     * @param $userId
+     * @param int $choose
+     * @return array
+     */
+    public function userCartLab($userId, int $choose = 0): array
+    {
+        $getLabCart = LabCart::where('user_id', '=', $userId);
+        if ($choose == 1) {
+            $getLabCart = $getLabCart->where('choose', '=', 1);
+        }
+        $getLabCart = $getLabCart->get();
+
+        $labIds = [];
+        $serviceId = 0;
+        $getChoose = [];
+        foreach ($getLabCart as $list) {
+            $labIds[] = $list->lab_id;
+            $serviceId = $list->service_id;
+            if ($list->choose == 1) {
+                $getChoose[$list->lab_id] = 1;
+            }
+        }
+
+        $labLogic = new LabLogic();
+        $getService = $labLogic->getListService($serviceId);
+
+        $total = 0;
+        if (count($labIds) > 0) {
+            $getData = Lab::selectRaw('lab.id, lab.parent_id, lab.name, lab.image, lab.desc_lab, lab.desc_benefit,
+                lab.desc_preparation, lab.recommended_for, lab_service.service_id, lab_service.price')
+                ->join('lab_service', 'lab_service.lab_id','=','lab.id')
+                ->whereIn('lab.id', $labIds)
+                ->where('lab_service.service_id','=', $serviceId)->get()->toArray();
+
+            $temp = [];
+            foreach ($getData as $list) {
+                $total += $list['price'];
+                $list['choose'] = isset($getChoose[$list['id']]) ? intval($getChoose[$list['id']]) : 0;
+                $temp[] = $list;
+            }
+            $getData = $temp;
+
+        }
+        else {
+            $getData = [];
+        }
+
+        return [
+            'cart' => $getData,
+            'service' => $getService['data'],
+            'sub_service' => $getService['sub_service'],
+            'service_id' => $serviceId,
+            'total' => $total,
+            'total_nice' => number_format_local($total)
+        ];
+
+    }
+
+    /**
+     * @param $userId
+     * @param $labId
+     * @param $serviceId
+     * @return int
+     */
+    public function userCartLabAdd($userId, $labId, $serviceId): int
+    {
+        $getLab = Lab::where('id', '=', $labId)->first();
+        if (!$getLab) {
+            return 92;
+        }
+        if ($getLab->parent_id > 0) {
+            $haveParent = LabCart::where('user_id', '=', $userId)->where('lab_id', '=', $getLab->parent_id)->first();
+            if (!$haveParent) {
+                return 93;
+            }
+        }
+
+        $getLabCart = LabCart::where('user_id', '=', $userId)->first();
+        if ($getLabCart) {
+            if ($getLabCart->service_id == $serviceId) {
+                $insert = 80;
+            }
+            else {
+                $insert = 91;
+            }
+        }
+        else {
+            $insert = 80;
+        }
+
+        if ($insert == 80) {
+            LabCart::firstOrCreate([
+                'user_id' => $userId,
+                'lab_id' => $labId,
+                'service_id' => $serviceId
+            ]);
+        }
+        return $insert;
+    }
+
+    /**
+     * @param $userId
+     * @param $labCartId
+     * @return array|int
+     */
+    public function userCartLabRemove($userId, $labCartId): array
+    {
+        $getLabCart = LabCart::where('user_id', '=', $userId)->where('id', '=', $labCartId)->first();
+        if ($getLabCart) {
+            DB::beginTransaction();
+            $getLabChild = Lab::where('parent_id', $getLabCart->lab_id)->pluck('id')->toArray();
+            if (count($getLabChild) > 0) {
+                LabCart::where('user_id', '=', $userId)->whereIn('lab_id', $getLabChild)->delete();
+            }
+            $getLabCart->delete();
+            DB::commit();
+            return 1;
+        }
+        return 0;
+    }
+
+    /**
+     * @param $userId
+     * @param $labId
+     * @param $serviceId
+     * @return array|int
+     */
+    public function userCartLabChoose($userId, $labId, $serviceId): array
+    {
+        $getLabCart = LabCart::where('user_id', $userId)->where('lab_id', $labId)->where('service_id', $serviceId)->first();
+        if ($getLabCart) {
+            $getLabCart->choose = 1;
+            $getLabCart->save();
+            return 1;
+        }
+        return 0;
     }
 
 }
