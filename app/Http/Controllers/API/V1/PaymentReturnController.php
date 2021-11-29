@@ -109,7 +109,7 @@ class PaymentReturnController extends Controller
         if ($getType == 2) {
 
             $doctorLogic = new DoctorLogic();
-            $getResult = $doctorLogic->appointmentSuccess($getTransaction->id);
+            $getResult = $doctorLogic->appointmentSuccess([$getTransaction->id]);
 
         }
         else if ($getType == 3) {

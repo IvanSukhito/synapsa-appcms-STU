@@ -242,7 +242,7 @@ class DoctorLogic
         }
 
         $getList = get_list_book();
-        $getAppointmentDoctor = AppointmentDoctor::where('doctor_id', '=', $doctorId)->where('date', '=', $date)->get();
+        $getAppointmentDoctor = AppointmentDoctor::where('doctor_id', '=', $doctorId)->where('date', '=', $date)->where('status', '<', 90)->get();
         $temp = [];
         foreach ($getAppointmentDoctor as $list) {
             $temp[$list->time_start] = 99;
@@ -311,7 +311,7 @@ class DoctorLogic
         }
 
         $getAppointmentDoctor = AppointmentDoctor::where('doctor_id', '=', $doctorId)->where('date', '=', $date)
-            ->where('time_start', '=', $timeStart)->first();
+            ->where('time_start', '=', $timeStart)->where('status', '<', 90)->first();
         if ($getAppointmentDoctor) {
             if ($getAppointmentDoctor->user_id == $userId) {
                 if ($raw == 1) {
@@ -352,7 +352,7 @@ class DoctorLogic
     public function scheduleCheckAvailable($doctorId, $date, $timeStart): int
     {
         $getAppointmentDoctor = AppointmentDoctor::where('doctor_id', '=', $doctorId)->where('date', '=', $date)
-            ->where('time_start', '=', $timeStart)->first();
+            ->where('time_start', '=', $timeStart)->where('status', '<', 90)->first();
         if ($getAppointmentDoctor) {
             return 0;
         }
@@ -405,19 +405,27 @@ class DoctorLogic
     }
 
     /**
-     * @param $transactionId
+     * @param $transactionIds
      * @return int
      */
-    public function appointmentSuccess($transactionId): int
+    public function appointmentSuccess($transactionIds): int
     {
-        $getAppointmentDoctor = AppointmentDoctor::where('transaction_id', '=', $transactionId)->first();
-        if ($getAppointmentDoctor) {
-            $getAppointmentDoctor->status = 1;
-            $getAppointmentDoctor->save();
-            return 1;
-        }
-        return 0;
+        AppointmentDoctor::whereIn('transaction_id', $transactionIds)->update([
+            'status' => 1
+        ]);
+        return 1;
+    }
 
+    /**
+     * @param $transactionIds
+     * @return int
+     */
+    public function appointmentReject($transactionIds): int
+    {
+        AppointmentDoctor::whereIn('transaction_id', $transactionIds)->update([
+            'status' => 91
+        ]);
+        return 1;
     }
 
     /**

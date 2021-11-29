@@ -1000,6 +1000,11 @@ class DoctorClinicController extends _CrudController
                                 $hargaHomecare = $spreadsheet->getCell("O" . $key)->getValue();
                                 $hargaVisit = $spreadsheet->getCell("P" . $key)->getValue();
 
+                                $userCheck = Users::where('nik', $nik)->first();
+                                if($userCheck) {
+                                    continue;
+                                }
+
                                 $kategoriCheck = DoctorCategory::where('name', $kategori)->first();
                                 if($kategoriCheck) {
                                     $kategori = $kategoriCheck->id;
@@ -1067,8 +1072,6 @@ class DoctorClinicController extends _CrudController
                                     foreach($service as $id => $val) {
                                         $doctor->getService()->attach($id, ['price' => $val]);
                                     }
-
-                                    $id = $doctor->id;
                                 }
                             }
                         }
@@ -1091,7 +1094,7 @@ class DoctorClinicController extends _CrudController
         else {
             session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
             session()->flash('message_alert', 2);
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.show', $id);
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
     }
 

@@ -417,7 +417,7 @@ class UserLogic
             ];
         }
 
-        $getUsersCartDetail->qty += $qty;
+        $getUsersCartDetail->qty = $qty;
 
         if ($getUsersCartDetail->qty <= 0) {
             return [
@@ -565,10 +565,12 @@ class UserLogic
         $getLabCart = $getLabCart->get();
 
         $labIds = [];
+        $labCartIds = [];
         $serviceId = 0;
         $getChoose = [];
         foreach ($getLabCart as $list) {
             $labIds[] = $list->lab_id;
+            $labCartIds[$list->lab_id] = $list->id;
             $serviceId = $list->service_id;
             if ($list->choose == 1) {
                 $getChoose[$list->lab_id] = 1;
@@ -580,7 +582,7 @@ class UserLogic
 
         $total = 0;
         if (count($labIds) > 0) {
-            $getData = Lab::selectRaw('lab.id, lab.parent_id, lab.name, lab.image, lab.desc_lab, lab.desc_benefit,
+            $getData = Lab::selectRaw('lab.id AS lab_id, lab.parent_id, lab.name, lab.image, lab.desc_lab, lab.desc_benefit,
                 lab.desc_preparation, lab.recommended_for, lab_service.service_id, lab_service.price')
                 ->join('lab_service', 'lab_service.lab_id','=','lab.id')
                 ->whereIn('lab.id', $labIds)
@@ -589,7 +591,8 @@ class UserLogic
             $temp = [];
             foreach ($getData as $list) {
                 $total += $list['price'];
-                $list['choose'] = isset($getChoose[$list['id']]) ? intval($getChoose[$list['id']]) : 0;
+                $list['choose'] = isset($getChoose[$list['lab_id']]) ? intval($getChoose[$list['lab_id']]) : 0;
+                $list['id'] = isset($labCartIds[$list['lab_id']]) ? intval($labCartIds[$list['lab_id']]) : 0;
                 $temp[] = $list;
             }
             $getData = $temp;
@@ -675,16 +678,19 @@ class UserLogic
 
     /**
      * @param $userId
-     * @param $labId
-     * @param $serviceId
-     * @return array|int
+     * @param $labCartIds
+     * @return int
      */
-    public function userCartLabChoose($userId, $labId, $serviceId): array
+    public function userCartLabChoose($userId, $labCartIds): int
     {
-        $getLabCart = LabCart::where('user_id', $userId)->where('lab_id', $labId)->where('service_id', $serviceId)->first();
-        if ($getLabCart) {
-            $getLabCart->choose = 1;
-            $getLabCart->save();
+        $getLabCarts = LabCart::where('user_id', $userId)->whereIn('id', $labCartIds)->get();
+        if ($getLabCarts->count() > 0) {
+            DB::beginTransaction();
+            foreach ($getLabCarts as $getLabCart) {
+                $getLabCart->choose = 1;
+                $getLabCart->save();
+            }
+            DB::commit();
             return 1;
         }
         return 0;
