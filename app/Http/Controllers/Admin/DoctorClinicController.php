@@ -664,7 +664,7 @@ class DoctorClinicController extends _CrudController
                 $endDate = $now->endOfWeek()->format('Y-m-d');
                 if($list->date_available >= $startDate && $list->date_available <= $endDate) {
                     $date = Carbon::parse($list->date_available)->dayOfWeekIso;
-                    $temp[$date] = $getListWeekday[$date];
+                    $temp[$date] = $getListWeekday[$date] . ' - ' . $list->date_available;
                     if (strlen($findFirstDay) <= 0) {
                         $findFirstDay = $date;
                     }
@@ -676,6 +676,8 @@ class DoctorClinicController extends _CrudController
         }
 
         $getListDay = $temp;
+        $getListDay = collect($getListDay);
+        $getListDay = $getListDay->sortKeys();
 
         if ($notFound == 1 && strlen($findFirstDay) > 0) {
             $getTargetDay = $findFirstDay;

@@ -51,4 +51,36 @@ class ProductLogic
         return Product::where('klinik_id', '=', $clinicId)->where('id', '=', $id)->where('status', '=', 80)->first();
     }
 
+    /**
+     * @param $products
+     */
+    public function reduceStock($products)
+    {
+        $productIds = [];
+        foreach ($products as $product => $qty) {
+            $productIds[] = $product;
+        }
+
+        $updateParents = [];
+        $getProducts = Product::whereIn('id', $productIds)->get();
+        foreach ($getProducts as $getProduct) {
+            $getQty = isset($products[$getProduct->id]) ? intval($products[$getProduct->id]) : 0;
+
+            if ($getProduct->parent_id > 0) {
+                $updateParents[$getProduct->parent_id] = $getQty;
+            }
+
+            if ($getProduct->stock_flag == 2) {
+                $getProduct->stock -= $getQty;
+                $getProduct->save();
+            }
+
+        }
+
+        if (count($updateParents) > 0) {
+            $this->reduceStock($updateParents);
+        }
+
+    }
+
 }

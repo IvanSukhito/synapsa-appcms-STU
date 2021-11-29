@@ -190,6 +190,7 @@ return [
     'cancel' => 'Cancel',
     'done' => 'Done',
     'active' => 'Active',
+    'no_active' => 'Non Active',
     'inactive' => 'Inactive',
     'code' => 'Code',
     'transaction_code' => 'Transaction Code',

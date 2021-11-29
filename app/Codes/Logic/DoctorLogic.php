@@ -405,6 +405,22 @@ class DoctorLogic
     }
 
     /**
+     * @param $transactionId
+     * @return int
+     */
+    public function appointmentSuccess($transactionId): int
+    {
+        $getAppointmentDoctor = AppointmentDoctor::where('transaction_id', '=', $transactionId)->first();
+        if ($getAppointmentDoctor) {
+            $getAppointmentDoctor->status = 1;
+            $getAppointmentDoctor->save();
+            return 1;
+        }
+        return 0;
+
+    }
+
+    /**
      * Flag
      * 1. Patient
      * 2. Doctor

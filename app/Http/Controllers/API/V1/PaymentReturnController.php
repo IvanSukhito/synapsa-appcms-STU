@@ -107,20 +107,9 @@ class PaymentReturnController extends Controller
         $getTransaction->save();
 
         if ($getType == 2) {
-            $transactionId = $getTransaction->id;
-            $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
-            if ($getDetail) {
-                $extraInfo = json_decode($getDetail->extra_info, true);
-                $scheduleId = $getDetail->schedule_id;
-                $getDate = $extraInfo['date'] ?? '';
-                $getServiceName = $extraInfo['service_name'] ?? '';
 
-                $getUser = Users::where('id', $getTransaction->user_id)->first();
-                $getDoctorName = $getDetail->doctor_name;
-                $doctorLogic = new DoctorLogic();
-                $getResult = $doctorLogic->appointmentCreate($scheduleId, $getDate, $getUser, $getDoctorName,
-                    $getServiceName, $getTransaction, $getTransaction->code, $extraInfo);
-            }
+            $doctorLogic = new DoctorLogic();
+            $getResult = $doctorLogic->appointmentSuccess($getTransaction->id);
 
         }
         else if ($getType == 3) {
