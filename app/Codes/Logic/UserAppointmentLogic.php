@@ -15,15 +15,15 @@ class UserAppointmentLogic
 
     /**
      * @param $userId
-     * @param $flag
+     * @param $type
      * @param int $limit
      * @return mixed
      */
-    public function appointmentList($userId, $flag, int $limit = 10)
+    public function appointmentList($userId, $type, int $limit = 10)
     {
         $dateNow = date('Y-m-d');
 
-        switch ($flag) {
+        switch ($type) {
             case 2 : $data = AppointmentDoctor::selectRaw('appointment_doctor.id, appointment_doctor.doctor_id AS janji_id,
                     appointment_doctor.doctor_name AS janji_name, 1 AS type, \'doctor\' AS type_name,appointment_doctor.type_appointment, appointment_doctor.date,
                     appointment_doctor.time_start as time_start, appointment_doctor.time_end as time_end, appointment_doctor.status, 0 as shift_qty,
