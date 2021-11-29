@@ -11,6 +11,7 @@ use App\Codes\Models\V1\Shipping;
 use App\Codes\Models\V1\Transaction;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Cache;
 
@@ -276,6 +277,7 @@ class ProductController extends Controller
             'address' => 'required',
             'phone' => 'required|regex:/^(8\d+)/|numeric|unique:users,phone,'.$user->id,
         ]);
+        Log::info(json_encode($this->request->all()));
         if ($validator->fails()) {
             return response()->json([
                 'success' => 0,
