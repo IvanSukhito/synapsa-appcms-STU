@@ -138,7 +138,7 @@ class AppointmentController extends Controller
                     appointment_doctor.time_start as time_start, appointment_doctor.time_end as time_end, appointment_doctor.status, 0 as shift_qty,
                     IF(LENGTH(appointment_doctor.form_patient) > 10, 1, 0) AS form_patient, online_meeting,
                     doctor_category.name AS doctor_category, users.image AS image,
-                    CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full, 0 as extra_info')
+                    CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full, transaction_details.extra_info as extra_info')
                 ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
                 ->join('users', 'users.id', '=', 'doctor.user_id')
                 ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
@@ -176,7 +176,7 @@ class AppointmentController extends Controller
                     appointment_doctor.time_start as time_start, appointment_doctor.time_end as time_end, appointment_doctor.status, 0 as shift_qty,
                     IF(LENGTH(appointment_doctor.form_patient) > 10, 1, 0) AS form_patient, online_meeting,
                     doctor_category.name AS doctor_category, users.image AS image,
-                    CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full, 0 as extra_info')
+                    CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full, transaction_details.extra_info as extra_info')
                    ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
                    ->join('users', 'users.id', '=', 'doctor.user_id')
                    ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
