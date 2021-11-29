@@ -498,24 +498,65 @@ class DoctorLogic
      * 2. Doctor
      * @param $appointmentId
      * @param $flag
-     * @param null $userId
-     * @param null $doctorId
-     * @return false
+     * @param $userId
+     * @return array
      */
-    public function appointmentInfo($appointmentId, $flag, $userId = null, $doctorId = null): bool
+    public function appointmentInfo($appointmentId, $flag, $userId): array
     {
         if ($flag == 1) {
             $getAppointment = AppointmentDoctor::whereIn('status')->where('id', '=', $appointmentId)
                 ->where('user_id', '=', $userId)->first();
         }
         else {
-            $getAppointment = AppointmentDoctor::whereIn('status', [1,2])->where('id', '=', $appointmentId)
-                ->where('doctor_id', '=', $doctorId)->first();
+            $getDoctor = Doctor::where('user_id', $userId)->first();
+            if (!$getDoctor) {
+                return [
+                    'success' => 90,
+                    'message' => 'Doctor not found'
+                ];
+            }
+
+            $getAppointment = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name,
+                user_doctor.image, CONCAT("'.env('OSS_URL').'/'.'", user_doctor.image) AS image_full, 
+                user_patient.image, CONCAT("'.env('OSS_URL').'/'.'", user_patient.image) AS image_full')
+                ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
+                ->join('users AS user_doctor', 'user_doctor.id', '=', 'doctor.user_id')
+                ->join('users AS user_patient', 'user_patient.id', '=', 'appointment_doctor.user_id')
+                ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
+                ->where('doctor_id', $getDoctor->id)
+                ->where('appointment_doctor.id', $appointmentId)
+                ->first();
+
         }
+
         if ($getAppointment) {
-            return $getAppointment;
+
+            $formPatient = json_decode($getAppointment->form_patient, true);
+            $doctorPrescription = json_decode($getAppointment->doctor_prescription, true);
+
+            $getProducts = AppointmentDoctorProduct::selectRaw('appointment_doctor_product.id, product_id, product_name,
+                product_qty, product_qty_checkout, product_price, dose, type_dose, period, note, choose,
+                product.image, CONCAT("'.env('OSS_URL').'/'.'", product.image) AS product_image_full')
+                ->leftJoin('product', 'product.id', '=', 'appointment_doctor_product.product_id')->where('appointment_doctor_id', $appointmentId)->get();
+
+            return [
+                'success' => 80,
+                'data' => [
+                    'data' => $getAppointment,
+                    'products' => $getProducts,
+                    'form_patient' => $formPatient,
+                    'doctor_prescription' => $doctorPrescription
+                ]
+
+            ];
         }
-        return false;
+        else {
+            return [
+                'success' => 91,
+                'message' => 'Appointment not found'
+            ];
+        }
+
     }
 
     /**

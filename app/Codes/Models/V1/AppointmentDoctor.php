@@ -38,7 +38,8 @@ class AppointmentDoctor extends Model
 
     protected $appends = [
         'status_appointment',
-        'online_meeting_nice'
+        'online_meeting_nice',
+        'extra_info_nice'
     ];
 
     protected $dates = [
@@ -60,6 +61,11 @@ class AppointmentDoctor extends Model
      {
          $getList = get_list_online_meeting();
          return $getList[$this->online_meeting] ?? $this->online_meeting;
+     }
+
+     public function getExtraInfoNiceAttribute()
+     {
+         return isset($this->extra_info) ? json_decode($this->extra_info, true) : [];
      }
 
     public function getCreatedAtAttribute()

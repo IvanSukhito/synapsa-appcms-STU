@@ -68,48 +68,25 @@ class DoctorAppointmentController extends Controller
     public function detail($id)
     {
         $user = $this->request->attributes->get('_user');
-        $getDoctor = Doctor::where('user_id', $user->id)->first();
-        if (!$getDoctor) {
+        $doctorLogic = new DoctorLogic();
+        $getData = $doctorLogic->appointmentInfo($id, 2, $user->id);
+        if ($getData['success'] != 80) {
+            if ($getData['success'] == 90) {
+                $message = 'Hanya menu untuk dokter';
+            }
+            else {
+                $message = 'Janji Temu Dokter Tidak Ditemukan';
+            }
             return response()->json([
                 'success' => 1,
-                'message' => ['Hanya menu untuk dokter'],
+                'message' => [$message],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
 
-        $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image,
-                CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
-            ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
-            ->join('users', 'users.id', '=', 'doctor.user_id')
-            ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
-            ->where('doctor_id', $getDoctor->id)
-            ->where('appointment_doctor.id', $id)
-            ->first();
-
-        if (!$data) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-
-        $formPatient = json_decode($data->form_patient, true);
-        $doctorPrescription = json_decode($data->doctor_prescription, true);
-
-        $dataProducts = AppointmentDoctorProduct::selectRaw('appointment_doctor_product.id, product_id, product_name,
-            product_qty, product_qty_checkout, product_price, dose, type_dose, period, note, choose,
-            CONCAT("'.env('OSS_URL').'/'.'", product.image) AS product_image_full')
-            ->leftJoin('product', 'product.id', '=', 'appointment_doctor_product.product_id')->where('appointment_doctor_id', $id)->get();
-
         return response()->json([
             'success' => 1,
-            'data' => [
-                'data' => $data,
-                'products' => $dataProducts,
-                'form_patient' => $formPatient,
-                'doctor_prescription' => $doctorPrescription
-            ],
+            'data' => $getData['data'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
 

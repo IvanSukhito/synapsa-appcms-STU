@@ -46,6 +46,7 @@ return [
     'interval' => 'Interval',
     'reschedule' => 'Reschedule',
     'meeting' => 'Meeting',
+    'no_meeting' => 'No Meeting',
     'pic_clinic' => 'PIC Klinik',
     'product_clinic' => 'Product Clinic',
     'product_name' => 'Nama Produk',
