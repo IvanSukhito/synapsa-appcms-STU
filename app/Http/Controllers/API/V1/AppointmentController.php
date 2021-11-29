@@ -721,10 +721,11 @@ class AppointmentController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor.user_id AS doctor_user_id, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
+        $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor.user_id AS doctor_user_id, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full, transaction_details.extra_info as extra_info')
             ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
             ->join('users', 'users.id', '=', 'doctor.user_id')
             ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
+            ->join('transaction_details','transaction_details.transaction_id','=','appointment_doctor.transaction_id', 'LEFT')
             ->where('appointment_doctor.user_id', $user->id)
             ->where('appointment_doctor.id', $id)
             ->first();
