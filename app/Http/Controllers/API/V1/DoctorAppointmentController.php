@@ -275,6 +275,8 @@ class DoctorAppointmentController extends Controller
                 'video_uid' => $agoraUidDokter,
                 'video_token' => $agoraTokenDokter,
                 'fcm_token' => $getFcmTokenPatient,
+                'users_image' => $getPatient->image_full,
+                'doctor_image' => $user->image_full,
             ],
             'message' => ['Sukses'],
             'token' => $this->request->attributes->get('_refresh_token'),
