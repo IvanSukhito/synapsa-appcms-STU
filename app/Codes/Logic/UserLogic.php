@@ -676,9 +676,9 @@ class UserLogic
     /**
      * @param $userId
      * @param $labCartIds
-     * @return array|int
+     * @return int
      */
-    public function userCartLabChoose($userId, $labCartIds): array
+    public function userCartLabChoose($userId, $labCartIds): int
     {
         $getLabCarts = LabCart::where('user_id', $userId)->whereIn('id', $labCartIds)->get();
         if ($getLabCarts) {
