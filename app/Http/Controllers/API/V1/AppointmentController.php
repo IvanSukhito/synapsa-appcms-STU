@@ -233,13 +233,14 @@ class AppointmentController extends Controller
 
         if($type == 1)
         {
-            $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
-            ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
-            ->join('users', 'users.id', '=', 'doctor.user_id')
-            ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
-            ->where('appointment_doctor.user_id', $user->id)
-            ->where('appointment_doctor.id', $id)
-            ->first();
+            $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full, transaction_details.extra_info as extra_info')
+                ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
+                ->join('users', 'users.id', '=', 'doctor.user_id')
+                ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
+                ->join('transaction_details','transaction_details.transaction_id','=','appointment_doctor.transaction_id', 'LEFT')
+                ->where('appointment_doctor.user_id', $user->id)
+                ->where('appointment_doctor.id', $id)
+                ->first();
 
             if (!$data) {
                 return response()->json([
@@ -601,17 +602,17 @@ class AppointmentController extends Controller
             $validateDate =  strtotime(date('Y-m-d', strtotime("+7 day")));
 
             //code
-//            $getTotal = AppointmentDoctor::where('klinik_id', $getTransaction->klinik_id)
-//                ->where('doctor_id', $getDoctorData->id)
-//                ->where('service_id', 1)
-//                ->whereYear('created_at', '=', date('Y'))
-//                ->whereMonth('created_at', '=', date('m'))
-//                ->whereDate('created_at', '=', date('d'))
-//                ->count();
-//
-//            $getTotalCode = str_pad(($getTotal + 1), 2, '0', STR_PAD_LEFT);
-//
-//            $newCode =  date('d').$getDoctorData->id.$getTotalCode;
+            $getTotal = AppointmentDoctor::where('klinik_id', $getAppointment->klinik_id)
+                ->where('doctor_id', $getAppointment->doctor_id)
+                ->where('service_id', 1)
+                ->whereYear('created_at', '=', date('Y'))
+                ->whereMonth('created_at', '=', date('m'))
+                ->whereDate('created_at', '=', date('d'))
+                ->count();
+
+            $getTotalCode = str_pad(($getTotal + 1), 2, '0', STR_PAD_LEFT);
+
+            $newCode =  date('d').$getAppointment->doctor_id.$getTotalCode;
 //
             $getSchedule = DoctorSchedule::where('id', $scheduleId)
                 ->where('doctor_id', $doctorId)
@@ -645,7 +646,7 @@ class AppointmentController extends Controller
             $getSchedule->save();
 
             $getAppointment->schedule_id = $getSchedule->id;
-//            $getAppointment->code = $newCode;
+            $getAppointment->code = $newCode;
             $getAppointment->date = $getSchedule->date_available;
             $getAppointment->time_start = $getSchedule->time_start;
             $getAppointment->time_end = $getSchedule->time_end;
