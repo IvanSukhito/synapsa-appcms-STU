@@ -41,6 +41,12 @@ class AppointmentLabHomecareClinicController extends _CrudController
                 'edit' => 0,
                 'list' => 0,
             ],
+            'time_book' => [
+                'create' => 0,
+                'edit' => 0,
+                'show' => 0,
+                'lang' => 'general.book_time',
+            ],
             'date' => [
                 'create' => 0,
                 'edit' => 0,
@@ -115,6 +121,7 @@ class AppointmentLabHomecareClinicController extends _CrudController
         $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.appointment-lab-clinic.list';
         $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.appointment-lab-clinic.forms';
         $this->listView['uploadHasilLab'] = env('ADMIN_TEMPLATE').'.page.appointment-lab-clinic.forms2';
+        $this->listView['timeBook'] = env('ADMIN_TEMPLATE').'.page._view.time_book';
 
     }
 
@@ -318,6 +325,14 @@ class AppointmentLabHomecareClinicController extends _CrudController
        $dataTables = $dataTables->eloquent($builder)
            ->addColumn('action', function ($query) {
                return view($this->listView['dataTable'], [
+                   'query' => $query,
+                   'thisRoute' => $this->route,
+                   'permission' => $this->permission,
+                   'masterId' => $this->masterId
+               ]);
+           })
+           ->addColumn('time_book', function ($query) {
+               return view($this->listView['timeBook'], [
                    'query' => $query,
                    'thisRoute' => $this->route,
                    'permission' => $this->permission,
