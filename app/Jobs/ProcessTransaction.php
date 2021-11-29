@@ -27,6 +27,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ProcessTransaction implements ShouldQueue
 {
@@ -240,6 +241,7 @@ class ProcessTransaction implements ShouldQueue
         $transactionDetails = [];
         $UsersCartDetailId = [];
         foreach ($getUsersCartDetail as $item) {
+            Log::info(json_encode($item->toArray()));
             $UsersCartDetailId[] = $item->id;
             $item->stock -= $item->qty;
             $item->save();
@@ -261,6 +263,9 @@ class ProcessTransaction implements ShouldQueue
             UsersCartDetail::whereIn('id', '=', $getCartInfo->id)
                 ->where('choose', '=', 1)->delete();
         }
+
+        Log::info(json_encode($transactionDetails));
+        Log::info(json_encode($UsersCartDetailId));
 
         DB::commit();
 
