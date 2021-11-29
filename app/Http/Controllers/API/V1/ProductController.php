@@ -277,7 +277,6 @@ class ProductController extends Controller
             'address' => 'required',
             'phone' => 'required|regex:/^(8\d+)/|numeric|unique:users,phone,'.$user->id,
         ]);
-        Log::info(json_encode($this->request->all()));
         if ($validator->fails()) {
             return response()->json([
                 'success' => 0,
