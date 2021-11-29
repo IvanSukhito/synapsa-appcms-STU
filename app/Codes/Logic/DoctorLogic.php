@@ -367,9 +367,10 @@ class DoctorLogic
      * @param $getServiceName
      * @param $getTransaction
      * @param $newCode
+     * @param $extraInfo
      * @return int
      */
-    public function appointmentCreate($scheduleId, $date, $getUser, $getDoctorName, $getServiceName, $getTransaction, $newCode): int
+    public function appointmentCreate($scheduleId, $date, $getUser, $getDoctorName, $getServiceName, $getTransaction, $newCode, $extraInfo): int
     {
         $getData = $this->scheduleCheck($scheduleId, $date, $getUser->id, 1);
         if ($getData['success'] == 80) {
@@ -391,6 +392,7 @@ class DoctorLogic
                 'date' => $getDate,
                 'time_start' => $getSchedule->time_start,
                 'time_end' => $getSchedule->time_end,
+                'extra_info' => json_encode($extraInfo),
                 'status' => 1
             ]);
 

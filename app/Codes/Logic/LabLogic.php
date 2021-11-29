@@ -3,6 +3,7 @@
 namespace App\Codes\Logic;
 
 use App\Codes\Models\Settings;
+use App\Codes\Models\V1\AppointmentLab;
 use App\Codes\Models\V1\Lab;
 use App\Codes\Models\V1\LabSchedule;
 use App\Codes\Models\V1\Product;
@@ -271,6 +272,78 @@ class LabLogic
         else {
             return 80;
         }
+    }
+
+    /**
+     * @param $scheduleId
+     * @param $date
+     * @param $getUser
+     * @param $getServiceName
+     * @param $getTransaction
+     * @param $newCode
+     * @param $extraInfo
+     * @return int
+     */
+    public function appointmentCreate($scheduleId, $date, $getUser, $getServiceName, $getTransaction, $newCode, $extraInfo): int
+    {
+        $getData = $this->scheduleCheck($scheduleId, $date, 1);
+        if ($getData['success'] == 80) {
+            $getSchedule = $getData['schedule'];
+            $getDate = $getData['date'];
+
+            AppointmentLab::create([
+                'transaction_id' => $getTransaction->id,
+                'klinik_id' => $getTransaction->klinik_id,
+                'code' => $newCode,
+                'schedule_id' => $getSchedule->id,
+                'service_id' => $getSchedule->service_id,
+                'user_id' => $getTransaction->user_id,
+                'type_appointment' => $getServiceName,
+                'patient_name' => $getUser ? $getUser->fullname : '',
+                'patient_email' => $getUser ? $getUser->email : '',
+                'date' => $getDate,
+                'time_start' => $getSchedule->time_start,
+                'time_end' => $getSchedule->time_end,
+                'extra_info' => json_encode($extraInfo),
+                'status' => 1
+            ]);
+
+            return 1;
+
+        }
+
+        return 0;
+
+    }
+
+    /**
+     * Flag
+     * 1. Patient
+     * 2. Doctor
+     * @param $appointmentId
+     * @param $flag
+     * @param null $userId
+     * @param null $doctorId
+     * @return int
+     */
+    public function appointmentCancel($appointmentId, $flag, $userId = null, $doctorId = null): int
+    {
+        if ($flag == 1) {
+            $getAppointment = AppointmentLab::whereIn('status', [1,2,80])->where('id', '=', $appointmentId)
+                ->where('user_id', '=', $userId)->first();
+        }
+        else {
+            $getAppointment = AppointmentLab::whereIn('status', [1,2,80])->where('id', '=', $appointmentId)
+                ->where('doctor_id', '=', $doctorId)->first();
+        }
+        if ($getAppointment) {
+            $getAppointment->video_link = '';
+            $getAppointment->online_meeting = 0;
+            $getAppointment->status = 99;
+            $getAppointment->save();
+            return 1;
+        }
+        return 0;
     }
 
 }

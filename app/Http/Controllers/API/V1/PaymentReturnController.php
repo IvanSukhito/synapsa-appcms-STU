@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\V1;
 
 use App\Codes\Logic\AccessLogin;
 use App\Codes\Logic\DoctorLogic;
+use App\Codes\Logic\LabLogic;
 use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\City;
@@ -118,20 +119,25 @@ class PaymentReturnController extends Controller
                 $getDoctorName = $getDetail->doctor_name;
                 $doctorLogic = new DoctorLogic();
                 $getResult = $doctorLogic->appointmentCreate($scheduleId, $getDate, $getUser, $getDoctorName,
-                    $getServiceName, $getTransaction, $getTransaction->code);
+                    $getServiceName, $getTransaction, $getTransaction->code, $extraInfo);
             }
 
         }
         else if ($getType == 3) {
             $transactionId = $getTransaction->id;
-            $scheduleId = 0;
-            $getDetails = TransactionDetails::where('transaction_id', $transactionId)->get();
-            foreach ($getDetails as $getDetail) {
+            $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
+            if ($getDetail) {
                 $scheduleId = $getDetail->schedule_id;
-            }
-            if ($getDetails) {
-                $logic = new SynapsaLogic();
-                $logic->setupAppointmentLab($getTransaction, $getDetails, $scheduleId);
+                $extraInfo = json_decode($getDetail->extra_info, true);
+                $scheduleId = $getDetail->schedule_id;
+                $getDate = $extraInfo['date'] ?? '';
+                $getServiceName = $extraInfo['service_name'] ?? '';
+
+                $getUser = Users::where('id', $getTransaction->user_id)->first();
+
+                $labLogic = new LabLogic();
+                $getResult = $labLogic->appointmentCreate($scheduleId, $getDate, $getUser,
+                    $getServiceName, $getTransaction, $getTransaction->code, $extraInfo);
             }
         }
         else if ($getType == 4) {

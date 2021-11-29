@@ -804,7 +804,7 @@ class ProcessTransaction implements ShouldQueue
             'extra_info' => json_encode($extraInfo),
             'send_info' => json_encode($additional),
             'payment_info' => json_encode($getPaymentInfo),
-            'category_service_id' => $serviceId,
+            'category_service_id' => $getServiceId,
             'category_service_name' => $getService ? $getService->name : '',
             'type_service' => 2,
             'type_service_name' => $getTypeService,
@@ -844,6 +844,9 @@ class ProcessTransaction implements ShouldQueue
                 'extra_info' => json_encode($extraInfo)
             ]);
         }
+
+        LabCart::where('user_id', '=', $getUserId)
+            ->where('choose', 1)->delete();
 
         DB::commit();
 
