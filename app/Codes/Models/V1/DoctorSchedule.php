@@ -9,6 +9,7 @@ class DoctorSchedule extends Model
     protected $table = 'doctor_schedule';
     protected $primaryKey = 'id';
     protected $fillable = [
+        'klinik_id',
         'doctor_id',
         'service_id',
         'weekday',

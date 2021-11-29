@@ -15,6 +15,7 @@ class CreateDoctorScheduleTable extends Migration
     {
         Schema::create('doctor_schedule', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('klinik_id')->default(0);
             $table->unsignedBigInteger('doctor_id')->default(0);
             $table->unsignedBigInteger('service_id')->default(0);
             $table->tinyInteger('weekday')->default(0);
@@ -22,6 +23,7 @@ class CreateDoctorScheduleTable extends Migration
             $table->time('time_start')->nullable();
             $table->time('time_end')->nullable();
             $table->tinyInteger('type')->default(0);
+            $table->tinyInteger('weekday')->default(0);
             $table->integer('book')->default(0);
             $table->timestamps();
         });

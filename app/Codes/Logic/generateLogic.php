@@ -43,8 +43,9 @@ class generateLogic
         $listSetGender = get_list_gender();
         $listSetTypeDose = get_list_type_dose();
 
-        $getMedicine = AppointmentDoctorProduct::selectRaw('*')
+        $getMedicine = AppointmentDoctorProduct::selectRaw('appointment_doctor_product.*, product.unit as unit')
             ->where('appointment_doctor_id', $getData->id)
+            ->leftJoin('product','product.id','=','appointment_doctor_product.product_id')
             ->get();
 
         $getClinic = Klinik::where('id', $getData->klinik_id)->first();
@@ -220,15 +221,30 @@ class generateLogic
             foreach ($getMedicine as $index => $list ){
 
                 $column = 2;
-                $sheet->setCellValueByColumnAndRow($column, $row, $list->product_name.' '.$list->product_qty_checkout);
+                $sheet->setCellValueByColumnAndRow($column, $row, $list->product_name);
                 $sheet->mergeCellsByColumnAndRow($column, $row, $column + 4, $row);
-                $sheet->getStyleByColumnAndRow($column, $row, $column + 4, $row++)->applyFromArray([
+                $sheet->getStyleByColumnAndRow($column, $row, $column + 4, $row)->applyFromArray([
                     'font' => array(
                         'size' => 14,
                         'color' => array('argb' => '00000000'),
                     ),
                 ]);
 
+                $column += 7;
+
+                $sheet->setCellValueByColumnAndRow($column, $row, $list->product_qty.' '.$list->unit);
+                $sheet->mergeCellsByColumnAndRow($column, $row, $column + 1, $row);
+                $sheet->getStyleByColumnAndRow($column, $row, $column + 1, $row++)->applyFromArray([
+                    'font' => array(
+                        'size' => 12,
+                        'color' => array('argb' => '00A9A9A9'),
+                    ),
+                    'alignment' => array(
+                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT,
+                        'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                        'wrapText' => true
+                    ),
+                ]);
 
                 $column = 2;
                 $sheet->setCellValueByColumnAndRow($column, $row, $list->dose ?? '-');

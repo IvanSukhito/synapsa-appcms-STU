@@ -23,6 +23,7 @@ class CreateLabScheduleTable extends Migration
             $table->time('time_start')->nullable();
             $table->time('time_end')->nullable();
             $table->tinyInteger('type')->default(0);
+            $table->tinyInteger('weekday')->default(0);
             $table->integer('book')->default(0);
             $table->timestamps();
         });
