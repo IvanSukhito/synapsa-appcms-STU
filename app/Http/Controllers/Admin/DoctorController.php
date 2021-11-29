@@ -95,6 +95,9 @@ class DoctorController extends _CrudController
                     'edit' => 'required'
                 ]
             ],
+            'password' => [
+                'type' => 'password'
+            ],
             'address' => [
                 'type' => 'texteditor',
                 'list' => 0,
