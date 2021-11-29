@@ -174,7 +174,7 @@ class DoctorAppointmentController extends Controller
             ->join('users', 'users.id', '=', 'doctor.user_id')
             ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
             ->join('transaction_details','transaction_details.transaction_id','=','appointment_doctor.transaction_id', 'LEFT')
-            ->where('doctor_id', $getDoctor->id)
+            ->where('appointment_doctor.doctor_id', $getDoctor->id)
             ->where('appointment_doctor.id', $id)
             ->first();
         if (!$data) {
