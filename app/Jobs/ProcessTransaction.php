@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Codes\Logic\DoctorLogic;
 use App\Codes\Logic\LabLogic;
+use App\Codes\Logic\ProductLogic;
 use App\Codes\Logic\UserLogic;
 use App\Codes\Models\V1\AppointmentDoctor;
 use App\Codes\Models\V1\AppointmentDoctorProduct;
@@ -239,11 +240,9 @@ class ProcessTransaction implements ShouldQueue
         ]);
 
         $transactionDetails = [];
-        $UsersCartDetailId = [];
+        $products = [];
         foreach ($getUsersCartDetail as $item) {
-            $UsersCartDetailId[] = $item->id;
-            $item->stock -= $item->qty;
-            $item->save();
+            $products[$item->product_id] = $item->qty;
 
             $transactionDetails[] = new TransactionDetails([
                 'product_id' => $item->product_id,
@@ -255,6 +254,9 @@ class ProcessTransaction implements ShouldQueue
         }
 
         if (count($transactionDetails) > 0) {
+            $productLogic = new ProductLogic();
+            $productLogic->reduceStock($products);
+
             $getTransaction->getTransactionDetails()->saveMany($transactionDetails);
         }
 
