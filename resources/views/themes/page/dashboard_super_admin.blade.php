@@ -142,29 +142,35 @@ if ($daterange) {
                                     </thead>
                                     <tbody>
                                     @foreach($statusTransaction as $key => $listTransaction)
-                                    <tr>
-                                        <td>
-                                            @if($listTransaction == 'Pending')
-                                                <a href="{{ route('admin.transaction-product-admin.index') }}?status={{ $key }}"><span class="badge badge-warning">{{ $listTransaction }}</span></a></td>
-                                            @elseif($listTransaction == 'Payment Pending')
-                                                <a href="{{ route('admin.transaction-product-admin.index') }}?status={{ $key }}"><span class="badge badge-info">{{ $listTransaction }}</span></a></td>
-                                            @elseif($listTransaction == 'Payment Received')
-                                                <a href="{{ route('admin.transaction-product-admin.index') }}?status={{ $key }}"><span class="badge badge-primary">{{ $listTransaction }}</span></a></td>
-                                            @elseif($listTransaction == 'Complete')
-                                                <a href="{{ route('admin.transaction-product-admin.index') }}?status={{ $key }}"><span class="badge badge-success">{{ $listTransaction }}</span></a></td>
-                                            @elseif($listTransaction == 'Proses')
-                                                <a href="{{ route('admin.transaction-product-admin.index') }}?status={{ $key }}"><span class="badge badge-light">{{ $listTransaction }}</span></a></td>
-                                            @elseif($listTransaction == 'Proses Pengiriman')
-                                                <a href="{{ route('admin.transaction-product-admin.index') }}?status={{ $key }}"><span class="badge badge-dark">{{ $listTransaction }}</span></a></td>
-                                            @elseif($listTransaction == 'Void')
-                                                <a href="{{ route('admin.transaction-product-admin.index') }}?status={{ $key }}"><span class="badge badge-dark">{{ $listTransaction }}</span></a></td>
-                                            @else
-                                                <a href="{{ route('admin.transaction-product-admin.index') }}?status={{ $key }}"><span class="badge badge-danger">{{ $listTransaction }}</span></a></td>
-                                        @endif
-                                        <td>
-                                            <a href="#"><b> {{$transactionProduct->where('status', $key)->count()}}</b> </a>
-                                        </td>
-                                    </tr>
+                                        <tr>
+                                            <td>
+                                                <a style="display: block;"
+                                                   href="{{ route('admin.transaction-product-admin.index') }}?status={{ $key }}">
+                                                    @if($listTransaction == 'Pending')
+                                                        <span class="badge badge-warning">{{ $listTransaction }}</span>
+                                                    @elseif($listTransaction == 'Payment Pending')
+                                                        <span class="badge badge-info">{{ $listTransaction }}</span>
+                                                    @elseif($listTransaction == 'Payment Received')
+                                                        <span class="badge badge-primary">{{ $listTransaction }}</span>
+                                                    @elseif($listTransaction == 'Complete')
+                                                        <span class="badge badge-success">{{ $listTransaction }}</span>
+                                                    @elseif($listTransaction == 'Proses')
+                                                        <span class="badge badge-light">{{ $listTransaction }}</span>
+                                                    @elseif($listTransaction == 'Proses Pengiriman')
+                                                        <span class="badge badge-dark">{{ $listTransaction }}</span>
+                                                    @elseif($listTransaction == 'Void')
+                                                        <span class="badge badge-dark">{{ $listTransaction }}</span>
+                                                    @else
+                                                        <span class="badge badge-danger">{{ $listTransaction }}</span>
+                                                    @endif
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a style="display: block;"
+                                                   href="{{ route('admin.transaction-product-admin.index') }}?status={{ $key }}"><b> {{ $transactionProduct->where('status', $key)->count() }}</b>
+                                                </a>
+                                            </td>
+                                        </tr>
                                     @endforeach
                                     </tbody>
                                 </table>
