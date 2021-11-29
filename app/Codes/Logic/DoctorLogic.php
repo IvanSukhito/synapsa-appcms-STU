@@ -405,19 +405,27 @@ class DoctorLogic
     }
 
     /**
-     * @param $transactionId
+     * @param $transactionIds
      * @return int
      */
-    public function appointmentSuccess($transactionId): int
+    public function appointmentSuccess($transactionIds): int
     {
-        $getAppointmentDoctor = AppointmentDoctor::where('transaction_id', '=', $transactionId)->first();
-        if ($getAppointmentDoctor) {
-            $getAppointmentDoctor->status = 1;
-            $getAppointmentDoctor->save();
-            return 1;
-        }
-        return 0;
+        AppointmentDoctor::whereIn('transaction_id', $transactionIds)->update([
+            'status' => 1
+        ]);
+        return 1;
+    }
 
+    /**
+     * @param $transactionIds
+     * @return int
+     */
+    public function appointmentReject($transactionIds): int
+    {
+        AppointmentDoctor::whereIn('transaction_id', $transactionIds)->update([
+            'status' => 91
+        ]);
+        return 1;
     }
 
     /**

@@ -730,9 +730,14 @@ class SynapsaLogic
         });
         $getExpiredTransaction = intval($setting['time-expired-transaction']) ?? 1;
         $timeFinish = date('Y-m-d H:i:s', strtotime("-$getExpiredTransaction day"));
-        Transaction::where('status', 2)->where('created_at', '<', $timeFinish)->update([
-            'status' => 99
-        ]);
+        $getTransactionIds = Transaction::where('status', 2)->where('created_at', '<', $timeFinish)->pluck('id')->toArray();
+        if (count($getTransactionIds) > 0) {
+            $doctorLogic = new DoctorLogic();
+            $doctorLogic->appointmentReject($getTransactionIds);
+            Transaction::where('status', 2)->where('created_at', '<', $timeFinish)->update([
+                'status' => 99
+            ]);
+        }
         return 1;
     }
 

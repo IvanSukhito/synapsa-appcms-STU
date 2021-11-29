@@ -153,6 +153,8 @@ class ProductController extends Controller
 
         $getQty = $this->request->get('qty');
 
+        Log::info(json_encode($this->request->all()));
+
         $userLogic = new UserLogic();
         $getResult = $userLogic->userCartProductUpdateQty($user->id, $id, $getQty);
         if($getResult['success'] == 90){
