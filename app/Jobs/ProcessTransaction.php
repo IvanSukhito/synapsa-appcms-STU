@@ -258,10 +258,8 @@ class ProcessTransaction implements ShouldQueue
             $getTransaction->getTransactionDetails()->saveMany($transactionDetails);
         }
 
-        if (count($UsersCartDetailId) > 0) {
-            UsersCartDetail::whereIn('id', '=', $getCartInfo->id)
-                ->where('choose', '=', 1)->delete();
-        }
+        UsersCartDetail::whereIn('users_cart_id', '=', $getCartInfo->id)
+            ->where('choose', '=', 1)->delete();
 
         DB::commit();
 
