@@ -284,6 +284,10 @@
             $('#schedule_type').change();
         });
 
+        $('#scheduleTask').on('hidden.bs.modal', function () {
+            location.reload();
+        })
+
         $('#schedule_type').on('change', function() {
             let type = $(this).val();
 
