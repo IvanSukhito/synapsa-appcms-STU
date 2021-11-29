@@ -287,8 +287,8 @@ class ProductController extends Controller
         }
 
         $saveData = [
-            'receiver' => strip_tags($this->request->get('receiver')),
-            'address_name' => strip_tags($this->request->get('receiver')),
+//            'receiver' => strip_tags($this->request->get('receiver')),
+//            'address_name' => strip_tags($this->request->get('receiver')),
             'address' => strip_tags($this->request->get('address')),
             'phone' => strip_tags($this->request->get('phone')),
         ];
