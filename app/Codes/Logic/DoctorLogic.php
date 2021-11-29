@@ -242,7 +242,7 @@ class DoctorLogic
         }
 
         $getList = get_list_book();
-        $getAppointmentDoctor = AppointmentDoctor::where('doctor_id', '=', $doctorId)->where('date', '=', $date)->get();
+        $getAppointmentDoctor = AppointmentDoctor::where('doctor_id', '=', $doctorId)->where('date', '=', $date)->where('status', '<', 90)->get();
         $temp = [];
         foreach ($getAppointmentDoctor as $list) {
             $temp[$list->time_start] = 99;
@@ -311,7 +311,7 @@ class DoctorLogic
         }
 
         $getAppointmentDoctor = AppointmentDoctor::where('doctor_id', '=', $doctorId)->where('date', '=', $date)
-            ->where('time_start', '=', $timeStart)->first();
+            ->where('time_start', '=', $timeStart)->where('status', '<', 90)->first();
         if ($getAppointmentDoctor) {
             if ($getAppointmentDoctor->user_id == $userId) {
                 if ($raw == 1) {
@@ -352,7 +352,7 @@ class DoctorLogic
     public function scheduleCheckAvailable($doctorId, $date, $timeStart): int
     {
         $getAppointmentDoctor = AppointmentDoctor::where('doctor_id', '=', $doctorId)->where('date', '=', $date)
-            ->where('time_start', '=', $timeStart)->first();
+            ->where('time_start', '=', $timeStart)->where('status', '<', 90)->first();
         if ($getAppointmentDoctor) {
             return 0;
         }
