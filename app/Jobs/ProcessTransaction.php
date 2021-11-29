@@ -68,6 +68,7 @@ class ProcessTransaction implements ShouldQueue
             $getPaymentId = intval($getJob['payment_id']) ?? 0;
             $getServiceId = intval($getJob['service_id']) ?? 0;
 
+            Log::info($getType);
             switch ($getType) {
                 case 1 : $this->transactionProduct($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getUserId, $getPaymentId, $getPaymentInfo, $additional);
                     break;
