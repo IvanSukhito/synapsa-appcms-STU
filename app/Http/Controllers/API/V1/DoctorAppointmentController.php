@@ -50,7 +50,7 @@ class DoctorAppointmentController extends Controller
         $getData = $doctorLogic->appointmentListDoctor($user->id, $time, $s, $getLimit);
         if ($getData['success'] == 0) {
             return response()->json([
-                'success' => 1,
+                'success' => 0,
                 'message' => ['Hanya menu untuk dokter'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
@@ -78,7 +78,7 @@ class DoctorAppointmentController extends Controller
                 $message = 'Janji Temu Dokter Tidak Ditemukan';
             }
             return response()->json([
-                'success' => 1,
+                'success' => 0,
                 'message' => [$message],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
@@ -87,6 +87,63 @@ class DoctorAppointmentController extends Controller
         return response()->json([
             'success' => 1,
             'data' => $getData['data'],
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
+
+    }
+
+    public function approveMeeting($id)
+    {
+        $user = $this->request->attributes->get('_user');
+
+        $doctorLogic = new DoctorLogic();
+        $getResult = $doctorLogic->appointmentApprove($id, 2, $user->id);
+        if ($getResult != 80) {
+            if ($getResult == 90) {
+                $message = 'Hanya menu untuk dokter';
+            }
+            else {
+                $message = 'Janji Temu Dokter Tidak Ditemukan';
+            }
+            return response()->json([
+                'success' => 0,
+                'message' => [$message],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
+        return response()->json([
+            'success' => 1,
+            'message' => ['Sukses Di Approve'],
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
+
+    }
+
+    public function reschedule($id){
+
+        $user = $this->request->attributes->get('_user');
+        $message = strip_tags($this->request->get('message'));
+
+        $doctorLogic = new DoctorLogic();
+        $getResult = $doctorLogic->appointmentRequestReSchedule($id, $user->id, $message);
+        if ($getResult != 80) {
+            if ($getResult == 90) {
+                $message = 'Hanya menu untuk dokter';
+            }
+            else {
+                $message = 'Janji Temu Dokter Tidak Ditemukan';
+            }
+            return response()->json([
+                'success' => 0,
+                'message' => [$message],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
+        return response()->json([
+            'success' => 1,
+            'message' => ['Sukses Meminta Reschedule'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
 
@@ -228,7 +285,7 @@ class DoctorAppointmentController extends Controller
         $getDoctor = Doctor::where('user_id', $user->id)->first();
         if (!$getDoctor) {
             return response()->json([
-                'success' => 1,
+                'success' => 0,
                 'message' => ['Hanya menu untuk dokter'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
@@ -283,51 +340,6 @@ class DoctorAppointmentController extends Controller
             'message' => ['Sukses'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
-    }
-
-    public function approveMeeting($id)
-    {
-        $user = $this->request->attributes->get('_user');
-
-        $doctorLogic = new DoctorLogic();
-        $doctorLogic->appointmentApprove();
-
-        $getDoctor = Doctor::where('user_id', $user->id)->first();
-        if (!$getDoctor) {
-            return response()->json([
-                'success' => 1,
-                'message' => ['Hanya menu untuk dokter'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
-
-        $data = AppointmentDoctor::whereIn('status', [1,2])->where('doctor_id', $getDoctor->id)->where('id', $id)->first();
-        if (!$data) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-
-        $getService = Service::where('id', $data->service_id)->first();
-        if ($getService && $getService->type == 1) {
-            $data->video_link = '';
-            $data->online_meeting = 1;
-            $data->status = 3;
-        }
-        else {
-            $data->status = 4;
-        }
-
-        $data->save();
-
-        return response()->json([
-            'success' => 1,
-            'message' => ['Sukses Di Approve'],
-            'token' => $this->request->attributes->get('_refresh_token'),
-        ]);
-
     }
 
     public function cancelCallMeeting($id)
@@ -392,45 +404,6 @@ class DoctorAppointmentController extends Controller
             'message' => ['Sukses Di Batalkan'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
-
-    }
-
-    public function reschedule($id){
-
-        $user = $this->request->attributes->get('_user');
-
-        $message = strip_tags($this->request->get('message'));
-
-        $getDoctor = Doctor::where('user_id', $user->id)->first();
-
-        if (!$getDoctor) {
-            return response()->json([
-                'success' => 1,
-                'message' => ['Hanya menu untuk dokter'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
-
-       $data = AppointmentDoctor::whereIn('status', [1,2])->where('doctor_id', $getDoctor->id)->where('id', $id)->first();
-       if (!$data) {
-           return response()->json([
-               'success' => 0,
-               'message' => ['Janji Temu Dokter Tidak Ditemukan'],
-               'token' => $this->request->attributes->get('_refresh_token'),
-           ], 404);
-       }
-
-        $data->status = 2;
-        $data->online_meeting = 0;
-        $data->attempted = 0;
-        $data->message = $message;
-        $data->save();
-
-       return response()->json([
-           'success' => 1,
-           'message' => ['Sukses Reschedule'],
-           'token' => $this->request->attributes->get('_refresh_token'),
-       ]);
 
     }
 

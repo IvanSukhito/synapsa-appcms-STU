@@ -595,9 +595,35 @@ class DoctorLogic
                 $getAppointment->status = 4;
             }
             $getAppointment->save();
-            return 1;
+            return 80;
         }
-        return 0;
+        return 91;
+    }
+
+    /**
+     * @param $appointmentId
+     * @param $userId
+     * @param $message
+     * @return int
+     */
+    public function appointmentRequestReSchedule($appointmentId, $userId, $message): int
+    {
+        $getDoctor = Doctor::where('user_id', $userId)->first();
+        if (!$getDoctor) {
+            return 90;
+        }
+
+        $getAppointment = AppointmentDoctor::whereIn('status', [1,2])->where('id', '=', $appointmentId)
+            ->where('doctor_id', '=', $getDoctor->id)->first();
+        if ($getAppointment) {
+            $getAppointment->status = 2;
+            $getAppointment->online_meeting = 0;
+            $getAppointment->attempted = 0;
+            $getAppointment->message = $message;
+            $getAppointment->save();
+            return 80;
+        }
+        return 91;
     }
 
     /**
