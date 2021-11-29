@@ -103,36 +103,13 @@ class LabController extends Controller
         $userLogic = new UserLogic();
         $getData = $userLogic->userCartLab($user->id);
 
+        Log::info(json_encode($getData));
+
         return response()->json([
             'success' => 1,
             'data' => $getData,
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
-
-//        $getLabCart = LabCart::where('user_id', $user->id)->first();
-//        $userId = $user->id;
-//        $getServiceData = [];
-//        $getData = [];
-//        $total = 0;
-//        if ($getLabCart) {
-//            $getInterestService = $getLabCart->service_id;
-//            $getServiceData = $this->getService($getInterestService);
-//            $getData = $this->getLabInfo($userId, $getInterestService);
-//            foreach ($getData as $list) {
-//                $total += $list->price;
-//            }
-//        }
-//
-//        return response()->json([
-//            'success' => 1,
-//            'data' => [
-//                'cart' => $getData,
-//                'service' => $getServiceData,
-//                'total' => $total,
-//                'total_nice' => number_format($total, 0, ',', '.')
-//            ],
-//            'token' => $this->request->attributes->get('_refresh_token'),
-//        ]);
 
     }
 
@@ -210,7 +187,6 @@ class LabController extends Controller
     public function chooseCart()
     {
         $user = $this->request->attributes->get('_user');
-        Log::info(json_encode($this->request->all()));
         $validator = Validator::make($this->request->all(), [
             'cart_ids' => 'required|array'
         ]);
@@ -224,21 +200,8 @@ class LabController extends Controller
 
         $getCartIds = $this->request->get('cart_ids');
 
-        DB::beginTransaction();
-        $getData = LabCart::where('user_id', $user->id)->get();
-        $haveProduct = 0;
-        foreach ($getData as $list) {
-            if (in_array($list->id, $getCartIds)) {
-                $haveProduct = 1;
-                $list->choose = 1;
-            }
-            else {
-                $list->choose = 0;
-            }
-
-            $list->save();
-        }
-        DB::commit();
+        $userLogic = new UserLogic();
+        $haveProduct = $userLogic->userCartLabChoose($user->id, $getCartIds);
 
         if ($haveProduct > 0) {
             return response()->json([
