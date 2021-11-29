@@ -269,6 +269,8 @@ class ProcessTransaction implements ShouldQueue
 
         DB::commit();
 
+        Log::info("ok");
+
         $this->getJob->status = 80;
         $this->getJob->response = json_encode([
             'service' => $getTypeService,
