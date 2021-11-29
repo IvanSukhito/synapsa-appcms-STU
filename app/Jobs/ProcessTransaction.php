@@ -162,9 +162,7 @@ class ProcessTransaction implements ShouldQueue
 
         $getCartInfo = $getCart['cart_info'];
         $getUsersCartDetail = $getCart['cart'];
-        Log::info("cart");
-        Log::info($getUsersCartDetail->count());
-        if ($getUsersCartDetail->count() > 0) {
+        if ($getUsersCartDetail->count() <= 0) {
             $this->getJob->status = 99;
             $this->getJob->response = json_encode([
                 'message' => 'Tidak ada Produk yang di pilih'
@@ -243,7 +241,6 @@ class ProcessTransaction implements ShouldQueue
         $transactionDetails = [];
         $UsersCartDetailId = [];
         foreach ($getUsersCartDetail as $item) {
-            Log::info(json_encode($item->toArray()));
             $UsersCartDetailId[] = $item->id;
             $item->stock -= $item->qty;
             $item->save();
