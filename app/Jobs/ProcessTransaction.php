@@ -258,12 +258,10 @@ class ProcessTransaction implements ShouldQueue
             $getTransaction->getTransactionDetails()->saveMany($transactionDetails);
         }
 
-        UsersCartDetail::whereIn('users_cart_id', '=', $getCartInfo->id)
+        UsersCartDetail::where('users_cart_id', '=', $getCartInfo->id)
             ->where('choose', '=', 1)->delete();
 
         DB::commit();
-
-        Log::info("ok");
 
         $this->getJob->status = 80;
         $this->getJob->response = json_encode([
