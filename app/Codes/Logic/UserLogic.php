@@ -591,8 +591,8 @@ class UserLogic
             $temp = [];
             foreach ($getData as $list) {
                 $total += $list['price'];
-                $list['choose'] = isset($getChoose[$list['id']]) ? intval($getChoose[$list['id']]) : 0;
-                $list['id'] = isset($labCartIds[$list['id']]) ? intval($labCartIds[$list['id']]) : 0;
+                $list['choose'] = isset($getChoose[$list['lab_id']]) ? intval($getChoose[$list['lab_id']]) : 0;
+                $list['id'] = isset($labCartIds[$list['lab_id']]) ? intval($labCartIds[$list['lab_id']]) : 0;
                 $temp[] = $list;
             }
             $getData = $temp;
