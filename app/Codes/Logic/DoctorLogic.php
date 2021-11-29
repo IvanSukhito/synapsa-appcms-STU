@@ -429,6 +429,70 @@ class DoctorLogic
     }
 
     /**
+     * @param $userId
+     * @param int $setFlag
+     * @param null $search
+     * @param int $limit
+     * @return array
+     */
+    public function appointmentListDoctor($userId, int $setFlag = 1, $search = null, $limit = 10): array
+    {
+        $getDoctor = Doctor::where('user_id', $userId)->first();
+        if (!$getDoctor) {
+            return [
+                'success' => 0,
+                'message' => 'Doctor not found'
+            ];
+        }
+
+        switch ($setFlag) {
+            case 2 : $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image,
+                        CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
+                ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
+                ->join('users', 'users.id', '=', 'doctor.user_id')
+                ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
+                ->where('doctor_id', $getDoctor->id)
+                ->whereIn('appointment_doctor.status', [1]);
+                break;
+            case 3 : $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image,
+                        CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
+                ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
+                ->join('users', 'users.id', '=', 'doctor.user_id')
+                ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
+                ->where('doctor_id', $getDoctor->id)
+                ->where('appointment_doctor.status', '=', 80);
+                break;
+            case 4 : $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image,
+                        CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
+                ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
+                ->join('users', 'users.id', '=', 'doctor.user_id')
+                ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
+                ->where('doctor_id', $getDoctor->id)
+                ->where('appointment_doctor.status', '=', 2);
+                break;
+            default: $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image,
+                        CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
+                ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
+                ->join('users', 'users.id', '=', 'doctor.user_id')
+                ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
+                ->where('doctor_id', $getDoctor->id)
+                ->whereIn('appointment_doctor.status', [3,4]);
+                break;
+        }
+
+        if (strlen($search) > 0) {
+            $data = $data->where('patient_name', 'LIKE', "%$search%");
+        }
+
+        $data = $data->orderBy('id','DESC')->paginate($limit);
+
+        return [
+            'success' => 1,
+            'data' => $data
+        ];
+    }
+
+    /**
      * Flag
      * 1. Patient
      * 2. Doctor

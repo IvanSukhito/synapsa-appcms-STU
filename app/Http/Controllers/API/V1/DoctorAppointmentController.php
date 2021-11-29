@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\V1;
 
 use App\Codes\Logic\agoraLogic;
+use App\Codes\Logic\DoctorLogic;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\AppointmentDoctor;
 use App\Codes\Models\V1\AppointmentDoctorProduct;
@@ -37,14 +38,6 @@ class DoctorAppointmentController extends Controller
     public function index()
     {
         $user = $this->request->attributes->get('_user');
-        $getDoctor = Doctor::where('user_id', $user->id)->first();
-        if (!$getDoctor) {
-            return response()->json([
-                'success' => 1,
-                'message' => ['Hanya menu untuk dokter'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
 
         $s = strip_tags($this->request->get('s'));
         $time = intval($this->request->get('time'));
@@ -53,51 +46,19 @@ class DoctorAppointmentController extends Controller
             $getLimit = $this->limit;
         }
 
-        $dateNow = date('Y-m-d');
-
-        switch ($time) {
-            case 2 : $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image,
-                        CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
-                        ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
-                        ->join('users', 'users.id', '=', 'doctor.user_id')
-                        ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
-                        ->where('doctor_id', $getDoctor->id)
-                        ->whereIn('appointment_doctor.status', [1]);
-                break;
-            case 3 : $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image,
-                        CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
-                        ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
-                        ->join('users', 'users.id', '=', 'doctor.user_id')
-                        ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
-                        ->where('doctor_id', $getDoctor->id)
-                        ->where('appointment_doctor.status', '=', 80);
-                break;
-            case 4 : $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image,
-                        CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
-                        ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
-                        ->join('users', 'users.id', '=', 'doctor.user_id')
-                        ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
-                        ->where('doctor_id', $getDoctor->id)
-                        ->where('appointment_doctor.status', 2);
-                break;
-            default: $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image,
-                        CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
-                        ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
-                        ->join('users', 'users.id', '=', 'doctor.user_id')
-                        ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
-                        ->where('doctor_id', $getDoctor->id)
-                        //->where('appointment_doctor.date', '>=', $dateNow)
-                        ->whereIn('appointment_doctor.status', [3,4]);
-                break;
+        $doctorLogic = new DoctorLogic();
+        $getData = $doctorLogic->appointmentListDoctor($user->id, $time, $s, $getLimit);
+        if ($getData['success'] == 0) {
+            return response()->json([
+                'success' => 1,
+                'message' => ['Hanya menu untuk dokter'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
         }
-        if (strlen($s) > 0) {
-            $data = $data->where('patient_name', 'LIKE', "%$s%");
-        }
-        $data = $data->orderBy('id','DESC')->paginate($getLimit);
 
         return response()->json([
             'success' => 1,
-            'data' => $data,
+            'data' => $getData['data'],
             'default_image' => asset('assets/cms/images/no-img.png'),
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
