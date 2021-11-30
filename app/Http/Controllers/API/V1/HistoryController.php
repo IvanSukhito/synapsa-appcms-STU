@@ -84,7 +84,6 @@ class HistoryController extends Controller
         $active['nurse'] = $getNurse;
 
         $getServiceId = $active['service'] ?? 0;
-        $getSubServiceId = $active['sub_service'] ?? 0;
 
         $getService = $getData['service'] ?? [];
         $getSubService = $getData['sub_service'] ?? [];
@@ -100,19 +99,6 @@ class HistoryController extends Controller
                 $temp[] = $list;
             }
             $getService = $temp;
-        }
-        if ($getSubService) {
-            $temp = [[
-                'id' => 0,
-                'name' => 'Semua',
-                'type' => 0,
-                'type_nice' => '',
-                'active' => $getSubServiceId == 0 ? 1 : 0
-            ]];
-            foreach ($getSubService as $list) {
-                $temp[] = $list;
-            }
-            $getSubService = $temp;
         }
 
         return response()->json([
