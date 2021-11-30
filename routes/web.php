@@ -27,6 +27,7 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                 'App\Http\Controllers\Admin\RoleController' => 'role',
                 'App\Http\Controllers\Admin\UserController' => 'user',
                 'App\Http\Controllers\Admin\ArticleController' => 'article',
+                'App\Http\Controllers\Admin\MedicineTypeController' => 'medicine-type',
                 'App\Http\Controllers\Admin\BannerPageController' => 'banner',
                 'App\Http\Controllers\Admin\BannerPageClinicController' => 'banner-clinic',
                 'App\Http\Controllers\Admin\ArticleCategoryController' => 'article-category',
