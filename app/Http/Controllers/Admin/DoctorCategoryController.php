@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
+use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\DoctorCategory;
+use App\Codes\Models\V1\Users;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -42,6 +44,9 @@ class DoctorCategoryController extends _CrudController
             $request, 'general.doctor-category', 'doctor-category', 'V1\DoctorCategory', 'doctor-category',
             $passingData
         );
+
+        $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.doctor.category.forms';
+
     }
 
     public function store()
@@ -99,6 +104,33 @@ class DoctorCategoryController extends _CrudController
         }
     }
 
+    public function show($id)
+    {
+        $this->callPermission();
+
+        $getData = $this->crud->show($id);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $data = $this->data;
+
+        $getDataDoctor = Users::selectRaw('users.*, klinik.name as klinik_name, doctor_category.name as doctor_category')
+                        ->leftJoin('klinik','klinik.id','=','users.klinik_id')
+                        ->leftJoin('doctor','doctor.user_id','=','users.id')
+                        ->leftJoin('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
+                        ->where('doctor.doctor_category_id', $id)
+                        ->get();
+
+        $data['viewType'] = 'show';
+        $data['formsTitle'] = __('general.title_show', ['field' => $data['thisLabel']]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['data'] = $getData;
+        $data['doctor'] = $getDataDoctor;
+        $data['listSetGender'] = get_list_gender();
+
+        return view($this->listView[$data['viewType']], $data);
+    }
 
     public function update($id)
     {
