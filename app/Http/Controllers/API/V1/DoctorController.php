@@ -125,6 +125,14 @@ class DoctorController extends Controller
             date('Y-m-d', strtotime($this->request->get('date'))) :
             date('Y-m-d', strtotime("+1 day"));
 
+        if ($getDate < date('Y-m-d')) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Waktu sudah lewat'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+
         $getService = Service::where('id', '=', $serviceId)->where('status', '=', 80)->first();
         if (!$getService) {
             return response()->json([

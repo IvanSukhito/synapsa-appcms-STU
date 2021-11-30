@@ -44,7 +44,7 @@ class UserAppointmentLogic
             ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
             ->join('users', 'users.id', '=', 'doctor.user_id')
             ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
-            ->where('appointment_doctor.user_id', $userId)
+            ->where('appointment_doctor.user_id', '=', $userId)
             ->join('transaction_details','transaction_details.transaction_id','=','appointment_doctor.transaction_id', 'LEFT')
             ->whereIn('appointment_doctor.status', $status);
 
@@ -63,7 +63,7 @@ class UserAppointmentLogic
                 $join->on('lab.id','=','appointment_lab_details.lab_id')
                     ->on('lab.id', '=', DB::raw("(select min(id) from lab WHERE lab.id = appointment_lab_details.lab_id)"));
             })
-            ->where('appointment_lab.user_id', $userId)
+            ->where('appointment_lab.user_id', '=', $userId)
             ->whereIn('appointment_lab.status', $status);
 
         $getDataNurse = AppointmentNurse::selectRaw('appointment_nurse.id, appointment_nurse.schedule_id as janji_id, 
@@ -71,7 +71,7 @@ class UserAppointmentLogic
                 \'\' as time_start, \'\' as time_end, appointment_nurse.status, shift_qty as shift_qty, 
                 0 AS form_patient, 0 AS online_meeting,
                 \'\' AS doctor_category, \'\' AS image, \'\' AS image_full, 0 as extra_info')
-            ->where('appointment_nurse.user_id', $userId)
+            ->where('appointment_nurse.user_id', '=', $userId)
             ->whereIn('appointment_nurse.status', $status);
 
         if (!in_array($type, [2,3,4])) {
@@ -86,13 +86,26 @@ class UserAppointmentLogic
 
     }
 
-    public function appointmentInfo($userId, $appointmentId, $type, $userPhone = null)
+    /**
+     * @param $userId
+     * @param $userPhone
+     * @param $appointmentId
+     * @param $type
+     * @param array $status
+     * @return array
+     */
+    public function appointmentInfo($userId, $userPhone, $appointmentId, $type, array $status = [])
     {
         $getResult = [];
         if ($type == 2) {
-            $data = AppointmentLab::where('user_id',$userId)
-                ->where('appointment_lab.id', $appointmentId)
-                ->first();
+            $data = AppointmentLab::where('user_id', '=', $userId)
+                ->where('appointment_lab.id', '=', $appointmentId);
+
+            if (!empty($status)) {
+                $data = $data->whereIn('appointment_lab.status', $status);
+            }
+
+            $data = $data->first();
 
             if ($data) {
                 $getDetails = $data->getAppointmentLabDetails()->selectRaw('appointment_lab_details.*,
@@ -112,13 +125,18 @@ class UserAppointmentLogic
         }
         else {
             $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, 
-                users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
+                    users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
                 ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
                 ->join('users', 'users.id', '=', 'doctor.user_id')
                 ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
                 ->where('appointment_doctor.user_id', $userId)
-                ->where('appointment_doctor.id', $appointmentId)
-                ->first();
+                ->where('appointment_doctor.id', $appointmentId);
+
+            if (!empty($status)) {
+                $data = $data->whereIn('appointment_doctor.status', $status);
+            }
+
+            $data = $data->first();
 
             if ($data) {
                 $formPatient = json_decode($data->form_patient, true);
