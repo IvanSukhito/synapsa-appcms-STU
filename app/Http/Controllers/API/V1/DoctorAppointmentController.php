@@ -118,7 +118,7 @@ class DoctorAppointmentController extends Controller
 
     }
 
-    public function reschedule($id){
+    public function reSchedule($id){
 
         $user = $this->request->attributes->get('_user');
         $message = strip_tags($this->request->get('message'));
