@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Admin;
 
-
 use App\Codes\Models\V1\AppointmentLab;
 use App\Codes\Models\V1\City;
 use App\Codes\Models\V1\District;
@@ -10,7 +9,6 @@ use App\Codes\Models\V1\Product;
 use App\Codes\Models\V1\SubDistrict;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-
 
 class GeneralController extends Controller
 {
@@ -64,11 +62,16 @@ class GeneralController extends Controller
     public function appointmentLabSchedule(){
 
         $clinic =  session()->get('admin_clinic_id');
-        //$serviceId = intval($this->request->get('serviceId'));
 
         $getData = AppointmentLab::selectRaw('appointment_lab.*, transaction_details.lab_name as lab_name')
-                    ->leftJoin('transaction_details', 'transaction_details.transaction_id','=','appointment_lab.transaction_id')
-                    ->where('klinik_id', $clinic)->get();
+            ->leftJoin('transaction_details', 'transaction_details.transaction_id','=','appointment_lab.transaction_id')
+            ->where('klinik_id', $clinic);
+
+        if($this->request->get('service_id')) {
+            $getData = $getData->where('service_id', intval($this->request->get('service_id')));
+        }
+
+        $getData = $getData->get();
 
         $dataArr = array();
         foreach ($getData as $list){
