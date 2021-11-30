@@ -83,8 +83,6 @@ class HistoryController extends Controller
         $active['lab'] = $getLab;
         $active['nurse'] = $getNurse;
 
-        $getServiceId = $active['service'] ?? 0;
-
         $getService = $getData['service'] ?? [];
         $getSubService = $getData['sub_service'] ?? [];
         if ($getService) {
