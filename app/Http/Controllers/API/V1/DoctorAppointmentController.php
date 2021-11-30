@@ -489,7 +489,7 @@ class DoctorAppointmentController extends Controller
             ], 404);
         }
 
-        $getDoctorPrescription = $this->request->get('doctor_prescription');
+        $getDoctorPrescription = $this->request->file('doctor_prescription');
         $listDoctorPrescription = [];
         foreach ($getDoctorPrescription as $listImage) {
             $image = base64_to_jpeg($listImage);
