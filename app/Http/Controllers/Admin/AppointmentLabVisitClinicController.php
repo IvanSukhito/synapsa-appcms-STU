@@ -180,7 +180,7 @@ class AppointmentLabVisitClinicController extends _CrudController
             return response()->json(['result' => 1, 'message' => __('general.success_add')]);
         }
         else {
-            session()->flash('message', __('general.success_approve_'));
+            session()->flash('message', __('general.success_approve_', ['field' => $this->data['thisLabel']]));
             session()->flash('message_alert', 2);
             return redirect()->route('admin.' . $this->route . '.index');
         }
@@ -206,7 +206,7 @@ class AppointmentLabVisitClinicController extends _CrudController
             return response()->json(['result' => 1, 'message' => __('general.success_reject')]);
         }
         else {
-            session()->flash('message', __('general.success_reject_appointment_lab'));
+            session()->flash('message', __('general.success_reject_', ['field' => $this->data['thisLabel']]));
             session()->flash('message_alert', 2);
             return redirect()->route('admin.' . $this->route . '.index');
         }
