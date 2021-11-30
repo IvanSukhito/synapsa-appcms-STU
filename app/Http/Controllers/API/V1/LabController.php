@@ -225,6 +225,14 @@ class LabController extends Controller
             date('Y-m-d', strtotime($this->request->get('date'))) :
             date('Y-m-d', strtotime("+1 day"));
 
+        if ($getDate < date('Y-m-d')) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Waktu sudah lewat'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+
         $userLogic = new UserLogic();
         $labLogic = new LabLogic();
 
