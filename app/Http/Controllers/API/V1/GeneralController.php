@@ -101,7 +101,7 @@ class GeneralController extends Controller
         $getUploadImage = '';
         if ($this->request->get('image')) {
             try {
-                $image = base64_to_jpeg($this->request->get('upload_ktp'));
+                $image = base64_to_jpeg($this->request->get('image'));
                 $destinationPath = 'synapsaapps/users';
                 $set_file_name = md5('image' . strtotime('now') . rand(0, 100)) . '.jpg';
                 $getFile = Storage::put($destinationPath . '/' . $set_file_name, $image);
@@ -144,7 +144,8 @@ class GeneralController extends Controller
                 'email' => $this->request->get('email'),
                 'password' => $this->request->get('password'),
                 'upload_ktp' => $getUploadKtp,
-                'image' => $getUploadImage
+                'image' => $getUploadImage,
+                'status' => 80
             ]);
 
             return response()->json([

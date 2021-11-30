@@ -43,7 +43,7 @@ class UserLogic
             'phone' => $saveData['phone'] ?? '',
             'email' => $saveData['email'] ?? '',
             'password' => bcrypt($saveData['password']),
-            'status' => intval($saveData['status']) ?? 80,
+            'status' => isset($saveData['status']) ? intval($saveData['status']) : 80,
             'patient' => 1,
             'upload_ktp' => $saveData['upload_ktp'],
             'image' => $saveData['image'],
@@ -198,6 +198,7 @@ class UserLogic
             'klinik_name' => $getKlinik ? $getKlinik->name : '',
             'klinik_theme' => $getKlinik ? $getKlinik->theme_color : '',
             'klinik_logo' => $getKlinik ? $getKlinik->logo_full : '',
+            'nik' => $getUser->nik,
             'fullname' => $getUser->fullname,
             'address' => $getUser->address,
             'address_detail' => $getUser->address_detail,
@@ -683,15 +684,21 @@ class UserLogic
      */
     public function userCartLabChoose($userId, $labCartIds): int
     {
-        $getLabCarts = LabCart::where('user_id', $userId)->whereIn('id', $labCartIds)->get();
-        if ($getLabCarts->count() > 0) {
+        if (count($labCartIds) > 0) {
             DB::beginTransaction();
-            foreach ($getLabCarts as $getLabCart) {
-                $getLabCart->choose = 1;
-                $getLabCart->save();
+            LabCart::where('user_id', $userId)->whereNotIn('id', $labCartIds)->update([
+                'choose' => 0
+            ]);
+            $getLabCarts = LabCart::where('user_id', $userId)->whereIn('id', $labCartIds)->get();
+            if ($getLabCarts->count() > 0) {
+                foreach ($getLabCarts as $getLabCart) {
+                    $getLabCart->choose = 1;
+                    $getLabCart->save();
+                }
+                DB::commit();
+                return 1;
             }
             DB::commit();
-            return 1;
         }
         return 0;
     }

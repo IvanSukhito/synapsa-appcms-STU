@@ -6,6 +6,7 @@ use App\Codes\Logic\_CrudController;
 use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Admin;
 use App\Codes\Models\V1\Klinik;
+use App\Codes\Models\V1\MedicineType;
 use App\Codes\Models\V1\Product;
 use App\Codes\Models\V1\ProductCategory;
 use Illuminate\Support\Facades\DB;
@@ -125,16 +126,24 @@ class ProductController extends _CrudController
             }
         }
 
+        $listTypeObat = [0 => 'Normal'];
+        $getTypeObat = MedicineType::where('status', 80)->pluck('name', 'id')->toArray();
+        if($getTypeObat) {
+            foreach($getTypeObat as $key => $value) {
+                $listTypeObat[$key] = $value;
+            }
+        }
+
         $klinik_id = [0 => 'Synapsa'];
         foreach(Klinik::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
             $klinik_id[$key] = $val;
         }
 
         $this->data['listSet']['klinik_id'] = $klinik_id;
+        $this->data['listSet']['type'] = $listTypeObat;
         $this->data['listSet']['product_category_id'] = $listCategory;
         $this->data['listSet']['status'] = get_list_available_non_available();
         $this->data['listSet']['stock_flag'] = get_list_stock_flag();
-        $this->data['listSet']['type'] = get_list_type_product();
         //$this->listView['index'] = env('ADMIN_TEMPLATE').'.page.product.list';
         $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.product.forms';
         $this->listView['create2'] = env('ADMIN_TEMPLATE').'.page.product.forms2';

@@ -808,6 +808,7 @@ if ( ! function_exists('listAllMenu')) {
                     'admin.faqs.',
                     'admin.klinik.',
                     'admin.customer-support.',
+                    'admin.medicine-type.',
                     'admin.settings.',
                     'admin.admin.',
                     'admin.role.',
@@ -845,6 +846,14 @@ if ( ! function_exists('listAllMenu')) {
                         'route' => 'admin.klinik.index',
                         'key' => 'klinik',
                         'type' => 1,
+                    ],
+                    [
+                        'name' => __('general.medicine_type'),
+                        'title' => __('general.medicine_type'),
+                        'active' => ['admin.medicine-type.'],
+                        'route' => 'admin.medicine-type.index',
+                        'key' => 'medicine-type',
+                        'type' => 1
                     ],
                     [
                         'name' => __('general.customer_support'),
@@ -950,6 +959,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'role',
                      'article',
                      'article-clinic',
+                     'medicine-type',
                      'product',
                      'product-clinic',
                      'lab-clinic',

@@ -42,6 +42,7 @@ return [
     'thumbnail_img' => 'Thumbnail Image',
     'total_test' => 'Total Test',
     'available' => 'Available',
+    'medicine_type' => 'Tipe Obat',
     'non_available' => 'Unavailable',
     'interval' => 'Interval',
     'reschedule' => 'Reschedule',

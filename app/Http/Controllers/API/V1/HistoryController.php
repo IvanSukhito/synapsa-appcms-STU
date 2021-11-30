@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\V1;
 
 use App\Codes\Logic\SynapsaLogic;
+use App\Codes\Logic\TransactionHistoryLogic;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\LogServiceTransaction;
 use App\Codes\Models\V1\Payment;
@@ -39,7 +40,6 @@ class HistoryController extends Controller
         $getServiceId = intval($this->request->get('service_id'));
         $getDoctor = intval($this->request->get('doctor'));
         $getLab = intval($this->request->get('lab'));
-        $getProduct = intval($this->request->get('product'));
         $getNurse = intval($this->request->get('nurse'));
         $s = strip_tags($this->request->get('s'));
         $getLimit = intval($this->request->get('limit'));
@@ -48,22 +48,18 @@ class HistoryController extends Controller
             $getLimit = $this->limit;
         }
 
+        $transactionHistoryLogic = new TransactionHistoryLogic();
+
         if ($getDoctor == 1) {
-            $getData = $this->getListDoctor($user->id, $getServiceId, $getLimit, $s);
+            $getData = $transactionHistoryLogic->doctorHistory($user->id, $getServiceId, $getLimit, $s);
             $getProduct = 0;
             $getLab = 0;
             $getNurse = 0;
         }
         elseif ($getLab == 1) {
-            $getData = $this->getListLab($user->id, $getServiceId, $getLimit, $s);
+            $getData = $transactionHistoryLogic->labHistory($user->id, $getServiceId, $getLimit, $s);
             $getProduct = 0;
             $getDoctor = 0;
-            $getNurse = 0;
-        }
-        elseif ($getProduct == 1) {
-            $getData = $this->getListProduct($user->id, $getLimit, $s);
-            $getDoctor = 0;
-            $getLab = 0;
             $getNurse = 0;
         }
         elseif ($getNurse == 1){
@@ -73,7 +69,7 @@ class HistoryController extends Controller
             $getProduct = 0;
         }
         else {
-            $getData = $this->getListProduct($user->id, $getLimit, $s);
+            $getData = $transactionHistoryLogic->productHistory($user->id, $getLimit, $s);
             $getProduct = 1;
             $getDoctor = 0;
             $getLab = 0;
@@ -85,6 +81,7 @@ class HistoryController extends Controller
             'data' => [
                 'data' => $getData['data'],
                 'service' => $getData['service'] ?? [],
+                'sub_service' => $getData['sub_service'] ?? [],
                 'default_image' => $getData['default_image'] ?? '',
                 'active' => [
                     'doctor' => $getDoctor,
