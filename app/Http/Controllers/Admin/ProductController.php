@@ -134,6 +134,8 @@ class ProductController extends _CrudController
             }
         }
 
+        //dd($listTypeObat);
+
         $klinik_id = [0 => 'Synapsa'];
         foreach(Klinik::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
             $klinik_id[$key] = $val;
