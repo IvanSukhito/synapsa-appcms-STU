@@ -106,7 +106,7 @@
                 header: {
                     left: 'prev,next today',
                     center: 'title',
-                    right: 'agendaWeek,agendaDay'
+                    right: 'month,agendaWeek,agendaDay'
                 },
 
                 events:  function(start_time, end_time, timezone, callback){

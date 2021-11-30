@@ -51,6 +51,7 @@ class Transaction extends Model
 
     protected $dates = [
         'created_at',
+        'updated_at'
     ];
     protected $appends = [
         'type_transaction',
