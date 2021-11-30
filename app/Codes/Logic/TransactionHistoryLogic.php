@@ -157,42 +157,108 @@ class TransactionHistoryLogic
     {
         $getTransaction = Transaction::where('id', $transactionId)->where('user_id', $userId)->first();
         if ($getTransaction) {
+            $setType = '';
             switch ($getTransaction->type_service) {
-                case 1 : $getDetail = $getTransaction->getTransactionDetails()->selectRaw('transaction_details.id,
-                    transaction_details.product_id, transaction_details.product_name, transaction_details.product_qty,
-                    transaction_details.product_price,
-                    product.image, CONCAT("'.env('OSS_URL').'/'.'", product.image) AS image_full, CONCAT("'.env('OSS_URL').'/'.'", payment.icon_img) AS payment_icon')
+                case 2 : $getDetail = $getTransaction->getTransactionDetails()->selectRaw('transaction_details.id,
+                        transaction_details.schedule_id, transaction_details.doctor_id, transaction_details.doctor_name, 
+                        transaction_details.doctor_price, transaction_details.extra_info, 
+                        doctor_category.name AS doctor_category_name, users.image, 
+                        doctor_schedule.date_available, doctor_schedule.time_start, doctor_schedule.time_end,
+                        klinik.name as klinik_name,
+                        CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full, 
+                        CONCAT("'.env('OSS_URL').'/'.'", payment.icon_img) AS payment_icon')
+                    ->join('doctor', 'doctor.id', '=', 'transaction_details.doctor_id', 'LEFT')
+                    ->join('doctor_category', 'doctor_category.id', '=', 'doctor.doctor_category_id', 'LEFT')
+                    ->join('users', 'users.id', '=', 'doctor.user_id', 'LEFT')
+                    ->join('klinik', 'klinik.id', '=', 'users.klinik_id')
+                    ->join('transaction','transaction.id','=','transaction_details.transaction_id', 'LEFT')
+                    ->join('doctor_schedule','doctor_schedule.id','=','transaction_details.schedule_id', 'LEFT')
+                    ->join('payment', 'payment.id', '=', 'transaction.payment_id')
+                    ->first();
+                    $setType = 'doctor';
+                    break;
+
+                case 3 : $getDetail = $getTransaction->getTransactionDetails()->selectRaw('transaction_details.id,
+                        transaction_details.schedule_id, transaction_details.lab_id, transaction_details.lab_name, 
+                        transaction_details.lab_price, transaction_details.extra_info, 
+                        lab.image, lab_schedule.date_available, lab_schedule.time_start, lab_schedule.time_end, 
+                        CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full, 
+                        CONCAT("'.env('OSS_URL').'/'.'", payment.icon_img) AS payment_icon')
+                    ->join('lab', 'lab.id', '=', 'transaction_details.lab_id', 'LEFT')
+                    ->join('transaction','transaction.id','=','transaction_details.transaction_id', 'LEFT')
+                    ->join('lab_schedule','lab_schedule.id','=','transaction_details.schedule_id', 'LEFT')
+                    ->join('payment', 'payment.id', '=', 'transaction.payment_id')
+                    ->get();
+                    $setType = 'lab';
+                    break;
+
+                default: $getDetail = $getTransaction->getTransactionDetails()->selectRaw('transaction_details.id,
+                        transaction_details.product_id, transaction_details.product_name, transaction_details.product_qty,
+                        transaction_details.product_price,
+                        product.image, CONCAT("'.env('OSS_URL').'/'.'", product.image) AS image_full, 
+                        CONCAT("'.env('OSS_URL').'/'.'", payment.icon_img) AS payment_icon')
                     ->join('product', 'product.id', '=', 'transaction_details.product_id', 'LEFT')
                     ->join('transaction','transaction.id','=','transaction_details.transaction_id', 'LEFT')
                     ->join('payment', 'payment.id', '=', 'transaction.payment_id')
                     ->get();
+                    $setType = 'product';
                     break;
-
-                case 2 : $getDetail = $getTransaction->getTransactionDetails()->selectRaw('transaction_details.*,
-                        doctor_category.name AS doctor_category_name, users.image, date_available, time_start, time_end, klinik.name as klinik_name,
-                        CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full, CONCAT("'.env('OSS_URL').'/'.'", payment.icon_img) AS payment_icon')
-                    ->join('doctor', 'doctor.id', '=', 'transaction_details.doctor_id', 'LEFT')
-                    ->join('doctor_category', 'doctor_category.id', '=', 'doctor.doctor_category_id', 'LEFT')
-                    ->join('users', 'users.id', '=', 'doctor.user_id', 'LEFT')
-                    ->join('doctor_schedule','doctor_schedule.id','=','transaction_details.schedule_id','LEFT')
-                    ->join('klinik', 'klinik.id', '=', 'users.klinik_id')
-                    ->join('transaction','transaction.id','=','transaction_details.transaction_id', 'LEFT')
-                    ->join('payment', 'payment.id', '=', 'transaction.payment_id')
-                    ->first();
-                    break;
-
-                case 3 : $getDetail = $getTransaction->getTransactionDetails()->selectRaw('transaction_details.*,
-                    lab.image, date_available, time_start, time_end, CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full, 
-                    CONCAT("'.env('OSS_URL').'/'.'", payment.icon_img) AS payment_icon')
-                    ->join('lab', 'lab.id', '=', 'transaction_details.lab_id', 'LEFT')
-                    ->join('lab_schedule','lab_schedule.id','=','transaction_details.schedule_id', 'LEFT')
-                    ->join('transaction','transaction.id','=','transaction_details.transaction_id', 'LEFT')
-                    ->join('payment', 'payment.id', '=', 'transaction.payment_id')
-                    ->get();
-                    break;
-
             }
+
+            $paymentInfo = json_decode($getTransaction->payment_info, TRUE);
+            $userAddress = [
+                'receiver_name' => $getTransaction->receiver_name,
+                'receiver_address' => $getTransaction->receiver_address,
+                'receiver_phone' => $getTransaction->receiver_phone,
+                'shipping_address_name' => $getTransaction->shipping_address_name,
+                'shipping_address' => $getTransaction->shipping_address,
+                'shipping_province_id' => $getTransaction->shipping_province_id,
+                'shipping_province_name' => $getTransaction->shipping_province_name,
+                'shipping_city_id' => $getTransaction->shipping_city_id,
+                'shipping_city_name' => $getTransaction->shipping_city_name,
+                'shipping_district_id' => $getTransaction->shipping_district_id,
+                'shipping_district_name' => $getTransaction->shipping_district_name,
+                'shipping_subdistrict_id' => $getTransaction->shipping_subdistrict_id,
+                'shipping_subdistrict_name' => $getTransaction->shipping_subdistrict_name,
+                'shipping_zipcode' => $getTransaction->shipping_zipcode
+            ];
+
+            $getTransactionArray = $getTransaction->toArray();
+
+            unset($getTransactionArray['payment_info']);
+            unset($getTransactionArray['extra_info']);
+            unset($getTransactionArray['send_info']);
+            unset($getTransactionArray['receiver_name']);
+            unset($getTransactionArray['receiver_address']);
+            unset($getTransactionArray['receiver_phone']);
+            unset($getTransactionArray['shipping_address_name']);
+            unset($getTransactionArray['shipping_address']);
+            unset($getTransactionArray['shipping_province_id']);
+            unset($getTransactionArray['shipping_province_name']);
+            unset($getTransactionArray['shipping_city_id']);
+            unset($getTransactionArray['shipping_city_name']);
+            unset($getTransactionArray['shipping_district_id']);
+            unset($getTransactionArray['shipping_district_name']);
+            unset($getTransactionArray['shipping_subdistrict_id']);
+            unset($getTransactionArray['shipping_subdistrict_name']);
+            unset($getTransactionArray['shipping_zipcode']);
+
+            return [
+                'success' => 1,
+                'data' => [
+                    'transaction' => $getTransactionArray,
+                    'type' => $setType,
+                    'details' => $getDetail,
+                    'payment_info' => $paymentInfo,
+                    'user_address' => $userAddress
+                ]
+            ];
         }
+
+        return [
+            'success' => 0
+        ];
+
     }
 
 }
