@@ -38,6 +38,7 @@ class HistoryController extends Controller
         $user = $this->request->attributes->get('_user');
 
         $getServiceId = intval($this->request->get('service_id'));
+        $getSubServiceId = intval($this->request->get('sub_service_id'));
         $getDoctor = intval($this->request->get('doctor'));
         $getLab = intval($this->request->get('lab'));
         $getNurse = intval($this->request->get('nurse'));
@@ -51,13 +52,13 @@ class HistoryController extends Controller
         $transactionHistoryLogic = new TransactionHistoryLogic();
 
         if ($getDoctor == 1) {
-            $getData = $transactionHistoryLogic->doctorHistory($user->id, $getServiceId, $getLimit, $s);
+            $getData = $transactionHistoryLogic->doctorHistory($user->id, $getServiceId, $getSubServiceId, $getLimit, $s);
             $getProduct = 0;
             $getLab = 0;
             $getNurse = 0;
         }
         elseif ($getLab == 1) {
-            $getData = $transactionHistoryLogic->labHistory($user->id, $getServiceId, $getLimit, $s);
+            $getData = $transactionHistoryLogic->labHistory($user->id, $getServiceId, $getSubServiceId, $getLimit, $s);
             $getProduct = 0;
             $getDoctor = 0;
             $getNurse = 0;
@@ -76,19 +77,36 @@ class HistoryController extends Controller
             $getNurse = 0;
         }
 
+        $active = $getData['active'] ?? [];
+        $active['doctor'] = $getDoctor;
+        $active['product'] = $getProduct;
+        $active['lab'] = $getLab;
+        $active['nurse'] = $getNurse;
+
+        $getService = $getData['service'] ?? [];
+        $getSubService = $getData['sub_service'] ?? [];
+        if ($getService) {
+            $temp = [[
+                'id' => 0,
+                'name' => 'Semua',
+                'type' => 0,
+                'type_nice' => '',
+                'active' => $getServiceId == 0 ? 1 : 0
+            ]];
+            foreach ($getService as $list) {
+                $temp[] = $list;
+            }
+            $getService = $temp;
+        }
+
         return response()->json([
             'success' => 1,
             'data' => [
                 'data' => $getData['data'],
-                'service' => $getData['service'] ?? [],
-                'sub_service' => $getData['sub_service'] ?? [],
+                'service' => $getService,
+                'sub_service' => $getSubService,
                 'default_image' => $getData['default_image'] ?? '',
-                'active' => [
-                    'doctor' => $getDoctor,
-                    'product' => $getProduct,
-                    'lab' => $getLab,
-                    'nurse' => $getNurse
-                ]
+                'active' => $active
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
@@ -104,7 +122,7 @@ class HistoryController extends Controller
         if ($getData['success'] == 0) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Tipe Riwayat Transakti Tidak Ditemukan'],
+                'message' => ['Tipe Riwayat Transaksi Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
@@ -116,109 +134,36 @@ class HistoryController extends Controller
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
 
-//        $userId = $user->id;
-//        $getDataId = $getData->id;
-//
-//        if ($getData->type_service == 1) {
-//            $getDataProduct = $this->getDetailProduct($getDataId, $userId);
-//
-//            $listProduct = Product::selectRaw('transaction_details.id, product.id as product_id, product_qty, product.name, product.image, product.price')
-//                ->join('transaction_details', 'transaction_details.product_id', '=', 'product.id')
-//                ->where('transaction_details.transaction_id', $getDataProduct->id)->get();
-//
-//            $historyProduct = [
-//                'transaction_product' => $getDataProduct,
-//                'list_product' => $listProduct,
-//                'address' => $this->getUserAddress($user->id)
-//            ];
-//
-//            return response()->json([
-//                'success' => 1,
-//                'data' => $historyProduct,
-//                'token' => $this->request->attributes->get('_refresh_token'),
-//            ]);
-//
-//        } else if (in_array($getData->type_service, [2, 3, 4])) {
-//            $getDataDoctor = $this->getDetailDoctor($getDataId, $userId);
-//
-//            return response()->json([
-//                'success' => 1,
-//                'data' => $getDataDoctor,
-//                'token' => $this->request->attributes->get('_refresh_token'),
-//            ]);
-//
-//        } else if (in_array($getData->type_service, [5, 6, 7])) {
-//
-//            $getDataLab = $this->getDetailLab($getDataId, $userId);
-//
-//            if ($getDataLab) {
-//                return response()->json([
-//                    'success' => 1,
-//                    'data' => $getDataLab,
-//                    'token' => $this->request->attributes->get('_refresh_token'),
-//                ]);
-//            }
-//        }
-//        else {
-//            return response()->json([
-//                'success' => 0,
-//                'message' => ['Tipe Riwayat Transakti Tidak Ditemukan'],
-//                'token' => $this->request->attributes->get('_refresh_token'),
-//            ], 404);
-//        }
-
     }
 
-    public function repayment($id)
+    public function rePayment($id)
     {
         $user = $this->request->attributes->get('_user');
 
-        $getData = Transaction::where('id', '=', $id)
-            ->where('user_id', '=', $user->id)
-            ->first();
-        if (!$getData) {
+        $transactionHistoryLogic = new TransactionHistoryLogic();
+        $getData = $transactionHistoryLogic->reTriggerPayment($user->id, $id);
+        if ($getData['success'] != 80) {
+            switch ($getData['success']) {
+                case 91: $message = 'Riwayat Transaksi Tidak Menggunakan E-Wallet atau QRis';
+                    break;
+                case 92: $message = 'Riwayat Transaksi Sudah Tidak boleh Re Payment';
+                    break;
+                default: $message = 'Riwayat Transaksi Tidak Ditemukan';
+                    break;
+            }
             return response()->json([
                 'success' => 0,
-                'message' => ['Riwayat Transakti Tidak Ditemukan'],
+                'message' => [$message],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
 
-        if ($getData->status == 2) {
-
-            $getCode = str_pad(($getData->id), 6, '0', STR_PAD_LEFT).rand(100000,999999);
-
-            $getAdditional = json_decode($getData->send_info, true);
-            $getAdditional['code'] = $getCode;
-            $getAdditional['job']['code'] = $getCode;
-
-            $newLogic = new SynapsaLogic();
-            $getPayment = Payment::where('id', $getData->payment_id)->first();
-            $getResult = $newLogic->createPayment($getPayment, $getAdditional, $id);
-            if ($getResult['success'] == 1) {
-
-                $getInfo = isset($getResult['info']) ? $getResult['info'] : '';
-
-                return response()->json([
-                    'success' => 1,
-                    'data' => [
-                        'payment' => 0,
-                        'info' => $getInfo,
-                    ],
-                    'message' => ['Berhasil'],
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ]);
-
-            }
-
-
-        }
-
         return response()->json([
-            'success' => 0,
-            'message' => ['Riwayat Transakti Tidak Ditemukan'],
+            'success' => 1,
+            'data' => $getData['data'],
+            'message' => ['Berhasil'],
             'token' => $this->request->attributes->get('_refresh_token'),
-        ], 404);
+        ]);
 
     }
 

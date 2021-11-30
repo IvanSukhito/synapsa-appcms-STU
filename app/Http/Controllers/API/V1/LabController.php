@@ -39,6 +39,7 @@ class LabController extends Controller
     {
         $user = $this->request->attributes->get('_user');
         $serviceId = intval($this->request->get('service_id'));
+        $subServiceId = intval($this->request->get('sub_service_id'));
         $priority = intval($this->request->get('priority'));
         $s = strip_tags($this->request->get('s'));
         $getLimit = $this->request->get('limit');
@@ -49,7 +50,7 @@ class LabController extends Controller
         $getInterestService = $serviceId;
 
         $labLogic = new LabLogic();
-        $getService = $labLogic->getListService($getInterestService);
+        $getService = $labLogic->getListService($getInterestService, $subServiceId);
 
         $getServiceId = $getService['getServiceId'] ?? 0;
         $getData = $labLogic->labGet($getLimit, $getServiceId, null, $s, $priority);
@@ -76,11 +77,12 @@ class LabController extends Controller
     {
         $user = $this->request->attributes->get('_user');
         $serviceId = intval($this->request->get('service_id'));
+        $subServiceId = intval($this->request->get('sub_service_id'));
 
         $getInterestService = $serviceId > 0 ? $serviceId : $user->interest_service_id;
 
         $labLogic = new LabLogic();
-        $getService = $labLogic->getListService($getInterestService);
+        $getService = $labLogic->getListService($getInterestService, $subServiceId);
         $getServiceId = $getService['getServiceId'] ?? 0;
 
         $getData = $labLogic->labInfo($labId, $getServiceId);
