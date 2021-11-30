@@ -198,19 +198,22 @@ class ClinicInfoController extends _CrudController
         }
 
         $saveData = [
-        'monday' => $this->request->get('monday'),
-        'tuesday' => $this->request->get('tuesday'),
-        'wednesday' => $this->request->get('wednesday'),
-        'thursday' => $this->request->get('thursday'),
-        'friday' => $this->request->get('friday'),
-        'saturday' => $this->request->get('saturday'),
-        'sunday' => $this->request->get('sunday'),
-        'logo' => $dokumentImage,
-    ];
+            'monday' => $this->request->get('monday'),
+            'tuesday' => $this->request->get('tuesday'),
+            'wednesday' => $this->request->get('wednesday'),
+            'thursday' => $this->request->get('thursday'),
+            'friday' => $this->request->get('friday'),
+            'saturday' => $this->request->get('saturday'),
+            'sunday' => $this->request->get('sunday'),
+            'logo' => $dokumentImage,
+        ];
 
         foreach($saveData as $key => $val) {
             $data[$key] = $val;
         }
+
+        session()->put('admin_clinic_themes_color', $data['theme_color']);
+        session()->put('admin_clinic_logo', $dokumentImage);
 
         $getData = $this->crud->update($data, $id);
 

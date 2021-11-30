@@ -96,7 +96,7 @@ class AdminController extends _CrudController
         );
 
         $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.admin.list_button';
-        $this->listView['password'] = env('ADMIN_TEMPLATE').'.page.admin.password';
+        $this->listView['forgotPassword'] = env('ADMIN_TEMPLATE').'.page.admin.password';
 
         $getKlinik = Klinik::where('status', 80)->pluck('name', 'id')->toArray();
         $listKlinik = [0 => 'Empty'];
@@ -113,7 +113,7 @@ class AdminController extends _CrudController
 
     }
 
-    public function password($id)
+    public function forgotPassword($id)
     {
         $this->callPermission();
 
@@ -125,11 +125,12 @@ class AdminController extends _CrudController
         $data = $this->data;
 
         $data['viewType'] = 'edit';
-        $data['formsTitle'] = __('general.title_edit', ['field' => $data['thisLabel']]);
+        $data['thisLabel'] = 'Password';
+        $data['formsTitle'] = __('general.title_edit', ['field' => $data['thisLabel'].' '.$getData->name]);
         $data['passing'] = collectPassingData($this->passingPassword, $data['viewType']);
         $data['data'] = $getData;
 
-        return view($this->listView['password'], $data);
+        return view($this->listView['forgotPassword'], $data);
     }
 
     public function store()

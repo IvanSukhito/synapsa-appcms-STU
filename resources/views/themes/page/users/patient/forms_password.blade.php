@@ -58,7 +58,13 @@ else {
                 </div>
                 <!-- /.card-header -->
 
-                {{ Form::open(['route' => ['admin.' . $thisRoute . '.updatePassword', $data->{$masterId}], 'method' => 'POST', 'files' => true, 'id'=>'form', 'role' => 'form'])  }}
+                @if(in_array($viewType, ['create']))
+                    {{ Form::open(['route' => ['admin.' . $thisRoute . '.store'], 'files' => true, 'id'=>'form', 'role' => 'form'])  }}
+                @elseif(in_array($viewType, ['edit']))
+                    {{ Form::open(['route' => ['admin.' . $thisRoute . '.updatePassword', $data->{$masterId}], 'method' => 'POST', 'files' => true, 'id'=>'form', 'role' => 'form'])  }}
+                @else
+                    {{ Form::open(['id'=>'form', 'role' => 'form'])  }}
+                @endif
 
                 <div class="card-body">
                     @include(env('ADMIN_TEMPLATE').'._component.generate_forms')

@@ -487,4 +487,5 @@ return [
 
     'book_time' => 'Waktu Book',
     'pharmacy' => 'Farmasi',
+    'forgot-password' => 'Forgot Password',
 ];

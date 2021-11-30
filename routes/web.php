@@ -99,6 +99,11 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                         $router->get($linkName . '/{id}/approve',   $controller.'@approve')->name('admin.' . $linkName . '.approve');
                         $router->get($linkName . '/{id}/reject',   $controller.'@reject')->name('admin.' . $linkName . '.reject');
                         break;
+                    case 'users-patient':
+                    case 'admin':
+                        $router->get($linkName . '/{id}/forgot-password', $controller.'@forgotPassword')->name('admin.' . $linkName . '.forgotPassword');
+                        $router->post($linkName . '/{id}/update-password', $controller.'@updatePassword')->name('admin.' . $linkName . '.updatePassword');
+                        break;
                     case 'klinik':
                     case 'product':
                         $router->get($linkName . '/create2', $controller.'@create2')->name('admin.' . $linkName . '.create2');
