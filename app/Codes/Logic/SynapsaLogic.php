@@ -22,6 +22,8 @@ use App\Jobs\ProcessTransaction;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 class SynapsaLogic
 {
@@ -802,14 +804,123 @@ class SynapsaLogic
     }
 
     public function downloadExampleImportDoctorClinicSchedule() {
-        $file = env('OSS_URL') . '/' . 'synapsaapps/doctor-schedule/example_import/kPG7tGSa4TXQyadj1JBGgLyvIPNbDYJ2w3LQMq1F.xlsx';
         $fileName = create_slugs('Example Import Doctor Schedule');
+        $spreadsheet = new Spreadsheet();
+        $spreadsheet->getProperties()->setCreator('Synapsa Klinik')->setLastModifiedBy('Synapsa Klinik');
+
+        $sheet = $spreadsheet->getActiveSheet();
+        $column = 1;
+
+        $headers = [
+            'nomor' => 'no',
+            'service' => 'service',
+            'date_available' => 'date_available',
+            'weekday' => 'weekday',
+            'time_start' => 'time_start',
+            'time_end' => 'time_end',
+        ];
+
+        foreach ($headers as $key => $value) {
+            $row = 6;
+
+            if ($key == 'nomor') {
+                $sheet->getColumnDimensionByColumn($column)->setWidth(5);
+            }
+            else if ($key == 'service') {
+                $row = 1;
+                $sheet->setCellValueByColumnAndRow($column, $row++, 'Notes:');
+                $sheet->setCellValueByColumnAndRow($column, $row++, '1 = Telemed');
+                $sheet->setCellValueByColumnAndRow($column, $row++, '2 = Homecare');
+                $sheet->setCellValueByColumnAndRow($column, $row, '3 = Visit');
+                $sheet->getStyleByColumnAndRow($column, 1, $column, $row)->applyFromArray([
+                    'font' => array(
+                        'color' => array('argb' => '00000000'),
+                    ),
+                    'alignment' => array(
+                        'wrapText' => true,
+                    )
+                ]);
+                $sheet->getColumnDimensionByColumn($column)->setWidth(25);
+                $row += 2;
+            }
+            else if ($key == 'date_available') {
+                $row = 1;
+                $sheet->setCellValueByColumnAndRow($column, $row++, 'Notes:');
+                $sheet->setCellValueByColumnAndRow($column, $row++, 'mm-dd-yyyy');
+                $sheet->setCellValueByColumnAndRow($column, $row, '(Opsional Untuk Jadwal Khusus)');
+                $sheet->getStyleByColumnAndRow($column, 1, $column, $row++)->applyFromArray([
+                    'font' => array(
+                        'color' => array('argb' => '00000000'),
+                    ),
+                    'alignment' => array(
+                        'wrapText' => true,
+                    )
+                ]);
+                $sheet->getColumnDimensionByColumn($column)->setWidth(30);
+                $row += 2;
+            }
+            else if ($key == 'weekday') {
+                $row = 1;
+                $sheet->setCellValueByColumnAndRow($column, $row++, 'Notes:');
+                $sheet->setCellValueByColumnAndRow($column, $row++, 'Monday');
+                $sheet->setCellValueByColumnAndRow($column, $row++,'Senin');
+                $sheet->setCellValueByColumnAndRow($column, $row, '(Wajib Untuk Jadwal Normal)');
+                $sheet->getStyleByColumnAndRow($column, 1, $column, $row)->applyFromArray([
+                    'font' => array(
+                        'color' => array('argb' => '00000000'),
+                    ),
+                    'alignment' => array(
+                        'wrapText' => true,
+                    )
+                ]);
+                $sheet->getColumnDimensionByColumn($column)->setWidth(30);
+                $row += 2;
+            }
+            else if ($key == 'time_start' || $key == 'time_end') {
+                $row = 1;
+                $sheet->setCellValueByColumnAndRow($column, $row++, 'Notes:');
+                $sheet->setCellValueByColumnAndRow($column, $row, 'Berupa Jam : 08:00');
+                $sheet->getStyleByColumnAndRow($column, 1, $column, $row)->applyFromArray([
+                    'font' => array(
+                        'color' => array('argb' => '00000000'),
+                    ),
+                    'alignment' => array(
+                        'wrapText' => true,
+                    )
+                ]);
+                $sheet->getColumnDimensionByColumn($column)->setWidth(25);
+                $row += 4;
+            }
+            else {
+                $sheet->getColumnDimensionByColumn($column)->setWidth(20);
+            }
+
+            $sheet->setCellValueByColumnAndRow($column, $row, __('general.' . $key));
+            $sheet->getStyleByColumnAndRow($column, $row, $column++, $row)->applyFromArray([
+                'fill' => array(
+                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'color' => array('argb' => '000070C0'),
+                ),
+                'borders' => array(
+                    'allBorders' => array(
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                        'color' => array('argb' => '00000000'),
+                    )
+                ),
+                'alignment' => array(
+                    'horizontal' => \Phpoffice\Phpspreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                    'wrapText' => true,
+                )
+            ]);
+        }
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="'.$fileName.'.xlsx"');
+        header('Content-Disposition: attachment;filename="' . $fileName . '.xlsx"');
         header('Cache-Control: max-age=0');
         header('Cache-Control: max-age=1');
-        readfile($file);
+
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $writer->save('php://output');
         exit;
     }
 
