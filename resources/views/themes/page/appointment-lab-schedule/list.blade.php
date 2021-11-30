@@ -1,3 +1,17 @@
+<?php
+$interval = app()->request->get('interval');
+$timeStart = app()->request->get('time_start');
+$serviceId = app()->request->get('service_id');
+
+if(!$interval || $interval == 00) {
+    $interval = 15;
+}
+
+if(!$timeStart) {
+    $timeStart = '07:00';
+}
+?>
+
 @extends(env('ADMIN_TEMPLATE').'._base.layout')
 
 @section('title', __('general.title_home', ['field' => $thisLabel]))
@@ -37,19 +51,19 @@
                      <div class="col-md-4">
                          <div class="form-group">
                          <label for="filter_interval">{{ __('general.interval') }}</label>
-                         <input style="margin-left: 10px;" type="text" class="form-control-sm center" id="set_interval" name="set_interval" autocomplete="off"  required>
+                         <input style="margin-left: 10px;" type="text" class="form-control-sm center" id="set_interval" name="set_interval" value="{{ $interval }}" autocomplete="off"  required>
                          </div>
                      </div>
                      <div class="col-md-4">
                          <div class="form-group">
-                         <label for="filter_time_start">{{ __('general.time_start') }}</label>
-                         <input style="margin-left: 10px;" type="text" class="form-control-sm center" id="time_start" name="time_start" autocomplete="off" required>
+                         <label for="time_start">{{ __('general.time_start') }}</label>
+                         <input style="margin-left: 10px;" type="text" class="form-control-sm center" id="time_start" name="time_start" value="{{ $timeStart }}" autocomplete="off" required>
                          </div>
                      </div>
                      <div class="col-md-4 right">
                          <div class="form-group">
-                         <label for="filter_service">{{ __('general.service') }}</label>
-                         {{ Form::select('service_id', $listSet['service_id'], old('service_id'), ['style' => 'margin-left: 10px;','class' => 'form-control-sm', 'autocomplete' => 'off']) }}
+                         <label for="service">{{ __('general.service') }}</label>
+                         {{ Form::select('service_id', $listSet['service_id'], old('service_id', $serviceId), ['style' => 'margin-left: 10px;', 'id' => 'service_id', 'class' => 'form-control-sm', 'autocomplete' => 'off']) }}
                          </div>
                      </div>
                  </div>
@@ -75,16 +89,17 @@
     <!-- fullCalendar 2.2.5 -->
 
     <script type="text/javascript">
+        let interval = "<?= $interval ?>";
+        let time_start = "<?= $timeStart ?>";
+        let service_id = "<?= $serviceId ?>";
 
         $(document).ready(function (){
-
-            var getRouteUrl = '{{ route('admin.' . $thisRoute . '.index') }}';
-            var listColor = <?php echo json_encode(get_list_appointment_color()) ?>;
-            console.log(getRouteUrl);
+            let listColor = <?php echo json_encode(get_list_appointment_color()) ?>;
             $('#set_interval').datetimepicker({
                 format: 'mm',
-                stepping: 15
+                stepping: 15,
             });
+
             $('#time_start').datetimepicker({
                 format: 'HH:mm',
                 stepping: 15
@@ -95,18 +110,18 @@
                     'X-CSRF-TOKEN' : $('meta[name="csrf-token"]').attr('content')
                 }
             });
-            var calendar = $('#calendar').fullCalendar({
 
+            var calendar = $('#calendar').fullCalendar({
                 //default : 'agendaWeek',
                 editable: false,
                 defaultView: 'agendaDay',
-                slotDuration: '00:15:00',
-                minTime: '07:00:00', // Start time for the calendar
+                slotDuration: '00:'+interval+':00',
+                minTime: time_start + ':00', // Start time for the calendar
                 maxTime: '18:00:00', // End time for the calendar
                 header: {
                     left: 'prev,next today',
                     center: 'title',
-                    right: 'agendaWeek,agendaDay'
+                    right: 'month,agendaWeek,agendaDay'
                 },
 
                 events:  function(start_time, end_time, timezone, callback){
@@ -114,9 +129,11 @@
                     $.ajax({
                         type: 'GET',
                         url: "{{ route('admin.appointmentLabSchedule') }}",
+                        data: {
+                            service_id : service_id
+                        },
                         success: function (response){
                             var events = [];
-                            console.log(response);
 
                             $.each(response, function (index, item){
                                 var getStatus = parseInt(item.status);
@@ -144,10 +161,23 @@
 
         $('#set_interval').on('focusout', function() {
             let interval = $(this).val();
-            console.log(interval);
+            let time_start = $('#time_start').val();
+            let service_id = $('#service_id').val();
+            window.location.href = "?interval=" + interval + '&time_start=' + time_start + '&service_id=' + service_id;
         });
 
+        $('#time_start').on('focusout', function() {
+            let interval = $('#set_interval').val();
+            let time_start = $(this).val();
+            let service_id = $('#service_id').val();
+            window.location.href = "?interval=" + interval + '&time_start=' + time_start + '&service_id=' + service_id;
+        });
 
-
+        $('#service_id').on('change', function() {
+            let interval = $('#set_interval').val();
+            let time_start = $('#time_start').val();
+            let service_id = $(this).val();
+            window.location.href = "?interval=" + interval + '&time_start=' + time_start + '&service_id=' + service_id;
+        });
     </script>
 @stop

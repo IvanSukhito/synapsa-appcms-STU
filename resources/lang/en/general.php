@@ -472,6 +472,7 @@ return [
     'diagnosis' => 'Diagnosis',
     'jumlah_disarankan' => 'Jumlah Disarankan',
     'jumlah_dicheckout' => 'Jumlah Dicheckout',
+    'product_qty_checkout' => 'Jumlah Product Dicheckout',
     'sebelum_makan' => 'Sebelum Makan',
     'sesudah_makan' => 'Sesudah Makan',
     'type_dose' => 'Type Dosis',
@@ -484,5 +485,6 @@ return [
     'product_category' => 'Category Product',
     'flag_stock' => 'Type Stock',
 
-    'book_time' => 'Waktu Book'
+    'book_time' => 'Waktu Book',
+    'pharmacy' => 'Farmasi',
 ];
