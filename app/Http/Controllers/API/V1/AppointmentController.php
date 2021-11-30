@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\API\V1;
 
+use App\Codes\Logic\DoctorLogic;
 use App\Codes\Logic\generateLogic;
+use App\Codes\Logic\LabLogic;
 use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Logic\UserAppointmentLogic;
 use App\Codes\Logic\UserLogic;
@@ -72,7 +74,6 @@ class AppointmentController extends Controller
         $appointmentLogic = new UserAppointmentLogic();
         $getResult = $appointmentLogic->appointmentInfo($user->id, $id, $type, $user->phone);
         if ($getResult['success'] == 0) {
-
             switch ($type) {
                 case 2 : $message = 'Janji Temu Lab Tidak Ditemukan';
                     break;
@@ -81,7 +82,6 @@ class AppointmentController extends Controller
                 default: $message = 'Janji Temu Dokter Tidak Ditemukan';
                     break;
             }
-
             return response()->json([
                 'success' => 0,
                 'message' => [$message],
@@ -211,47 +211,46 @@ class AppointmentController extends Controller
 
     }
 
-    public function reschedule($id)
+    public function reSchedule($id)
     {
         $user = $this->request->attributes->get('_user');
         $type = intval($this->request->get('type'));
-        $message = strip_tags($this->request->get('message'));
 
         $getDate = strtotime($this->request->get('date')) > 0 ?
             date('Y-m-d', strtotime($this->request->get('date'))) :
             date('Y-m-d', strtotime("+1 day"));
 
-        $dateNow = date('Y-m-d');
-
-        if($getDate <= $dateNow){
+        if ($getDate < date('Y-m-d')) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Pilih Jadwal Harus Lebih Dari Hari Ini'],
+                'message' => ['Waktu sudah lewat'],
                 'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
+            ], 404);
         }
 
-        if ($type == 1) {
-            $getAppointment = AppointmentDoctor::where('user_id', $user->id)->where('id', $id)->first();
-            if (!$getAppointment) {
-                return response()->json([
-                    'success' => 0,
-                    'message' => ['Janji Temu Dokter Tidak Ditemukan'],
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ], 404);
+        $appointmentLogic = new UserAppointmentLogic();
+        $getResult = $appointmentLogic->appointmentInfo($user->id, $user->phone, $id, $type, [2]);
+        if ($getResult['success'] == 0) {
+            switch ($type) {
+                case 2 : $message = 'Janji Temu Lab Tidak Ditemukan';
+                    break;
+                case 3 : $message = 'Janji Temu Nurse Tidak Ditemukan';
+                    break;
+                default: $message = 'Janji Temu Dokter Tidak Ditemukan';
+                    break;
             }
-            else if (!in_array($getAppointment->status, [1,2])) {
-                return response()->json([
-                    'success' => 0,
-                    'message' => ['Janji Temu Dokter tidak bisa di ganti'],
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ], 422);
-            }
+            return response()->json([
+                'success' => 0,
+                'message' => [$message],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
 
-            $serviceId = $getAppointment->service_id;
-            $doctorId = $getAppointment->doctor_id;
-            $getService = Service::where('id', $serviceId)->first();
-            $data = $this->getDoctorInfo($doctorId, $serviceId);
+        $getAppointment = $getResult['data']['data'];
+
+        if ($type == 1) {
+            $doctorLogic = new DoctorLogic();
+            $data = $doctorLogic->doctorInfo($getAppointment->doctor_id, $getAppointment->service_id);
             if (!$data) {
                 return response()->json([
                     'success' => 0,
@@ -260,56 +259,46 @@ class AppointmentController extends Controller
                 ], 404);
             }
 
-            $getSchedule = DoctorSchedule::where('doctor_id', '=', $doctorId)->where('service_id', '=', $serviceId)
-                ->where('date_available', '=', $getDate)
-                ->get();
-
+            $getSchedule = $doctorLogic->scheduleDoctorList($getAppointment->doctor_id, $getAppointment->service_id, $getDate);
             $getList = get_list_type_service();
-
-            $getAppointment->status = 2;
-            $getAppointment->message = $message;
-            $getAppointment->save();
+            $getService = Service::where('id', '=', $getAppointment->service_id)->where('status', '=', 80)->first();
+            if (!$getService) {
+                return response()->json([
+                    'success' => 0,
+                    'message' => ['Service Tidak Ditemukan'],
+                    'token' => $this->request->attributes->get('_refresh_token'),
+                ], 404);
+            }
 
             return response()->json([
                 'success' => 1,
                 'data' => [
                     'schedule_start' => date('Y-m-d', strtotime("now")),
-                    'schedule_end' => date('Y-m-d', strtotime("+366 day")),
+                    'schedule_end' => date('Y-m-d', strtotime("+1 year")),
                     'address' => $getService->type == 2 ? 1 : 0,
                     'address_nice' => $getList[$getService->type] ?? '-',
                     'date' => $getDate,
                     'schedule' => $getSchedule,
-                    'doctor' => $data,
+                    'doctor' => $data
                 ],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ]);
 
         }
         else if ($type == 2) {
-            $getAppointment = AppointmentLab::where('user_id', $user->id)->where('id', $id)->first();
-            if (!$getAppointment) {
+
+            $labLogic = new LabLogic();
+
+            $getLabSchedule = $labLogic->scheduleLabList($user->klinik_id, $getAppointment->service_id, $getDate);
+            $getList = get_list_type_service();
+            $getService = Service::where('id', '=', $getAppointment->service_id)->where('status', '=', 80)->first();
+            if (!$getService) {
                 return response()->json([
                     'success' => 0,
-                    'message' => ['Janji Temu Lab Tidak Ditemukan'],
+                    'message' => ['Service Tidak Ditemukan'],
                     'token' => $this->request->attributes->get('_refresh_token'),
                 ], 404);
             }
-            else if (!in_array($getAppointment->status, [1,2])) {
-                return response()->json([
-                    'success' => 0,
-                    'message' => ['Janji Temu Lab tidak bisa di ganti'],
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ], 422);
-            }
-
-            $serviceId = $getAppointment->service_id;
-            $getService = Service::where('id', $serviceId)->first();
-
-            $getSchedule = LabSchedule::where('service_id', '=', $serviceId)
-                ->where('date_available', '=', $getDate)
-                ->get();
-
-            $getList = get_list_type_service();
 
             return response()->json([
                 'success' => 1,
@@ -319,113 +308,22 @@ class AppointmentController extends Controller
                     'address' => $getService->type == 2 ? 1 : 0,
                     'address_nice' => $getList[$getService->type] ?? '-',
                     'date' => $getDate,
-                    'schedule' => $getSchedule,
+                    'schedule' => $getLabSchedule
                 ],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ]);
+
         }
 
         return response()->json([
             'success' => 0,
-            'message' => ['Type Janji Temu Tidak Ditemukan'],
+            'message' => ['Janji Temu Tidak Ditemukan'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ], 404);
 
     }
 
-    public function download($id, $filename)
-    {
-        $data = AppointmentDoctor::where('id', $id)->first();
-        if ($data && $data->status == 80) {
-            $generateLogic = new generateLogic();
-            $generateLogic->generatePdfDiagnosa($data, $filename);
-            exit;
-        }
-
-        return '';
-
-    }
-
-    public function fillForm($id)
-    {
-        $user = $this->request->attributes->get('_user');
-        $type = intval($this->request->get('type'));
-        if ($type != 1) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Menu Hanya untuk pasien dokter'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
-
-        $validator = Validator::make($this->request->all(), [
-            'body_height' => 'numeric',
-            'body_weight' => 'numeric',
-            'blood_pressure' => '',
-            'body_temperature' => 'numeric',
-            'keluhan' => 'required',
-            'medical_checkup' => ''
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => 0,
-                'message' => $validator->messages()->all(),
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
-
-        $data = AppointmentDoctor::where('user_id', $user->id)->where('id', $id)->first();
-        if (!$data) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-        if (in_array($data->status, [1,2])) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Janji Temu Dokter Belum di setujui'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-
-        $getMedicalCheckup = $this->request->get('medical_checkup');
-        $listMedicalCheckup = [];
-        foreach ($getMedicalCheckup as $listImage) {
-            $image = base64_to_jpeg($listImage);
-            $destinationPath = 'synapsaapps/users/'.$user->id.'/forms';
-            $set_file_name = date('Ymd').'_'.md5('medical_checkup'.strtotime('now').rand(0, 100)).'.jpg';
-            $getFile = Storage::put($destinationPath.'/'.$set_file_name, $image);
-            if ($getFile) {
-                $getImage = env('OSS_URL').'/'.$destinationPath.'/'.$set_file_name;
-                $listMedicalCheckup[] = $getImage;
-            }
-        }
-
-        $saveFormPatient = [
-            'body_height' => strip_tags($this->request->get('body_height')),
-            'body_weight' => strip_tags($this->request->get('body_weight')),
-            'blood_pressure' => strip_tags($this->request->get('blood_pressure')),
-            'body_temperature' => strip_tags($this->request->get('body_temperature')),
-            'medical_checkup' => $listMedicalCheckup,
-            'keluhan' => strip_tags($this->request->get('keluhan'))
-        ];
-
-        $data->form_patient = json_encode($saveFormPatient);
-        $data->status = 3;
-        $data->save();
-
-        return response()->json([
-            'success' => 1,
-            'data' => $data,
-            'token' => $this->request->attributes->get('_refresh_token'),
-        ]);
-
-    }
-
-    public function updateSchedule($id)
+    public function updateReSchedule($id)
     {
         $user = $this->request->attributes->get('_user');
         $type = intval($this->request->get('type'));
@@ -578,6 +476,98 @@ class AppointmentController extends Controller
             'message' => ['Type Janji Temu Tidak Ditemukan'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ], 404);
+
+    }
+
+    public function download($id, $filename)
+    {
+        $data = AppointmentDoctor::where('id', $id)->first();
+        if ($data && $data->status == 80) {
+            $generateLogic = new generateLogic();
+            $generateLogic->generatePdfDiagnosa($data, $filename);
+            exit;
+        }
+
+        return '';
+
+    }
+
+    public function fillForm($id)
+    {
+        $user = $this->request->attributes->get('_user');
+        $type = intval($this->request->get('type'));
+        if ($type != 1) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Menu Hanya untuk pasien dokter'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
+        $validator = Validator::make($this->request->all(), [
+            'body_height' => 'numeric',
+            'body_weight' => 'numeric',
+            'blood_pressure' => '',
+            'body_temperature' => 'numeric',
+            'keluhan' => 'required',
+            'medical_checkup' => ''
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => 0,
+                'message' => $validator->messages()->all(),
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
+        $data = AppointmentDoctor::where('user_id', $user->id)->where('id', $id)->first();
+        if (!$data) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+        if (in_array($data->status, [1,2])) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Janji Temu Dokter Belum di setujui'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+
+        $getMedicalCheckup = $this->request->get('medical_checkup');
+        $listMedicalCheckup = [];
+        foreach ($getMedicalCheckup as $listImage) {
+            $image = base64_to_jpeg($listImage);
+            $destinationPath = 'synapsaapps/users/'.$user->id.'/forms';
+            $set_file_name = date('Ymd').'_'.md5('medical_checkup'.strtotime('now').rand(0, 100)).'.jpg';
+            $getFile = Storage::put($destinationPath.'/'.$set_file_name, $image);
+            if ($getFile) {
+                $getImage = env('OSS_URL').'/'.$destinationPath.'/'.$set_file_name;
+                $listMedicalCheckup[] = $getImage;
+            }
+        }
+
+        $saveFormPatient = [
+            'body_height' => strip_tags($this->request->get('body_height')),
+            'body_weight' => strip_tags($this->request->get('body_weight')),
+            'blood_pressure' => strip_tags($this->request->get('blood_pressure')),
+            'body_temperature' => strip_tags($this->request->get('body_temperature')),
+            'medical_checkup' => $listMedicalCheckup,
+            'keluhan' => strip_tags($this->request->get('keluhan'))
+        ];
+
+        $data->form_patient = json_encode($saveFormPatient);
+        $data->status = 3;
+        $data->save();
+
+        return response()->json([
+            'success' => 1,
+            'data' => $data,
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
 
     }
 
@@ -1268,14 +1258,6 @@ class AppointmentController extends Controller
             ], 422);
         }
 
-    }
-
-    private function getUserAddress($userId)
-    {
-        $user = $this->request->attributes->get('_user');
-
-        $userLogic = new UserLogic();
-        return $userLogic->userAddress($user->id, $user->phone);
     }
 
     private function getDoctorInfo($doctorId, $serviceId)
