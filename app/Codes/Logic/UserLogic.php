@@ -198,6 +198,7 @@ class UserLogic
             'klinik_name' => $getKlinik ? $getKlinik->name : '',
             'klinik_theme' => $getKlinik ? $getKlinik->theme_color : '',
             'klinik_logo' => $getKlinik ? $getKlinik->logo_full : '',
+            'nik' => $getUser->nik,
             'fullname' => $getUser->fullname,
             'address' => $getUser->address,
             'address_detail' => $getUser->address_detail,
