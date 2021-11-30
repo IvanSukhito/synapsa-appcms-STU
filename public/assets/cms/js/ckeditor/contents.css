@@ -24,7 +24,7 @@ body
 }
 
 body[contenteditable="false"] {
-    background-color:#f8f8f8;
+    background-color:#e9ecef;
 }
 
 .cke_editable
