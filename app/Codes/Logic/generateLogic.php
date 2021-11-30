@@ -5,7 +5,6 @@ namespace App\Codes\Logic;
 use App\Codes\Models\V1\AppointmentDoctor;
 use App\Codes\Models\V1\AppointmentDoctorProduct;
 use App\Codes\Models\V1\Klinik;
-use App\Codes\Models\V1\Users;
 use PhpOffice\PhpSpreadsheet\Helper\Html;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -17,7 +16,14 @@ class generateLogic
     {
     }
 
-    public function generatePdfDiagnosa($getData, $filename = 'Download.pdf')
+    /**
+     * @param $getData
+     * @param string $filename
+     * @return bool
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
+     */
+    public function generatePdfDiagnosis($getData, $filename = 'Download.pdf')
     {
         ini_set('memory_limit', -1);
         ini_set('max_execution_time', -1);
@@ -31,13 +37,10 @@ class generateLogic
                             ->first();
 
         $userLogic = new UserLogic();
-
         $getUser = $userLogic->userInfo($getData->user_id);
 
         $tglLahir = date("Y", strtotime($getUser['dob']));
-
         $dateNow = date("Y-m-d");
-
         $usia = date("Y", strtotime($dateNow)) - $tglLahir;
 
         $listSetGender = get_list_gender();

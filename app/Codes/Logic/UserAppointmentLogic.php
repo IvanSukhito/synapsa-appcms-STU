@@ -259,4 +259,25 @@ class UserAppointmentLogic
 
     }
 
+    /**
+     * @param $saveData
+     * @param $userId
+     * @param $appointmentId
+     * @param int $type
+     */
+    public function appointmentFillForm($saveData, $userId, $appointmentId, int $type = 1)
+    {
+        if ($type == 1) {
+            $getAppointment = AppointmentDoctor::where('id', $appointmentId)->where('user_id', $userId)->first();
+            if ($getAppointment) {
+                $getAppointment->form_patient = json_encode($saveData);
+                $getAppointment->save();
+                return 80;
+            }
+        }
+
+        return 90;
+
+    }
+
 }
