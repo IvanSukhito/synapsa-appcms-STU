@@ -1147,7 +1147,7 @@ class DoctorClinicController extends _CrudController
         //E = Time Start
         //F = Time End
 
-        //Start From Row 6
+        //Start From Row 7
 
         $getFile = $this->request->file('import_doctor_schedule');
 
@@ -1224,6 +1224,7 @@ class DoctorClinicController extends _CrudController
                                         'time_start' => \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($getTimeStart)->format('H:i:s'),
                                         'time_end' => \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($getTimeEnd)->format('H:i:s'),
                                         'book' => 80,
+                                        'type' => strlen($getDateAvailable) > 0 ? 2 : 1,
                                     ];
 
                                     $checkSchedule = DoctorSchedule::where('doctor_id', $id);

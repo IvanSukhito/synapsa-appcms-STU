@@ -34,6 +34,7 @@ class DoctorController extends Controller
         $user = $this->request->attributes->get('_user');
 
         $serviceId = intval($this->request->get('service_id'));
+        $subServiceId = intval($this->request->get('sub_service_id'));
         $categoryId = intval($this->request->get('category_id'));
         $s = strip_tags($this->request->get('s'));
         $getLimit = $this->request->get('limit');
@@ -45,7 +46,7 @@ class DoctorController extends Controller
         $getInterestCategory = $categoryId > 0 ? $categoryId : $user->interest_category_id;
 
         $doctorLogic = new DoctorLogic();
-        $getService = $doctorLogic->getListService($getInterestService);
+        $getService = $doctorLogic->getListService($getInterestService, $subServiceId);
         $getCategory = $doctorLogic->getListCategory($getInterestCategory);
 
         $getServiceId = $getService['getServiceId'] ?? 0;

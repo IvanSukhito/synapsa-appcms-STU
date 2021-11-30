@@ -2,6 +2,7 @@
 
 namespace App\Codes\Logic;
 
+use App\Codes\Models\V1\Payment;
 use App\Codes\Models\V1\Transaction;
 use Illuminate\Support\Facades\DB;
 
@@ -32,7 +33,7 @@ class TransactionHistoryLogic
                 $join->on('product.id','=','transaction_details.product_id')
                     ->on('product.id', '=', DB::raw("(select min(id) from product WHERE product.id = transaction_details.product_id)"));
             })
-            ->where('transaction.user_id', $userId)
+            ->where('transaction.user_id', '=', $userId)
             ->whereIn('type_service', [1,5])->orderBy('transaction.id','DESC');
 
         if (strlen($search) > 0) {
@@ -54,14 +55,15 @@ class TransactionHistoryLogic
     /**
      * @param $userId
      * @param $serviceId
+     * @param $subServiceId
      * @param $limit
      * @param $search
      * @return array
      */
-    public function doctorHistory($userId, $serviceId, $limit, $search): array
+    public function doctorHistory($userId, $serviceId, $subServiceId, $limit, $search): array
     {
         $doctorLogic = new DoctorLogic();
-        $getService = $doctorLogic->getListService($serviceId);
+        $getService = $doctorLogic->getListService($serviceId, $subServiceId);
 
         $getData = Transaction::selectRaw('transaction.id, transaction.created_at,
             transaction.category_service_id, transaction.category_service_name,
@@ -72,11 +74,11 @@ class TransactionHistoryLogic
             ->leftJoin('doctor', 'doctor.id','=','transaction_details.doctor_id')
             ->leftJoin('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
             ->leftJoin('users', 'users.id','=','doctor.user_id')
-            ->where('transaction.user_id', $userId)
-            ->where('type_service', 2);
+            ->where('transaction.user_id', '=', $userId)
+            ->where('type_service', '=', 2);
 
         if ($serviceId > 0) {
-            $getData = $getData->where('category_service_id', $serviceId);
+            $getData = $getData->where('category_service_id', '=', $serviceId);
         }
 
         if (strlen($search) > 0) {
@@ -94,6 +96,12 @@ class TransactionHistoryLogic
             'data' => $getData,
             'service' => $getService['data'],
             'sub_service' => $getService['sub_service'],
+            'active' => [
+                'service' => $getService['getServiceId'],
+                'service_name' => $getService['getServiceName'],
+                'sub_service' => $getService['getSubServiceId'],
+                'sub_service_name' => $getService['getSubServiceName'],
+            ],
             'default_image' => asset('assets/cms/images/no-img.png')
         ];
 
@@ -102,14 +110,15 @@ class TransactionHistoryLogic
     /**
      * @param $userId
      * @param $serviceId
+     * @param $subServiceId
      * @param $limit
      * @param $search
      * @return array
      */
-    public function labHistory($userId, $serviceId, $limit, $search): array
+    public function labHistory($userId, $serviceId, $subServiceId, $limit, $search): array
     {
         $labLogic = new LabLogic();
-        $getService = $labLogic->getListService($serviceId);
+        $getService = $labLogic->getListService($serviceId, $subServiceId);
 
         $getData = Transaction::selectRaw('transaction.id, transaction.created_at,
             transaction.category_service_id, transaction.category_service_name,
@@ -123,11 +132,11 @@ class TransactionHistoryLogic
                 $join->on('lab.id','=','transaction_details.lab_id')
                     ->on('lab.id', '=', DB::raw("(select min(id) from lab WHERE lab.id = transaction_details.lab_id)"));
             })
-            ->where('transaction.user_id', $userId)
-            ->where('type_service', 3);
+            ->where('transaction.user_id', '=', $userId)
+            ->where('type_service', '=', 3);
 
         if ($serviceId > 0) {
-            $getData = $getData->where('category_service_id', $serviceId);
+            $getData = $getData->where('category_service_id', '=', $serviceId);
         }
 
         if (strlen($search) > 0) {
@@ -143,6 +152,12 @@ class TransactionHistoryLogic
             'data' => $getData,
             'service' => $getService['data'],
             'sub_service' => $getService['sub_service'],
+            'active' => [
+                'service' => $getService['getServiceId'],
+                'service_name' => $getService['getServiceName'],
+                'sub_service' => $getService['getSubServiceId'],
+                'sub_service_name' => $getService['getSubServiceName'],
+            ],
             'default_image' => asset('assets/cms/images/no-img.png')
         ];
 
@@ -155,16 +170,15 @@ class TransactionHistoryLogic
      */
     public function detailHistory($userId, $transactionId): array
     {
-        $getTransaction = Transaction::where('id', $transactionId)->where('user_id', $userId)->first();
+        $getTransaction = Transaction::where('id', '=', $transactionId)->where('user_id', '=', $userId)->first();
         if ($getTransaction) {
-            $setType = '';
             switch ($getTransaction->type_service) {
                 case 2 : $getDetail = $getTransaction->getTransactionDetails()->selectRaw('transaction_details.id,
                         transaction_details.schedule_id, transaction_details.doctor_id, transaction_details.doctor_name, 
                         transaction_details.doctor_price, transaction_details.extra_info, 
-                        doctor_category.name AS doctor_category_name, users.image, 
-                        doctor_schedule.date_available, doctor_schedule.time_start, doctor_schedule.time_end,
-                        klinik.name as klinik_name,
+                        doctor_category.name AS doctor_category_name,
+                        appointment_doctor.date, appointment_doctor.time_start, appointment_doctor.time_end,
+                        klinik.name as klinik_name, users.image,
                         CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full, 
                         CONCAT("'.env('OSS_URL').'/'.'", payment.icon_img) AS payment_icon')
                     ->join('doctor', 'doctor.id', '=', 'transaction_details.doctor_id', 'LEFT')
@@ -172,7 +186,7 @@ class TransactionHistoryLogic
                     ->join('users', 'users.id', '=', 'doctor.user_id', 'LEFT')
                     ->join('klinik', 'klinik.id', '=', 'users.klinik_id')
                     ->join('transaction','transaction.id','=','transaction_details.transaction_id', 'LEFT')
-                    ->join('doctor_schedule','doctor_schedule.id','=','transaction_details.schedule_id', 'LEFT')
+                    ->join('appointment_doctor','appointment_doctor.transaction_id','=','transaction_details.transaction_id', 'LEFT')
                     ->join('payment', 'payment.id', '=', 'transaction.payment_id')
                     ->first();
                     $setType = 'doctor';
@@ -181,12 +195,12 @@ class TransactionHistoryLogic
                 case 3 : $getDetail = $getTransaction->getTransactionDetails()->selectRaw('transaction_details.id,
                         transaction_details.schedule_id, transaction_details.lab_id, transaction_details.lab_name, 
                         transaction_details.lab_price, transaction_details.extra_info, 
-                        lab.image, lab_schedule.date_available, lab_schedule.time_start, lab_schedule.time_end, 
-                        CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full, 
+                        appointment_lab.date, appointment_lab.time_start, appointment_lab.time_end,
+                        lab.image, CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full, 
                         CONCAT("'.env('OSS_URL').'/'.'", payment.icon_img) AS payment_icon')
                     ->join('lab', 'lab.id', '=', 'transaction_details.lab_id', 'LEFT')
                     ->join('transaction','transaction.id','=','transaction_details.transaction_id', 'LEFT')
-                    ->join('lab_schedule','lab_schedule.id','=','transaction_details.schedule_id', 'LEFT')
+                    ->join('appointment_lab','appointment_lab.transaction_id','=','appointment_lab.transaction_id', 'LEFT')
                     ->join('payment', 'payment.id', '=', 'transaction.payment_id')
                     ->get();
                     $setType = 'lab';
@@ -257,6 +271,56 @@ class TransactionHistoryLogic
 
         return [
             'success' => 0
+        ];
+
+    }
+
+    /**
+     * @param $userId
+     * @param $transactionId
+     * @return array
+     */
+    public function reTriggerPayment($userId, $transactionId): array
+    {
+        $getTransaction = Transaction::where('id', '=', $transactionId)->where('user_id', '=', $userId)->first();
+        if ($getTransaction) {
+            if ($getTransaction->status == 2) {
+                $getPayment = Payment::where('id', $getTransaction->payment_id)->first();
+                if ($getPayment && $getPayment->service == 'xendit' && (substr($getPayment->type_payment, 0, 3) == 'ew_' || $getPayment->type_payment == 'qr_qris')) {
+                    $synapsaLogic = new SynapsaLogic();
+
+                    $getNewCode = str_pad(($getTransaction->id), 6, '0', STR_PAD_LEFT).rand(100000,999999);
+
+                    $getAdditional = json_decode($getTransaction->send_info, true);
+                    $getAdditional['code'] = $getNewCode;
+                    $getAdditional['job']['code'] = $getNewCode;
+
+                    $getPaymentInfo = $synapsaLogic->createPayment($getPayment, $getAdditional, $transactionId);
+                    if ($getPaymentInfo['success'] == 1) {
+                        return [
+                            'success' => 80,
+                            'data' => [
+                                'payment' => 0,
+                                'info' => $getPaymentInfo['info']
+                            ]
+                        ];
+                    }
+                }
+
+                return [
+                    'success' => 92
+                ];
+
+            }
+
+            return [
+                'success' => 91
+            ];
+
+        }
+
+        return [
+            'success' => 90
         ];
 
     }
