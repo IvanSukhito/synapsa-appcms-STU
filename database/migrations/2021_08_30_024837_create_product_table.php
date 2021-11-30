@@ -18,6 +18,7 @@ class CreateProductTable extends Migration
             $table->unsignedBigInteger('parent_id')->default(0);
             $table->unsignedBigInteger('product_category_id')->default(0);
             $table->unsignedBigInteger('klinik_id')->default(0);
+            $table->unsignedBigInteger('type')->default(0);
             $table->string('sku')->nullable();
             $table->string('name')->nullable();
             $table->text('image')->nullable();
@@ -26,7 +27,6 @@ class CreateProductTable extends Migration
             $table->longText('desc')->nullable();
             $table->integer('stock')->default(0);
             $table->tinyInteger('stock_flag')->default(0);
-            $table->tinyInteger('type')->default(0);
             $table->tinyInteger('status')->default(1);
             $table->tinyInteger('top')->default(0);
             $table->timestamps();
