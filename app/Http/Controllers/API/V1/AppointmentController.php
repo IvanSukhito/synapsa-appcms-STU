@@ -347,7 +347,15 @@ class AppointmentController extends Controller
         $appointmentLogic = new UserAppointmentLogic();
         $getResult = $appointmentLogic->reScheduleAppointment($id, $user->id, $type, $scheduleId, $date);
         if ($getResult != 80) {
-            $message = '';
+            if ($getResult == 91) {
+                $message = 'Schedule tidak ditemukan';
+            }
+            else if ($getResult == 92) {
+                $message = 'Hari dipilih tidak sama';
+            }
+            else {
+                $message = 'Janji Temu tidak ditemukan';
+            }
             return response()->json([
                 'success' => 0,
                 'message' => [$message],
