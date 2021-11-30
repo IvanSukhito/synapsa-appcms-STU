@@ -42,7 +42,7 @@ class PaymentReturnController extends Controller
     {
         Log::info("GET");
         Log::info(json_encode($this->request->all()));
-        return 1;
+        return 'must go to apps';
     }
 
     public function postTransactionResult()
