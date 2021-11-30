@@ -338,7 +338,7 @@ class AppointmentController extends Controller
             return response()->json([
                 'success' => 1,
                 'data' => [
-                    'schedule_start' => date('Y-m-d', strtotime("+1 day")),
+                    'schedule_start' => date('Y-m-d', strtotime("now")),
                     'schedule_end' => date('Y-m-d', strtotime("+366 day")),
                     'address' => $getService->type == 2 ? 1 : 0,
                     'address_nice' => $getList[$getService->type] ?? '-',
@@ -379,7 +379,7 @@ class AppointmentController extends Controller
             return response()->json([
                 'success' => 1,
                 'data' => [
-                    'schedule_start' => date('Y-m-d', strtotime("+1 day")),
+                    'schedule_start' => date('Y-m-d', strtotime("now")),
                     'schedule_end' => date('Y-m-d', strtotime("+366 day")),
                     'address' => $getService->type == 2 ? 1 : 0,
                     'address_nice' => $getList[$getService->type] ?? '-',

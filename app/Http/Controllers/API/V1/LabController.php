@@ -230,6 +230,14 @@ class LabController extends Controller
         $labLogic = new LabLogic();
 
         $getCart = $userLogic->userCartLab($user->id, 1);
+        if (count($getCart['cart']) <= 0) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Tidak ada Test Lab yang di pilih'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
         $serviceId = $getCart['service_id'];
         $getLabSchedule = $labLogic->scheduleLabList($user->klinik_id, $serviceId, $getDate);
         $getService = Service::where('id', '=', $serviceId)->first();
@@ -238,10 +246,10 @@ class LabController extends Controller
         return response()->json([
             'success' => 1,
             'data' => [
-                'schedule_start' => date('Y-m-d', strtotime("+1 day")),
+                'schedule_start' => date('Y-m-d', strtotime("now")),
                 'schedule_end' => date('Y-m-d', strtotime("+366 day")),
-                'address' => $getService->type == 2 ? 1 : 0,
-                'address_nice' => $getList[$getService->type] ?? '-',
+                'address' => $getService && $getService->type == 2 ? 1 : 0,
+                'address_nice' => $getService && $getList[$getService->type] ?? '-',
                 'date' => $getDate,
                 'schedule' => $getLabSchedule,
                 'service_id' => $serviceId,
