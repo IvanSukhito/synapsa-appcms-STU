@@ -46,12 +46,14 @@ class AccessAdminController extends Controller
             $getClinic = 0;
             $getClinicName = '';
             $getClinicThemesColor = '';
+            $getClinicLogo = '';
             if ($getRoleClinic == 1) {
                 $getClinicData = $user->getKlinik()->first();
                 if ($getClinicData) {
                     $getClinic = $getClinicData->id;
                     $getClinicName = $getClinicData->name;
                     $getClinicThemesColor = $getClinicData->theme_color;
+                    $getClinicLogo = $getClinicData->logo;
                 }
             }
 
@@ -63,6 +65,7 @@ class AccessAdminController extends Controller
             session()->put('admin_clinic_name', $getClinicName);
             session()->put('admin_role_clinic', $getRoleClinic);
             session()->put('admin_clinic_themes_color', $getClinicThemesColor);
+            session()->put('admin_clinic_logo', $getClinicLogo);
             session()->put('admin_super_admin', $getRoleSuperAdmin);
             try {
                 session_start();

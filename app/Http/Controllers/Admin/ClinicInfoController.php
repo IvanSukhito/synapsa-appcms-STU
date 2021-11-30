@@ -213,6 +213,7 @@ class ClinicInfoController extends _CrudController
         }
 
         session()->put('admin_clinic_themes_color', $data['theme_color']);
+        session()->put('admin_clinic_logo', $dokumentImage);
 
         $getData = $this->crud->update($data, $id);
 

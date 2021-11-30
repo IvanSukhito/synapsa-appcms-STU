@@ -1,5 +1,6 @@
 <?php
     $clinicThemesColor = session()->get('admin_clinic_themes_color');
+    $clinicLogo = session()->get('admin_clinic_logo');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -43,8 +44,20 @@
     </nav>
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
         <a href="{{ route('admin') }}" class="brand-link logo-switch">
-            <span class="brand-image-xl logo-xs">{{ substr(env('WEBSITE_NAME'), 0, 2) }}</span>
-            <span class="brand-image-xs logo-xl">{{ env('WEBSITE_NAME') }}</span>
+            <span class="brand-image-xl logo-xs">
+                @if(strlen($clinicLogo) > 0)
+                    <img src="{{ env('OSS_URL').'/'.$clinicLogo }}" class="img-responsive" style="max-height: 40px;" alt="logo"/>
+                @else
+                    {{ substr(env('WEBSITE_NAME'), 0, 2) }}
+                @endif
+            </span>
+            <span class="brand-image-xs logo-xl">
+                @if(strlen($clinicLogo) > 0)
+                    <img src="{{ env('OSS_URL').'/'.$clinicLogo }}" class="img-responsive" style="max-height: 40px;" alt="logo"/>
+                @else
+                    {{ env('WEBSITE_NAME') }}
+                @endif
+            </span>
         </a>
         <div class="sidebar">
             <nav class="mt-2">
