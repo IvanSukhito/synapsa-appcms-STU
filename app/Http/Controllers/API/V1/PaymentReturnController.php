@@ -2,32 +2,15 @@
 
 namespace App\Http\Controllers\API\V1;
 
-use App\Codes\Logic\AccessLogin;
 use App\Codes\Logic\DoctorLogic;
 use App\Codes\Logic\LabLogic;
 use App\Codes\Logic\SynapsaLogic;
-use App\Codes\Models\Settings;
-use App\Codes\Models\V1\City;
-use App\Codes\Models\V1\DeviceToken;
-use App\Codes\Models\V1\District;
-use App\Codes\Models\V1\Klinik;
-use App\Codes\Models\V1\SubDistrict;
 use App\Codes\Models\V1\Transaction;
 use App\Codes\Models\V1\TransactionDetails;
 use App\Codes\Models\V1\Users;
-use App\Codes\Models\V1\UsersAddress;
-use App\Codes\Models\V1\ForgetPassword;
 use App\Http\Controllers\Controller;
-use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
-use Intervention\Image\Facades\Image;
-use Tymon\JWTAuth\Exceptions\JWTException;
-use Tymon\JWTAuth\Facades\JWTAuth;
 
 class PaymentReturnController extends Controller
 {
@@ -42,6 +25,7 @@ class PaymentReturnController extends Controller
     {
         Log::info("GET");
         Log::info(json_encode($this->request->all()));
+        return 'must go to apps';
     }
 
     public function postTransactionResult()

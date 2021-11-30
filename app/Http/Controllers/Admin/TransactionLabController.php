@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
+use App\Codes\Logic\LabLogic;
 use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Admin;
 use App\Codes\Models\V1\AppointmentLab;
@@ -345,18 +346,22 @@ class TransactionLabController extends _CrudController
         $getTransaction = $getData;
 
         if ($getType == 3) {
-            $getTransaction->status = 80;
+            $getTransaction->status = 81;
             $getTransaction->save();
 
             $transactionId = $id;
-            $scheduleId = 0;
-            $getDetails = TransactionDetails::where('transaction_id', $transactionId)->get();
-            foreach ($getDetails as $getDetail) {
+            $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
+            if ($getDetail) {
+                $extraInfo = json_decode($getDetail->extra_info, true);
                 $scheduleId = $getDetail->schedule_id;
-            }
-            if ($getDetails) {
-                $logic = new SynapsaLogic();
-                $logic->setupAppointmentLab($getTransaction, $getDetails, $scheduleId);
+                $getDate = $extraInfo['date'] ?? '';
+                $getServiceName = $extraInfo['service_name'] ?? '';
+
+                $getUser = Users::where('id', $getTransaction->user_id)->first();
+
+                $labLogic = new LabLogic();
+                $labLogic->appointmentCreate($scheduleId, $getDate, $getUser,
+                    $getServiceName, $getTransaction, $getTransaction->code, $extraInfo);
             }
         }
 
