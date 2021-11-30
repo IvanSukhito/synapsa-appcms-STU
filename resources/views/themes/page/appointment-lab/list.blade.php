@@ -3,6 +3,7 @@
 //$payment_id = app()->request->get('filter_payment_id');
 //$shipping_id = app()->request->get('filter_shipping_id');
 $status = app()->request->get('status');
+$klinik_id = app()->request->get('klinik_id');
 $daterange = app()->request->get('daterange');
 
 $params = [];
@@ -20,6 +21,9 @@ if ($status) {
 }
 if ($daterange) {
     $params['daterange'] = $daterange;
+}
+if ($klinik_id) {
+    $params['klinik_id'] = $klinik_id;
 }
 ?>
 
@@ -72,7 +76,7 @@ if ($daterange) {
 
                                 <div class="col-md-3">
                                     <label for="klinik_id">{{ __('general.klinik') }}</label>
-                                    {{ Form::select('klinik_id', $listSet['klinik_id'], old('klinik_id', $status), ['id' => 'klinik_id', 'class' => 'form-control', 'autocomplete' => 'off']) }}
+                                    {{ Form::select('klinik_id', $listSet['klinik_id'], old('klinik_id', $klinik_id), ['id' => 'klinik_id', 'class' => 'form-control', 'autocomplete' => 'off']) }}
                                 </div>
 
                                 <div class="col-md-3">
