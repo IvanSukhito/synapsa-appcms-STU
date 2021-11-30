@@ -33,6 +33,12 @@ class DoctorController extends _CrudController
                 'edit' => 0,
                 'show' => 0
             ],
+            'klinik_id' => [
+                'create' => 0,
+                'edit' => 0,
+                'lang' => 'general.klinik',
+                'type' => 'select2',
+            ],
             'user_id' => [
                 'create' => 0,
                 'edit' => 0,
@@ -234,7 +240,8 @@ class DoctorController extends _CrudController
         $getAdmin = Admin::where('id', $adminId)->first();
         $dataTables = new DataTables();
 
-        $builder = $this->model::query()->selectRaw('doctor.id as id, users.fullname as user_id, doctor_category.name as doctor_category_id')
+        $builder = $this->model::query()->selectRaw('doctor.id as id, users.fullname as user_id, doctor_category.name
+         as doctor_category_id, users.klinik_id')
             ->join('users','users.id', '=', 'doctor.user_id')
             ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
             ->where('users.doctor',1);
