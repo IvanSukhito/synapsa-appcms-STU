@@ -98,7 +98,7 @@ class AppointmentLabScheduleController extends _CrudController
         }
 
 
-        $service_id = [];
+        $service_id = [0 => 'All'];
         foreach($service as $key => $val) {
             $service_id[$key] = $val;
         };

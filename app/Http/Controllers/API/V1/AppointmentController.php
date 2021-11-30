@@ -95,120 +95,6 @@ class AppointmentController extends Controller
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
 
-//        if($type == 1)
-//        {
-//            $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full, transaction_details.extra_info as extra_info')
-//                ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
-//                ->join('users', 'users.id', '=', 'doctor.user_id')
-//                ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
-//                ->join('transaction_details','transaction_details.transaction_id','=','appointment_doctor.transaction_id', 'LEFT')
-//                ->where('appointment_doctor.user_id', $user->id)
-//                ->where('appointment_doctor.id', $id)
-//                ->first();
-//
-//            if (!$data) {
-//                return response()->json([
-//                    'success' => 0,
-//                    'message' => ['Janji Temu Dokter Tidak Ditemukan'],
-//                    'token' => $this->request->attributes->get('_refresh_token'),
-//                ], 404);
-//            }
-//
-//            $formPatient = json_decode($data->form_patient, true);
-//            $doctorPrescription = json_decode($data->doctor_prescription, true);
-//
-//            $getDetails = Product::selectRaw('appointment_doctor_product.id, product.id as product_id, product.name, product.image,
-//            product.price, product.unit, appointment_doctor_product.product_qty, appointment_doctor_product.choose, appointment_doctor_product.dose, appointment_doctor_product.type_dose, appointment_doctor_product.period, appointment_doctor_product.note')
-//                ->join('appointment_doctor_product', 'appointment_doctor_product.product_id', '=', 'product.id')
-//                ->where('appointment_doctor_product.appointment_doctor_id', '=', $id)->get();
-//
-//            return response()->json([
-//                'success' => 1,
-//                'data' => [
-//                    'data' => $data,
-//                    'product' => $getDetails,
-//                    'form_patient' => $formPatient,
-//                    'doctor_prescription' => $doctorPrescription,
-//                    'address' => $this->getUserAddress($user->id),
-//                    'phone'  => $this->getUserAddress($user->id)['phone']
-//                ],
-//                'token' => $this->request->attributes->get('_refresh_token'),
-//            ]);
-//
-//        }
-//        elseif($type == 2)
-//        {
-//            $data = AppointmentLab::selectRaw('appointment_lab.*, lab.name as lab_name')
-//                    ->join('appointment_lab_details', function($join){
-//                        $join->on('appointment_lab_details.appointment_lab_id','=','appointment_lab.id')
-//                            ->on('appointment_lab_details.id', '=', DB::raw("(select min(id) from appointment_lab_details WHERE appointment_lab_details.appointment_lab_id = appointment_lab.id)"));
-//                    })
-//                    ->join('lab', function($join){
-//                        $join->on('lab.id','=','appointment_lab_details.lab_id')
-//                            ->on('lab.id', '=', DB::raw("(select min(id) from lab WHERE lab.id = appointment_lab_details.lab_id)"));
-//                    })
-//                    ->where('user_id',$user->id)
-//                    ->where('appointment_lab.id', $id)
-//                    ->first();
-//
-//            if(!$data){
-//                return response()->json([
-//                    'success' => 0,
-//                    'message' => ['Janji Temu Lab Tidak Ditemukan'],
-//                    'token' => $this->request->attributes->get('_refresh_token'),
-//                ], 404);
-//            }
-//
-//            if (strlen($data->form_patient) > 0) {
-//                $data->form_patient = env('OSS_URL').'/'.$data->form_patient;
-//            }
-//
-//            $getDetails = $data->getAppointmentLabDetails()->selectRaw('appointment_lab_details.*,
-//                    lab.image, CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full')
-//                    ->join('lab','lab.id','=','appointment_lab_details.lab_id')
-//                    ->get();
-//
-//            return response()->json([
-//                'success' => 1,
-//                'data' => [
-//                    'data' => $data,
-//                    'lab_product' => $getDetails,
-//                    'address' => $this->getUserAddress($user->id),
-//                    'phone'  => $this->getUserAddress($user->id)['phone'],
-//                 ],
-//                'token' => $this->request->attributes->get('_refresh_token'),
-//            ]);
-//        }
-//        elseif($type == 3)
-//        {
-//            $data = AppointmentNurse::selectRaw('appointment_nurse.*')
-//                ->where('user_id',$user->id)
-//                ->where('appointment_nurse.id', $id)
-//                ->first();
-//
-//            if(!$data){
-//                return response()->json([
-//                    'success' => 0,
-//                    'message' => ['Janji Temu Perawat Tidak Ditemukan'],
-//                    'token' => $this->request->attributes->get('_refresh_token'),
-//                ], 404);
-//            }
-//            return response()->json([
-//                'success' => 1,
-//                'data' => [
-//                    'data' => $data,
-//                    'address' => $this->getUserAddress($user->id),
-//                    'phone'  => $this->getUserAddress($user->id)['phone'],
-//                ],
-//                'token' => $this->request->attributes->get('_refresh_token'),
-//            ]);
-//        }
-//        return response()->json([
-//            'success' => 0,
-//            'message' => ['Type Janji Temu Tidak Ditemukan'],
-//            'token' => $this->request->attributes->get('_refresh_token'),
-//        ], 404);
-
     }
 
     public function reSchedule($id)
@@ -326,10 +212,11 @@ class AppointmentController extends Controller
     public function updateReSchedule($id)
     {
         $user = $this->request->attributes->get('_user');
-        $type = intval($this->request->get('type'));
 
         $validator = Validator::make($this->request->all(), [
             'schedule_id' => 'numeric|required',
+            'type' => 'numeric|required',
+            'date' => 'required'
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -339,143 +226,34 @@ class AppointmentController extends Controller
             ], 422);
         }
 
-        if ($type == 1) {
-            $getAppointment = AppointmentDoctor::where('user_id', $user->id)->where('id', $id)->first();
-            if (!$getAppointment) {
-                return response()->json([
-                    'success' => 0,
-                    'message' => ['Janji Temu Dokter Tidak Ditemukan'],
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ], 404);
+        $type = intval($this->request->get('type'));
+        $scheduleId = intval($this->request->get('schedule_id'));
+        $date = strtotime($this->request->get('date'));
+
+        $appointmentLogic = new UserAppointmentLogic();
+        $getResult = $appointmentLogic->reScheduleAppointment($id, $user->id, $type, $scheduleId, $date);
+        if ($getResult != 80) {
+            if ($getResult == 91) {
+                $message = 'Schedule tidak ditemukan';
             }
-            else if (!in_array($getAppointment->status, [1,2])) {
-                return response()->json([
-                    'success' => 0,
-                    'message' => ['Janji Temu Dokter tidak bisa di ganti'],
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ], 422);
+            else if ($getResult == 92) {
+                $message = 'Hari dipilih tidak sama';
             }
-
-            $serviceId = $getAppointment->service_id;
-            $doctorId = $getAppointment->doctor_id;
-
-            $scheduleId = $this->request->get('schedule_id');
-
-            $validateDate =  strtotime(date('Y-m-d', strtotime("+7 day")));
-
-            //code
-            $getTotal = AppointmentDoctor::where('klinik_id', $getAppointment->klinik_id)
-                ->where('doctor_id', $getAppointment->doctor_id)
-                ->where('service_id', 1)
-                ->whereYear('created_at', '=', date('Y'))
-                ->whereMonth('created_at', '=', date('m'))
-                ->whereDate('created_at', '=', date('d'))
-                ->count();
-
-            $getTotalCode = str_pad(($getTotal + 1), 2, '0', STR_PAD_LEFT);
-
-            $newCode =  date('d').$getAppointment->doctor_id.$getTotalCode;
-//
-            $getSchedule = DoctorSchedule::where('id', $scheduleId)
-                ->where('doctor_id', $doctorId)
-                ->where('service_id', $serviceId)->where('book', 80)
-                ->where('date_available', '>=', date('Y-m-d'))
-                ->first();
-            if (!$getSchedule) {
-                return response()->json([
-                    'success' => 0,
-                    'message' => ['Jadwal Tidak Ditemukan'],
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ], 422);
+            else {
+                $message = 'Janji Temu tidak ditemukan';
             }
-//            //Bikin Validasi Schedule Tidak Lewat 7 Hari
-//            else if (strtotime($getSchedule->date_available) > $validateDate){
-//                return response()->json([
-//                    'success' => 0,
-//                    'message' => ['Jadwal Lewat 7 Hari Dari Hari Ini'],
-//                    'token' => $this->request->attributes->get('_refresh_token'),
-//                ], 422);
-//            }
-
-            DB::beginTransaction();
-
-            $oldSchedule = $getAppointment->schedule_id;
-            DoctorSchedule::where('id', $oldSchedule)->update([
-                'book' => 80
-            ]);
-
-            $getSchedule->book = 99;
-            $getSchedule->save();
-
-            $getAppointment->schedule_id = $getSchedule->id;
-            $getAppointment->code = $newCode;
-            $getAppointment->date = $getSchedule->date_available;
-            $getAppointment->time_start = $getSchedule->time_start;
-            $getAppointment->time_end = $getSchedule->time_end;
-            $getAppointment->status = 1;
-            $getAppointment->save();
-
-            DB::commit();
-
             return response()->json([
-                'success' => 1,
+                'success' => 0,
+                'message' => [$message],
                 'token' => $this->request->attributes->get('_refresh_token'),
-                'message' => ['Berhasil menganti schedule'],
-            ]);
-        }
-        else if ($type == 2) {
-            $getAppointment = AppointmentLab::where('user_id', $user->id)->where('id', $id)->first();
-            if (!$getAppointment) {
-                return response()->json([
-                    'success' => 0,
-                    'message' => ['Janji Temu Lab Tidak Ditemukan'],
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ], 404);
-            }
-            else if ($getAppointment->status != 1) {
-                return response()->json([
-                    'success' => 0,
-                    'message' => ['Janji Temu Lab tidak bisa di ganti'],
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ], 422);
-            }
-
-            $serviceId = $getAppointment->service_id;
-
-            $scheduleId = $this->request->get('schedule_id');
-            $getSchedule = LabSchedule::where('id', $scheduleId)
-                ->where('service_id', $serviceId)->where('book', 80)
-                ->where('date_available', '>=', date('Y-m-d'))->first();
-            if (!$getSchedule) {
-                return response()->json([
-                    'success' => 0,
-                    'message' => ['Jadwal Tidak Ditemukan'],
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ], 422);
-            }
-
-            DB::beginTransaction();
-
-            $getAppointment->schedule_id = $getSchedule->id;
-            $getAppointment->date = $getSchedule->date_available;
-            $getAppointment->time_start = $getSchedule->time_start;
-            $getAppointment->time_end = $getSchedule->time_end;
-            $getAppointment->save();
-
-            DB::commit();
-
-            return response()->json([
-                'success' => 1,
-                'token' => $this->request->attributes->get('_refresh_token'),
-                'message' => ['Berhasil menganti schedule'],
-            ]);
+            ], 422);
         }
 
         return response()->json([
-            'success' => 0,
-            'message' => ['Type Janji Temu Tidak Ditemukan'],
+            'success' => 1,
             'token' => $this->request->attributes->get('_refresh_token'),
-        ], 404);
+            'message' => ['Berhasil menganti schedule'],
+        ]);
 
     }
 
@@ -837,6 +615,7 @@ class AppointmentController extends Controller
         }
 
     }
+
     public function receiver($id)
     {
         $user = $this->request->attributes->get('_user');
@@ -1114,7 +893,6 @@ class AppointmentController extends Controller
 
     }
 
-
     public function checkout($id)
     {
         $user = $this->request->attributes->get('_user');
@@ -1259,18 +1037,5 @@ class AppointmentController extends Controller
         }
 
     }
-
-    private function getDoctorInfo($doctorId, $serviceId)
-    {
-        return Users::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
-            phone, gender, doctor_service.price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
-            ->join('doctor', 'doctor.user_id', '=', 'users.id')
-            ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
-            ->join('doctor_service', 'doctor_service.doctor_id','=','doctor.id')
-            ->where('doctor_service.service_id', '=', $serviceId)
-            ->where('doctor.id', '=', $doctorId)
-            ->where('users.doctor','=', 1)->first();
-    }
-
 
 }

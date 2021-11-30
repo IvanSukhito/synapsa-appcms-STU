@@ -60,6 +60,10 @@ class KlinikController extends _CrudController
                 'type' => 'image',
                 'list' => 0,
             ],
+            'theme_color' => [
+                'list' => 0,
+                'type' => 'colorpicker'
+            ],
             'status' => [
                 'validate' => [
                     'create' => 'required',
@@ -194,7 +198,6 @@ class KlinikController extends _CrudController
             return redirect()->route($this->rootRoute.'.' . $this->route . '.show', $id);
         }
     }
-
 
     public function update($id)
     {
