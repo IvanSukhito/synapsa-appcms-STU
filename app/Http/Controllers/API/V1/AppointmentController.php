@@ -72,7 +72,7 @@ class AppointmentController extends Controller
         $type = intval($this->request->get('type'));
 
         $appointmentLogic = new UserAppointmentLogic();
-        $getResult = $appointmentLogic->appointmentInfo($user->id, $id, $type, $user->phone);
+        $getResult = $appointmentLogic->appointmentInfo($user->id, $user->phone, $id, $type);
         if ($getResult['success'] == 0) {
             switch ($type) {
                 case 2 : $message = 'Janji Temu Lab Tidak Ditemukan';
@@ -228,7 +228,7 @@ class AppointmentController extends Controller
 
         $type = intval($this->request->get('type'));
         $scheduleId = intval($this->request->get('schedule_id'));
-        $date = strtotime($this->request->get('date'));
+        $date = date('Y-m-d', strtotime($this->request->get('date')));
 
         $appointmentLogic = new UserAppointmentLogic();
         $getResult = $appointmentLogic->reScheduleAppointment($id, $user->id, $type, $scheduleId, $date);
