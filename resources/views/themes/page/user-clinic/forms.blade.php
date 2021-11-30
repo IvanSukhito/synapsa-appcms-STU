@@ -91,7 +91,7 @@ else {
                                             </li>
                                         </ul>
 
-                                            <a href="#" class="btn btn-outline-primary btn-block"><b>{{ $getListStatus[$data->status] }}</b></a>
+                                            <div class="text-center badge-primary"><b>{{ $getListStatus[$data->status] }}</b></div>
 
                                     </div>
                                     <!-- /.card-body -->
