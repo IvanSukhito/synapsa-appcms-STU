@@ -27,7 +27,7 @@ class SlidersController extends Controller
         $user = $this->request->attributes->get('_user');
 
         $limit = 10;
-        $data = Sliders::where('status',1)->whereIn('klinik_id', [0, $user->klinik_id])->orderBy('id','DESC')->paginate($limit);
+        $data = Sliders::where('status',80)->whereIn('klinik_id', [0, $user->klinik_id])->orderBy('id','DESC')->paginate($limit);
 
         return response()->json([
             'success' => 1,
