@@ -265,8 +265,9 @@ class UserAppointmentLogic
      * @param $userId
      * @param $appointmentId
      * @param int $type
+     * @return int
      */
-    public function appointmentFillForm($saveData, $userId, $appointmentId, int $type = 1)
+    public function appointmentFillForm($saveData, $userId, $appointmentId, int $type = 1): int
     {
         if ($type == 1) {
             $getAppointment = AppointmentDoctor::where('id', $appointmentId)->where('user_id', $userId)->first();
