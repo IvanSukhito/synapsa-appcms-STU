@@ -163,6 +163,7 @@ class TransactionHistoryLogic
                         transaction_details.schedule_id, transaction_details.doctor_id, transaction_details.doctor_name, 
                         transaction_details.doctor_price, transaction_details.extra_info, 
                         doctor_category.name AS doctor_category_name, users.image, 
+                        doctor_schedule.date_available, doctor_schedule.time_start, doctor_schedule.time_end,
                         klinik.name as klinik_name,
                         CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full, 
                         CONCAT("'.env('OSS_URL').'/'.'", payment.icon_img) AS payment_icon')
@@ -171,6 +172,7 @@ class TransactionHistoryLogic
                     ->join('users', 'users.id', '=', 'doctor.user_id', 'LEFT')
                     ->join('klinik', 'klinik.id', '=', 'users.klinik_id')
                     ->join('transaction','transaction.id','=','transaction_details.transaction_id', 'LEFT')
+                    ->join('doctor_schedule','doctor_schedule.id','=','transaction_details.schedule_id', 'LEFT')
                     ->join('payment', 'payment.id', '=', 'transaction.payment_id')
                     ->first();
                     $setType = 'doctor';
@@ -179,10 +181,12 @@ class TransactionHistoryLogic
                 case 3 : $getDetail = $getTransaction->getTransactionDetails()->selectRaw('transaction_details.id,
                         transaction_details.schedule_id, transaction_details.lab_id, transaction_details.lab_name, 
                         transaction_details.lab_price, transaction_details.extra_info, 
-                        lab.image, date_available, time_start, time_end, CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full, 
+                        lab.image, lab_schedule.date_available, lab_schedule.time_start, lab_schedule.time_end, 
+                        CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full, 
                         CONCAT("'.env('OSS_URL').'/'.'", payment.icon_img) AS payment_icon')
                     ->join('lab', 'lab.id', '=', 'transaction_details.lab_id', 'LEFT')
                     ->join('transaction','transaction.id','=','transaction_details.transaction_id', 'LEFT')
+                    ->join('lab_schedule','lab_schedule.id','=','transaction_details.schedule_id', 'LEFT')
                     ->join('payment', 'payment.id', '=', 'transaction.payment_id')
                     ->get();
                     $setType = 'lab';
@@ -191,7 +195,8 @@ class TransactionHistoryLogic
                 default: $getDetail = $getTransaction->getTransactionDetails()->selectRaw('transaction_details.id,
                         transaction_details.product_id, transaction_details.product_name, transaction_details.product_qty,
                         transaction_details.product_price,
-                        product.image, CONCAT("'.env('OSS_URL').'/'.'", product.image) AS image_full, CONCAT("'.env('OSS_URL').'/'.'", payment.icon_img) AS payment_icon')
+                        product.image, CONCAT("'.env('OSS_URL').'/'.'", product.image) AS image_full, 
+                        CONCAT("'.env('OSS_URL').'/'.'", payment.icon_img) AS payment_icon')
                     ->join('product', 'product.id', '=', 'transaction_details.product_id', 'LEFT')
                     ->join('transaction','transaction.id','=','transaction_details.transaction_id', 'LEFT')
                     ->join('payment', 'payment.id', '=', 'transaction.payment_id')
