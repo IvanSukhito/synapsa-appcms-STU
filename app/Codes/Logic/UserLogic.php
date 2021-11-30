@@ -43,7 +43,7 @@ class UserLogic
             'phone' => $saveData['phone'] ?? '',
             'email' => $saveData['email'] ?? '',
             'password' => bcrypt($saveData['password']),
-            'status' => intval($saveData['status']) ?? 80,
+            'status' => isset($saveData['status']) ? intval($saveData['status']) : 80,
             'patient' => 1,
             'upload_ktp' => $saveData['upload_ktp'],
             'image' => $saveData['image'],

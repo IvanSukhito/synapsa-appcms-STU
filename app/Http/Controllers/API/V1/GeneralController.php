@@ -144,7 +144,8 @@ class GeneralController extends Controller
                 'email' => $this->request->get('email'),
                 'password' => $this->request->get('password'),
                 'upload_ktp' => $getUploadKtp,
-                'image' => $getUploadImage
+                'image' => $getUploadImage,
+                'status' => 80
             ]);
 
             return response()->json([
