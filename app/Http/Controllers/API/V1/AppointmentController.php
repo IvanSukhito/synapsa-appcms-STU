@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\V1;
 use App\Codes\Logic\generateLogic;
 use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Logic\UserAppointmentLogic;
+use App\Codes\Logic\UserLogic;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\AppointmentDoctor;
 use App\Codes\Models\V1\AppointmentDoctorProduct;
@@ -841,14 +842,11 @@ class AppointmentController extends Controller
             ], 404);
         }
 
-        $getPhone = $user->phone ?? '';
-        $logic = new SynapsaLogic();
-        $getUserAddress = $logic->getUserAddress($user->id, $getPhone);
-        $getUserAddress['receiver'] = $getUserAddress['address_name'] ?? '';
+        $userLogic = new UserLogic();
 
         return response()->json([
             'success' => 1,
-            'data' => $getUserAddress
+            'data' => $userLogic->userAddress($user->id, $user->phone)
         ]);
     }
 
@@ -916,12 +914,11 @@ class AppointmentController extends Controller
             ], 404);
         }
 
-        $logic = new SynapsaLogic();
-        $getUserAddress = $logic->getUserAddress($user->id, $user->phone);
+        $userLogic = new UserLogic();
 
         return response()->json([
             'success' => 1,
-            'data' => $getUserAddress
+            'data' => $userLogic->userAddress($user->id, $user->phone)
         ]);
     }
 
@@ -1251,13 +1248,8 @@ class AppointmentController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $getPhone = $user->phone ?? '';
-
-        $logic = new SynapsaLogic();
-        $getUserAddress = $logic->getUserAddress($user->id, $getPhone);
-
-        return $getUserAddress;
-
+        $userLogic = new UserLogic();
+        return $userLogic->userAddress($user->id, $user->phone);
     }
 
     private function getDoctorInfo($doctorId, $serviceId)

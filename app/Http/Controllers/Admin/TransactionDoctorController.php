@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
+use App\Codes\Logic\DoctorLogic;
 use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Admin;
 use App\Codes\Models\V1\AppointmentLab;
@@ -372,8 +373,8 @@ class TransactionDoctorController extends _CrudController
             $transactionId = $getTransaction->id;
             $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
             if ($getDetail) {
-                $logic = new SynapsaLogic();
-                $logic->setupAppointmentDoctor($getTransaction, $getDetail, $getDetail->schedule_id);
+                $doctorLogic = new DoctorLogic();
+                $doctorLogic->appointmentSuccess($transactionId);
             }
         }
 

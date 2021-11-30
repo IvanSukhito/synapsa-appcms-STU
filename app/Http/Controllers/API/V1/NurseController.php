@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\V1;
 
 use App\Codes\Logic\SynapsaLogic;
+use App\Codes\Logic\UserLogic;
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\AppointmentDoctor;
 use App\Codes\Models\V1\BookNurse;
@@ -306,10 +307,8 @@ class NurseController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $logic = new SynapsaLogic();
-        $getUsersAddress = $logic->getUserAddress($user->id, $user->phone);
-
-        return $getUsersAddress;
+        $userLogic = new UserLogic();
+        return $userLogic->userAddress($user->id, $user->phone);
 
     }
 

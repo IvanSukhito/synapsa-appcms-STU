@@ -329,6 +329,25 @@ if ( ! function_exists('listAllMenu')) {
                 'type' => 1,
             ],
             [
+                'name' => __('general.product'),
+                'icon' => '<i class="nav-icon fa fa-tags"></i>',
+                'title' => __('general.product'),
+                'active' => [
+                    'admin.product-clinic.',
+                ],
+                'type' => 2,
+                'data' => [
+                    [
+                        'name' => __('general.product_clinic'),
+                        'title' => __('general.product_clinic'),
+                        'active' => ['admin.product-clinic.'],
+                        'route' => 'admin.product-clinic.index',
+                        'key' => 'product-clinic',
+                        'type' => 1,
+                    ],
+                ],
+            ],
+            [
                 'name' => __('general.lab_clinic'),
                 'icon' => '<i class="nav-icon fa fa-flask"></i>',
                 'title' => __('general.lab_clinic'),
@@ -363,6 +382,15 @@ if ( ! function_exists('listAllMenu')) {
                 'active' => ['admin.banner-clinic.'],
                 'route' => 'admin.banner-clinic.index',
                 'key' => 'banner-clinic',
+                'type' => 1,
+            ],
+            [
+                'name' => __('general.farmasi'),
+                'icon' => '<i class="nav-icon fa fa-image"></i>',
+                'title' => __('general.farmasi'),
+                'active' => ['admin.farmasi.'],
+                'route' => 'admin.farmasi.index',
+                'key' => 'farmasi',
                 'type' => 1,
             ],
             [
@@ -449,7 +477,8 @@ if ( ! function_exists('listAllMenu')) {
                 'active' => [
                     'admin.appointment-lab-clinic.',
                     'admin.appointment-lab-homecare-clinic.',
-                    'admin.appointment-lab-visit-clinic.'
+                    'admin.appointment-lab-visit-clinic.',
+                    'admin.appointment-lab-schedule.',
                 ],
                 'type' => 2,
                 'data' => [
@@ -469,28 +498,17 @@ if ( ! function_exists('listAllMenu')) {
                         'key' => 'appointment-lab-visit-clinic',
                         'type' => 1,
                     ],
-                ],
-            ],
-            [
-                'name' => __('general.product'),
-                'icon' => '<i class="nav-icon fa fa-tags"></i>',
-                'title' => __('general.product'),
-                'active' => [
-                    'admin.product-clinic.',
-                ],
-                'type' => 2,
-                'data' => [
                     [
-                        'name' => __('general.product_clinic'),
-                        'title' => __('general.product_clinic'),
-                        'active' => ['admin.product-clinic.'],
-                        'route' => 'admin.product-clinic.index',
-                        'key' => 'product-clinic',
+                        'name' => __('general.appointment_lab_schedule'),
+                        'icon' => '<i class="nav-icon fa fa-calendar-o"></i>',
+                        'title' => __('general.appointment_lab_schedule'),
+                        'active' => ['admin.appointment-lab-schedule.'],
+                        'route' => 'admin.appointment-lab-schedule.index',
+                        'key' => 'appointment-lab-schedule',
                         'type' => 1,
                     ],
                 ],
             ],
-
 
 
 
@@ -501,15 +519,6 @@ if ( ! function_exists('listAllMenu')) {
                 'active' => [],
                 'type' => 2,
                 'data' => [],
-            ],
-            [
-                'name' => __('general.appointment_lab_schedule'),
-                'icon' => '<i class="nav-icon fa fa-calendar-o"></i>',
-                'title' => __('general.appointment_lab_schedule'),
-                'active' => ['admin.appointment-lab-schedule.'],
-                'route' => 'admin.appointment-lab-schedule.index',
-                'key' => 'appointment-lab-schedule',
-                'type' => 1,
             ],
             [
                 'name' => __('general.doctor'),
