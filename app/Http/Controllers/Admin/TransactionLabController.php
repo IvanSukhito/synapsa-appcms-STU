@@ -346,7 +346,7 @@ class TransactionLabController extends _CrudController
         $getTransaction = $getData;
 
         if ($getType == 3) {
-            $getTransaction->status = 80;
+            $getTransaction->status = 81;
             $getTransaction->save();
 
             $transactionId = $id;
