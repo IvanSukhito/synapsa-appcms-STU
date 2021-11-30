@@ -63,9 +63,11 @@ class GeneralController extends Controller
 
         $clinic =  session()->get('admin_clinic_id');
 
-        $getData = AppointmentLab::selectRaw('appointment_lab.*, transaction_details.lab_name as lab_name')
+        $getData = AppointmentLab::selectRaw('appointment_lab.id, status, code, patient_name, date, time_start, time_end,
+         GROUP_CONCAT(" ", transaction_details.lab_name) AS lab_name')
             ->leftJoin('transaction_details', 'transaction_details.transaction_id','=','appointment_lab.transaction_id')
-            ->where('klinik_id', $clinic);
+            ->where('klinik_id', $clinic)
+            ->groupByRaw('appointment_lab.id, status, code, patient_name, date, time_start, time_end');
 
         if($this->request->get('service_id')) {
             $getData = $getData->where('service_id', intval($this->request->get('service_id')));
