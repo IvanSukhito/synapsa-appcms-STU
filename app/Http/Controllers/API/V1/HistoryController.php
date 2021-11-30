@@ -99,81 +99,19 @@ class HistoryController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-        $getData = Transaction::where('id', $id)
-            ->where('user_id',$user->id)
-            ->first();
-        if (!$getData) {
+        $transactionHistoryLogic = new TransactionHistoryLogic();
+        $getData = $transactionHistoryLogic->detailHistory($user->id, $id);
+        if ($getData['success'] == 0) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Riwayat Transakti Tidak Ditemukan'],
+                'message' => ['Tipe Riwayat Transakti Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
 
-        $getDataDetails = [];
-        if ($getData->type_service == 1) {
-            $getDataDetails = $getData->getTransactionDetails()->selectRaw('transaction_details.id,
-                transaction_details.product_id, transaction_details.product_name, transaction_details.product_qty,
-                transaction_details.product_price,
-                product.image, CONCAT("'.env('OSS_URL').'/'.'", product.image) AS image_full, CONCAT("'.env('OSS_URL').'/'.'", payment.icon_img) AS payment_icon')
-                ->join('product', 'product.id', '=', 'transaction_details.product_id', 'LEFT')
-                ->join('transaction','transaction.id','=','transaction_details.transaction_id', 'LEFT')
-                ->join('payment', 'payment.id', '=', 'transaction.payment_id')
-                ->get();
-        }
-        else if ($getData->type_service == 2) {
-            $getDataDetails = $getData->getTransactionDetails()->selectRaw('transaction_details.*,
-                doctor_category.name AS doctor_category_name, users.image, date_available, time_start, time_end, klinik.name as klinik_name,
-                CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full, CONCAT("'.env('OSS_URL').'/'.'", payment.icon_img) AS payment_icon')
-                ->join('doctor', 'doctor.id', '=', 'transaction_details.doctor_id', 'LEFT')
-                ->join('doctor_category', 'doctor_category.id', '=', 'doctor.doctor_category_id', 'LEFT')
-                ->join('users', 'users.id', '=', 'doctor.user_id', 'LEFT')
-                ->join('doctor_schedule','doctor_schedule.id','=','transaction_details.schedule_id','LEFT')
-                ->join('klinik', 'klinik.id', '=', 'users.klinik_id')
-                ->join('transaction','transaction.id','=','transaction_details.transaction_id', 'LEFT')
-                ->join('payment', 'payment.id', '=', 'transaction.payment_id')
-                ->first();
-        }
-        else if ($getData->type_service == 3) {
-            $getDataDetails = $getData->getTransactionDetails()->selectRaw('transaction_details.*,
-                lab.image, date_available, time_start, time_end, CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full, CONCAT("'.env('OSS_URL').'/'.'", payment.icon_img) AS payment_icon')
-                ->join('lab', 'lab.id', '=', 'transaction_details.lab_id', 'LEFT')
-                ->join('lab_schedule','lab_schedule.id','=','transaction_details.schedule_id', 'LEFT')
-                ->join('transaction','transaction.id','=','transaction_details.transaction_id', 'LEFT')
-                ->join('payment', 'payment.id', '=', 'transaction.payment_id')
-                ->get();
-        }
-        else if ($getData->type_service == 4) {
-            $getDataDetails = $getData->getTransactionDetails()->selectRaw('transaction_details.*')->get();
-        }
-
-        $paymentInfo = json_decode($getData->payment_info, TRUE);
-        $userAddress = [
-            'receiver_name' => $getData->receiver_name,
-            'receiver_address' => $getData->receiver_address,
-            'receiver_phone' => $getData->receiver_phone,
-            'shipping_address_name' => $getData->shipping_address_name,
-            'shipping_address' => $getData->shipping_address,
-            'shipping_city_id' => $getData->shipping_city_id,
-            'shipping_city_name' => $getData->shipping_city_name,
-            'shipping_district_id' => $getData->shipping_district_id,
-            'shipping_district_name' => $getData->shipping_district_name,
-            'shipping_subdistrict_id' => $getData->shipping_subdistrict_id,
-            'shipping_subdistrict_name' => $getData->shipping_subdistrict_name,
-            'shipping_zipcode' => $getData->shipping_zipcode
-        ];
-
-        unset($getData->payment_info);
-        unset($getData->extra_info);
-
         return response()->json([
             'success' => 1,
-            'data' => [
-                'data' => $getData,
-                'details' => $getDataDetails,
-                'payment_info' => $paymentInfo,
-                'user_address' => $userAddress,
-            ],
+            'data' => $getData['data'],
             'message' => ['Berhasil'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
