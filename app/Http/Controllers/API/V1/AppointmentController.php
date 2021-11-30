@@ -69,6 +69,9 @@ class AppointmentController extends Controller
 
         $type = intval($this->request->get('type'));
 
+        $appointmentLogic = new UserAppointmentLogic();
+        $appointmentLogic->appointmentInfo($id, $type);
+
         if($type == 1)
         {
             $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full, transaction_details.extra_info as extra_info')
@@ -182,98 +185,6 @@ class AppointmentController extends Controller
             'message' => ['Type Janji Temu Tidak Ditemukan'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ], 404);
-
-    }
-
-    public function download($id, $filename)
-    {
-        $data = AppointmentDoctor::where('id', $id)->first();
-        if ($data && $data->status == 80) {
-            $generateLogic = new generateLogic();
-            $generateLogic->generatePdfDiagnosa($data, $filename);
-            exit;
-        }
-
-        return '';
-
-    }
-
-    public function fillForm($id)
-    {
-        $user = $this->request->attributes->get('_user');
-        $type = intval($this->request->get('type'));
-        if ($type != 1) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Menu Hanya untuk pasien dokter'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
-
-        $validator = Validator::make($this->request->all(), [
-            'body_height' => 'numeric',
-            'body_weight' => 'numeric',
-            'blood_pressure' => '',
-            'body_temperature' => 'numeric',
-            'keluhan' => 'required',
-            'medical_checkup' => ''
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => 0,
-                'message' => $validator->messages()->all(),
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
-
-        $data = AppointmentDoctor::where('user_id', $user->id)->where('id', $id)->first();
-        if (!$data) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-        if (in_array($data->status, [1,2])) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Janji Temu Dokter Belum di setujui'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-
-        $getMedicalCheckup = $this->request->get('medical_checkup');
-        $listMedicalCheckup = [];
-        foreach ($getMedicalCheckup as $listImage) {
-            $image = base64_to_jpeg($listImage);
-            $destinationPath = 'synapsaapps/users/'.$user->id.'/forms';
-            $set_file_name = date('Ymd').'_'.md5('medical_checkup'.strtotime('now').rand(0, 100)).'.jpg';
-            $getFile = Storage::put($destinationPath.'/'.$set_file_name, $image);
-            if ($getFile) {
-                $getImage = env('OSS_URL').'/'.$destinationPath.'/'.$set_file_name;
-                $listMedicalCheckup[] = $getImage;
-            }
-        }
-
-        $saveFormPatient = [
-            'body_height' => strip_tags($this->request->get('body_height')),
-            'body_weight' => strip_tags($this->request->get('body_weight')),
-            'blood_pressure' => strip_tags($this->request->get('blood_pressure')),
-            'body_temperature' => strip_tags($this->request->get('body_temperature')),
-            'medical_checkup' => $listMedicalCheckup,
-            'keluhan' => strip_tags($this->request->get('keluhan'))
-        ];
-
-        $data->form_patient = json_encode($saveFormPatient);
-        $data->status = 3;
-        $data->save();
-
-        return response()->json([
-            'success' => 1,
-            'data' => $data,
-            'token' => $this->request->attributes->get('_refresh_token'),
-        ]);
 
     }
 
@@ -396,6 +307,98 @@ class AppointmentController extends Controller
             'message' => ['Type Janji Temu Tidak Ditemukan'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ], 404);
+
+    }
+
+    public function download($id, $filename)
+    {
+        $data = AppointmentDoctor::where('id', $id)->first();
+        if ($data && $data->status == 80) {
+            $generateLogic = new generateLogic();
+            $generateLogic->generatePdfDiagnosa($data, $filename);
+            exit;
+        }
+
+        return '';
+
+    }
+
+    public function fillForm($id)
+    {
+        $user = $this->request->attributes->get('_user');
+        $type = intval($this->request->get('type'));
+        if ($type != 1) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Menu Hanya untuk pasien dokter'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
+        $validator = Validator::make($this->request->all(), [
+            'body_height' => 'numeric',
+            'body_weight' => 'numeric',
+            'blood_pressure' => '',
+            'body_temperature' => 'numeric',
+            'keluhan' => 'required',
+            'medical_checkup' => ''
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => 0,
+                'message' => $validator->messages()->all(),
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
+        $data = AppointmentDoctor::where('user_id', $user->id)->where('id', $id)->first();
+        if (!$data) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+        if (in_array($data->status, [1,2])) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Janji Temu Dokter Belum di setujui'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+
+        $getMedicalCheckup = $this->request->get('medical_checkup');
+        $listMedicalCheckup = [];
+        foreach ($getMedicalCheckup as $listImage) {
+            $image = base64_to_jpeg($listImage);
+            $destinationPath = 'synapsaapps/users/'.$user->id.'/forms';
+            $set_file_name = date('Ymd').'_'.md5('medical_checkup'.strtotime('now').rand(0, 100)).'.jpg';
+            $getFile = Storage::put($destinationPath.'/'.$set_file_name, $image);
+            if ($getFile) {
+                $getImage = env('OSS_URL').'/'.$destinationPath.'/'.$set_file_name;
+                $listMedicalCheckup[] = $getImage;
+            }
+        }
+
+        $saveFormPatient = [
+            'body_height' => strip_tags($this->request->get('body_height')),
+            'body_weight' => strip_tags($this->request->get('body_weight')),
+            'blood_pressure' => strip_tags($this->request->get('blood_pressure')),
+            'body_temperature' => strip_tags($this->request->get('body_temperature')),
+            'medical_checkup' => $listMedicalCheckup,
+            'keluhan' => strip_tags($this->request->get('keluhan'))
+        ];
+
+        $data->form_patient = json_encode($saveFormPatient);
+        $data->status = 3;
+        $data->save();
+
+        return response()->json([
+            'success' => 1,
+            'data' => $data,
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
 
     }
 

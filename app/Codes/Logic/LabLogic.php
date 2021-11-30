@@ -4,6 +4,7 @@ namespace App\Codes\Logic;
 
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\AppointmentLab;
+use App\Codes\Models\V1\AppointmentLabDetails;
 use App\Codes\Models\V1\Lab;
 use App\Codes\Models\V1\LabSchedule;
 use App\Codes\Models\V1\Product;
@@ -284,14 +285,14 @@ class LabLogic
      * @param $extraInfo
      * @return int
      */
-    public function appointmentCreate($scheduleId, $date, $getUser, $getServiceName, $getTransaction, $newCode, $extraInfo): int
+    public function appointmentCreate($scheduleId, $date, $getUser, $getServiceName, $getTransaction, $newCode, $extraInfo, $getDetails): int
     {
         $getData = $this->scheduleCheck($scheduleId, $date, 1);
         if ($getData['success'] == 80) {
             $getSchedule = $getData['schedule'];
             $getDate = $getData['date'];
 
-            AppointmentLab::create([
+            $getAppointmentLab = AppointmentLab::create([
                 'transaction_id' => $getTransaction->id,
                 'klinik_id' => $getTransaction->klinik_id,
                 'code' => $newCode,
@@ -307,6 +308,16 @@ class LabLogic
                 'extra_info' => json_encode($extraInfo),
                 'status' => 1
             ]);
+
+            foreach ($getDetails as $getDetail) {
+                AppointmentLabDetails::create([
+                    'appointment_lab_id' => $getAppointmentLab->id,
+                    'lab_id' => $getDetail->lab_id,
+                    'lab_name' => $getDetail->lab_name,
+                    'lab_price' => $getDetail->lab_price,
+                    'status' => 1
+                ]);
+            }
 
             return 1;
 

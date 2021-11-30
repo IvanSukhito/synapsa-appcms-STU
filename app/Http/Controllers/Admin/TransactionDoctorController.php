@@ -367,14 +367,14 @@ class TransactionDoctorController extends _CrudController
         $getTransaction = $getData;
 
         if ($getType == 2) {
-            $getTransaction->status = 80;
+            $getTransaction->status = 81;
             $getTransaction->save();
 
             $transactionId = $getTransaction->id;
             $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
             if ($getDetail) {
                 $doctorLogic = new DoctorLogic();
-                $doctorLogic->appointmentSuccess($transactionId);
+                $doctorLogic->appointmentSuccess([$transactionId]);
             }
         }
 
