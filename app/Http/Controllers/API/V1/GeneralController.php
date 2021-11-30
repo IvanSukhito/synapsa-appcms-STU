@@ -105,7 +105,7 @@ class GeneralController extends Controller
                 $destinationPath = 'synapsaapps/users';
                 $set_file_name = md5('image' . strtotime('now') . rand(0, 100)) . '.jpg';
                 $getFile = Storage::put($destinationPath . '/' . $set_file_name, $image);
-                if ($getFile) {
+                if ($image) {
                     $getImage = $destinationPath . '/' . $set_file_name;
                     $getUploadImage = $getImage;
                 } else {
