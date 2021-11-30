@@ -99,13 +99,13 @@ class GeneralController extends Controller
         }
 
         $getUploadImage = '';
-        if ($this->request->get('image')) {
+        if ($this->request->file('image')) {
             try {
-                $image = base64_to_jpeg($this->request->get('image'));
+                $image = base64_to_jpeg($this->request->file('image'));
                 $destinationPath = 'synapsaapps/users';
                 $set_file_name = md5('image' . strtotime('now') . rand(0, 100)) . '.jpg';
                 $getFile = Storage::put($destinationPath . '/' . $set_file_name, $image);
-                if ($image) {
+                if ($getFile) {
                     $getImage = $destinationPath . '/' . $set_file_name;
                     $getUploadImage = $getImage;
                 } else {
