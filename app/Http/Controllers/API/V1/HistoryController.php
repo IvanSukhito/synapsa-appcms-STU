@@ -2,20 +2,12 @@
 
 namespace App\Http\Controllers\API\V1;
 
-use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Logic\TransactionHistoryLogic;
 use App\Codes\Models\Settings;
-use App\Codes\Models\V1\LogServiceTransaction;
-use App\Codes\Models\V1\Payment;
-use App\Codes\Models\V1\Product;
-use App\Codes\Models\V1\Service;
-use App\Codes\Models\V1\UsersAddress;
 use App\Codes\Models\V1\Transaction;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
-
 
 class HistoryController extends Controller
 {

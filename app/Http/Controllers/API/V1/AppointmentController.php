@@ -69,6 +69,9 @@ class AppointmentController extends Controller
 
         $type = intval($this->request->get('type'));
 
+        $appointmentLogic = new UserAppointmentLogic();
+        $appointmentLogic->appointmentInfo($id, $type);
+
         if($type == 1)
         {
             $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full, transaction_details.extra_info as extra_info')

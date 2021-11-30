@@ -374,7 +374,7 @@ class TransactionDoctorController extends _CrudController
             $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
             if ($getDetail) {
                 $doctorLogic = new DoctorLogic();
-                $doctorLogic->appointmentSuccess($transactionId);
+                $doctorLogic->appointmentSuccess([$transactionId]);
             }
         }
 
