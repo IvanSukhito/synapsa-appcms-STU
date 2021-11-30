@@ -11,6 +11,7 @@ use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\DoctorCategory;
 use App\Codes\Models\V1\Klinik;
 use App\Codes\Models\V1\Lab;
+use App\Codes\Models\V1\LabService;
 use App\Codes\Models\V1\Service;
 use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\LabSchedule;
@@ -409,14 +410,15 @@ class LabClinicScheduleController extends _CrudController
             'import_lab_schedule' => 'required',
         ]);
 
-        //A-N
+        //A-F
         //A = Nomor
         //B = Service
-        //C = Date
-        //D = Time Start
-        //E = Time End
+        //C = Date Available
+        //D = Weekday
+        //E = Time Start
+        //F = Time End
 
-        //Start From Row 6
+        //Start From Row 7
 
         $getFile = $this->request->file('import_lab_schedule');
 
@@ -428,51 +430,101 @@ class LabClinicScheduleController extends _CrudController
 //
 //            die(env('OSS_URL') . '/' . $getUrl);
 
-            try {
-                $getFileName = $getFile->getClientOriginalName();
-                $ext = explode('.', $getFileName);
-                $ext = end($ext);
-                if (in_array(strtolower($ext), ['xlsx', 'xls'])) {
-                    $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($getFile);
-                    $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader($inputFileType);
-                    $data = $reader->load($getFile);
+            $getFileName = $getFile->getClientOriginalName();
+            $ext = explode('.', $getFileName);
+            $ext = end($ext);
+            if (in_array(strtolower($ext), ['xlsx', 'xls'])) {
+                $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($getFile);
+                $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader($inputFileType);
+                $data = $reader->load($getFile);
 
-                    if ($data) {
-                        $spreadsheet = $data->getActiveSheet();
-                        foreach ($spreadsheet->getRowIterator() as $key => $row) {
-                            if($key >= 6) {
+                if ($data) {
+                    $spreadsheet = $data->getActiveSheet();
+                    foreach ($spreadsheet->getRowIterator() as $key => $row) {
+                        try {
+                            if ($key > 6) {
                                 $getService = $spreadsheet->getCell("B" . $key)->getValue();
-                                $getDate = $spreadsheet->getCell("C" . $key)->getValue();
-                                $getTimeStart = $spreadsheet->getCell("D" . $key)->getValue();
-                                $getTimeEnd = $spreadsheet->getCell("E" . $key)->getValue();
+                                $getDateAvailable = $spreadsheet->getCell("C" . $key)->getValue();
+                                $getWeekday = strtolower($spreadsheet->getCell("D" . $key)->getValue());
+                                $getTimeStart = $spreadsheet->getCell("E" . $key)->getValue();
+                                $getTimeEnd = $spreadsheet->getCell("F" . $key)->getValue();
 
-                                $klinik_id = session()->get('admin_clinic_id');
+                                $weekdayID = [
+                                    1 => 'senin',
+                                    2 => 'selasa',
+                                    3 => 'rabu',
+                                    4 => 'kamis',
+                                    5 => 'jumat',
+                                    6 => 'sabtu',
+                                    7 => 'minggu',
+                                ];
 
-                                if($klinik_id){
+                                $weekdayEN = [
+                                    1 => 'monday',
+                                    2 => 'tuesday',
+                                    3 => 'wednesday',
+                                    4 => 'thursday',
+                                    5 => 'friday',
+                                    6 => 'saturday',
+                                    7 => 'sunday',
+                                ];
+
+                                $getWeekdays = array_search($getWeekday, $weekdayID);
+                                if (!$getWeekdays) {
+                                    $getWeekdays = array_search($getWeekday, $weekdayEN);
+                                }
+
+                                if ($getDateAvailable != null) {
+                                    $getDateAvailable = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($getDateAvailable)->format('Y-m-d');
+                                }
+
+                                $setting = Cache::remember('settings', env('SESSION_LIFETIME'), function () {
+                                    return Settings::pluck('value', 'key')->toArray();
+                                });
+
+                                $getLabService = Service::whereIn('id', json_decode($setting['service-lab'], true))->get();
+
+                                $service_id = [];
+                                foreach ($getLabService as $val) {
+                                    $service_id[$val->id] = $val->name;
+                                }
+
+                                $adminClinicId = session()->get('admin_clinic_id');
+
+                                $getService = intval($getService);
+
+                                if (array_key_exists($getService, $service_id)) {
                                     $saveData = [
-                                        'klinik_id' => $klinik_id,
-                                        'lab_id' => 0,
+                                        'klinik_id' => $adminClinicId,
                                         'service_id' => $getService,
-                                        'date_available' => \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($getDate)->format('Y-m-d'),
+                                        'date_available' => strlen($getDateAvailable) > 0 ? $getDateAvailable : null,
+                                        'weekday' => strlen($getDateAvailable) > 0 ? 0 : $getWeekdays,
                                         'time_start' => \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($getTimeStart)->format('H:i:s'),
                                         'time_end' => \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($getTimeEnd)->format('H:i:s'),
                                         'book' => 80,
+                                        'type' => strlen($getDateAvailable) > 0 ? 2 : 1,
                                     ];
 
-                                    $labSchedule = LabSchedule::create($saveData);
+                                    $checkSchedule = LabSchedule::where('klinik_id', $adminClinicId);
+                                    foreach ($saveData as $column => $value) {
+                                        if ($column != 'klinik_id') {
+                                            $checkSchedule->where($column, $value);
+                                        }
+                                    }
+                                    $checkSchedule = $checkSchedule->first();
 
+                                    if (!$checkSchedule) {
+                                        $labSchedule = LabSchedule::create($saveData);
+                                    }
                                 }
                             }
                         }
+                        catch (\Exception $e) {
+                            isset($labSchedule) ? $labSchedule->delete() : '';
+                            continue;
+                        }
                     }
                 }
-            }
-            catch(\Exception $e) {
-               // $labSchedule->delete();
-
-                session()->flash('message', __('general.failed_import_lab_schedule'));
-                session()->flash('message_alert', 1);
-                return redirect()->route($this->rootRoute.'.' . $this->route . '.create2');
             }
         }
 
