@@ -361,6 +361,17 @@ if ( ! function_exists('get_list_show_hide')) {
     }
 }
 
+
+if ( ! function_exists('get_list_type_product')) {
+    function get_list_type_product()
+    {
+        return [
+            0 => __('general.normal'),
+            1 => __('general.obat_keras')
+        ];
+    }
+}
+
 if ( ! function_exists('get_list_status_invoice')) {
     function get_list_status_invoice()
     {
