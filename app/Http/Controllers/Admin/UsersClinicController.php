@@ -122,6 +122,7 @@ class UsersClinicController extends _CrudController
         $this->data['listSet']['status'] = get_list_active_inactive();
         $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.user-clinic.list_button';
         $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.user-clinic.forms';
+        $this->listView['edit'] = env('ADMIN_TEMPLATE').'.page.user-clinic.forms2';
 
     }
 
@@ -347,6 +348,13 @@ class UsersClinicController extends _CrudController
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
         $data['upload_ktp'] = $dokumentImage;
+        $data['province_id'] = $this->request->get('province_id');
+        $data['city_id'] = $this->request->get('city_id');
+        $data['district_id'] = $this->request->get('district_id');
+        $data['sub_district_id'] = $this->request->get('sub_district_id');
+        $data['zip_code'] = $this->request->get('zip_code');
+        $data['address'] = $this->request->get('address');
+        $data['address_detail'] = $this->request->get('address_detail');
 
         $getData = $this->crud->update($data, $id);
 
@@ -421,6 +429,31 @@ class UsersClinicController extends _CrudController
         return $dataTables
             ->rawColumns($listRaw)
             ->make(true);
+    }
+
+
+    public function edit($id)
+    {
+        $this->callPermission();
+
+        $getData = $this->crud->show($id);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $data = $this->data;
+        $getProvince = Province::get();
+
+        $data['viewType'] = 'edit';
+        $data['formsTitle'] = __('general.title_edit', ['field' => $data['thisLabel']]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['data'] = $getData;
+        $data['province'] = $getProvince;
+        $data['cityId'] = City::where('id', $getData->city_id)->first();
+        $data['districtId'] = District::where('id', $getData->district_id)->first();
+        $data['subDistrictId'] = SubDistrict::where('id', $getData->sub_district_id)->first();
+
+        return view($this->listView[$data['viewType']], $data);
     }
 
 }

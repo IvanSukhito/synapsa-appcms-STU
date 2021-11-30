@@ -385,12 +385,12 @@ if ( ! function_exists('listAllMenu')) {
                 'type' => 1,
             ],
             [
-                'name' => __('general.farmasi'),
-                'icon' => '<i class="nav-icon fa fa-image"></i>',
-                'title' => __('general.farmasi'),
-                'active' => ['admin.farmasi.'],
-                'route' => 'admin.farmasi.index',
-                'key' => 'farmasi',
+                'name' => __('general.pharmacy'),
+                'icon' => '<i class="nav-icon fa fa-"></i>',
+                'title' => __('general.pharmacy'),
+                'active' => ['admin.pharmacy.'],
+                'route' => 'admin.pharmacy.index',
+                'key' => 'pharmacy',
                 'type' => 1,
             ],
             [
@@ -950,6 +950,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'doctor-visit',
                      'doctor-telemed',
                      'doctor-homecare',
+                     'pharmacy',
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [

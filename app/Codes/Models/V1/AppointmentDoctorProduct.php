@@ -26,6 +26,10 @@ class AppointmentDoctorProduct extends Model
         'product_price_nice',
     ];
 
+    protected $dates = [
+        'created_at',
+    ];
+
     public function getProductPriceNiceAttribute()
     {
         return intval($this->product_price) > 0 ? number_format($this->product_price, 0, ',', '.') : 0;
@@ -36,4 +40,9 @@ class AppointmentDoctorProduct extends Model
         return $this->hasMany(AppointmentDoctor::class, 'appointment_doctor_id', 'id');
     }
 
+    public function getCreatedAtAttribute()
+    {
+        return \Carbon\Carbon::parse($this->attributes['created_at'])
+            ->format('Y-m-d H:i:s');
+    }
 }
