@@ -1068,6 +1068,12 @@ if ( ! function_exists('listAvailablePermission'))
         $listPermission['klinik']['create'][] = 'admin.klinik.create2';
         $listPermission['klinik']['create'][] = 'admin.klinik.store2';
 
+        $listPermission['users-patient']['edit'][] = 'admin.users-patient.forgotPassword';
+        $listPermission['users-patient']['edit'][] = 'admin.users-patient.updatePassword';
+
+        $listPermission['admin']['edit'][] = 'admin.admin.forgotPassword';
+        $listPermission['admin']['edit'][] = 'admin.admin.updatePassword';
+
         $listPermission['product-clinic']['create'][] = 'admin.product-clinic.create2';
         $listPermission['product-clinic']['create'][] = 'admin.product-clinic.store2';
         $listPermission['product-clinic']['create'][] = 'admin.product-clinic.getProductSynapsa';

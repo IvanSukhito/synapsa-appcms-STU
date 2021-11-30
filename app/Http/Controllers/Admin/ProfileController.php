@@ -85,7 +85,7 @@ class ProfileController extends Controller
         session()->flash('message', __('general.success_update'));
         session()->flash('message_alert', 2);
 
-        return redirect()->route('admin.profile');
+        return redirect()->route('admin.profile.index');
     }
 
     public function getPassword()
@@ -136,7 +136,7 @@ class ProfileController extends Controller
 
         $account = Admin::where('id', $admin_id)->first();
         if(!$account) {
-            return redirect()->route('admin.profile');
+            return redirect()->route('admin.profile.index');
         }
 
         if(!app('hash')->check($data['old_password'], $account->password)) {
@@ -154,7 +154,7 @@ class ProfileController extends Controller
         session()->flash('message', __('general.success_update'));
         session()->flash('message_alert', 2);
 
-        return redirect()->route('admin.profile');
+        return redirect()->route('admin.profile.index');
     }
 
 }
