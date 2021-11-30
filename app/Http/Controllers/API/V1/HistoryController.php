@@ -156,11 +156,11 @@ class HistoryController extends Controller
 
         if ($getData->status == 2) {
 
-            $getCode = str_pad(($getData->id), 6, '0', STR_PAD_LEFT).rand(100000,999999);
+            $getNewCode = str_pad(($getData->id), 6, '0', STR_PAD_LEFT).rand(100000,999999);
 
             $getAdditional = json_decode($getData->send_info, true);
-            $getAdditional['code'] = $getCode;
-            $getAdditional['job']['code'] = $getCode;
+            $getAdditional['code'] = $getNewCode;
+            $getAdditional['job']['code'] = $getNewCode;
 
             $newLogic = new SynapsaLogic();
             $getPayment = Payment::where('id', $getData->payment_id)->first();

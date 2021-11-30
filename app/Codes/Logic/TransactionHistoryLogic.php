@@ -282,9 +282,14 @@ class TransactionHistoryLogic
             $getPayment = Payment::where('id', $getTransaction->payment_id)->first();
             if ($getPayment && $getPayment->service == 'xendit' && (substr($getPayment->type_payment, 0, 3) == 'ew_' || $getPayment->type_payment == 'qr_qris')) {
                 $synapsaLogic = new SynapsaLogic();
-                $additional = json_decode($getTransaction->payment_info, true);
-                var_dump($additional); die();
-                $getPaymentInfo = $synapsaLogic->createPayment($getPayment, $additional, $transactionId);
+
+                $getNewCode = str_pad(($getTransaction->id), 6, '0', STR_PAD_LEFT).rand(100000,999999);
+
+                $getAdditional = json_decode($getTransaction->send_info, true);
+                $getAdditional['code'] = $getNewCode;
+                $getAdditional['job']['code'] = $getNewCode;
+
+                $getPaymentInfo = $synapsaLogic->createPayment($getPayment, $getAdditional, $transactionId);
                 if ($getPaymentInfo['success'] == 1) {
                     return [
                         'success' => 1,
