@@ -89,26 +89,26 @@ class HistoryController extends Controller
         $getService = $getData['service'] ?? [];
         $getSubService = $getData['sub_service'] ?? [];
         if ($getService) {
-            $temp = [
+            $temp = [[
                 'id' => 0,
                 'name' => 'Semua',
                 'type' => 0,
                 'type_nice' => '',
                 'active' => $getServiceId == 0 ? 1 : 0
-            ];
+            ]];
             foreach ($getService as $list) {
                 $temp[] = $list;
             }
             $getService = $temp;
         }
         if ($getSubService) {
-            $temp = [
+            $temp = [[
                 'id' => 0,
                 'name' => 'Semua',
                 'type' => 0,
                 'type_nice' => '',
                 'active' => $getSubServiceId == 0 ? 1 : 0
-            ];
+            ]];
             foreach ($getSubService as $list) {
                 $temp[] = $list;
             }
