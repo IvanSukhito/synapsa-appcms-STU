@@ -76,6 +76,12 @@ class HistoryController extends Controller
             $getNurse = 0;
         }
 
+        $active = $getData['active'] ?? [];
+        $active['doctor'] = $getDoctor;
+        $active['product'] = $getProduct;
+        $active['lab'] = $getLab;
+        $active['nurse'] = $getNurse;
+
         return response()->json([
             'success' => 1,
             'data' => [
@@ -83,12 +89,7 @@ class HistoryController extends Controller
                 'service' => $getData['service'] ?? [],
                 'sub_service' => $getData['sub_service'] ?? [],
                 'default_image' => $getData['default_image'] ?? '',
-                'active' => [
-                    'doctor' => $getDoctor,
-                    'product' => $getProduct,
-                    'lab' => $getLab,
-                    'nurse' => $getNurse
-                ]
+                'active' => $active
             ],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
@@ -116,62 +117,14 @@ class HistoryController extends Controller
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
 
-//        $userId = $user->id;
-//        $getDataId = $getData->id;
-//
-//        if ($getData->type_service == 1) {
-//            $getDataProduct = $this->getDetailProduct($getDataId, $userId);
-//
-//            $listProduct = Product::selectRaw('transaction_details.id, product.id as product_id, product_qty, product.name, product.image, product.price')
-//                ->join('transaction_details', 'transaction_details.product_id', '=', 'product.id')
-//                ->where('transaction_details.transaction_id', $getDataProduct->id)->get();
-//
-//            $historyProduct = [
-//                'transaction_product' => $getDataProduct,
-//                'list_product' => $listProduct,
-//                'address' => $this->getUserAddress($user->id)
-//            ];
-//
-//            return response()->json([
-//                'success' => 1,
-//                'data' => $historyProduct,
-//                'token' => $this->request->attributes->get('_refresh_token'),
-//            ]);
-//
-//        } else if (in_array($getData->type_service, [2, 3, 4])) {
-//            $getDataDoctor = $this->getDetailDoctor($getDataId, $userId);
-//
-//            return response()->json([
-//                'success' => 1,
-//                'data' => $getDataDoctor,
-//                'token' => $this->request->attributes->get('_refresh_token'),
-//            ]);
-//
-//        } else if (in_array($getData->type_service, [5, 6, 7])) {
-//
-//            $getDataLab = $this->getDetailLab($getDataId, $userId);
-//
-//            if ($getDataLab) {
-//                return response()->json([
-//                    'success' => 1,
-//                    'data' => $getDataLab,
-//                    'token' => $this->request->attributes->get('_refresh_token'),
-//                ]);
-//            }
-//        }
-//        else {
-//            return response()->json([
-//                'success' => 0,
-//                'message' => ['Tipe Riwayat Transakti Tidak Ditemukan'],
-//                'token' => $this->request->attributes->get('_refresh_token'),
-//            ], 404);
-//        }
-
     }
 
-    public function repayment($id)
+    public function rePayment($id)
     {
         $user = $this->request->attributes->get('_user');
+
+        $transactionHistoryLogic = new TransactionHistoryLogic();
+        $getData = $transactionHistoryLogic->detailHistory($user->id, $id);
 
         $getData = Transaction::where('id', '=', $id)
             ->where('user_id', '=', $user->id)

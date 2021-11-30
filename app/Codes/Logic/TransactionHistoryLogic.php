@@ -2,6 +2,7 @@
 
 namespace App\Codes\Logic;
 
+use App\Codes\Models\V1\Payment;
 use App\Codes\Models\V1\Transaction;
 use Illuminate\Support\Facades\DB;
 
@@ -32,7 +33,7 @@ class TransactionHistoryLogic
                 $join->on('product.id','=','transaction_details.product_id')
                     ->on('product.id', '=', DB::raw("(select min(id) from product WHERE product.id = transaction_details.product_id)"));
             })
-            ->where('transaction.user_id', $userId)
+            ->where('transaction.user_id', '=', $userId)
             ->whereIn('type_service', [1,5])->orderBy('transaction.id','DESC');
 
         if (strlen($search) > 0) {
@@ -72,11 +73,11 @@ class TransactionHistoryLogic
             ->leftJoin('doctor', 'doctor.id','=','transaction_details.doctor_id')
             ->leftJoin('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
             ->leftJoin('users', 'users.id','=','doctor.user_id')
-            ->where('transaction.user_id', $userId)
-            ->where('type_service', 2);
+            ->where('transaction.user_id', '=', $userId)
+            ->where('type_service', '=', 2);
 
         if ($serviceId > 0) {
-            $getData = $getData->where('category_service_id', $serviceId);
+            $getData = $getData->where('category_service_id', '=', $serviceId);
         }
 
         if (strlen($search) > 0) {
@@ -94,6 +95,12 @@ class TransactionHistoryLogic
             'data' => $getData,
             'service' => $getService['data'],
             'sub_service' => $getService['sub_service'],
+            'active' => [
+                'service' => $getService['getServiceId'],
+                'service_name' => $getService['getServiceName'],
+                'sub_service' => $getService['getSubServiceId'],
+                'sub_service_name' => $getService['getSubServiceName'],
+            ],
             'default_image' => asset('assets/cms/images/no-img.png')
         ];
 
@@ -123,11 +130,11 @@ class TransactionHistoryLogic
                 $join->on('lab.id','=','transaction_details.lab_id')
                     ->on('lab.id', '=', DB::raw("(select min(id) from lab WHERE lab.id = transaction_details.lab_id)"));
             })
-            ->where('transaction.user_id', $userId)
-            ->where('type_service', 3);
+            ->where('transaction.user_id', '=', $userId)
+            ->where('type_service', '=', 3);
 
         if ($serviceId > 0) {
-            $getData = $getData->where('category_service_id', $serviceId);
+            $getData = $getData->where('category_service_id', '=', $serviceId);
         }
 
         if (strlen($search) > 0) {
@@ -143,6 +150,12 @@ class TransactionHistoryLogic
             'data' => $getData,
             'service' => $getService['data'],
             'sub_service' => $getService['sub_service'],
+            'active' => [
+                'service' => $getService['getServiceId'],
+                'service_name' => $getService['getServiceName'],
+                'sub_service' => $getService['getSubServiceId'],
+                'sub_service_name' => $getService['getSubServiceName'],
+            ],
             'default_image' => asset('assets/cms/images/no-img.png')
         ];
 
@@ -155,9 +168,8 @@ class TransactionHistoryLogic
      */
     public function detailHistory($userId, $transactionId): array
     {
-        $getTransaction = Transaction::where('id', $transactionId)->where('user_id', $userId)->first();
+        $getTransaction = Transaction::where('id', '=', $transactionId)->where('user_id', '=', $userId)->first();
         if ($getTransaction) {
-            $setType = '';
             switch ($getTransaction->type_service) {
                 case 2 : $getDetail = $getTransaction->getTransactionDetails()->selectRaw('transaction_details.id,
                         transaction_details.schedule_id, transaction_details.doctor_id, transaction_details.doctor_name, 
@@ -253,6 +265,35 @@ class TransactionHistoryLogic
                     'user_address' => $userAddress
                 ]
             ];
+        }
+
+        return [
+            'success' => 0
+        ];
+
+    }
+
+    public function reTriggerPayment($userId, $transactionId)
+    {
+        $getTransaction = Transaction::where('id', '=', $transactionId)->where('user_id', '=', $userId)->where('status', '=', 2)->first();
+        if ($getTransaction) {
+            $getPayment = Payment::where('id', $getTransaction->payment_id)->first();
+            if ($getPayment && $getPayment->service == 'xendit' && (substr($getPayment->type_payment, 0, 3) == 'ew_' || $getPayment->type_payment == 'qr_qris')) {
+                $synapsaLogic = new SynapsaLogic();
+                $additional = json_decode($getTransaction->payment_info, true);
+                var_dump($additional); die();
+                $getPaymentInfo = $synapsaLogic->createPayment($getPayment, $additional, $transactionId);
+                if ($getPaymentInfo['success'] == 1) {
+                    return [
+                        'success' => 1,
+                        'data' => [
+                            'payment' => 0,
+                            'info' => $getPaymentInfo['info']
+                        ]
+                    ];
+                }
+
+            }
         }
 
         return [
