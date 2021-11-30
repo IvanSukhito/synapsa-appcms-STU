@@ -5,6 +5,8 @@ namespace App\Codes\Logic;
 use App\Codes\Models\V1\AppointmentDoctor;
 use App\Codes\Models\V1\AppointmentLab;
 use App\Codes\Models\V1\AppointmentNurse;
+use App\Codes\Models\V1\DoctorSchedule;
+use App\Codes\Models\V1\LabSchedule;
 use Illuminate\Support\Facades\DB;
 use function GuzzleHttp\default_ca_bundle;
 
@@ -94,7 +96,7 @@ class UserAppointmentLogic
      * @param array $status
      * @return array
      */
-    public function appointmentInfo($userId, $userPhone, $appointmentId, $type, array $status = [])
+    public function appointmentInfo($userId, $userPhone, $appointmentId, $type, array $status = []): array
     {
         $getResult = [];
         if ($type == 2) {
@@ -174,6 +176,86 @@ class UserAppointmentLogic
                 'success' => 0
             ];
         }
+
+    }
+
+    /**
+     * @param $appointmentId
+     * @param $userId
+     * @param $type
+     * @param $scheduleId
+     * @param $date
+     * @return int
+     */
+    public function reScheduleAppointment($appointmentId, $userId, $type, $scheduleId, $date): int
+    {
+        if ($type == 1) {
+            $getAppointment = AppointmentDoctor::where('id', $appointmentId)->where('user_id', $userId)->first();
+            if (!$getAppointment) {
+                return 90;
+            }
+            $doctorId = $getAppointment->doctor_id;
+            $serviceId = $getAppointment->service_id;
+
+            $getSchedule = DoctorSchedule::where('id', $scheduleId)->where('doctor_id', $doctorId)->where('service_id', $serviceId)->first();
+            if (!$getSchedule) {
+                return 91;
+            }
+
+            if ($getSchedule->type == 1) {
+                $getWeekday = intval(date('w', strtotime($date)));
+                if($getWeekday != intval($getSchedule->weekday)) {
+                    return 92;
+                }
+            }
+            else {
+                $date = $getSchedule->date_available;
+            }
+
+            $getAppointment->schedule_id = $scheduleId;
+            $getAppointment->date = $date;
+            $getAppointment->time_start = $getSchedule->time_start;
+            $getAppointment->time_end = $getSchedule->time_end;
+            $getAppointment->status = 1;
+            $getAppointment->save();
+            return 80;
+
+        }
+        else if ($type == 2) {
+            $getAppointment = AppointmentLab::where('id', $appointmentId)->where('user_id', $userId)->first();
+            if (!$getAppointment) {
+                return 90;
+            }
+
+            $clinicId = $getAppointment->klinik_id;
+            $serviceId = $getAppointment->service_id;
+
+            $getSchedule = LabSchedule::where('id', $scheduleId)->where('klinik_id', $clinicId)->where('service_id', $serviceId)->first();
+            if (!$getSchedule) {
+                return 91;
+            }
+
+            if ($getSchedule->type == 1) {
+                $getWeekday = intval(date('w', strtotime($date)));
+                if($getWeekday != intval($getSchedule->weekday)) {
+                    return 92;
+                }
+            }
+            else {
+                $date = $getSchedule->date_available;
+            }
+
+            $getAppointment->schedule_id = $scheduleId;
+            $getAppointment->date = $date;
+            $getAppointment->time_start = $getSchedule->time_start;
+            $getAppointment->time_end = $getSchedule->time_end;
+            $getAppointment->status = 1;
+            $getAppointment->save();
+            return 80;
+
+        }
+
+        return 90;
 
     }
 

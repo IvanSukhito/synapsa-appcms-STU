@@ -326,10 +326,11 @@ class AppointmentController extends Controller
     public function updateReSchedule($id)
     {
         $user = $this->request->attributes->get('_user');
-        $type = intval($this->request->get('type'));
 
         $validator = Validator::make($this->request->all(), [
             'schedule_id' => 'numeric|required',
+            'type' => 'numeric|required',
+            'date' => 'required'
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -339,143 +340,26 @@ class AppointmentController extends Controller
             ], 422);
         }
 
-        if ($type == 1) {
-            $getAppointment = AppointmentDoctor::where('user_id', $user->id)->where('id', $id)->first();
-            if (!$getAppointment) {
-                return response()->json([
-                    'success' => 0,
-                    'message' => ['Janji Temu Dokter Tidak Ditemukan'],
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ], 404);
-            }
-            else if (!in_array($getAppointment->status, [1,2])) {
-                return response()->json([
-                    'success' => 0,
-                    'message' => ['Janji Temu Dokter tidak bisa di ganti'],
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ], 422);
-            }
+        $type = intval($this->request->get('type'));
+        $scheduleId = intval($this->request->get('schedule_id'));
+        $date = strtotime($this->request->get('date'));
 
-            $serviceId = $getAppointment->service_id;
-            $doctorId = $getAppointment->doctor_id;
-
-            $scheduleId = $this->request->get('schedule_id');
-
-            $validateDate =  strtotime(date('Y-m-d', strtotime("+7 day")));
-
-            //code
-            $getTotal = AppointmentDoctor::where('klinik_id', $getAppointment->klinik_id)
-                ->where('doctor_id', $getAppointment->doctor_id)
-                ->where('service_id', 1)
-                ->whereYear('created_at', '=', date('Y'))
-                ->whereMonth('created_at', '=', date('m'))
-                ->whereDate('created_at', '=', date('d'))
-                ->count();
-
-            $getTotalCode = str_pad(($getTotal + 1), 2, '0', STR_PAD_LEFT);
-
-            $newCode =  date('d').$getAppointment->doctor_id.$getTotalCode;
-//
-            $getSchedule = DoctorSchedule::where('id', $scheduleId)
-                ->where('doctor_id', $doctorId)
-                ->where('service_id', $serviceId)->where('book', 80)
-                ->where('date_available', '>=', date('Y-m-d'))
-                ->first();
-            if (!$getSchedule) {
-                return response()->json([
-                    'success' => 0,
-                    'message' => ['Jadwal Tidak Ditemukan'],
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ], 422);
-            }
-//            //Bikin Validasi Schedule Tidak Lewat 7 Hari
-//            else if (strtotime($getSchedule->date_available) > $validateDate){
-//                return response()->json([
-//                    'success' => 0,
-//                    'message' => ['Jadwal Lewat 7 Hari Dari Hari Ini'],
-//                    'token' => $this->request->attributes->get('_refresh_token'),
-//                ], 422);
-//            }
-
-            DB::beginTransaction();
-
-            $oldSchedule = $getAppointment->schedule_id;
-            DoctorSchedule::where('id', $oldSchedule)->update([
-                'book' => 80
-            ]);
-
-            $getSchedule->book = 99;
-            $getSchedule->save();
-
-            $getAppointment->schedule_id = $getSchedule->id;
-            $getAppointment->code = $newCode;
-            $getAppointment->date = $getSchedule->date_available;
-            $getAppointment->time_start = $getSchedule->time_start;
-            $getAppointment->time_end = $getSchedule->time_end;
-            $getAppointment->status = 1;
-            $getAppointment->save();
-
-            DB::commit();
-
+        $appointmentLogic = new UserAppointmentLogic();
+        $getResult = $appointmentLogic->reScheduleAppointment($id, $user->id, $type, $scheduleId, $date);
+        if ($getResult != 80) {
+            $message = '';
             return response()->json([
-                'success' => 1,
+                'success' => 0,
+                'message' => [$message],
                 'token' => $this->request->attributes->get('_refresh_token'),
-                'message' => ['Berhasil menganti schedule'],
-            ]);
-        }
-        else if ($type == 2) {
-            $getAppointment = AppointmentLab::where('user_id', $user->id)->where('id', $id)->first();
-            if (!$getAppointment) {
-                return response()->json([
-                    'success' => 0,
-                    'message' => ['Janji Temu Lab Tidak Ditemukan'],
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ], 404);
-            }
-            else if ($getAppointment->status != 1) {
-                return response()->json([
-                    'success' => 0,
-                    'message' => ['Janji Temu Lab tidak bisa di ganti'],
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ], 422);
-            }
-
-            $serviceId = $getAppointment->service_id;
-
-            $scheduleId = $this->request->get('schedule_id');
-            $getSchedule = LabSchedule::where('id', $scheduleId)
-                ->where('service_id', $serviceId)->where('book', 80)
-                ->where('date_available', '>=', date('Y-m-d'))->first();
-            if (!$getSchedule) {
-                return response()->json([
-                    'success' => 0,
-                    'message' => ['Jadwal Tidak Ditemukan'],
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ], 422);
-            }
-
-            DB::beginTransaction();
-
-            $getAppointment->schedule_id = $getSchedule->id;
-            $getAppointment->date = $getSchedule->date_available;
-            $getAppointment->time_start = $getSchedule->time_start;
-            $getAppointment->time_end = $getSchedule->time_end;
-            $getAppointment->save();
-
-            DB::commit();
-
-            return response()->json([
-                'success' => 1,
-                'token' => $this->request->attributes->get('_refresh_token'),
-                'message' => ['Berhasil menganti schedule'],
-            ]);
+            ], 422);
         }
 
         return response()->json([
-            'success' => 0,
-            'message' => ['Type Janji Temu Tidak Ditemukan'],
+            'success' => 1,
             'token' => $this->request->attributes->get('_refresh_token'),
-        ], 404);
+            'message' => ['Berhasil menganti schedule'],
+        ]);
 
     }
 
