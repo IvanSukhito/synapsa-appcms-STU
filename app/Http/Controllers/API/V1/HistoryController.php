@@ -38,6 +38,7 @@ class HistoryController extends Controller
         $user = $this->request->attributes->get('_user');
 
         $getServiceId = intval($this->request->get('service_id'));
+        $getSubServiceId = intval($this->request->get('sub_service_id'));
         $getDoctor = intval($this->request->get('doctor'));
         $getLab = intval($this->request->get('lab'));
         $getNurse = intval($this->request->get('nurse'));
@@ -51,13 +52,13 @@ class HistoryController extends Controller
         $transactionHistoryLogic = new TransactionHistoryLogic();
 
         if ($getDoctor == 1) {
-            $getData = $transactionHistoryLogic->doctorHistory($user->id, $getServiceId, $getLimit, $s);
+            $getData = $transactionHistoryLogic->doctorHistory($user->id, $getServiceId, $getSubServiceId, $getLimit, $s);
             $getProduct = 0;
             $getLab = 0;
             $getNurse = 0;
         }
         elseif ($getLab == 1) {
-            $getData = $transactionHistoryLogic->labHistory($user->id, $getServiceId, $getLimit, $s);
+            $getData = $transactionHistoryLogic->labHistory($user->id, $getServiceId, $getSubServiceId, $getLimit, $s);
             $getProduct = 0;
             $getDoctor = 0;
             $getNurse = 0;
@@ -82,12 +83,44 @@ class HistoryController extends Controller
         $active['lab'] = $getLab;
         $active['nurse'] = $getNurse;
 
+        $getServiceId = $active['service'] ?? 0;
+        $getSubServiceId = $active['sub_service'] ?? 0;
+
+        $getService = $getData['service'] ?? [];
+        $getSubService = $getData['sub_service'] ?? [];
+        if ($getService) {
+            $temp = [
+                'id' => 0,
+                'name' => 'Semua',
+                'type' => 0,
+                'type_nice' => '',
+                'active' => $getServiceId == 0 ? 1 : 0
+            ];
+            foreach ($getService as $list) {
+                $temp[] = $list;
+            }
+            $getService = $temp;
+        }
+        if ($getSubService) {
+            $temp = [
+                'id' => 0,
+                'name' => 'Semua',
+                'type' => 0,
+                'type_nice' => '',
+                'active' => $getSubServiceId == 0 ? 1 : 0
+            ];
+            foreach ($getSubService as $list) {
+                $temp[] = $list;
+            }
+            $getSubService = $temp;
+        }
+
         return response()->json([
             'success' => 1,
             'data' => [
                 'data' => $getData['data'],
-                'service' => $getData['service'] ?? [],
-                'sub_service' => $getData['sub_service'] ?? [],
+                'service' => $getService,
+                'sub_service' => $getSubService,
                 'default_image' => $getData['default_image'] ?? '',
                 'active' => $active
             ],

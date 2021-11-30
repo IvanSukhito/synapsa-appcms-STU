@@ -55,14 +55,15 @@ class TransactionHistoryLogic
     /**
      * @param $userId
      * @param $serviceId
+     * @param $subServiceId
      * @param $limit
      * @param $search
      * @return array
      */
-    public function doctorHistory($userId, $serviceId, $limit, $search): array
+    public function doctorHistory($userId, $serviceId, $subServiceId, $limit, $search): array
     {
         $doctorLogic = new DoctorLogic();
-        $getService = $doctorLogic->getListService($serviceId);
+        $getService = $doctorLogic->getListService($serviceId, $subServiceId);
 
         $getData = Transaction::selectRaw('transaction.id, transaction.created_at,
             transaction.category_service_id, transaction.category_service_name,
@@ -109,14 +110,15 @@ class TransactionHistoryLogic
     /**
      * @param $userId
      * @param $serviceId
+     * @param $subServiceId
      * @param $limit
      * @param $search
      * @return array
      */
-    public function labHistory($userId, $serviceId, $limit, $search): array
+    public function labHistory($userId, $serviceId, $subServiceId, $limit, $search): array
     {
         $labLogic = new LabLogic();
-        $getService = $labLogic->getListService($serviceId);
+        $getService = $labLogic->getListService($serviceId, $subServiceId);
 
         $getData = Transaction::selectRaw('transaction.id, transaction.created_at,
             transaction.category_service_id, transaction.category_service_name,
