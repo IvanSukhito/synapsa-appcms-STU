@@ -31,11 +31,12 @@ class TransactionDetails extends Model
         'product_price_nice',
         'doctor_price_nice',
         'lab_price_nice',
+        'extra_info_nice',
     ];
 
-    public function getLabPriceNiceAttribute()
+    public function getProductPriceNiceAttribute()
     {
-        return intval($this->lab_price) > 0 ? number_format($this->lab_price, 0, ',', '.') : 0;
+        return intval($this->product_price) > 0 ? number_format($this->product_price, 0, ',', '.') : 0;
     }
 
     public function getDoctorPriceNiceAttribute()
@@ -43,14 +44,31 @@ class TransactionDetails extends Model
         return intval($this->doctor_price) > 0 ? number_format($this->doctor_price, 0, ',', '.') : 0;
     }
 
-    public function getProductPriceNiceAttribute()
+    public function getLabPriceNiceAttribute()
     {
-        return intval($this->product_price) > 0 ? number_format($this->product_price, 0, ',', '.') : 0;
+        return intval($this->lab_price) > 0 ? number_format($this->lab_price, 0, ',', '.') : 0;
+    }
+
+    public function getExtraInfoNiceAttribute()
+    {
+        return isset($this->extra_info) ? json_decode($this->extra_info, true) : [];
     }
 
     public function getTransaction()
     {
         return $this->belongsTo(Transaction::class, 'transaction_id', 'id');
+    }
+
+    public function getCreatedAtAttribute()
+    {
+        return \Carbon\Carbon::parse($this->attributes['created_at'])
+            ->format('Y-m-d H:i:s');
+    }
+
+    public function getUpdatedAtAttribute()
+    {
+        return \Carbon\Carbon::parse($this->attributes['updated_at'])
+            ->format('Y-m-d H:i:s');
     }
 
 }
