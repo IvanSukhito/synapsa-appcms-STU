@@ -918,7 +918,8 @@ if ( ! function_exists('listAvailablePermission'))
                      'appointment-nurse',
                      'clinic_info',
                      'transaction-product',
-                     'invoice'
+                     'invoice',
+                     'user-clinic',
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [
@@ -943,7 +944,6 @@ if ( ! function_exists('listAvailablePermission'))
                      'appointment-lab',
                      'appointment-lab-visit',
                      'appointment-lab-homecare',
-                     'user-clinic',
                      'doctor-clinic-visit',
                      'doctor-clinic-telemed',
                      'doctor-clinic-homecare',
