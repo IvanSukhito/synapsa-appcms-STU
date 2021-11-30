@@ -275,36 +275,52 @@ class TransactionHistoryLogic
 
     }
 
-    public function reTriggerPayment($userId, $transactionId)
+    /**
+     * @param $userId
+     * @param $transactionId
+     * @return array
+     */
+    public function reTriggerPayment($userId, $transactionId): array
     {
-        $getTransaction = Transaction::where('id', '=', $transactionId)->where('user_id', '=', $userId)->where('status', '=', 2)->first();
+        $getTransaction = Transaction::where('id', '=', $transactionId)->where('user_id', '=', $userId)->first();
         if ($getTransaction) {
-            $getPayment = Payment::where('id', $getTransaction->payment_id)->first();
-            if ($getPayment && $getPayment->service == 'xendit' && (substr($getPayment->type_payment, 0, 3) == 'ew_' || $getPayment->type_payment == 'qr_qris')) {
-                $synapsaLogic = new SynapsaLogic();
+            if ($getTransaction->status == 2) {
+                $getPayment = Payment::where('id', $getTransaction->payment_id)->first();
+                if ($getPayment && $getPayment->service == 'xendit' && (substr($getPayment->type_payment, 0, 3) == 'ew_' || $getPayment->type_payment == 'qr_qris')) {
+                    $synapsaLogic = new SynapsaLogic();
 
-                $getNewCode = str_pad(($getTransaction->id), 6, '0', STR_PAD_LEFT).rand(100000,999999);
+                    $getNewCode = str_pad(($getTransaction->id), 6, '0', STR_PAD_LEFT).rand(100000,999999);
 
-                $getAdditional = json_decode($getTransaction->send_info, true);
-                $getAdditional['code'] = $getNewCode;
-                $getAdditional['job']['code'] = $getNewCode;
+                    $getAdditional = json_decode($getTransaction->send_info, true);
+                    $getAdditional['code'] = $getNewCode;
+                    $getAdditional['job']['code'] = $getNewCode;
 
-                $getPaymentInfo = $synapsaLogic->createPayment($getPayment, $getAdditional, $transactionId);
-                if ($getPaymentInfo['success'] == 1) {
-                    return [
-                        'success' => 1,
-                        'data' => [
-                            'payment' => 0,
-                            'info' => $getPaymentInfo['info']
-                        ]
-                    ];
+                    $getPaymentInfo = $synapsaLogic->createPayment($getPayment, $getAdditional, $transactionId);
+                    if ($getPaymentInfo['success'] == 1) {
+                        return [
+                            'success' => 80,
+                            'data' => [
+                                'payment' => 0,
+                                'info' => $getPaymentInfo['info']
+                            ]
+                        ];
+                    }
                 }
 
+                return [
+                    'success' => 92
+                ];
+
             }
+
+            return [
+                'success' => 91
+            ];
+
         }
 
         return [
-            'success' => 0
+            'success' => 90
         ];
 
     }

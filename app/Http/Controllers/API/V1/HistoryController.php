@@ -122,7 +122,7 @@ class HistoryController extends Controller
         if ($getData['success'] == 0) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Tipe Riwayat Transakti Tidak Ditemukan'],
+                'message' => ['Tipe Riwayat Transaksi Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
@@ -141,54 +141,29 @@ class HistoryController extends Controller
         $user = $this->request->attributes->get('_user');
 
         $transactionHistoryLogic = new TransactionHistoryLogic();
-        $getData = $transactionHistoryLogic->detailHistory($user->id, $id);
-
-        $getData = Transaction::where('id', '=', $id)
-            ->where('user_id', '=', $user->id)
-            ->first();
-        if (!$getData) {
+        $getData = $transactionHistoryLogic->reTriggerPayment($user->id, $id);
+        if ($getData['success'] != 80) {
+            switch ($getData['success']) {
+                case 91: $message = 'Riwayat Transaksi Tidak Menggunakan E-Wallet atau QRis';
+                    break;
+                case 92: $message = 'Riwayat Transaksi Sudah Tidak boleh Re Payment';
+                    break;
+                default: $message = 'Riwayat Transaksi Tidak Ditemukan';
+                    break;
+            }
             return response()->json([
                 'success' => 0,
-                'message' => ['Riwayat Transakti Tidak Ditemukan'],
+                'message' => [$message],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
 
-        if ($getData->status == 2) {
-
-            $getNewCode = str_pad(($getData->id), 6, '0', STR_PAD_LEFT).rand(100000,999999);
-
-            $getAdditional = json_decode($getData->send_info, true);
-            $getAdditional['code'] = $getNewCode;
-            $getAdditional['job']['code'] = $getNewCode;
-
-            $newLogic = new SynapsaLogic();
-            $getPayment = Payment::where('id', $getData->payment_id)->first();
-            $getResult = $newLogic->createPayment($getPayment, $getAdditional, $id);
-            if ($getResult['success'] == 1) {
-
-                $getInfo = isset($getResult['info']) ? $getResult['info'] : '';
-
-                return response()->json([
-                    'success' => 1,
-                    'data' => [
-                        'payment' => 0,
-                        'info' => $getInfo,
-                    ],
-                    'message' => ['Berhasil'],
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ]);
-
-            }
-
-
-        }
-
         return response()->json([
-            'success' => 0,
-            'message' => ['Riwayat Transakti Tidak Ditemukan'],
+            'success' => 1,
+            'data' => $getData['data'],
+            'message' => ['Berhasil'],
             'token' => $this->request->attributes->get('_refresh_token'),
-        ], 404);
+        ]);
 
     }
 
