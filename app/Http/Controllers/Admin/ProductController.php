@@ -126,15 +126,13 @@ class ProductController extends _CrudController
             }
         }
 
-        $listTypeObat = [];
+        $listTypeObat = [0 => 'Normal'];
         $getTypeObat = MedicineType::where('status', 80)->pluck('name', 'id')->toArray();
         if($getTypeObat) {
             foreach($getTypeObat as $key => $value) {
                 $listTypeObat[$key] = $value;
             }
         }
-
-        //dd($listTypeObat);
 
         $klinik_id = [0 => 'Synapsa'];
         foreach(Klinik::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
