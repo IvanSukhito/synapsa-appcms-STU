@@ -683,15 +683,21 @@ class UserLogic
      */
     public function userCartLabChoose($userId, $labCartIds): int
     {
-        $getLabCarts = LabCart::where('user_id', $userId)->whereIn('id', $labCartIds)->get();
-        if ($getLabCarts->count() > 0) {
+        if (count($labCartIds) > 0) {
             DB::beginTransaction();
-            foreach ($getLabCarts as $getLabCart) {
-                $getLabCart->choose = 1;
-                $getLabCart->save();
+            LabCart::where('user_id', $userId)->whereNotIn('id', $labCartIds)->update([
+                'choose' => 0
+            ]);
+            $getLabCarts = LabCart::where('user_id', $userId)->whereIn('id', $labCartIds)->get();
+            if ($getLabCarts->count() > 0) {
+                foreach ($getLabCarts as $getLabCart) {
+                    $getLabCart->choose = 1;
+                    $getLabCart->save();
+                }
+                DB::commit();
+                return 1;
             }
             DB::commit();
-            return 1;
         }
         return 0;
     }
