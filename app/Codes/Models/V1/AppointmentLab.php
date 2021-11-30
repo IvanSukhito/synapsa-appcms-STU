@@ -34,16 +34,22 @@ class AppointmentLab extends Model
         'created_at',
     ];
 
+    public function getFormPatientAttribute()
+    {
+        return isset($this->form_patient) && strlen($this->form_patient) > 1 ? env('OSS_URL').'/'.$this->form_patient : '';
+    }
+
     public function getCreatedAtAttribute()
     {
         return \Carbon\Carbon::parse($this->attributes['created_at'])
             ->format('H:i:s Y-m-d ');
     }
-     public function getStatusAppointmentAttribute()
-     {
-         $getList = get_list_appointment();
-         return $getList[$this->status] ?? $this->status;
-     }
+
+    public function getStatusAppointmentAttribute()
+    {
+        $getList = get_list_appointment();
+        return $getList[$this->status] ?? $this->status;
+    }
 
     public function getAppointmentLabDetails()
     {

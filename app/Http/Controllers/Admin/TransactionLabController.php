@@ -350,10 +350,14 @@ class TransactionLabController extends _CrudController
             $getTransaction->save();
 
             $transactionId = $id;
-            $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
-            if ($getDetail) {
+            $getDetails = TransactionDetails::where('transaction_id', $transactionId)->first();
+            $extraInfo = [];
+            $scheduleId = 0;
+            foreach ($getDetails as $getDetail) {
                 $extraInfo = json_decode($getDetail->extra_info, true);
                 $scheduleId = $getDetail->schedule_id;
+            }
+            if ($getDetails->count() > 0) {
                 $getDate = $extraInfo['date'] ?? '';
                 $getServiceName = $extraInfo['service_name'] ?? '';
 
@@ -361,7 +365,7 @@ class TransactionLabController extends _CrudController
 
                 $labLogic = new LabLogic();
                 $labLogic->appointmentCreate($scheduleId, $getDate, $getUser,
-                    $getServiceName, $getTransaction, $getTransaction->code, $extraInfo);
+                    $getServiceName, $getTransaction, $getTransaction->code, $extraInfo, $getDetails);
             }
         }
 

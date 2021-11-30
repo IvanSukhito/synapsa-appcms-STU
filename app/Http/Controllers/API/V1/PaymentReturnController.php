@@ -98,10 +98,14 @@ class PaymentReturnController extends Controller
         }
         else if ($getType == 3) {
             $transactionId = $getTransaction->id;
-            $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
-            if ($getDetail) {
+            $getDetails = TransactionDetails::where('transaction_id', $transactionId)->get();
+            $extraInfo = [];
+            $scheduleId = 0;
+            foreach ($getDetails as $getDetail) {
                 $extraInfo = json_decode($getDetail->extra_info, true);
                 $scheduleId = $getDetail->schedule_id;
+            }
+            if ($getDetails->count() > 0) {
                 $getDate = $extraInfo['date'] ?? '';
                 $getServiceName = $extraInfo['service_name'] ?? '';
 
@@ -109,7 +113,7 @@ class PaymentReturnController extends Controller
 
                 $labLogic = new LabLogic();
                 $getResult = $labLogic->appointmentCreate($scheduleId, $getDate, $getUser,
-                    $getServiceName, $getTransaction, $getTransaction->code, $extraInfo);
+                    $getServiceName, $getTransaction, $getTransaction->code, $extraInfo, $getDetails);
             }
         }
         else if ($getType == 4) {

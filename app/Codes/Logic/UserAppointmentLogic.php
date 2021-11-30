@@ -86,11 +86,37 @@ class UserAppointmentLogic
 
     }
 
-    public function appointmentInfo($appointmentId, $type)
+    public function appointmentInfo($userId, $appointmentId, $type)
     {
-        switch ($type) {
-            default:
-                break;
+        if ($type == 2) {
+            $data = AppointmentLab::selectRaw('appointment_lab.*, lab.name as lab_name')
+                ->join('appointment_lab_details', function($join){
+                    $join->on('appointment_lab_details.appointment_lab_id','=','appointment_lab.id')
+                        ->on('appointment_lab_details.id', '=', DB::raw("(select min(id) from appointment_lab_details WHERE appointment_lab_details.appointment_lab_id = appointment_lab.id)"));
+                })
+                ->join('lab', function($join){
+                    $join->on('lab.id','=','appointment_lab_details.lab_id')
+                        ->on('lab.id', '=', DB::raw("(select min(id) from lab WHERE lab.id = appointment_lab_details.lab_id)"));
+                })
+                ->where('user_id',$userId)
+                ->where('appointment_lab.id', $appointmentId)
+                ->first();
+
+            $getDetails = $data->getAppointmentLabDetails()->selectRaw('appointment_lab_details.*,
+                    lab.image, CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full')
+                ->join('lab','lab.id','=','appointment_lab_details.lab_id')
+                ->get();
+
+        }
+        else {
+            $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full, transaction_details.extra_info as extra_info')
+                ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
+                ->join('users', 'users.id', '=', 'doctor.user_id')
+                ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
+                ->join('transaction_details','transaction_details.transaction_id','=','appointment_doctor.transaction_id', 'LEFT')
+                ->where('appointment_doctor.user_id', $userId)
+                ->where('appointment_doctor.id', $appointmentId)
+                ->first();
         }
     }
 
