@@ -86,38 +86,77 @@ class UserAppointmentLogic
 
     }
 
-    public function appointmentInfo($userId, $appointmentId, $type)
+    public function appointmentInfo($userId, $appointmentId, $type, $userPhone = null)
     {
+        $getResult = [];
         if ($type == 2) {
-            $data = AppointmentLab::selectRaw('appointment_lab.*, lab.name as lab_name')
-                ->join('appointment_lab_details', function($join){
-                    $join->on('appointment_lab_details.appointment_lab_id','=','appointment_lab.id')
-                        ->on('appointment_lab_details.id', '=', DB::raw("(select min(id) from appointment_lab_details WHERE appointment_lab_details.appointment_lab_id = appointment_lab.id)"));
-                })
-                ->join('lab', function($join){
-                    $join->on('lab.id','=','appointment_lab_details.lab_id')
-                        ->on('lab.id', '=', DB::raw("(select min(id) from lab WHERE lab.id = appointment_lab_details.lab_id)"));
-                })
-                ->where('user_id',$userId)
+            $data = AppointmentLab::where('user_id',$userId)
                 ->where('appointment_lab.id', $appointmentId)
                 ->first();
 
-            $getDetails = $data->getAppointmentLabDetails()->selectRaw('appointment_lab_details.*,
+            if ($data) {
+                $getDetails = $data->getAppointmentLabDetails()->selectRaw('appointment_lab_details.*,
                     lab.image, CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full')
-                ->join('lab','lab.id','=','appointment_lab_details.lab_id')
-                ->get();
+                    ->join('lab','lab.id','=','appointment_lab_details.lab_id')
+                    ->get();
+
+                $userLogic = new UserLogic();
+
+                $getResult = [
+                    'data' => $data,
+                    'product' => $getDetails,
+                    'address' => $userLogic->userAddress($userId, $userPhone)
+                ];
+            }
 
         }
         else {
-            $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full, transaction_details.extra_info as extra_info')
+            $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, 
+                users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
                 ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
                 ->join('users', 'users.id', '=', 'doctor.user_id')
                 ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
-                ->join('transaction_details','transaction_details.transaction_id','=','appointment_doctor.transaction_id', 'LEFT')
                 ->where('appointment_doctor.user_id', $userId)
                 ->where('appointment_doctor.id', $appointmentId)
                 ->first();
+
+            if ($data) {
+                $formPatient = json_decode($data->form_patient, true);
+                $doctorPrescription = json_decode($data->doctor_prescription, true);
+
+                $getDetails = $data->getAppointmentDoctorProduct()->selectRaw('appointment_doctor_product.id, 
+                    product.id as product_id, product.name, product.image, CONCAT("'.env('OSS_URL').'/'.'", product.image) AS image_full, 
+                    product.price, product.unit, appointment_doctor_product.product_qty, appointment_doctor_product.choose,
+                    appointment_doctor_product.dose, appointment_doctor_product.type_dose, appointment_doctor_product.period, 
+                    appointment_doctor_product.note')
+                    ->join('product', 'product.id', '=', 'appointment_doctor_product.product_id')
+                    ->get();
+
+                $userLogic = new UserLogic();
+
+                $getResult = [
+                    'data' => $data,
+                    'product' => $getDetails,
+                    'form_patient' => $formPatient,
+                    'doctor_prescription' => $doctorPrescription,
+                    'address' => $userLogic->userAddress($userId, $userPhone)
+                ];
+            }
+
         }
+
+        if (!empty($getResult)) {
+            return [
+                'success' => 1,
+                'data' => $getResult
+            ];
+        }
+        else {
+            return [
+                'success' => 0
+            ];
+        }
+
     }
 
 }
