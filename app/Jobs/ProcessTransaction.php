@@ -670,7 +670,7 @@ class ProcessTransaction implements ShouldQueue
             'payment_info' => json_encode($getPaymentInfo),
             'category_service_id' => $getServiceId,
             'category_service_name' => $getService ? $getService->name : '',
-            'type_service' => 2,
+            'type_service' => 3,
             'type_service_name' => $getTypeService,
             'total_qty' => 1,
             'subtotal' => $subTotal,

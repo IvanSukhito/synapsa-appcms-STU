@@ -99,37 +99,45 @@ class TransactionHistoryLogic
 
     }
 
-    public function labHistory($userId, $serviceId, $limit, $s): array
+    /**
+     * @param $userId
+     * @param $serviceId
+     * @param $limit
+     * @param $s
+     * @return array
+     */
+    public function labHistory($userId, $serviceId, $limit, $search): array
     {
-        $doctorLogic = new LabLogic();
-        $getService = $doctorLogic->getListService($serviceId);
+        $labLogic = new LabLogic();
+        $getService = $labLogic->getListService($serviceId);
 
         $getData = Transaction::selectRaw('transaction.id, transaction.created_at,
             transaction.category_service_id, transaction.category_service_name,
             transaction.type_service, transaction.type_service_name, transaction.user_id, transaction.status,
-            doctor_category.name as category_doctor, MIN(doctor_name) AS doctor_name,
-            MIN(users.image) AS image, CONCAT("'.env('OSS_URL').'/'.'", MIN(users.image)) AS image_full')
-            ->leftJoin('transaction_details', 'transaction_details.transaction_id','=','transaction.id')
-            ->leftJoin('doctor', 'doctor.id','=','transaction_details.doctor_id')
-            ->leftJoin('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
-            ->leftJoin('users', 'users.id','=','doctor.user_id')
+            MIN(lab_name) AS lab_name, MIN(lab.image) as image, CONCAT("'.env('OSS_URL').'/'.'", MIN(lab.image)) AS image_full')
+            ->join('transaction_details', function($join){
+                $join->on('transaction_details.transaction_id','=','transaction.id')
+                    ->on('transaction_details.id', '=', DB::raw("(select min(id) from transaction_details WHERE transaction_details.transaction_id = transaction.id)"));
+            })
+            ->join('lab', function($join){
+                $join->on('lab.id','=','transaction_details.lab_id')
+                    ->on('lab.id', '=', DB::raw("(select min(id) from lab WHERE lab.id = transaction_details.lab_id)"));
+            })
             ->where('transaction.user_id', $userId)
-            ->where('type_service', 2);
+            ->where('type_service', 3);
 
         if ($serviceId > 0) {
             $getData = $getData->where('category_service_id', $serviceId);
         }
 
-        if (strlen($s) > 0) {
-            $getData = $getData->where('code', 'LIKE', "%$s%")->orWhere('doctor_name', 'LIKE', "%$s%");
+        if (strlen($search) > 0) {
+            $getData = $getData->where('code', 'LIKE', "%$search%")->orWhere('lab_name', 'LIKE', "%$search%");
         }
 
         $getData = $getData->orderBy('transaction.id','DESC')
             ->groupByRaw('transaction.id, transaction.created_at,
-                transaction.category_service_id, transaction.category_service_name,
-                transaction.type_service, transaction.type_service_name, transaction.user_id, transaction.status,
-                category_doctor')
-            ->paginate($limit);
+            transaction.category_service_id, transaction.category_service_name,
+            transaction.type_service, transaction.type_service_name, transaction.user_id, transaction.status')->paginate($limit);
 
         return [
             'data' => $getData,
