@@ -103,7 +103,7 @@ class TransactionHistoryLogic
      * @param $userId
      * @param $serviceId
      * @param $limit
-     * @param $s
+     * @param $search
      * @return array
      */
     public function labHistory($userId, $serviceId, $limit, $search): array
@@ -146,6 +146,53 @@ class TransactionHistoryLogic
             'default_image' => asset('assets/cms/images/no-img.png')
         ];
 
+    }
+
+    /**
+     * @param $userId
+     * @param $transactionId
+     * @return array
+     */
+    public function detailHistory($userId, $transactionId): array
+    {
+        $getTransaction = Transaction::where('id', $transactionId)->where('user_id', $userId)->first();
+        if ($getTransaction) {
+            switch ($getTransaction->type_service) {
+                case 1 : $getDetail = $getTransaction->getTransactionDetails()->selectRaw('transaction_details.id,
+                    transaction_details.product_id, transaction_details.product_name, transaction_details.product_qty,
+                    transaction_details.product_price,
+                    product.image, CONCAT("'.env('OSS_URL').'/'.'", product.image) AS image_full, CONCAT("'.env('OSS_URL').'/'.'", payment.icon_img) AS payment_icon')
+                    ->join('product', 'product.id', '=', 'transaction_details.product_id', 'LEFT')
+                    ->join('transaction','transaction.id','=','transaction_details.transaction_id', 'LEFT')
+                    ->join('payment', 'payment.id', '=', 'transaction.payment_id')
+                    ->get();
+                    break;
+
+                case 2 : $getDetail = $getTransaction->getTransactionDetails()->selectRaw('transaction_details.*,
+                        doctor_category.name AS doctor_category_name, users.image, date_available, time_start, time_end, klinik.name as klinik_name,
+                        CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full, CONCAT("'.env('OSS_URL').'/'.'", payment.icon_img) AS payment_icon')
+                    ->join('doctor', 'doctor.id', '=', 'transaction_details.doctor_id', 'LEFT')
+                    ->join('doctor_category', 'doctor_category.id', '=', 'doctor.doctor_category_id', 'LEFT')
+                    ->join('users', 'users.id', '=', 'doctor.user_id', 'LEFT')
+                    ->join('doctor_schedule','doctor_schedule.id','=','transaction_details.schedule_id','LEFT')
+                    ->join('klinik', 'klinik.id', '=', 'users.klinik_id')
+                    ->join('transaction','transaction.id','=','transaction_details.transaction_id', 'LEFT')
+                    ->join('payment', 'payment.id', '=', 'transaction.payment_id')
+                    ->first();
+                    break;
+
+                case 3 : $getDetail = $getTransaction->getTransactionDetails()->selectRaw('transaction_details.*,
+                    lab.image, date_available, time_start, time_end, CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full, 
+                    CONCAT("'.env('OSS_URL').'/'.'", payment.icon_img) AS payment_icon')
+                    ->join('lab', 'lab.id', '=', 'transaction_details.lab_id', 'LEFT')
+                    ->join('lab_schedule','lab_schedule.id','=','transaction_details.schedule_id', 'LEFT')
+                    ->join('transaction','transaction.id','=','transaction_details.transaction_id', 'LEFT')
+                    ->join('payment', 'payment.id', '=', 'transaction.payment_id')
+                    ->get();
+                    break;
+
+            }
+        }
     }
 
 }
