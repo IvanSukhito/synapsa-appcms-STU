@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
 
+use App\Codes\Logic\ExampleLogic;
 use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Admin;
 use App\Codes\Models\Settings;
@@ -382,7 +383,7 @@ class LabClinicScheduleController extends _CrudController
         }
 
         if($this->request->get('download_example_import')) {
-            $getLogic = new SynapsaLogic();
+            $getLogic = new ExampleLogic();
             $getLogic->downloadExampleImportLabSchedule();
         }
 
