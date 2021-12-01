@@ -165,20 +165,7 @@ class DoctorAppointmentController extends Controller
 
         return response()->json([
             'success' => 1,
-            'data' => [
-                'info' => $data,
-                'date' => $data->date,
-                'time_server' => date('H:i:s'),
-                'time_start' => $data->time_start,
-                'time_end' => $data->time_end,
-                'video_app_id' => $agoraId,
-                'video_channel' => $agoraChannel,
-                'video_uid' => $agoraUidDokter,
-                'video_token' => $agoraTokenDokter,
-                'fcm_token' => $getFcmTokenPatient,
-                'users_image' => $getPatient->image_full,
-                'doctor_image' => $data->image_full,
-            ],
+            'data' => $getData,
             'message' => ['Sukses'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);

@@ -731,6 +731,16 @@ class DoctorLogic
             $listImage[$getUser->id] = $getUser->image_full;
         }
 
+        $dataResult = [
+            'info' => $getAppointment,
+            'date' => $getAppointment->date,
+            'time_server' => date('H:i:s'),
+            'time_start' => $getAppointment->time_start,
+            'time_end' => $getAppointment->time_end,
+            'patient_image' => $listImage[$getAppointment->user_id] ?? asset('assets/cms/images/no-img.png'),
+            'doctor_image' => $listImage[$userId] ?? asset('assets/cms/images/no-img.png'),
+        ];
+
         $getExtraInfo = json_decode($getAppointment->extra_info, true);
         if (isset($getExtraInfo['sub_service_id']) && $getExtraInfo['sub_service_id'] == 2) {
 
@@ -745,18 +755,8 @@ class DoctorLogic
                 ]);
             }
 
-            $dataResult = [
-                'info' => $getAppointment,
-                'appointment' => $getAppointment,
-                'date' => $getAppointment->date,
-                'time_server' => date('H:i:s'),
-                'time_start' => $getAppointment->time_start,
-                'time_end' => $getAppointment->time_end,
-                'type' => 'Chat',
-                'chat_id' => $chatId,
-                'patient_image' => $listImage[$getAppointment->user_id] ?? asset('assets/cms/images/no-img.png'),
-                'doctor_image' => $listImage[$userId] ?? asset('assets/cms/images/no-img.png'),
-            ];
+            $dataResult['type'] = 'Chat';
+            $dataResult['chat_id'] = $chatId;
 
         }
         else {
@@ -795,21 +795,11 @@ class DoctorLogic
 
             $getAppointment->save();
 
-            $dataResult = [
-                'info' => $getAppointment,
-                'appointment' => $getAppointment,
-                'date' => $getAppointment->date,
-                'time_server' => date('H:i:s'),
-                'time_start' => $getAppointment->time_start,
-                'time_end' => $getAppointment->time_end,
-                'type' => 'Video Call',
-                'video_app_id' => $agoraId,
-                'video_channel' => $agoraChannel,
-                'video_uid' => $agoraUidDoctor,
-                'video_token' => $agoraTokenDoctor,
-                'patient_image' => $listImage[$getAppointment->user_id] ?? asset('assets/cms/images/no-img.png'),
-                'doctor_image' => $listImage[$userId] ?? asset('assets/cms/images/no-img.png'),
-            ];
+            $dataResult['type'] = 'Video Call';
+            $dataResult['video_app_id'] = $agoraId;
+            $dataResult['video_channel'] = $agoraChannel;
+            $dataResult['video_uid'] = $agoraUidDoctor;
+            $dataResult['video_token'] = $agoraTokenDoctor;
 
         }
 
