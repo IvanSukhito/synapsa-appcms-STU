@@ -918,9 +918,9 @@ class DoctorLogic
     /**
      * @param $appointmentId
      * @param $userId
-     * @return bool
+     * @return bool|mixed
      */
-    public function meetingCallFinish($appointmentId, $userId): bool
+    public function meetingCallFinish($appointmentId, $userId)
     {
         $getAppointmentData = $this->checkMeeting($appointmentId, $userId);
         if ($getAppointmentData['success'] != 80) {
@@ -941,7 +941,7 @@ class DoctorLogic
      * @param $userId
      * @return bool|mixed
      */
-    public function meetingCallFailed($appointmentId, $userId): bool
+    public function meetingCallFailed($appointmentId, $userId)
     {
         $getAppointmentData = $this->checkMeeting($appointmentId, $userId);
         if ($getAppointmentData['success'] != 80) {
@@ -975,27 +975,34 @@ class DoctorLogic
         }
 
         $listDoctorPrescription = [];
-        foreach ($getDoctorPrescription as $listImage) {
-            $image = base64_to_jpeg($listImage);
-            $destinationPath = 'synapsaapps/users/'.$getAppointment->user_id.'/doctor';
-            $set_file_name = date('Ymd').'_'.md5('doctor_prescription'.strtotime('now').rand(0, 100)).'.jpg';
-            $getFile = Storage::put($destinationPath.'/'.$set_file_name, $image);
-            if ($getFile) {
-                $getImage = env('OSS_URL').'/'.$destinationPath.'/'.$set_file_name;
-                $listDoctorPrescription[] = $getImage;
+        if ($getDoctorPrescription) {
+            foreach ($getDoctorPrescription as $listImage) {
+                $image = base64_to_jpeg($listImage);
+                $destinationPath = 'synapsaapps/users/'.$getAppointment->user_id.'/doctor';
+                $set_file_name = date('Ymd').'_'.md5('doctor_prescription'.strtotime('now').rand(0, 100)).'.jpg';
+                $getFile = Storage::put($destinationPath.'/'.$set_file_name, $image);
+                if ($getFile) {
+                    $getImage = env('OSS_URL').'/'.$destinationPath.'/'.$set_file_name;
+                    $listDoctorPrescription[] = $getImage;
+                }
             }
         }
 
         DB::beginTransaction();
 
         $getFormPatient = json_decode($getAppointment->form_patient, true);
+        $bodyHeight = $getFormPatient['body_height'] ?? '';
+        $bodyWeight = $getFormPatient['body_weight'] ?? '';
+        $bloodPressure = $getFormPatient['blood_pressure'] ?? '';
+        $bodyTemperature = $getFormPatient['body_temperature'] ?? '';
+        $symptoms = $getFormPatient['symptoms'] ?? '';
 
         $getAppointment->form_patient = json_encode([
-            'body_height' => $saveData['body_height'] ?? $getFormPatient['body_height'],
-            'body_weight' => $saveData['body_weight'] ?? $getFormPatient['body_weight'],
-            'blood_pressure' => $saveData['blood_pressure'] ?? $getFormPatient['blood_pressure'],
-            'body_temperature' => $saveData['body_temperature'] ?? $getFormPatient['body_temperature'],
-            'symptoms' => $saveData['symptoms'] ?? $getFormPatient['symptoms']
+            'body_height' => $saveData['body_height'] ?? $bodyHeight,
+            'body_weight' => $saveData['body_weight'] ?? $bodyWeight,
+            'blood_pressure' => $saveData['blood_pressure'] ?? $bloodPressure,
+            'body_temperature' => $saveData['body_temperature'] ?? $bodyTemperature,
+            'symptoms' => $saveData['symptoms'] ?? $symptoms
         ]);
 
         $getAppointment->diagnosis = isset($saveData['diagnosis']) ? strip_tags($saveData['diagnosis']) : '';

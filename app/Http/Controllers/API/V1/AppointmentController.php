@@ -486,7 +486,27 @@ class AppointmentController extends Controller
         }
 
         $userLogic = new UserLogic();
-        $userLogic->userCartAppointmentDoctor($user->id, $id);
+        $getUserCart = $userLogic->userCartAppointmentDoctor($user->id, $id);
+        if ($getUserCart['success'] == 0) {
+            return response()->json([
+                'success' => 0,
+                'message' => [$getUserCart['message'] ?? ''],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
+        return response()->json([
+            'success' => 1,
+            'data' => [
+                'data' => $getUserCart['appointment'],
+                'product' => $getUserCart['cart'],
+                'total' => $getUserCart['total'],
+                'total_nice' => $getUserCart['total_nice']
+            ],
+            'message' => ['Sukses'],
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
+
 
         $data = AppointmentDoctor::whereIn('status', [80])->where('user_id', $user->id)->where('id', $id)->first();
         if (!$data) {

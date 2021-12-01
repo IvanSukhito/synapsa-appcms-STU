@@ -3,7 +3,6 @@
 namespace App\Codes\Logic;
 
 use App\Codes\Models\V1\AppointmentDoctor;
-use App\Codes\Models\V1\AppointmentDoctorProduct;
 use App\Codes\Models\V1\DeviceToken;
 use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\Klinik;
@@ -734,51 +733,19 @@ class UserLogic
         }
         $getCart = $getCart->get();
 
-        $labIds = [];
-        $labCartIds = [];
-        $serviceId = 0;
-        $getChoose = [];
-        foreach ($getCart as $list) {
-            $labIds[] = $list->lab_id;
-            $labCartIds[$list->lab_id] = $list->id;
-            $serviceId = $list->service_id;
-            if ($list->choose == 1) {
-                $getChoose[$list->lab_id] = 1;
-            }
-        }
-
-        $labLogic = new LabLogic();
-        $getService = $labLogic->getListService($serviceId);
-
         $total = 0;
-        if (count($labIds) > 0) {
-            $getData = Lab::selectRaw('lab.id AS lab_id, lab.parent_id, lab.name, lab.image, lab.desc_lab, lab.desc_benefit,
-                lab.desc_preparation, lab.recommended_for, lab_service.service_id, lab_service.price')
-                ->join('lab_service', 'lab_service.lab_id','=','lab.id')
-                ->whereIn('lab.id', $labIds)
-                ->where('lab_service.service_id','=', $serviceId)->get()->toArray();
-
-            $temp = [];
-            foreach ($getData as $list) {
-                $total += $list['price'];
-                $list['choose'] = isset($getChoose[$list['lab_id']]) ? intval($getChoose[$list['lab_id']]) : 0;
-                $list['id'] = isset($labCartIds[$list['lab_id']]) ? intval($labCartIds[$list['lab_id']]) : 0;
-                $temp[] = $list;
-            }
-            $getData = $temp;
-
-        }
-        else {
-            $getData = [];
+        foreach ($getCart as $list) {
+            $total += ($list->price * ($list->product_qty - $list->product_qty_checkout));
         }
 
         return [
-            'cart' => $getData,
-            'service' => $getService['data'],
-            'sub_service' => $getService['sub_service'],
-            'service_id' => $serviceId,
-            'total' => $total,
-            'total_nice' => number_format_local($total)
+            'success' => 1,
+            'data' => [
+                'appointment' => $getAppointment,
+                'cart' => $getCart,
+                'total' => $total,
+                'total_nice' => number_format_local($total)
+            ]
         ];
 
     }

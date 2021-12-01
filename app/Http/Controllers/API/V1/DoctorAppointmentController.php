@@ -157,7 +157,7 @@ class DoctorAppointmentController extends Controller
         if ($getResult['success'] != 80) {
             return response()->json([
                 'success' => 1,
-                'message' => ['Hanya menu untuk dokter'],
+                'message' => [$getResult['message'] ?? ''],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
