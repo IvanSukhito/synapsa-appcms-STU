@@ -4,14 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
 use App\Codes\Models\Admin;
+use App\Codes\Models\V1\AppointmentLabDetails;
 use App\Codes\Models\V1\City;
 use App\Codes\Models\V1\District;
-use App\Codes\Models\V1\Lab;
 use App\Codes\Models\V1\AppointmentLab;
 use App\Codes\Models\V1\Province;
 use App\Codes\Models\V1\Service;
 use App\Codes\Models\V1\SubDistrict;
-use App\Codes\Models\V1\Transaction;
 use App\Codes\Models\V1\Users;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -66,6 +65,7 @@ class AppointmentLabHomecareClinicController extends _CrudController
             'layanan_lab' => [
                 'create' => 0,
                 'edit' => 0,
+                'show' => 0
             ],
             'total_test' => [
                 'create' => 0,
@@ -221,27 +221,23 @@ class AppointmentLabHomecareClinicController extends _CrudController
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
 
-        $getData = $getData->selectRaw('appointment_lab.*, lab_name as layanan_lab')
-                    ->leftJoin('appointment_lab_details','appointment_lab_details.appointment_lab_id','=','appointment_lab.id')
-                    ->where('appointment_lab.id', $id)
-                    ->first();
-
         $data = $this->data;
 
-        $getDataUser =  AppointmentLab::selectRaw('appointment_lab.*, users.*')
-                        ->leftJoin('users','users.id', '=', 'appointment_lab.user_id')
-                        ->where('appointment_lab.id', $id)
-                        ->first();
+        $getDataUser =  Users::where('id', $getData->user_id)->first();
+        if($getDataUser) {
+            $data['province'] = Province::where('id', $getDataUser->province_id)->first();
+            $data['city'] = City::where('id', $getDataUser->city_id)->first();
+            $data['district'] = District::where('id', $getDataUser->district_id)->first();
+            $data['subDistrict'] = SubDistrict::where('id', $getDataUser->sub_district_id)->first();
+        }
 
+        $getDataDetails = AppointmentLabDetails::where('appointment_lab_id', $id)->get();
 
         $data['viewType'] = 'show';
         $data['formsTitle'] = __('general.title_show', ['field' => $data['thisLabel']]);
         $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
         $data['data'] = $getData;
-        $data['province'] = Province::where('id', $getDataUser->province_id)->first();
-        $data['city'] = City::where('id', $getDataUser->city_id)->first();
-        $data['district'] = District::where('id', $getDataUser->district_id)->first();
-        $data['subDistrict'] = SubDistrict::where('id', $getDataUser->sub_district_id)->first();
+        $data['dataDetails'] = $getDataDetails;
         $data['dataUser'] = $getDataUser;
 
         return view($this->listView[$data['viewType']], $data);

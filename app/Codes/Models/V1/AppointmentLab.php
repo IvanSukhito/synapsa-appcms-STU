@@ -28,13 +28,14 @@ class AppointmentLab extends Model
     ];
     protected $appends = [
         'status_appointment',
+        'form_patient_full',
     ];
 
     protected $dates = [
         'created_at',
     ];
 
-    public function getFormPatientAttribute()
+    public function getFormPatientFullAttribute()
     {
         return isset($this->form_patient) && strlen($this->form_patient) > 1 ? env('OSS_URL').'/'.$this->form_patient : '';
     }
