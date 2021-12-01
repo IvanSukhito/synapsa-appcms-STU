@@ -40,7 +40,7 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                 'App\Http\Controllers\Admin\TransactionDoctorController' => 'transaction-doctor',
                 'App\Http\Controllers\Admin\TransactionProductController' => 'transaction-product',
                 'App\Http\Controllers\Admin\ProductCategoryController' => 'product-category',
-                'App\Http\Controllers\Admin\LabClinicController' => 'lab-clinic',
+                'App\Http\Controllers\Admin\LabClinicController' => 'lab-appointment',
                 'App\Http\Controllers\Admin\LabClinicScheduleController' => 'lab-clinic-schedule',
                 'App\Http\Controllers\Admin\UsersController' => 'users',
                 'App\Http\Controllers\Admin\UsersPatientController' => 'users-patient',
