@@ -150,7 +150,7 @@ class UsersPatientController extends _CrudController
             }
         }
 
-        $getProvince = Province::pluck('name', 'id')->toArray();
+        $getProvince = Province::pluck('name', 'id')->orderBy('name', 'ASC')->toArray();
         $listProvince = [0 => 'Kosong'];
         if($getProvince) {
             foreach($getProvince as $key => $value) {
@@ -158,7 +158,7 @@ class UsersPatientController extends _CrudController
             }
         }
 
-        $getDistrict = District::pluck('name', 'id')->toArray();
+        $getDistrict = District::pluck('name', 'id')->orderBy('name', 'ASC')->toArray();
         $listDistrict = [0 => 'Kosong'];
         if($getDistrict) {
             foreach($getDistrict as $key => $value) {
@@ -166,7 +166,7 @@ class UsersPatientController extends _CrudController
             }
         }
 
-        $getSubDistrict = SubDistrict::pluck('name', 'id')->toArray();
+        $getSubDistrict = SubDistrict::pluck('name', 'id')->orderBy('name', 'ASC')->toArray();
         if($getSubDistrict) {
             foreach($getSubDistrict as $key => $value) {
                 $listSubDistrict[$key] = $value;
@@ -184,7 +184,7 @@ class UsersPatientController extends _CrudController
         $data = $this->data;
 
         //$this->data['listSet']['city_id'] = $listCity;
-        $getProvince = Province::get();
+        $getProvince = Province::orderBy('name', 'ASC')->get();
 
         $data['viewType'] = 'create';
         $data['formsTitle'] = __('general.title_create', ['field' => $data['thisLabel']]);
@@ -204,7 +204,7 @@ class UsersPatientController extends _CrudController
         }
 
         $data = $this->data;
-        $getProvince = Province::get();
+        $getProvince = Province::orderBy('name', 'ASC')->get();
 
         $data['viewType'] = 'edit';
         $data['formsTitle'] = __('general.title_edit', ['field' => $data['thisLabel']]);
@@ -594,7 +594,7 @@ class UsersPatientController extends _CrudController
         $s = $this->request->get('s');
         $provinceId = intval($this->request->get('province_id'));
 
-        $getData = City::Where('province_id', 'LIKE', strip_tags($provinceId))->get();
+        $getData = City::Where('province_id', 'LIKE', strip_tags($provinceId))->orderBy('name', 'ASC')->get();
 
         return response()->json($getData);
     }
@@ -603,7 +603,7 @@ class UsersPatientController extends _CrudController
         $s = $this->request->get('s');
         $cityId = intval($this->request->get('city_id'));
 
-        $getData = District::Where('city_id', 'LIKE', strip_tags($cityId))->get();
+        $getData = District::Where('city_id', 'LIKE', strip_tags($cityId))->orderBy('name', 'ASC')->get();
 
         return response()->json($getData);
     }
@@ -612,7 +612,7 @@ class UsersPatientController extends _CrudController
         $s = $this->request->get('s');
         $districtId = intval($this->request->get('district_id'));
 
-        $getData = SubDistrict::Where('district_id', 'LIKE', strip_tags($districtId))->get();
+        $getData = SubDistrict::Where('district_id', 'LIKE', strip_tags($districtId))->orderBy('name', 'ASC')->get();
 
         return response()->json($getData);
     }

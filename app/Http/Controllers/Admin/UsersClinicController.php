@@ -442,7 +442,7 @@ class UsersClinicController extends _CrudController
         }
 
         $data = $this->data;
-        $getProvince = Province::get();
+        $getProvince = Province::orderBy('name', 'ASC')->get();
 
         $data['viewType'] = 'edit';
         $data['formsTitle'] = __('general.title_edit', ['field' => $data['thisLabel']]);

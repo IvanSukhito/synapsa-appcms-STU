@@ -316,21 +316,21 @@ class TransactionController extends _CrudController
             }
         }
 
-        $getShippingCity = City::pluck('name', 'id')->toArray();
+        $getShippingCity = City::pluck('name', 'id')->orderBy('name', 'ASC')->toArray();
         if($getShippingCity) {
             foreach($getShippingCity as $key => $value) {
                 $listShippingCity[$key] = $value;
             }
         }
 
-        $getShippingDistrict = District::pluck('name', 'id')->toArray();
+        $getShippingDistrict = District::pluck('name', 'id')->orderBy('name', 'ASC')->toArray();
         if($getShippingDistrict) {
             foreach($getShippingDistrict as $key => $value) {
                 $listShippingDistrict[$key] = $value;
             }
         }
 
-        $getShippingSubdistrict = SubDistrict::pluck('name', 'id')->toArray();
+        $getShippingSubdistrict = SubDistrict::pluck('name', 'id')->orderBy('name', 'ASC')->toArray();
         if($getShippingSubdistrict) {
             foreach($getShippingSubdistrict as $key => $value) {
                 $listShippingSubdistrict[$key] = $value;
