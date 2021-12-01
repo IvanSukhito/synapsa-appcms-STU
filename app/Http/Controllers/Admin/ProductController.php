@@ -471,7 +471,7 @@ class ProductController extends _CrudController
         $klinikId = $data['klinik_id'];
         $productCategoryId = $data['product_category_id'];
         $productName = $data['name'];
-        $productPrice = clear_money_format($data['price']);
+        $productPrice = clear_money_format($data['price_nice']);
         $productUnit = $data['unit'];
         $productStatus = $data['status'];
         $productType = $data['type'];
