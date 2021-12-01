@@ -2,6 +2,8 @@
 
 namespace App\Codes\Logic;
 
+use App\Codes\Models\V1\AppointmentDoctor;
+use App\Codes\Models\V1\AppointmentDoctorProduct;
 use App\Codes\Models\V1\DeviceToken;
 use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\Klinik;
@@ -702,6 +704,83 @@ class UserLogic
             DB::commit();
         }
         return 0;
+    }
+
+    /**
+     * @param $userId
+     * @param $appointmentId
+     * @param int $choose
+     * @return array
+     */
+    public function userCartAppointmentDoctor($userId, $appointmentId, int $choose = 0): array
+    {
+        $getAppointment = AppointmentDoctor::where('user_id', $userId)->where('id', $appointmentId)->where('status', 80)->first();
+        if (!$getAppointment) {
+            return [
+                'success' => 0,
+                'message' => 'Appointment Not Found'
+            ];
+        }
+
+        $getCart = Product::selectRaw('appointment_doctor_product.id, product.id as product_id, product.name,
+                product.image, appointment_doctor_product.product_price, product.unit, product.stock, product.stock_flag, product.type,
+                appointment_doctor_product.product_qty, appointment_doctor_product.product_qty_checkout, appointment_doctor_product.choose,
+                appointment_doctor_product.dose, appointment_doctor_product.type_dose, appointment_doctor_product.period
+                appointment_doctor_product.note, appointment_doctor_product.choose, appointment_doctor_product.status')
+            ->join('appointment_doctor_product', 'appointment_doctor_product.product_id', '=', 'product.id')
+            ->where('appointment_doctor_product.users_cart_id', '=', $appointmentId);
+        if ($choose == 1) {
+            $getCart = $getCart->where('choose', '=', 1);
+        }
+        $getCart = $getCart->get();
+
+        $labIds = [];
+        $labCartIds = [];
+        $serviceId = 0;
+        $getChoose = [];
+        foreach ($getCart as $list) {
+            $labIds[] = $list->lab_id;
+            $labCartIds[$list->lab_id] = $list->id;
+            $serviceId = $list->service_id;
+            if ($list->choose == 1) {
+                $getChoose[$list->lab_id] = 1;
+            }
+        }
+
+        $labLogic = new LabLogic();
+        $getService = $labLogic->getListService($serviceId);
+
+        $total = 0;
+        if (count($labIds) > 0) {
+            $getData = Lab::selectRaw('lab.id AS lab_id, lab.parent_id, lab.name, lab.image, lab.desc_lab, lab.desc_benefit,
+                lab.desc_preparation, lab.recommended_for, lab_service.service_id, lab_service.price')
+                ->join('lab_service', 'lab_service.lab_id','=','lab.id')
+                ->whereIn('lab.id', $labIds)
+                ->where('lab_service.service_id','=', $serviceId)->get()->toArray();
+
+            $temp = [];
+            foreach ($getData as $list) {
+                $total += $list['price'];
+                $list['choose'] = isset($getChoose[$list['lab_id']]) ? intval($getChoose[$list['lab_id']]) : 0;
+                $list['id'] = isset($labCartIds[$list['lab_id']]) ? intval($labCartIds[$list['lab_id']]) : 0;
+                $temp[] = $list;
+            }
+            $getData = $temp;
+
+        }
+        else {
+            $getData = [];
+        }
+
+        return [
+            'cart' => $getData,
+            'service' => $getService['data'],
+            'sub_service' => $getService['sub_service'],
+            'service_id' => $serviceId,
+            'total' => $total,
+            'total_nice' => number_format_local($total)
+        ];
+
     }
 
 }

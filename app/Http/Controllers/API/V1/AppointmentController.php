@@ -485,6 +485,9 @@ class AppointmentController extends Controller
             ], 422);
         }
 
+        $userLogic = new UserLogic();
+        $userLogic->userCartAppointmentDoctor($user->id, $id);
+
         $data = AppointmentDoctor::whereIn('status', [80])->where('user_id', $user->id)->where('id', $id)->first();
         if (!$data) {
             return response()->json([
