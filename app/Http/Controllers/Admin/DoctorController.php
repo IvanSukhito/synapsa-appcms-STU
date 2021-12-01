@@ -947,9 +947,11 @@ class DoctorController extends _CrudController
 
         $data = $this->data;
 
+        $getUser = Users::where('id', $getData->user_id)->first();
+
         $data['viewType'] = 'edit';
         $data['thisLabel'] = 'Password';
-        $data['formsTitle'] = __('general.title_edit', ['field' => $data['thisLabel'].' '.$getData->fullname]);
+        $data['formsTitle'] = __('general.title_edit', ['field' => $data['thisLabel'].' '.$getUser->fullname]);
         $data['passing'] = generatePassingData([
 
             'password' => [
