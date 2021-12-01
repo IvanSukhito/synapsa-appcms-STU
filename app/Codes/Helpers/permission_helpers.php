@@ -952,6 +952,7 @@ if ( ! function_exists('listAvailablePermission'))
                      'doctor-telemed',
                      'doctor-homecare',
                      'pharmacy',
+                     'doctor',
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [
@@ -985,7 +986,6 @@ if ( ! function_exists('listAvailablePermission'))
                      'payment',
                      'shipping',
                      'doctor_clinic',
-                     'doctor',
                      'customer-support',
                      'banner',
                      'banner-clinic',
@@ -1044,16 +1044,16 @@ if ( ! function_exists('listAvailablePermission'))
         $listPermission['doctor_clinic']['edit'][] = 'admin.doctor_clinic.updateSchedule';
         $listPermission['doctor_clinic']['destroy'][] = 'admin.doctor_clinic.destroySchedule';
 
-        $listPermission['doctor']['create'][] = 'admin.doctor.create2';
-        $listPermission['doctor']['create'][] = 'admin.doctor.store2';
-        $listPermission['doctor']['create'][] = 'admin.doctor.schedule';
-        $listPermission['doctor']['create'][] = 'admin.doctor.storeSchedule';
-        $listPermission['doctor']['create'][] = 'admin.doctor.createschedule2';
-        $listPermission['doctor']['create'][] = 'admin.doctor.storeschedule2';
-        $listPermission['doctor']['edit'][] = 'admin.doctor.updateSchedule';
-        $listPermission['doctor']['edit'][] = 'admin.doctor.forgotPassword';
-        $listPermission['doctor']['edit'][] = 'admin.doctor.updatePassword';
-        $listPermission['doctor']['destroy'][] = 'admin.doctor.destroySchedule';
+//        $listPermission['doctor']['create'][] = 'admin.doctor.create2';
+//        $listPermission['doctor']['create'][] = 'admin.doctor.store2';
+//        $listPermission['doctor']['create'][] = 'admin.doctor.schedule';
+//        $listPermission['doctor']['create'][] = 'admin.doctor.storeSchedule';
+//        $listPermission['doctor']['create'][] = 'admin.doctor.createschedule2';
+//        $listPermission['doctor']['create'][] = 'admin.doctor.storeschedule2';
+//        $listPermission['doctor']['edit'][] = 'admin.doctor.updateSchedule';
+        $listPermission['doctor']['list'][] = 'admin.doctor.forgotPassword';
+        $listPermission['doctor']['list'][] = 'admin.doctor.updatePassword';
+//        $listPermission['doctor']['destroy'][] = 'admin.doctor.destroySchedule';
 
         $listPermission['lab-clinic-schedule']['edit'][] = 'admin.lab-clinic-schedule.updateLab';
         $listPermission['lab-clinic-schedule']['create'][] = 'admin.lab-clinic-schedule.create2';
@@ -1097,6 +1097,9 @@ if ( ! function_exists('listAvailablePermission'))
 
         $listPermission['admin']['edit'][] = 'admin.admin.forgotPassword';
         $listPermission['admin']['edit'][] = 'admin.admin.updatePassword';
+
+        $listPermission['doctor']['edit'][] = 'admin.doctor.forgotPassword';
+        $listPermission['doctor']['edit'][] = 'admin.doctor.updatePassword';
 
         $listPermission['product-clinic']['create'][] = 'admin.product-clinic.create2';
         $listPermission['product-clinic']['create'][] = 'admin.product-clinic.store2';

@@ -21,7 +21,6 @@
         <i class="fa fa-lock"></i>
         <span class="d-none d-md-inline"> @lang('general.password')</span>
     </a>
-
 @endif
 @if ($permission['destroy'])
     <a href="#" class="mb-1 btn btn-danger btn-sm" title="@lang('general.delete')"
