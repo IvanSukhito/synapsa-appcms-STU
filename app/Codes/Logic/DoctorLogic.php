@@ -9,6 +9,7 @@ use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\DoctorCategory;
 use App\Codes\Models\V1\DoctorSchedule;
 use App\Codes\Models\V1\Service;
+use App\Codes\Models\V1\Users;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
@@ -710,18 +711,55 @@ class DoctorLogic
                 'message' => 'Appointment not found'
             ];
         }
+        $getService = Service::where('id', '=', $getAppointment->service_id)->first();
+        if (!$getService) {
+            return [
+                'success' => 92,
+                'message' => 'Service not found'
+            ];
+        }
+        else if ($getService->type != 1) {
+            return [
+                'success' => 93,
+                'message' => 'Service Not support'
+            ];
+        }
+
+        $getUsers = Users::select('id', 'image')->whereIn('id', [$userId, $getAppointment->user_id])->get();
+        $listImage = [];
+        foreach ($getUsers as $getUser) {
+            $listImage[$getUser->id] = $getUser->image_full;
+        }
 
         $getExtraInfo = json_decode($getAppointment->extra_info, true);
         if (isset($getExtraInfo['sub_service_id']) && $getExtraInfo['sub_service_id'] == 2) {
 
+            $getChat = json_decode($getAppointment->video_link, true);
+            if (isset($getChat['chat_id'])) {
+                $chatId = $getChat['chat_id'];
+            }
+            else {
+                $chatId = 'chat_'.generateNewCode(9, 2);
+                $getAppointment->video_link = json_encode([
+                    'chat_id' => $chatId
+                ]);
+            }
+
             $dataResult = [
+                'info' => $getAppointment,
+                'appointment' => $getAppointment,
+                'date' => $getAppointment->date,
+                'time_server' => date('H:i:s'),
+                'time_start' => $getAppointment->time_start,
+                'time_end' => $getAppointment->time_end,
                 'type' => 'Chat',
+                'chat_id' => $chatId,
+                'patient_image' => $listImage[$getAppointment->user_id] ?? asset('assets/cms/images/no-img.png'),
+                'doctor_image' => $listImage[$userId] ?? asset('assets/cms/images/no-img.png'),
             ];
 
         }
         else {
-            $getAppointment->online_meeting = 2;
-            $getAppointment->time_start_meeting = null;
 
             $agoraLogic = new agoraLogic();
             if (strlen($getAppointment->video_link) <= 10) {
@@ -731,15 +769,6 @@ class DoctorLogic
                 $agoraTokenDoctor = $agoraLogic->createRtcToken($agoraChannel, $agoraUidDoctor);
                 $agoraTokenPatient = $agoraLogic->createRtcToken($agoraChannel, $agoraUidPatient);
                 $agoraId = $agoraLogic->getAppId();
-
-                $getAppointment->video_link = json_encode([
-                    'id' => $agoraId,
-                    'channel' => $agoraChannel,
-                    'uid_doctor' => $agoraUidDoctor,
-                    'uid_patient' => $agoraUidPatient,
-                    'token_doctor' => $agoraTokenDoctor,
-                    'token_patient' => $agoraTokenPatient
-                ]);
 
             }
             else {
@@ -751,26 +780,35 @@ class DoctorLogic
                 $agoraTokenDoctor = $agoraLogic->createRtcToken($agoraChannel, $agoraUidDoctor);
                 $agoraTokenPatient = $agoraLogic->createRtcToken($agoraChannel, $agoraUidPatient);
 
-                $getAppointment->video_link = json_encode([
-                    'id' => $agoraId,
-                    'channel' => $agoraChannel,
-                    'uid_doctor' => $agoraUidDoctor,
-                    'uid_patient' => $agoraUidPatient,
-                    'token_doctor' => $agoraTokenDoctor,
-                    'token_patient' => $agoraTokenPatient
-                ]);
-
             }
 
+            $getAppointment->online_meeting = 2;
+            $getAppointment->time_start_meeting = null;
+            $getAppointment->video_link = json_encode([
+                'id' => $agoraId,
+                'channel' => $agoraChannel,
+                'uid_doctor' => $agoraUidDoctor,
+                'uid_patient' => $agoraUidPatient,
+                'token_doctor' => $agoraTokenDoctor,
+                'token_patient' => $agoraTokenPatient
+            ]);
+
+            $getAppointment->save();
+
             $dataResult = [
-                'type' => 'Video Call',
+                'info' => $getAppointment,
                 'appointment' => $getAppointment,
-                'video_id' => $agoraId,
+                'date' => $getAppointment->date,
+                'time_server' => date('H:i:s'),
+                'time_start' => $getAppointment->time_start,
+                'time_end' => $getAppointment->time_end,
+                'type' => 'Video Call',
+                'video_app_id' => $agoraId,
                 'video_channel' => $agoraChannel,
-                'video_uid_doctor' => $agoraUidDoctor,
-                'video_uid_patient' => $agoraUidPatient,
-                'video_token_doctor' => $agoraTokenDoctor,
-                'video_token_patient' => $agoraTokenPatient
+                'video_uid' => $agoraUidDoctor,
+                'video_token' => $agoraTokenDoctor,
+                'patient_image' => $listImage[$getAppointment->user_id] ?? asset('assets/cms/images/no-img.png'),
+                'doctor_image' => $listImage[$userId] ?? asset('assets/cms/images/no-img.png'),
             ];
 
         }
