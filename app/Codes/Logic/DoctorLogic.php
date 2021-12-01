@@ -688,97 +688,98 @@ class DoctorLogic
     /**
      * @param $appointmentId
      * @param $userId
-     * @param $saveData
-     * @return int
-     */
-    public function appointmentFillForm($appointmentId, $userId, $saveData): int
-    {
-        $getAppointment = AppointmentDoctor::where('id', '=', $appointmentId)->where('user_id', '=', $userId)->first();
-        if (!$getAppointment) {
-            return 0;
-        }
-
-        $saveFormPatient = [
-            'body_height' => strip_tags($saveData['body_height']) ?? '',
-            'body_weight' => strip_tags($saveData['body_weight']) ?? '',
-            'blood_pressure' => strip_tags($saveData['blood_pressure']) ?? '',
-            'body_temperature' => strip_tags($saveData['body_temperature']) ?? '',
-            'medical_checkup' => $saveData['medical_checkup'] ?? [],
-            'complaint' => strip_tags($saveData['complaint']) ?? ''
-        ];
-
-        $getAppointment->form_patient = json_encode($saveFormPatient);
-        $getAppointment->save();
-
-        return 1;
-
-    }
-
-    /**
-     * @param $appointmentId
-     * @param $doctorId
      * @return array
      */
-    public function meetingCreate($appointmentId, $doctorId): array
+    public function meetingCreate($appointmentId, $userId): array
     {
+        $getDoctor = Doctor::where('user_id', $userId)->first();
+        if (!$getDoctor) {
+            return [
+                'success' => 90,
+                'message' => 'Not Doctor Account'
+            ];
+        }
+
+        $doctorId = $getDoctor->id;
+
         $getAppointment = AppointmentDoctor::where('status', '=', 3)->where('id', '=', $appointmentId)
             ->where('doctor_id', '=', $doctorId)->first();
         if (!$getAppointment) {
-            return [];
+            return [
+                'success' => 91,
+                'message' => 'Appointment not found'
+            ];
         }
 
-        $getAppointment->online_meeting = 2;
-        $getAppointment->time_start_meeting = null;
+        $getExtraInfo = json_decode($getAppointment->extra_info, true);
+        if (isset($getExtraInfo['sub_service_id']) && $getExtraInfo['sub_service_id'] == 2) {
 
-        $agoraLogic = new agoraLogic();
-        if (strlen($getAppointment->video_link) <= 10) {
-            $agoraChannel = $getAppointment->id.$getAppointment->user_id.'tele'.md5($getAppointment->date.$getAppointment->time_start .$getAppointment->time_end.$getAppointment->doctor_id.$getAppointment->user_id.rand(0,100));
-            $agoraUidDoctor = rand(1000000000, 9999999999);
-            $agoraUidPatient = rand(1000000000, 9999999999);
-            $agoraTokenDoctor = $agoraLogic->createRtcToken($agoraChannel, $agoraUidDoctor);
-            $agoraTokenPatient = $agoraLogic->createRtcToken($agoraChannel, $agoraUidPatient);
-            $agoraId = $agoraLogic->getAppId();
-
-            $getAppointment->video_link = json_encode([
-                'id' => $agoraId,
-                'channel' => $agoraChannel,
-                'uid_doctor' => $agoraUidDoctor,
-                'uid_patient' => $agoraUidPatient,
-                'token_doctor' => $agoraTokenDoctor,
-                'token_patient' => $agoraTokenPatient
-            ]);
+            $dataResult = [
+                'type' => 'Chat',
+            ];
 
         }
         else {
-            $getVideo = json_decode($getAppointment->video_link, true);
-            $agoraId = $getVideo['id'] ?? '';
-            $agoraChannel = $getVideo['channel'] ?? '';
-            $agoraUidDoctor = $getVideo['uid_doctor'] ?? '';
-            $agoraUidPatient = $getVideo['uid_patient'] ?? '';
-            $agoraTokenDoctor = $agoraLogic->createRtcToken($agoraChannel, $agoraUidDoctor);
-            $agoraTokenPatient = $agoraLogic->createRtcToken($agoraChannel, $agoraUidPatient);
+            $getAppointment->online_meeting = 2;
+            $getAppointment->time_start_meeting = null;
 
-            $getAppointment->video_link = json_encode([
-                'id' => $agoraId,
-                'channel' => $agoraChannel,
-                'uid_doctor' => $agoraUidDoctor,
-                'uid_patient' => $agoraUidPatient,
-                'token_doctor' => $agoraTokenDoctor,
-                'token_patient' => $agoraTokenPatient
-            ]);
+            $agoraLogic = new agoraLogic();
+            if (strlen($getAppointment->video_link) <= 10) {
+                $agoraChannel = $getAppointment->id.$getAppointment->user_id.'tele'.md5($getAppointment->date.$getAppointment->time_start .$getAppointment->time_end.$getAppointment->doctor_id.$getAppointment->user_id.rand(0,100));
+                $agoraUidDoctor = rand(1000000000, 9999999999);
+                $agoraUidPatient = rand(1000000000, 9999999999);
+                $agoraTokenDoctor = $agoraLogic->createRtcToken($agoraChannel, $agoraUidDoctor);
+                $agoraTokenPatient = $agoraLogic->createRtcToken($agoraChannel, $agoraUidPatient);
+                $agoraId = $agoraLogic->getAppId();
+
+                $getAppointment->video_link = json_encode([
+                    'id' => $agoraId,
+                    'channel' => $agoraChannel,
+                    'uid_doctor' => $agoraUidDoctor,
+                    'uid_patient' => $agoraUidPatient,
+                    'token_doctor' => $agoraTokenDoctor,
+                    'token_patient' => $agoraTokenPatient
+                ]);
+
+            }
+            else {
+                $getVideo = json_decode($getAppointment->video_link, true);
+                $agoraId = $getVideo['id'] ?? '';
+                $agoraChannel = $getVideo['channel'] ?? '';
+                $agoraUidDoctor = $getVideo['uid_doctor'] ?? '';
+                $agoraUidPatient = $getVideo['uid_patient'] ?? '';
+                $agoraTokenDoctor = $agoraLogic->createRtcToken($agoraChannel, $agoraUidDoctor);
+                $agoraTokenPatient = $agoraLogic->createRtcToken($agoraChannel, $agoraUidPatient);
+
+                $getAppointment->video_link = json_encode([
+                    'id' => $agoraId,
+                    'channel' => $agoraChannel,
+                    'uid_doctor' => $agoraUidDoctor,
+                    'uid_patient' => $agoraUidPatient,
+                    'token_doctor' => $agoraTokenDoctor,
+                    'token_patient' => $agoraTokenPatient
+                ]);
+
+            }
+
+            $dataResult = [
+                'type' => 'Video Call',
+                'appointment' => $getAppointment,
+                'video_id' => $agoraId,
+                'video_channel' => $agoraChannel,
+                'video_uid_doctor' => $agoraUidDoctor,
+                'video_uid_patient' => $agoraUidPatient,
+                'video_token_doctor' => $agoraTokenDoctor,
+                'video_token_patient' => $agoraTokenPatient
+            ];
 
         }
 
         $getAppointment->save();
 
         return [
-            'appointment' => $getAppointment,
-            'video_id' => $agoraId,
-            'video_channel' => $agoraChannel,
-            'video_uid_doctor' => $agoraUidDoctor,
-            'video_uid_patient' => $agoraUidPatient,
-            'video_token_doctor' => $agoraTokenDoctor,
-            'video_token_patient' => $agoraTokenPatient
+            'success' => 80,
+            'data' => $dataResult
         ];
 
     }

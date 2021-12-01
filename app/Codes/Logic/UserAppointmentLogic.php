@@ -99,33 +99,8 @@ class UserAppointmentLogic
     public function appointmentInfo($userId, $userPhone, $appointmentId, $type, array $status = []): array
     {
         $getResult = [];
-        if ($type == 2) {
-            $data = AppointmentLab::where('user_id', '=', $userId)
-                ->where('appointment_lab.id', '=', $appointmentId);
-
-            if (!empty($status)) {
-                $data = $data->whereIn('appointment_lab.status', $status);
-            }
-
-            $data = $data->first();
-
-            if ($data) {
-                $getDetails = $data->getAppointmentLabDetails()->selectRaw('appointment_lab_details.*,
-                    lab.image, CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full')
-                    ->join('lab','lab.id','=','appointment_lab_details.lab_id')
-                    ->get();
-
-                $userLogic = new UserLogic();
-
-                $getResult = [
-                    'data' => $data,
-                    'product' => $getDetails,
-                    'address' => $userLogic->userAddress($userId, $userPhone)
-                ];
-            }
-
-        }
-        else {
+        if ($type == 1)
+        {
             $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name, 
                     users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full')
                 ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
@@ -159,6 +134,32 @@ class UserAppointmentLogic
                     'product' => $getDetails,
                     'form_patient' => $formPatient,
                     'doctor_prescription' => $doctorPrescription,
+                    'address' => $userLogic->userAddress($userId, $userPhone)
+                ];
+            }
+
+        }
+        else if ($type == 2) {
+            $data = AppointmentLab::where('user_id', '=', $userId)
+                ->where('appointment_lab.id', '=', $appointmentId);
+
+            if (!empty($status)) {
+                $data = $data->whereIn('appointment_lab.status', $status);
+            }
+
+            $data = $data->first();
+
+            if ($data) {
+                $getDetails = $data->getAppointmentLabDetails()->selectRaw('appointment_lab_details.*,
+                    lab.image, CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full')
+                    ->join('lab','lab.id','=','appointment_lab_details.lab_id')
+                    ->get();
+
+                $userLogic = new UserLogic();
+
+                $getResult = [
+                    'data' => $data,
+                    'product' => $getDetails,
                     'address' => $userLogic->userAddress($userId, $userPhone)
                 ];
             }
@@ -253,6 +254,28 @@ class UserAppointmentLogic
             $getAppointment->save();
             return 80;
 
+        }
+
+        return 90;
+
+    }
+
+    /**
+     * @param $saveData
+     * @param $userId
+     * @param $appointmentId
+     * @param int $type
+     * @return int
+     */
+    public function appointmentFillForm($saveData, $userId, $appointmentId, int $type = 1): int
+    {
+        if ($type == 1) {
+            $getAppointment = AppointmentDoctor::where('id', $appointmentId)->where('user_id', $userId)->first();
+            if ($getAppointment) {
+                $getAppointment->form_patient = json_encode($saveData);
+                $getAppointment->save();
+                return 80;
+            }
         }
 
         return 90;

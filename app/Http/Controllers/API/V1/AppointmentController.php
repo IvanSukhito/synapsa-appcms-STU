@@ -72,7 +72,7 @@ class AppointmentController extends Controller
         $type = intval($this->request->get('type'));
 
         $appointmentLogic = new UserAppointmentLogic();
-        $getResult = $appointmentLogic->appointmentInfo($user->id, $id, $type, $user->phone);
+        $getResult = $appointmentLogic->appointmentInfo($user->id, $user->phone, $id, $type);
         if ($getResult['success'] == 0) {
             switch ($type) {
                 case 2 : $message = 'Janji Temu Lab Tidak Ditemukan';
@@ -228,7 +228,7 @@ class AppointmentController extends Controller
 
         $type = intval($this->request->get('type'));
         $scheduleId = intval($this->request->get('schedule_id'));
-        $date = strtotime($this->request->get('date'));
+        $date = date('Y-m-d', strtotime($this->request->get('date')));
 
         $appointmentLogic = new UserAppointmentLogic();
         $getResult = $appointmentLogic->reScheduleAppointment($id, $user->id, $type, $scheduleId, $date);
@@ -257,19 +257,6 @@ class AppointmentController extends Controller
 
     }
 
-    public function download($id, $filename)
-    {
-        $data = AppointmentDoctor::where('id', $id)->first();
-        if ($data && $data->status == 80) {
-            $generateLogic = new generateLogic();
-            $generateLogic->generatePdfDiagnosa($data, $filename);
-            exit;
-        }
-
-        return '';
-
-    }
-
     public function fillForm($id)
     {
         $user = $this->request->attributes->get('_user');
@@ -287,7 +274,7 @@ class AppointmentController extends Controller
             'body_weight' => 'numeric',
             'blood_pressure' => '',
             'body_temperature' => 'numeric',
-            'keluhan' => 'required',
+            'symptoms' => 'required',
             'medical_checkup' => ''
         ]);
 
@@ -297,22 +284,6 @@ class AppointmentController extends Controller
                 'message' => $validator->messages()->all(),
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
-        }
-
-        $data = AppointmentDoctor::where('user_id', $user->id)->where('id', $id)->first();
-        if (!$data) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-        if (in_array($data->status, [1,2])) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Janji Temu Dokter Belum di setujui'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
         }
 
         $getMedicalCheckup = $this->request->get('medical_checkup');
@@ -334,19 +305,34 @@ class AppointmentController extends Controller
             'blood_pressure' => strip_tags($this->request->get('blood_pressure')),
             'body_temperature' => strip_tags($this->request->get('body_temperature')),
             'medical_checkup' => $listMedicalCheckup,
-            'keluhan' => strip_tags($this->request->get('keluhan'))
+            'symptoms' => strip_tags($this->request->get('symptoms'))
         ];
 
-        $data->form_patient = json_encode($saveFormPatient);
-        $data->status = 3;
-        $data->save();
+        $appointmentLogic = new UserAppointmentLogic();
+        $getResult = $appointmentLogic->appointmentFillForm($saveFormPatient, $user->id, $id);
+        if ($getResult != 80) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
 
         return response()->json([
             'success' => 1,
-            'data' => $data,
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
 
+    }
+
+    public function downloadDiagnosis($id, $filename)
+    {
+        $data = AppointmentDoctor::where('id', $id)->first();
+        if ($data && $data->status == 80) {
+            $generateLogic = new generateLogic();
+            $generateLogic->generatePdfDiagnosis($data, $filename);
+            exit;
+        }
     }
 
     public function meeting($id)

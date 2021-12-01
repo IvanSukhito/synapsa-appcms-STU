@@ -118,7 +118,7 @@ class DoctorAppointmentController extends Controller
 
     }
 
-    public function reschedule($id){
+    public function reSchedule($id){
 
         $user = $this->request->attributes->get('_user');
         $message = strip_tags($this->request->get('message'));
@@ -150,6 +150,41 @@ class DoctorAppointmentController extends Controller
     public function meeting($id)
     {
         $user = $this->request->attributes->get('_user');
+
+//        $doctorLogic = new DoctorLogic();
+//        $getResult = $doctorLogic->meetingCreate($id, $user->id);
+//        if ($getResult['success'] != 80) {
+//            return response()->json([
+//                'success' => 1,
+//                'message' => ['Hanya menu untuk dokter'],
+//                'token' => $this->request->attributes->get('_refresh_token'),
+//            ], 422);
+//        }
+//
+//        $getData = $getResult['data'];
+//
+//        return response()->json([
+//            'success' => 1,
+//            'data' => [
+//                'info' => $data,
+//                'date' => $data->date,
+//                'time_server' => date('H:i:s'),
+//                'time_start' => $data->time_start,
+//                'time_end' => $data->time_end,
+//                'video_app_id' => $agoraId,
+//                'video_channel' => $agoraChannel,
+//                'video_uid' => $agoraUidDokter,
+//                'video_token' => $agoraTokenDokter,
+//                'fcm_token' => $getFcmTokenPatient,
+//                'users_image' => $getPatient->image_full,
+//                'doctor_image' => $data->image_full,
+//            ],
+//            'message' => ['Sukses'],
+//            'token' => $this->request->attributes->get('_refresh_token'),
+//        ]);
+
+
+
         $getDoctor = Doctor::where('user_id', $user->id)->first();
         if (!$getDoctor) {
             return response()->json([

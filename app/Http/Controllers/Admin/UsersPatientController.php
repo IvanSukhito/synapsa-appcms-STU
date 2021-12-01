@@ -140,6 +140,8 @@ class UsersPatientController extends _CrudController
         $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.users.patient.forms';
         $this->listView['edit'] = env('ADMIN_TEMPLATE').'.page.users.patient.forms';
         $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.users.patient.forms_show';
+        $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.users.patient.list_button';
+        $this->listView['forgotPassword'] = env('ADMIN_TEMPLATE').'.page.users.patient.forms_password';
 
         $getKlinik = Klinik::where('status', 80)->pluck('name', 'id')->toArray();
         if($getKlinik) {
@@ -214,6 +216,77 @@ class UsersPatientController extends _CrudController
         $data['subDistrictId'] = SubDistrict::where('id', $getData->sub_district_id)->first();
 
         return view($this->listView[$data['viewType']], $data);
+    }
+
+    public function forgotPassword($id){
+        $this->callPermission();
+
+        $getData = $this->crud->show($id,[
+            'id' => $id,
+        ]);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $data = $this->data;
+
+        $data['viewType'] = 'edit';
+        $data['thisLabel'] = 'Password';
+        $data['formsTitle'] = __('general.title_edit', ['field' => $data['thisLabel'].' '.$getData->fullname]);
+        $data['passing'] = generatePassingData([
+
+            'password' => [
+                'type' => 'password',
+                'validate' => [
+                    'edit' => 'required|confirmed'
+                ]
+            ],
+            'password_confirmation' => [
+                'type' => 'password',
+                'validate' => [
+                    'edit' => 'required'
+                ]
+            ]
+        ]);
+        $data['data'] = $getData;
+
+        return view($this->listView['forgotPassword'], $data);
+    }
+
+    public function updatePassword($id){
+
+        $this->callPermission();
+
+        $getData = $this->crud->show($id,[
+            'id' => $id,
+        ]);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $data = $this->validate($this->request, [
+                'password' => 'required',
+                'password_confirmation' => 'required'
+                ]);
+
+        if($data['password'] != $data['password_confirmation']){
+            return redirect()->back()->withInput()->withErrors(
+                [
+                    'password' => __('general.password_confirmation_different')
+                ]
+            );
+        }
+        $getData->password = app('hash')->make($data['password']);
+        $getData->save();
+
+        if($this->request->ajax()){
+            return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
+        }
+        else {
+            session()->flash('message', __('general.success_change_password'));
+            session()->flash('message_alert', 2);
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
     }
 
     public function show($id)

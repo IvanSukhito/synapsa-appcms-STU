@@ -283,7 +283,7 @@ class LabController extends Controller
     public function scheduleSummary($scheduleId)
     {
         $user = $this->request->attributes->get('_user');
-        $reqDate = strtotime($this->request->get('date'));
+        $reqDate = date('Y-m-d', strtotime($this->request->get('date')));
 
         $getData = $this->getScheduleDetail($user, $scheduleId, $reqDate);
         if ($getData['success'] != 1) {
@@ -304,7 +304,7 @@ class LabController extends Controller
     public function getPayment($scheduleId)
     {
         $user = $this->request->attributes->get('_user');
-        $reqDate = strtotime($this->request->get('date'));
+        $reqDate = date('Y-m-d', strtotime($this->request->get('date')));
 
         $getData = $this->getScheduleDetail($user, $scheduleId, $reqDate);
         if ($getData['success'] != 1) {
@@ -335,7 +335,7 @@ class LabController extends Controller
         $paymentId = intval($this->request->get('payment_id'));
         $getPhone = $this->request->get('phone');
         $subServiceId = intval($this->request->get('sub_service_id'));
-        $reqDate = strtotime($this->request->get('date'));
+        $reqDate = date('Y-m-d', strtotime($this->request->get('date')));
 
         $synapsaLogic = new SynapsaLogic();
         $getPaymentResult = $synapsaLogic->checkPayment($paymentId);
