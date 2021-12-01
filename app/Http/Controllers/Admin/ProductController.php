@@ -48,13 +48,13 @@ class ProductController extends _CrudController
                     'edit' => 'required'
                 ]
             ],
-            'price' => [
+            'price_nice' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
                 ],
                 'type' => 'money',
-
+                'lang' => 'general.price'
             ],
             'unit' => [
                 'validate' => [
@@ -371,6 +371,7 @@ class ProductController extends _CrudController
                 $data[$key] = $this->request->get($key);
             }
         }
+        unset($getListCollectData['price_nice']);
 
         $productStock = $this->request->get('stock');
         $productStockFlag = $this->request->get('stock_flag');
@@ -465,6 +466,7 @@ class ProductController extends _CrudController
                 $data[$key] = $this->request->get($key);
             }
         }
+        unset($getListCollectData['price_nice']);
 
         $klinikId = $data['klinik_id'];
         $productCategoryId = $data['product_category_id'];
