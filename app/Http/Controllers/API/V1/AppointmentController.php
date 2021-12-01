@@ -498,40 +498,39 @@ class AppointmentController extends Controller
         return response()->json([
             'success' => 1,
             'data' => [
-                'data' => $getUserCart['appointment'],
-                'product' => $getUserCart['cart'],
-                'total' => $getUserCart['total'],
-                'total_nice' => $getUserCart['total_nice']
+                'appointment' => $getUserCart['data']['appointment'],
+                'product' => $getUserCart['data']['cart'],
+                'total' => $getUserCart['data']['total'],
+                'total_nice' => $getUserCart['data']['total_nice']
             ],
             'message' => ['Sukses'],
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
-
-
-        $data = AppointmentDoctor::whereIn('status', [80])->where('user_id', $user->id)->where('id', $id)->first();
-        if (!$data) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-
-        $getDetails = Product::selectRaw('appointment_doctor_product.id, product.id as product_id, product.name, product.image,
-            product.price, product.unit, appointment_doctor_product.product_qty, appointment_doctor_product.choose')
-            ->join('appointment_doctor_product', 'appointment_doctor_product.product_id', '=', 'product.id')
-            ->where('appointment_doctor_product.appointment_doctor_id', '=', $id)
-            ->where('product_qty', '>', 0)->get();
-
-        return response()->json([
-            'success' => 1,
-            'data' => [
-                'data' => $data,
-                'product' => $getDetails
-            ],
-            'message' => ['Sukses'],
-            'token' => $this->request->attributes->get('_refresh_token'),
-        ]);
+//
+//        $data = AppointmentDoctor::whereIn('status', [80])->where('user_id', $user->id)->where('id', $id)->first();
+//        if (!$data) {
+//            return response()->json([
+//                'success' => 0,
+//                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
+//                'token' => $this->request->attributes->get('_refresh_token'),
+//            ], 404);
+//        }
+//
+//        $getDetails = Product::selectRaw('appointment_doctor_product.id, product.id as product_id, product.name, product.image,
+//            product.price, product.unit, appointment_doctor_product.product_qty, appointment_doctor_product.choose')
+//            ->join('appointment_doctor_product', 'appointment_doctor_product.product_id', '=', 'product.id')
+//            ->where('appointment_doctor_product.appointment_doctor_id', '=', $id)
+//            ->where('product_qty', '>', 0)->get();
+//
+//        return response()->json([
+//            'success' => 1,
+//            'data' => [
+//                'data' => $data,
+//                'product' => $getDetails
+//            ],
+//            'message' => ['Sukses'],
+//            'token' => $this->request->attributes->get('_refresh_token'),
+//        ]);
 
     }
 
@@ -559,64 +558,106 @@ class AppointmentController extends Controller
             ], 422);
         }
 
-        $data = AppointmentDoctor::whereIn('status', [80])->where('user_id', $user->id)->where('id', $id)->first();
-        if (!$data) {
+        $productIds = $this->request->get('product_ids');
+        $qty = $this->request->get('qty');
+
+        $userLogic = new UserLogic();
+        $getUserCart = $userLogic->userCartAppointmentDoctorChoose($user->id, $id, $productIds, $qty);
+        if ($getUserCart <= 0) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
+                'message' => ['Update Cart Failed'],
                 'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-
-        $getProductIds = $this->request->get('product_ids');
-        $getCartQty = $this->request->get('qty');
-
-        DB::beginTransaction();
-
-        $getUsersCartDetails = AppointmentDoctorProduct::selectRaw('appointment_doctor_product.id, product_id, choose, product_qty, product_qty_checkout')
-            ->join('appointment_doctor', 'appointment_doctor.id', '=', 'appointment_doctor_product.appointment_doctor_id')
-            ->where('user_id', $user->id)
-            ->whereIn('product_id', $getProductIds)
-            ->where('appointment_doctor_product.appointment_doctor_id', $data->id)
-            ->get();
-
-        $haveProduct = 0;
-        if ($getUsersCartDetails) {
-            foreach ($getUsersCartDetails as $index => $getUsersCartDetail) {
-                if (in_array($getUsersCartDetail->product_id, $getProductIds)) {
-                    $haveProduct = 1;
-                    $getUsersCartDetail->choose = 1;
-                    $getUsersCartDetail->product_qty_checkout = isset($getCartQty[$index]) ? intval($getCartQty[$index]) : 0;
-                }
-                else {
-                    $getUsersCartDetail->choose = 0;
-                }
-                $getUsersCartDetail->save();
-            }
-        }
-
-        DB::commit();
-
-        if ($haveProduct == 1) {
-            return response()->json([
-                'success' => 1,
-                'token' => $this->request->attributes->get('_refresh_token'),
-                'message' => ['Berhasil Memilih Produk'],
-            ]);
-        }
-        else {
-            return response()->json([
-                'success' => 0,
-                'token' => $this->request->attributes->get('_refresh_token'),
-                'message' => ['Tidak ada Produk yang di pilih'],
             ], 422);
         }
+
+        return response()->json([
+            'success' => 1,
+            'token' => $this->request->attributes->get('_refresh_token'),
+            'message' => ['Berhasil Memilih Produk'],
+        ]);
+
+//        $user = $this->request->attributes->get('_user');
+//        $type = intval($this->request->get('type'));
+//        if ($type != 1) {
+//            return response()->json([
+//                'success' => 0,
+//                'message' => ['Menu Hanya untuk pasien dokter'],
+//                'token' => $this->request->attributes->get('_refresh_token'),
+//            ], 422);
+//        }
+//
+//        $validator = Validator::make($this->request->all(), [
+//            'product_ids' => 'required|array',
+//            'qty' => 'required|array',
+//        ]);
+//        if ($validator->fails()) {
+//            return response()->json([
+//                'success' => 0,
+//                'message' => $validator->messages()->all(),
+//                'token' => $this->request->attributes->get('_refresh_token'),
+//            ], 422);
+//        }
+//
+//        $data = AppointmentDoctor::whereIn('status', [80])->where('user_id', $user->id)->where('id', $id)->first();
+//        if (!$data) {
+//            return response()->json([
+//                'success' => 0,
+//                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
+//                'token' => $this->request->attributes->get('_refresh_token'),
+//            ], 404);
+//        }
+//
+//        $getProductIds = $this->request->get('product_ids');
+//        $getCartQty = $this->request->get('qty');
+//
+//        DB::beginTransaction();
+//
+//        $getUsersCartDetails = AppointmentDoctorProduct::selectRaw('appointment_doctor_product.id, product_id, choose, product_qty, product_qty_checkout')
+//            ->join('appointment_doctor', 'appointment_doctor.id', '=', 'appointment_doctor_product.appointment_doctor_id')
+//            ->where('user_id', $user->id)
+//            ->whereIn('product_id', $getProductIds)
+//            ->where('appointment_doctor_product.appointment_doctor_id', $data->id)
+//            ->get();
+//
+//        $haveProduct = 0;
+//        if ($getUsersCartDetails) {
+//            foreach ($getUsersCartDetails as $index => $getUsersCartDetail) {
+//                if (in_array($getUsersCartDetail->product_id, $getProductIds)) {
+//                    $haveProduct = 1;
+//                    $getUsersCartDetail->choose = 1;
+//                    $getUsersCartDetail->product_qty_checkout = isset($getCartQty[$index]) ? intval($getCartQty[$index]) : 0;
+//                }
+//                else {
+//                    $getUsersCartDetail->choose = 0;
+//                }
+//                $getUsersCartDetail->save();
+//            }
+//        }
+//
+//        DB::commit();
+//
+//        if ($haveProduct == 1) {
+//            return response()->json([
+//                'success' => 1,
+//                'token' => $this->request->attributes->get('_refresh_token'),
+//                'message' => ['Berhasil Memilih Produk'],
+//            ]);
+//        }
+//        else {
+//            return response()->json([
+//                'success' => 0,
+//                'token' => $this->request->attributes->get('_refresh_token'),
+//                'message' => ['Tidak ada Produk yang di pilih'],
+//            ], 422);
+//        }
 
     }
 
     public function receiver($id)
     {
         $user = $this->request->attributes->get('_user');
+
         $type = intval($this->request->get('type'));
         if ($type != 1) {
             return response()->json([
@@ -626,30 +667,23 @@ class AppointmentController extends Controller
             ], 422);
         }
 
-        $data = AppointmentDoctor::whereIn('status', [80])->where('user_id', $user->id)->where('id', $id)->first();
-        if (!$data) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-
         $userLogic = new UserLogic();
 
         return response()->json([
             'success' => 1,
-            'data' => $userLogic->userAddress($user->id, $user->phone)
+            'data' => $userLogic->userAddress($user->id, $user->phone),
+            'token' => $this->request->attributes->get('_refresh_token')
         ]);
     }
 
     public function updateReceiver($id)
     {
         $user = $this->request->attributes->get('_user');
+
         $validator = Validator::make($this->request->all(), [
             'receiver' => 'required',
             'address' => 'required',
-            'phone' => 'required'
+            'phone' => 'required|regex:/^(8\d+)/|numeric|unique:users,phone,'.$user->id,
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -659,29 +693,36 @@ class AppointmentController extends Controller
             ], 422);
         }
 
-        $receiver = $this->request->get('receiver');
-        $address = $this->request->get('address');
-        $phone = $this->request->get('phone');
-
-        $getUsersCart = UsersCart::firstOrCreate([
-            'users_id' => $user->id,
-        ]);
-
-        $getInformation = [
-            'receiver' => $receiver,
-            'address' => $address,
-            'phone' => $phone,
+        $saveData = [
+//            'receiver' => strip_tags($this->request->get('receiver')),
+//            'address_name' => strip_tags($this->request->get('receiver')),
+            'address' => strip_tags($this->request->get('address')),
+            'phone' => strip_tags($this->request->get('phone')),
         ];
-        $getUsersCart->detail_information = json_encode($getInformation);
-        $getUsersCart->save();
 
-        $getData = ['detail_information' => $getInformation];
+        $listValidate = [
+            'phone',
+            'province_id',
+            'city_id',
+            'district_id',
+            'sub_district_id',
+            'address_detail',
+            'zip_code'
+        ];
 
+        foreach ($listValidate as $key) {
+            if ($this->request->get($key)) {
+                $saveData[$key] = $this->request->get($key);
+            }
+        }
+
+        $userLogic = new UserLogic();
+        $userLogic->userUpdateAddressPatient($user->id, $saveData);
 
         return response()->json([
             'success' => 1,
             'message' => ['Detail Informasi Berhasil Diperbarui'],
-            'data' => $getData
+            'data' => $saveData
         ]);
     }
 

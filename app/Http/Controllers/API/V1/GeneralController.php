@@ -68,7 +68,7 @@ class GeneralController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'success' => 0,
-                'message' => $validator->messages()->all(),
+                'message' => $validator->messages()->all()
             ], 422);
         }
 
