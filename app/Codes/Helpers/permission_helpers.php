@@ -1098,6 +1098,9 @@ if ( ! function_exists('listAvailablePermission'))
         $listPermission['admin']['edit'][] = 'admin.admin.forgotPassword';
         $listPermission['admin']['edit'][] = 'admin.admin.updatePassword';
 
+        $listPermission['doctor']['edit'][] = 'admin.doctor.forgotPassword';
+        $listPermission['doctor']['edit'][] = 'admin.doctor.updatePassword';
+
         $listPermission['product-clinic']['create'][] = 'admin.product-clinic.create2';
         $listPermission['product-clinic']['create'][] = 'admin.product-clinic.store2';
         $listPermission['product-clinic']['create'][] = 'admin.product-clinic.getProductSynapsa';
