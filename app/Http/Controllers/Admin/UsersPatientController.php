@@ -150,7 +150,7 @@ class UsersPatientController extends _CrudController
             }
         }
 
-        $getProvince = Province::pluck('name', 'id')->orderBy('name', 'ASC')->toArray();
+        $getProvince = Province::orderBy('name', 'ASC')->pluck('name', 'id')->toArray();
         $listProvince = [0 => 'Kosong'];
         if($getProvince) {
             foreach($getProvince as $key => $value) {
@@ -158,7 +158,7 @@ class UsersPatientController extends _CrudController
             }
         }
 
-        $getDistrict = District::pluck('name', 'id')->orderBy('name', 'ASC')->toArray();
+        $getDistrict = District::orderBy('name', 'ASC')->pluck('name', 'id')->toArray();
         $listDistrict = [0 => 'Kosong'];
         if($getDistrict) {
             foreach($getDistrict as $key => $value) {
@@ -166,7 +166,7 @@ class UsersPatientController extends _CrudController
             }
         }
 
-        $getSubDistrict = SubDistrict::pluck('name', 'id')->orderBy('name', 'ASC')->toArray();
+        $getSubDistrict = SubDistrict::orderBy('name', 'ASC')->pluck('name', 'id')->toArray();
         if($getSubDistrict) {
             foreach($getSubDistrict as $key => $value) {
                 $listSubDistrict[$key] = $value;

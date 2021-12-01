@@ -48,13 +48,13 @@ class ProductController extends _CrudController
                     'edit' => 'required'
                 ]
             ],
-            'price' => [
+            'price_nice' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
                 ],
                 'type' => 'money',
-
+                'lang' => 'general.price'
             ],
             'unit' => [
                 'validate' => [
@@ -371,6 +371,7 @@ class ProductController extends _CrudController
                 $data[$key] = $this->request->get($key);
             }
         }
+        unset($getListCollectData['price_nice']);
 
         $productStock = $this->request->get('stock');
         $productStockFlag = $this->request->get('stock_flag');
@@ -408,7 +409,7 @@ class ProductController extends _CrudController
         $product->product_category_id = $data['product_category_id'];
         $product->klinik_id = $data['klinik_id'];
         $product->name = $data['name'];
-        $product->price = clear_money_format($data['price']);
+        $product->price = clear_money_format($data['price_nice']);
         $product->unit = $data['unit'];
         $product->stock = $productStock;
         $product->status = $data['status'];
@@ -465,11 +466,12 @@ class ProductController extends _CrudController
                 $data[$key] = $this->request->get($key);
             }
         }
+        unset($getListCollectData['price_nice']);
 
         $klinikId = $data['klinik_id'];
         $productCategoryId = $data['product_category_id'];
         $productName = $data['name'];
-        $productPrice = clear_money_format($data['price']);
+        $productPrice = clear_money_format($data['price_nice']);
         $productUnit = $data['unit'];
         $productStatus = $data['status'];
         $productType = $data['type'];

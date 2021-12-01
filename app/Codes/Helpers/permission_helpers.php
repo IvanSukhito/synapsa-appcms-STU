@@ -352,19 +352,10 @@ if ( ! function_exists('listAllMenu')) {
                 'icon' => '<i class="nav-icon fa fa-flask"></i>',
                 'title' => __('general.lab_clinic'),
                 'active' => [
-                    'admin.lab-clinic',
                     'admin.lab-clinic-schedule.',
                 ],
                 'type' => 2,
                 'data' => [
-                    [
-                        'name' => __('general.lab_clinic'),
-                        'title' => __('general.lab_clinic'),
-                        'active' => ['admin.lab-clinic.'],
-                        'route' => 'admin.lab-clinic.index',
-                        'key' => 'lab-clinic',
-                        'type' => 1,
-                    ],
                     [
                         'name' => __('general.lab_clinic_schedule'),
                         'title' => __('general.lab_clinic_schedule'),
@@ -475,6 +466,7 @@ if ( ! function_exists('listAllMenu')) {
                 'icon' => '<i class="nav-icon fa fa-book"></i>',
                 'title' => __('general.appointment_lab_clinic'),
                 'active' => [
+                    'admin.lab-appointment',
                     'admin.appointment-lab-clinic.',
                     'admin.appointment-lab-homecare-clinic.',
                     'admin.appointment-lab-visit-clinic.',
@@ -482,6 +474,14 @@ if ( ! function_exists('listAllMenu')) {
                 ],
                 'type' => 2,
                 'data' => [
+                    [
+                        'name' => __('general.appointment_lab_clinic'),
+                        'title' => __('general.appointment_lab_clinic'),
+                        'active' => ['admin.lab-appointment.'],
+                        'route' => 'admin.lab-appointment.index',
+                        'key' => 'lab-appointment',
+                        'type' => 1,
+                    ],
                     [
                         'name' => __('general.appointment_lab_homecare_clinic'),
                         'title' => __('general.appointment_lab_homecare_clinic'),
@@ -932,6 +932,7 @@ if ( ! function_exists('listAvailablePermission'))
                 ]
             ];
         }
+
         foreach ([
                      'transaction-lab',
                      'transaction-doctor',
@@ -972,7 +973,6 @@ if ( ! function_exists('listAvailablePermission'))
                      'medicine-type',
                      'product',
                      'product-clinic',
-                     'lab-clinic',
                      'lab',
                      'users',
                      'product-category',
@@ -1014,6 +1014,28 @@ if ( ! function_exists('listAvailablePermission'))
             ];
         }
 
+        foreach ([
+                     'lab-appointment',
+                 ] as $keyPermission) {
+            $listPermission[$keyPermission] = [
+                'list' => [
+                    'admin.'.$keyPermission.'.index',
+                    'admin.'.$keyPermission.'.dataTable'
+                ],
+                'create' => [
+                    'admin.'.$keyPermission.'.create',
+                    'admin.'.$keyPermission.'.store'
+                ],
+                'edit' => [
+                    'admin.'.$keyPermission.'.edit',
+                    'admin.'.$keyPermission.'.update'
+                ],
+                'destroy' => [
+                    'admin.'.$keyPermission.'.destroy'
+                ]
+            ];
+        }
+
 
         $listPermission['doctor_clinic']['create'][] = 'admin.doctor_clinic.schedule';
         $listPermission['doctor_clinic']['create'][] = 'admin.doctor_clinic.storeSchedule';
@@ -1029,6 +1051,8 @@ if ( ! function_exists('listAvailablePermission'))
         $listPermission['doctor']['create'][] = 'admin.doctor.createschedule2';
         $listPermission['doctor']['create'][] = 'admin.doctor.storeschedule2';
         $listPermission['doctor']['edit'][] = 'admin.doctor.updateSchedule';
+        $listPermission['doctor']['edit'][] = 'admin.doctor.forgotPassword';
+        $listPermission['doctor']['edit'][] = 'admin.doctor.updatePassword';
         $listPermission['doctor']['destroy'][] = 'admin.doctor.destroySchedule';
 
         $listPermission['lab-clinic-schedule']['edit'][] = 'admin.lab-clinic-schedule.updateLab';

@@ -192,7 +192,7 @@ class UsersController extends _CrudController
             }
         }
 
-        $getCity = City::pluck('name', 'id')->orderBy('name', 'ASC')->toArray();
+        $getCity = City::orderBy('name', 'ASC')->pluck('name', 'id')->toArray();
         $listCity = [0 => 'Kosong'];
         if($getCity) {
             foreach($getCity as $key => $value) {
@@ -200,7 +200,7 @@ class UsersController extends _CrudController
             }
         }
 
-        $getDistrict = District::pluck('name', 'id')->orderBy('name', 'ASC')->toArray();
+        $getDistrict = District::orderBy('name', 'ASC')->pluck('name', 'id')->toArray();
         $listDistrict = [0 => 'Kosong'];
         if($getDistrict) {
             foreach($getDistrict as $key => $value) {
@@ -208,7 +208,7 @@ class UsersController extends _CrudController
             }
         }
 
-        $getSubDistrict = SubDistrict::pluck('name', 'id')->orderBy('name', 'ASC')->toArray();
+        $getSubDistrict = SubDistrict::orderBy('name', 'ASC')->pluck('name', 'id')->toArray();
         $listSubDistrict = [0 => 'Kosong'];
         if($getSubDistrict) {
             foreach($getSubDistrict as $key => $value) {
