@@ -22,7 +22,8 @@ class LabClinicController extends _CrudController
             'id' => [
                 'create' => 0,
                 'edit' => 0,
-                'show' => 0
+                'show' => 0,
+                'lang' => 'Nomor Transaksi'
             ],
             'parent_id' => [
                 'validate' => [
@@ -30,7 +31,7 @@ class LabClinicController extends _CrudController
                     'edit' => 'required'
                 ],
                 'type' => 'select2',
-                'lang' => 'general.parent',
+                'lang' => 'Layanan',
 
             ],
             'name' => [
@@ -133,7 +134,6 @@ class LabClinicController extends _CrudController
         $this->data['listSet']['recommended_for'] = get_list_recommended_for();
         $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.lab_clinic.forms';
         $this->listView['edit'] = env('ADMIN_TEMPLATE').'.page.lab_clinic.forms_edit';
-        $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.lab_clinic.forms_edit';
     }
 
     public function store(){

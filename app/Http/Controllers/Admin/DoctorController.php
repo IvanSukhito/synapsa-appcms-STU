@@ -300,8 +300,7 @@ class DoctorController extends _CrudController
         $this->callPermission();
 
         $data = $this->data;
-        $getProvince = Province::get();
-
+        $getProvince = Province::orderBy('name', 'ASC')->get();
 
         $data['viewType'] = 'create';
         $data['formsTitle'] = __('general.title_create', ['field' => $data['thisLabel']]);
@@ -323,7 +322,7 @@ class DoctorController extends _CrudController
         }
 
         $data = $this->data;
-        $getProvince = Province::get();
+        $getProvince = Province::orderBy('name', 'ASC')->get();
 
         $getDoctorService = DoctorService::where('doctor_id',$id)->get();
         $getDataUser = Users::where('id', $getData->user_id)->first();

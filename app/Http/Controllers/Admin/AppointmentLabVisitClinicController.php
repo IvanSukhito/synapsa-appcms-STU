@@ -4,9 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
 use App\Codes\Models\Admin;
+use App\Codes\Models\V1\AppointmentLabDetails;
+use App\Codes\Models\V1\City;
+use App\Codes\Models\V1\District;
 use App\Codes\Models\V1\Lab;
 use App\Codes\Models\V1\AppointmentLab;
+use App\Codes\Models\V1\Province;
 use App\Codes\Models\V1\Service;
+use App\Codes\Models\V1\SubDistrict;
 use App\Codes\Models\V1\Transaction;
 use App\Codes\Models\V1\Users;
 use Illuminate\Http\Request;
@@ -62,6 +67,7 @@ class AppointmentLabVisitClinicController extends _CrudController
             'layanan_lab' => [
                 'create' => 0,
                 'edit' => 0,
+                'show' => 0,
             ],
             'total_test' => [
                 'create' => 0,
@@ -115,7 +121,7 @@ class AppointmentLabVisitClinicController extends _CrudController
         $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.appointment-lab-clinic.list_button';
         $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.appointment-lab-clinic.list';
         $this->listView['uploadHasilLab'] = env('ADMIN_TEMPLATE').'.page.appointment-lab-clinic.forms2';
-        //$this->listView['show'] = env('ADMIN_TEMPLATE').'.page.appointment-lab.forms';
+        $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.appointment-lab-clinic.forms';
         $this->listView['timeBook'] = env('ADMIN_TEMPLATE').'.page._view.time_book';
 
     }
@@ -138,22 +144,28 @@ class AppointmentLabVisitClinicController extends _CrudController
         $this->callPermission();
 
         $getData = $this->crud->show($id);
-        //dd($getData);
         if (!$getData) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
 
-        $getData = $getData->selectRaw('appointment_lab.*, lab_name as layanan_lab')
-                    ->leftJoin('appointment_lab_details','appointment_lab_details.appointment_lab_id','=','appointment_lab.id')
-                    ->where('appointment_lab.id', $id)
-                    ->first();
-
         $data = $this->data;
+
+        $getDataUser =  Users::where('id', $getData->user_id)->first();
+        if($getDataUser) {
+            $data['province'] = Province::where('id', $getDataUser->province_id)->first();
+            $data['city'] = City::where('id', $getDataUser->city_id)->first();
+            $data['district'] = District::where('id', $getDataUser->district_id)->first();
+            $data['subDistrict'] = SubDistrict::where('id', $getDataUser->sub_district_id)->first();
+        }
+
+        $getDataDetails = AppointmentLabDetails::where('appointment_lab_id', $id)->get();
 
         $data['viewType'] = 'show';
         $data['formsTitle'] = __('general.title_show', ['field' => $data['thisLabel']]);
         $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
         $data['data'] = $getData;
+        $data['dataDetails'] = $getDataDetails;
+        $data['dataUser'] = $getDataUser;
 
         return view($this->listView[$data['viewType']], $data);
     }

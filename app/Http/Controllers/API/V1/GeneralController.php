@@ -322,7 +322,7 @@ class GeneralController extends Controller
 
         $s = $this->request->get('s');
 
-        $getData = Province::query();
+        $getData = Province::query()->orderBy('name', 'ASC');
 
         if ($s) {
             $getData = $getData->where('name', 'LIKE', strip_tags($s));
@@ -339,7 +339,7 @@ class GeneralController extends Controller
         $s = $this->request->get('s');
         $provinceId = intval($this->request->get('province_id'));
 
-        $getData = City::query();
+        $getData = City::query()->orderBy('name', 'ASC');
 
         if ($provinceId) {
             $getData = $getData->Where('province_id', 'LIKE', strip_tags($provinceId))->orWhere('name', 'LIKE', strip_tags($s));
@@ -363,7 +363,7 @@ class GeneralController extends Controller
         $s = $this->request->get('s');
         $cityId = intval($this->request->get('city_id'));
 
-        $getData = District::query();
+        $getData = District::query()->orderBy('name', 'ASC');
 
         if ($cityId) {
             $getData = $getData->Where('city_id', 'LIKE', strip_tags($cityId))->orWhere('name', 'LIKE', strip_tags($s));
@@ -386,7 +386,7 @@ class GeneralController extends Controller
         $s = $this->request->get('s');
         $districtId = intval($this->request->get('district_id'));
 
-        $getData = SubDistrict::query();
+        $getData = SubDistrict::query()->orderBy('name', 'ASC');
 
         if ($districtId) {
             $getData = $getData->Where('district_id', 'LIKE', strip_tags($districtId))->orWhere('name', 'LIKE', strip_tags($s));

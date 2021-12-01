@@ -488,4 +488,6 @@ return [
     'book_time' => 'Waktu Book',
     'pharmacy' => 'Farmasi',
     'forgot-password' => 'Forgot Password',
+    'biodata_user' => 'Biodata User',
+    'form_patient' => 'Form Pasien'
 ];

@@ -26,7 +26,7 @@ class GeneralController extends Controller
         $s = $this->request->get('s');
         $provinceId = intval($this->request->get('province_id'));
 
-        $getData = City::Where('province_id', 'LIKE', strip_tags($provinceId))->get();
+        $getData = City::Where('province_id', 'LIKE', strip_tags($provinceId))->orderBy('name', 'ASC')->get();
 
         return response()->json($getData);
     }
@@ -35,7 +35,7 @@ class GeneralController extends Controller
         $s = $this->request->get('s');
         $cityId = intval($this->request->get('city_id'));
 
-        $getData = District::Where('city_id', 'LIKE', strip_tags($cityId))->get();
+        $getData = District::Where('city_id', 'LIKE', strip_tags($cityId))->orderBy('name', 'ASC')->get();
 
         return response()->json($getData);
     }
@@ -44,7 +44,7 @@ class GeneralController extends Controller
         $s = $this->request->get('s');
         $districtId = intval($this->request->get('district_id'));
 
-        $getData = SubDistrict::Where('district_id', 'LIKE', strip_tags($districtId))->get();
+        $getData = SubDistrict::Where('district_id', 'LIKE', strip_tags($districtId))->orderBy('name', 'ASC')->get();
 
         return response()->json($getData);
     }

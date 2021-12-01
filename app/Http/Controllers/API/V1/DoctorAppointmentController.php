@@ -118,7 +118,7 @@ class DoctorAppointmentController extends Controller
 
     }
 
-    public function reschedule($id){
+    public function reSchedule($id){
 
         $user = $this->request->attributes->get('_user');
         $message = strip_tags($this->request->get('message'));
@@ -150,6 +150,28 @@ class DoctorAppointmentController extends Controller
     public function meeting($id)
     {
         $user = $this->request->attributes->get('_user');
+
+        $doctorLogic = new DoctorLogic();
+        $getResult = $doctorLogic->meetingCreate($id, $user->id);
+        if ($getResult['success'] != 80) {
+            return response()->json([
+                'success' => 1,
+                'message' => ['Hanya menu untuk dokter'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
+        $getData = $getResult['data'];
+
+        return response()->json([
+            'success' => 1,
+            'data' => $getData,
+            'message' => ['Sukses'],
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
+
+
+
         $getDoctor = Doctor::where('user_id', $user->id)->first();
         if (!$getDoctor) {
             return response()->json([
