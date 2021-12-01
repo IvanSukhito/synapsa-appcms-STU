@@ -200,7 +200,8 @@ class DoctorController extends Controller
 
         return response()->json([
             'success' => 1,
-            'data' => $userLogic->userAddress($user->id, $user->phone)
+            'data' => $userLogic->userAddress($user->id, $user->phone),
+            'token' => $this->request->attributes->get('_refresh_token')
         ]);
     }
 
@@ -235,7 +236,6 @@ class DoctorController extends Controller
                 'sub_service' => $getService['getSubServiceId'],
                 'sub_service_name' => $getService['getSubServiceName'],
             ],
-
             'token' => $this->request->attributes->get('_refresh_token'),
         ]);
 

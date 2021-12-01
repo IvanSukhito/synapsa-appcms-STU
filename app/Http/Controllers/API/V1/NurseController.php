@@ -76,7 +76,8 @@ class NurseController extends Controller
 
         return response()->json([
             'success' => 1,
-            'data' => $nurse
+            'data' => $nurse,
+            'token' => $this->request->attributes->get('_refresh_token')
         ]);
     }
     public function getReceiver($id)
@@ -104,7 +105,8 @@ class NurseController extends Controller
                     'address' => $getAddress ?? '',
                     'phone' => $getPhone ?? '',
                 ]
-            ]
+            ],
+            'token' => $this->request->attributes->get('_refresh_token')
         ]);
     }
 

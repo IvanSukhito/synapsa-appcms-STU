@@ -2,6 +2,8 @@
 
 namespace App\Codes\Logic;
 
+use App\Codes\Models\V1\AppointmentDoctor;
+use App\Codes\Models\V1\AppointmentDoctorProduct;
 use App\Codes\Models\V1\DeviceToken;
 use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\Klinik;
@@ -702,6 +704,102 @@ class UserLogic
             DB::commit();
         }
         return 0;
+    }
+
+    /**
+     * @param $userId
+     * @param $appointmentId
+     * @param int $choose
+     * @return array
+     */
+    public function userCartAppointmentDoctor($userId, $appointmentId, int $choose = 0): array
+    {
+        $getAppointment = AppointmentDoctor::where('user_id', $userId)->where('id', $appointmentId)->where('status', 80)->first();
+        if (!$getAppointment) {
+            return [
+                'success' => 0,
+                'message' => 'Appointment Not Found'
+            ];
+        }
+
+        $getCart = Product::selectRaw('appointment_doctor_product.id, product.id as product_id, product.name,
+                product.image, appointment_doctor_product.product_price, product.unit, product.stock, product.stock_flag, 
+                product.type, appointment_doctor_product.product_qty, appointment_doctor_product.product_qty_cart, 
+                appointment_doctor_product.product_qty_checkout, appointment_doctor_product.choose,
+                appointment_doctor_product.dose, appointment_doctor_product.type_dose, appointment_doctor_product.period,
+                appointment_doctor_product.note, appointment_doctor_product.choose, appointment_doctor_product.status')
+            ->join('appointment_doctor_product', 'appointment_doctor_product.product_id', '=', 'product.id')
+            ->where('appointment_doctor_product.appointment_doctor_id', '=', $appointmentId);
+        if ($choose == 1) {
+            $getCart = $getCart->where('choose', '=', 1);
+        }
+        $getCart = $getCart->get();
+
+        $total = 0;
+        foreach ($getCart as $list) {
+            $total += ($list->price * $list->product_qty_cart);
+        }
+
+        return [
+            'success' => 1,
+            'data' => [
+                'appointment' => $getAppointment,
+                'cart' => $getCart,
+                'total' => $total,
+                'total_nice' => number_format_local($total)
+            ]
+        ];
+
+    }
+
+    /**
+     * @param $userId
+     * @param $appointmentId
+     * @param $productIds
+     * @param $qty
+     * @return int
+     */
+    public function userCartAppointmentDoctorChoose($userId, $appointmentId, $productIds, $qty): int
+    {
+        $getAppointmentDoctor = AppointmentDoctor::where('user_id', '=', $userId)->where('id', '=', $appointmentId)
+            ->where('status', '=', 80)->first();
+        if (!$getAppointmentDoctor) {
+            return 0;
+        }
+
+        $tempQty = [];
+        foreach ($productIds as $index => $productId) {
+            $tempQty[$productId] = isset($qty[$index]) ? intval($qty[$index]) : 0;
+        }
+
+        $getProduct = Product::whereIn('id', $productIds)->where('stock_flag', '=', 2)->pluck('stock', 'id')->toArray();
+
+        $total = 0;
+        DB::beginTransaction();
+        AppointmentDoctorProduct::where('appointment_doctor_id', '=', $getAppointmentDoctor->id)->whereNotIn('product_id', $productIds)->update([
+            'choose' => 0,
+            'product_qty_cart' => 0
+        ]);
+
+        $getUsersCartDetail = AppointmentDoctorProduct::where('appointment_doctor_id', '=', $getAppointmentDoctor->id)->whereIn('product_id', $productIds)->get();
+        foreach ($getUsersCartDetail as $item) {
+            $getStock = isset($getProduct[$item->product_id]) ? intval($getProduct[$item->product_id]) : 0;
+            $getQty = isset($tempQty[$item->product_id]) ? intval($tempQty[$item->product_id]) : 1;
+
+            if ($getStock - $getQty < 0) {
+                return 0;
+            }
+
+            $item->choose = 1;
+            $item->product_qty_cart = $getQty;
+            $item->save();
+            $total++;
+        }
+
+        DB::commit();
+
+        return $total;
+
     }
 
 }

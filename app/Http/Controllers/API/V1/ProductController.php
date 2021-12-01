@@ -263,7 +263,8 @@ class ProductController extends Controller
 
         return response()->json([
             'success' => 1,
-            'data' => $userLogic->userAddress($user->id, $user->phone)
+            'data' => $userLogic->userAddress($user->id, $user->phone),
+            'token' => $this->request->attributes->get('_refresh_token')
         ]);
     }
 
@@ -313,7 +314,8 @@ class ProductController extends Controller
         return response()->json([
             'success' => 1,
             'message' => ['Detail Informasi Berhasil Diperbarui'],
-            'data' => $saveData
+            'data' => $saveData,
+            'token' => $this->request->attributes->get('_refresh_token')
         ]);
     }
 
@@ -325,7 +327,8 @@ class ProductController extends Controller
 
         return response()->json([
             'success' => 1,
-            'data' => $userLogic->userAddress($user->id, $user->phone)
+            'data' => $userLogic->userAddress($user->id, $user->phone),
+            'token' => $this->request->attributes->get('_refresh_token')
         ]);
     }
 
@@ -353,7 +356,8 @@ class ProductController extends Controller
                 'shipping' => $getDataShipping,
                 'choose' => $getUserCart['shipping_id'],
                 'cart_info' => $getUserAddress,
-            ]
+            ],
+            'token' => $this->request->attributes->get('_refresh_token')
         ]);
 
     }

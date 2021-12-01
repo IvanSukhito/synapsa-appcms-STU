@@ -96,7 +96,7 @@ class LabClinicController extends _CrudController
         ];
 
         parent::__construct(
-            $request, 'general.lab_clinic', 'lab-clinic', 'V1\Lab', 'lab-clinic',
+            $request, 'general.appointment_lab_clinic', 'lab-appointment', 'V1\Lab', 'lab-appointment',
             $passingData
         );
 

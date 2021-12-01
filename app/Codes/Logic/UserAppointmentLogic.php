@@ -2,13 +2,16 @@
 
 namespace App\Codes\Logic;
 
+use App\Codes\Models\Settings;
 use App\Codes\Models\V1\AppointmentDoctor;
 use App\Codes\Models\V1\AppointmentLab;
 use App\Codes\Models\V1\AppointmentNurse;
 use App\Codes\Models\V1\DoctorSchedule;
 use App\Codes\Models\V1\LabSchedule;
+use App\Codes\Models\V1\Service;
+use App\Codes\Models\V1\Users;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use function GuzzleHttp\default_ca_bundle;
 
 class UserAppointmentLogic
 {
@@ -272,7 +275,14 @@ class UserAppointmentLogic
         if ($type == 1) {
             $getAppointment = AppointmentDoctor::where('id', $appointmentId)->where('user_id', $userId)->first();
             if ($getAppointment) {
-                $getAppointment->form_patient = json_encode($saveData);
+                $getAppointment->form_patient = json_encode([
+                    'body_height' => $saveData['body_height'] ?? '',
+                    'body_weight' => $saveData['body_weight'] ?? '',
+                    'blood_pressure' => $saveData['blood_pressure'] ?? '',
+                    'body_temperature' => $saveData['body_temperature'] ?? '',
+                    'medical_checkup' => $saveData['medical_checkup'] ?? '',
+                    'symptoms' => $saveData['symptoms'] ?? ''
+                ]);
                 $getAppointment->save();
                 return 80;
             }
@@ -280,6 +290,175 @@ class UserAppointmentLogic
 
         return 90;
 
+    }
+
+    /**
+     * @param $appointmentId
+     * @param $userId
+     * @return array
+     */
+    public function checkMeeting($appointmentId, $userId): array
+    {
+        $getAppointment = AppointmentDoctor::where('status', '=', 3)->where('id', '=', $appointmentId)
+            ->where('user_id', '=', $userId)->first();
+        if (!$getAppointment) {
+            return [
+                'success' => 91,
+                'message' => 'Appointment not found'
+            ];
+        }
+        else if ($getAppointment->online_meeting == 80) {
+            return [
+                'success' => 92,
+                'message' => 'Appointment already finish'
+            ];
+        }
+
+        $doctorId = $getAppointment->doctor_id;
+        $getService = Service::where('id', '=', $getAppointment->service_id)->first();
+        if (!$getService) {
+            return [
+                'success' => 93,
+                'message' => 'Service not found'
+            ];
+        }
+        else if ($getService->type != 1) {
+            return [
+                'success' => 94,
+                'message' => 'Service Not support'
+            ];
+        }
+
+        return [
+            'success' => 80,
+            'data' => $getAppointment,
+            'doctor_id' => $doctorId
+        ];
+    }
+
+    /**
+     * @param $userId
+     * @param $appointmentId
+     * @return array
+     */
+    public function appointmentMeeting($userId, $appointmentId): array
+    {
+        $setting = Cache::remember('settings', env('SESSION_LIFETIME'), function () {
+            return Settings::pluck('value', 'key')->toArray();
+        });
+
+        $getAppointmentData = $this->checkMeeting($appointmentId, $userId);
+        if ($getAppointmentData['success'] != 80) {
+            return $getAppointmentData;
+        }
+
+        $getAppointment = $getAppointmentData['data'];
+
+        $doctorId = $getAppointmentData['doctor_id'];
+        $patientId = $getAppointment->user_id;
+        $getUsers = Users::select('id', 'image')->whereIn('id', [$userId, $patientId])->get();
+        $listImage = [];
+        $getFcmTokenDoctor = [];
+        foreach ($getUsers as $getUser) {
+            if($getUser->id == $doctorId) {
+                $getFcmTokenDoctor = $getUser->getDeviceToken()->pluck('token')->toArray();
+            }
+            $listImage[$getUser->id] = $getUser->image_full;
+        }
+
+        $getTimeMeeting = intval($setting['time-online-meeting']) ?? 30;
+        if ($getAppointment->time_start_meeting == null) {
+            $getAppointment->time_start_meeting = date('Y-m-d H:i:s');
+            $dateStopMeeting = date('Y-m-d');
+            $timeStopMeeting = date('H:i:s', strtotime("+$getTimeMeeting minutes"));
+        }
+        else {
+            $dateStopMeeting = date('Y-m-d');
+            $timeStopMeeting = date('H:i:s', strtotime($getAppointment->time_start_meeting) + (60*$getTimeMeeting));
+        }
+
+        $dataResult = [
+            'info' => $getAppointment,
+            'date' => $getAppointment->date,
+            'time_server' => date('H:i:s'),
+            'time_start' => $getAppointment->time_start,
+            'time_end' => $getAppointment->time_end,
+            'date_stop_meeting' => $dateStopMeeting,
+            'time_stop_meeting' => $timeStopMeeting,
+            'patient_image' => $listImage[$patientId] ?? asset('assets/cms/images/no-img.png'),
+            'doctor_image' => $listImage[$doctorId] ?? asset('assets/cms/images/no-img.png'),
+            'fcm_token' => $getFcmTokenDoctor
+        ];
+
+        $getExtraInfo = json_decode($getAppointment->extra_info, true);
+        if (isset($getExtraInfo['sub_service_id']) && $getExtraInfo['sub_service_id'] == 2) {
+
+            $getChat = json_decode($getAppointment->video_link, true);
+            if (isset($getChat['chat_id'])) {
+                $chatId = $getChat['chat_id'];
+            }
+            else {
+                $chatId = 'chat_'.$patientId.'_'.$userId.'_'.generateNewCode(9, 2);
+                $getAppointment->video_link = json_encode([
+                    'chat_id' => $chatId
+                ]);
+            }
+
+            $dataResult['type'] = 'Chat';
+            $dataResult['chat_id'] = $chatId;
+
+        }
+        else {
+
+            $getVideo = json_decode($getAppointment->video_link, true);
+            $agoraId = $getVideo['id'] ?? '';
+
+            if (strlen($agoraId) <= 0) {
+                return [
+                    'success' => 95,
+                    'message' => 'Appointment not started'
+                ];
+            }
+
+            $agoraChannel = $getVideo['channel'] ?? '';
+            $agoraUidPatient = $getVideo['uid_patient'] ?? '';
+            $agoraTokenPatient = $getVideo['token_patient'] ?? '';
+
+            $dataResult['type'] = 'Video Call';
+            $dataResult['video_app_id'] = $agoraId;
+            $dataResult['video_channel'] = $agoraChannel;
+            $dataResult['video_uid'] = $agoraUidPatient;
+            $dataResult['video_token'] = $agoraTokenPatient;
+
+        }
+
+        $getAppointment->online_meeting = 2;
+        $getAppointment->time_start_meeting = date('Y-m-d H:i:s');
+        $getAppointment->save();
+
+        return [
+            'success' => 80,
+            'data' => $dataResult
+        ];
+
+    }
+
+    /**
+     * @param $userId
+     * @param $appointmentId
+     * @return bool
+     */
+    public function appointmentCancel($userId, $appointmentId): bool
+    {
+        $getAppointment = AppointmentDoctor::where('status', '!=', 99)->where('user_id', $userId)->where('id', $appointmentId)->first();
+        if (!$getAppointment) {
+            return false;
+        }
+
+        $getAppointment->status = 99;
+        $getAppointment->save();
+
+        return true;
     }
 
 }
