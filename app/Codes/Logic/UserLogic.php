@@ -219,7 +219,7 @@ class UserLogic
 
         ];
         if ($getUser->doctor == 1) {
-            $getDoctor = Doctor::selectRaw('formal_edu, nonformal_edu, doctor_category_id, doctor_category.name AS doctor_category')
+            $getDoctor = Doctor::selectRaw('doctor.id AS doctor_id, formal_edu, nonformal_edu, doctor_category_id, doctor_category.name AS doctor_category')
                 ->join('doctor_category', 'doctor_category.id', '=', 'doctor.doctor_category_id')
                 ->where('user_id', '=', $getUser->id)->first();
             $result['info_doctor'] = $getDoctor;

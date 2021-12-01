@@ -406,7 +406,7 @@ class ProfileController extends Controller
         }
 
         try {
-            $image = base64_to_jpeg($this->request->file('image'));
+            $image = base64_to_jpeg($this->request->get('image'));
             $destinationPath = 'synapsaapps/chat/user_'.$user->id;
             $set_file_name = md5('image'.strtotime('now').rand(0, 100)).'.jpg';
             $getFile = Storage::put($destinationPath.'/'.$set_file_name, $image);

@@ -151,37 +151,24 @@ class DoctorAppointmentController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
-//        $doctorLogic = new DoctorLogic();
-//        $getResult = $doctorLogic->meetingCreate($id, $user->id);
-//        if ($getResult['success'] != 80) {
-//            return response()->json([
-//                'success' => 1,
-//                'message' => ['Hanya menu untuk dokter'],
-//                'token' => $this->request->attributes->get('_refresh_token'),
-//            ], 422);
-//        }
-//
-//        $getData = $getResult['data'];
-//
-//        return response()->json([
-//            'success' => 1,
-//            'data' => [
-//                'info' => $data,
-//                'date' => $data->date,
-//                'time_server' => date('H:i:s'),
-//                'time_start' => $data->time_start,
-//                'time_end' => $data->time_end,
-//                'video_app_id' => $agoraId,
-//                'video_channel' => $agoraChannel,
-//                'video_uid' => $agoraUidDokter,
-//                'video_token' => $agoraTokenDokter,
-//                'fcm_token' => $getFcmTokenPatient,
-//                'users_image' => $getPatient->image_full,
-//                'doctor_image' => $data->image_full,
-//            ],
-//            'message' => ['Sukses'],
-//            'token' => $this->request->attributes->get('_refresh_token'),
-//        ]);
+        $doctorLogic = new DoctorLogic();
+        $getResult = $doctorLogic->meetingCreate($id, $user->id);
+        if ($getResult['success'] != 80) {
+            return response()->json([
+                'success' => 1,
+                'message' => ['Hanya menu untuk dokter'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
+        $getData = $getResult['data'];
+
+        return response()->json([
+            'success' => 1,
+            'data' => $getData,
+            'message' => ['Sukses'],
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
 
 
 
