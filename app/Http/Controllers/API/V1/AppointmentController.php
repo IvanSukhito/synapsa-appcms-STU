@@ -339,6 +339,25 @@ class AppointmentController extends Controller
     {
         $user = $this->request->attributes->get('_user');
 
+        $appointmentLogic = new UserAppointmentLogic();
+        $getAppointmentResult = $appointmentLogic->appointmentMeeting($user->id, $id);
+        if ($getAppointmentResult['success'] != 80) {
+            return response()->json([
+                'success' => 0,
+                'message' => [$getAppointmentResult['message']] ?? [''],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => 1,
+            'data' => $getAppointmentResult['data'],
+            'token' => $this->request->attributes->get('_refresh_token')
+        ]);
+
+        var_dump($getAppointmentResult['data']); die();
+        $getAppointment = $getAppointmentResult['data']['data'];
+
         $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor.user_id AS doctor_user_id, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full, transaction_details.extra_info as extra_info')
             ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
             ->join('users', 'users.id', '=', 'doctor.user_id')

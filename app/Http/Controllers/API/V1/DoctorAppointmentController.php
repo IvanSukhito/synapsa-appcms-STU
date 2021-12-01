@@ -68,7 +68,7 @@ class DoctorAppointmentController extends Controller
     {
         $user = $this->request->attributes->get('_user');
         $doctorLogic = new DoctorLogic();
-        $getData = $doctorLogic->appointmentInfo($id, 2, $user->id);
+        $getData = $doctorLogic->appointmentInfo($id, $user->id);
         if ($getData['success'] != 80) {
             if ($getData['success'] == 90) {
                 $message = 'Hanya menu untuk dokter';
@@ -96,7 +96,7 @@ class DoctorAppointmentController extends Controller
         $user = $this->request->attributes->get('_user');
 
         $doctorLogic = new DoctorLogic();
-        $getResult = $doctorLogic->appointmentApprove($id, 2, $user->id);
+        $getResult = $doctorLogic->appointmentApprove($id, $user->id);
         if ($getResult != 80) {
             if ($getResult == 90) {
                 $message = 'Hanya menu untuk dokter';

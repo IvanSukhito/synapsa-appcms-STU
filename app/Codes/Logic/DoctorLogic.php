@@ -508,41 +508,30 @@ class DoctorLogic
     }
 
     /**
-     * Flag
-     * 1. Patient
-     * 2. Doctor
      * @param $appointmentId
-     * @param $flag
      * @param $userId
      * @return array
      */
-    public function appointmentInfo($appointmentId, $flag, $userId): array
+    public function appointmentInfo($appointmentId, $userId): array
     {
-        if ($flag == 1) {
-            $getAppointment = AppointmentDoctor::whereIn('status')->where('id', '=', $appointmentId)
-                ->where('user_id', '=', $userId)->first();
+        $getDoctor = $this->checkDoctor($userId);
+        if (!$getDoctor) {
+            return [
+                'success' => 90,
+                'message' => 'Doctor not found'
+            ];
         }
-        else {
-            $getDoctor = $this->checkDoctor($userId);
-            if (!$getDoctor) {
-                return [
-                    'success' => 90,
-                    'message' => 'Doctor not found'
-                ];
-            }
 
-            $getAppointment = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name,
-                user_doctor.image, CONCAT("'.env('OSS_URL').'/'.'", user_doctor.image) AS image_full, 
-                user_patient.image, CONCAT("'.env('OSS_URL').'/'.'", user_patient.image) AS image_full')
-                ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
-                ->join('users AS user_doctor', 'user_doctor.id', '=', 'doctor.user_id')
-                ->join('users AS user_patient', 'user_patient.id', '=', 'appointment_doctor.user_id')
-                ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
-                ->where('doctor_id', $getDoctor->id)
-                ->where('appointment_doctor.id', $appointmentId)
-                ->first();
-
-        }
+        $getAppointment = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name,
+            user_doctor.image, CONCAT("'.env('OSS_URL').'/'.'", user_doctor.image) AS image_full, 
+            user_patient.image, CONCAT("'.env('OSS_URL').'/'.'", user_patient.image) AS image_full')
+            ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
+            ->join('users AS user_doctor', 'user_doctor.id', '=', 'doctor.user_id')
+            ->join('users AS user_patient', 'user_patient.id', '=', 'appointment_doctor.user_id')
+            ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
+            ->where('doctor_id', $getDoctor->id)
+            ->where('appointment_doctor.id', $appointmentId)
+            ->first();
 
         if ($getAppointment) {
 
@@ -575,29 +564,19 @@ class DoctorLogic
     }
 
     /**
-     * Flag
-     * 1. Patient
-     * 2. Doctor
      * @param $appointmentId
-     * @param $flag
      * @param $userId
      * @return int
      */
-    public function appointmentApprove($appointmentId, $flag, $userId): int
+    public function appointmentApprove($appointmentId, $userId): int
     {
-        if ($flag == 1) {
-            $getAppointment = AppointmentDoctor::whereIn('status', [1,2])->where('id', '=', $appointmentId)
-                ->where('user_id', '=', $userId)->first();
+        $getDoctor = $this->checkDoctor($userId);
+        if (!$getDoctor) {
+            return 90;
         }
-        else {
-            $getDoctor = $this->checkDoctor($userId);
-            if (!$getDoctor) {
-                return 90;
-            }
 
-            $getAppointment = AppointmentDoctor::whereIn('status', [1,2])->where('id', '=', $appointmentId)
-                ->where('doctor_id', '=', $getDoctor->id)->first();
-        }
+        $getAppointment = AppointmentDoctor::whereIn('status', [1,2])->where('id', '=', $appointmentId)
+            ->where('doctor_id', '=', $getDoctor->id)->first();
 
         if ($getAppointment) {
             $getService = Service::where('id', '=', $getAppointment->service_id)->first();
@@ -674,30 +653,21 @@ class DoctorLogic
     /**
      * @param $appointmentId
      * @param $userId
-     * @param int $type
      * @return array
      */
-    public function checkMeeting($appointmentId, $userId, int $type = 2): array
+    public function checkMeeting($appointmentId, $userId): array
     {
-        if ($type == 1) {
-            $getAppointment = AppointmentDoctor::where('status', '=', 3)->where('id', '=', $appointmentId)
-                ->where('user_id', '=', $userId)->first();
-            $doctorId = $getAppointment->doctor_id;
-        }
-        else {
-            $getDoctor = $this->checkDoctor($userId);
-            if (!$getDoctor) {
-                return [
-                    'success' => 90,
-                    'message' => 'Not Doctor Account'
-                ];
-            }
-
-            $doctorId = $getDoctor->id;
-            $getAppointment = AppointmentDoctor::where('status', '=', 3)->where('id', '=', $appointmentId)
-                ->where('doctor_id', '=', $doctorId)->first();
+        $getDoctor = $this->checkDoctor($userId);
+        if (!$getDoctor) {
+            return [
+                'success' => 90,
+                'message' => 'Not Doctor Account'
+            ];
         }
 
+        $doctorId = $getDoctor->id;
+        $getAppointment = AppointmentDoctor::where('status', '=', 3)->where('id', '=', $appointmentId)
+            ->where('doctor_id', '=', $doctorId)->first();
         if (!$getAppointment) {
             return [
                 'success' => 91,
@@ -840,12 +810,11 @@ class DoctorLogic
     /**
      * @param $appointmentId
      * @param $userId
-     * @param int $type
      * @return array
      */
-    public function meetingGetInfo($appointmentId, $userId, int $type = 2): array
+    public function meetingGetInfo($appointmentId, $userId): array
     {
-        $getAppointmentData = $this->checkMeeting($appointmentId, $userId, $type);
+        $getAppointmentData = $this->checkMeeting($appointmentId, $userId);
         if ($getAppointmentData['success'] != 80) {
             return $getAppointmentData;
         }
