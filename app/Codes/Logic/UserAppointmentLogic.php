@@ -272,7 +272,14 @@ class UserAppointmentLogic
         if ($type == 1) {
             $getAppointment = AppointmentDoctor::where('id', $appointmentId)->where('user_id', $userId)->first();
             if ($getAppointment) {
-                $getAppointment->form_patient = json_encode($saveData);
+                $getAppointment->form_patient = json_encode([
+                    'body_height' => $saveData['body_height'] ?? '',
+                    'body_weight' => $saveData['body_weight'] ?? '',
+                    'blood_pressure' => $saveData['blood_pressure'] ?? '',
+                    'body_temperature' => $saveData['body_temperature'] ?? '',
+                    'medical_checkup' => $saveData['medical_checkup'] ?? '',
+                    'symptoms' => $saveData['symptoms'] ?? ''
+                ]);
                 $getAppointment->save();
                 return 80;
             }
