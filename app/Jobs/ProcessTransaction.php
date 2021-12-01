@@ -333,8 +333,8 @@ class ProcessTransaction implements ShouldQueue
             $getTransaction->getTransactionDetails()->saveMany($transactionDetails);
         }
 
-        AppointmentDoctorProduct::where('users_cart_id', '=', $getCartInfo->id)
-            ->where('choose', '=', 1)->delete();
+//        AppointmentDoctorProduct::where('users_cart_id', '=', $getCartInfo->id)
+//            ->where('choose', '=', 1)->delete();
 
         DB::commit();
 
