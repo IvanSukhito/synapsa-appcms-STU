@@ -126,6 +126,8 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                         $router->post($linkName . '/{id}/storeschedule2', $controller.'@storeschedule2')->name('admin.' . $linkName . '.storeschedule2');
                         $router->post($linkName . '/{id}/schedule/{scheduleId}',   $controller.'@updateSchedule')->name('admin.' . $linkName . '.updateSchedule');
                         $router->delete($linkName . '/{id}/schedule/{scheduleId}',   $controller.'@destroySchedule')->name('admin.' . $linkName . '.destroySchedule');
+                        $router->get($linkName . '/{id}/forgot-password', $controller.'@forgotPassword')->name('admin.' . $linkName . '.forgotPassword');
+                        $router->post($linkName . '/{id}/update-password', $controller.'@updatePassword')->name('admin.' . $linkName . '.updatePassword');
                         break;
 
                 }
