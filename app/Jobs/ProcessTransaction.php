@@ -228,6 +228,18 @@ class ProcessTransaction implements ShouldQueue
 
     }
 
+    /**
+     * @param $getNewCode
+     * @param $getPaymentReferId
+     * @param $getTypeService
+     * @param $getServiceId
+     * @param $getUserId
+     * @param $getPaymentId
+     * @param $getShippingId
+     * @param $getAppointmentDoctorId
+     * @param $getPaymentInfo
+     * @param $additional
+     */
     private function transactionProductKlinik($getNewCode, $getPaymentReferId, $getTypeService, $getServiceId, $getUserId, $getPaymentId, $getShippingId, $getAppointmentDoctorId, $getPaymentInfo, $additional)
     {
         $getUser = Users::where('id', '=', $getUserId)->first();
@@ -333,8 +345,14 @@ class ProcessTransaction implements ShouldQueue
             $getTransaction->getTransactionDetails()->saveMany($transactionDetails);
         }
 
-//        AppointmentDoctorProduct::where('users_cart_id', '=', $getCartInfo->id)
-//            ->where('choose', '=', 1)->delete();
+        $getAppointmentDoctorProduct = AppointmentDoctorProduct::where('choose', '=', 1)
+            ->where('appointment_doctor_id', '=', $getAppointmentDoctorId)->get();
+        foreach ($getAppointmentDoctorProduct as $item) {
+            $item->product_qty_checkout += $item->product_qty_cart;
+            $item->product_qty_cart = 0;
+            $item->choose = 0;
+            $item->save();
+        }
 
         DB::commit();
 
