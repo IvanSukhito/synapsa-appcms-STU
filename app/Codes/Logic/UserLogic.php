@@ -736,8 +736,17 @@ class UserLogic
         $getCart = $getCart->get();
 
         $total = 0;
+        $qty = 0;
         foreach ($getCart as $list) {
             $total += ($list->price * $list->product_qty_cart);
+            $qty += $list->product_qty_cart;
+        }
+
+        if ($total <= 0) {
+            return [
+                'success' => 0,
+                'message' => 'Tidak ada Cart yang di pilih'
+            ];
         }
 
         return [
@@ -745,6 +754,8 @@ class UserLogic
             'data' => [
                 'appointment' => $getAppointment,
                 'cart' => $getCart,
+                'total_qty' => $qty,
+                'total_qty_nice' => number_format_local($total),
                 'total' => $total,
                 'total_nice' => number_format_local($total)
             ]

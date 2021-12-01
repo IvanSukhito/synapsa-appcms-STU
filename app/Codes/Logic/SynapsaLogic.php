@@ -4,16 +4,10 @@ namespace App\Codes\Logic;
 
 use App\Codes\Models\Settings;
 use App\Codes\Models\V1\AppointmentDoctor;
-use App\Codes\Models\V1\AppointmentLab;
-use App\Codes\Models\V1\AppointmentLabDetails;
 use App\Codes\Models\V1\AppointmentNurse;
 use App\Codes\Models\V1\BookNurse;
-use App\Codes\Models\V1\Doctor;
-use App\Codes\Models\V1\DoctorSchedule;
-use App\Codes\Models\V1\LabSchedule;
 use App\Codes\Models\V1\LogServiceTransaction;
 use App\Codes\Models\V1\Payment;
-use App\Codes\Models\V1\Service;
 use App\Codes\Models\V1\SetJob;
 use App\Codes\Models\V1\Transaction;
 use App\Codes\Models\V1\Users;
@@ -22,8 +16,6 @@ use App\Jobs\ProcessTransaction;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 class SynapsaLogic
 {
@@ -59,49 +51,6 @@ class SynapsaLogic
             ];
         }
     }
-
-    /**
-     * @Deprecated
-     *
-     * @param $userId
-     * @param null $phone
-     * @return array
-     */
-    public function getUserAddress($userId, $phone = null)
-    {
-        if ($phone == null) {
-            $user = Users::where('id', $userId)->first();
-            if ($user) {
-                $phone = $user->phone;
-            }
-        }
-
-        $getUserAddress = UsersAddress::firstOrCreate([
-            'user_id' => $userId
-        ]);
-        if ($getUserAddress) {
-            return [
-                'address_name' => $getUserAddress->address_name ?? '',
-                'phone' => $phone ?? '',
-                'province_id' => $getUserAddress->province_id ?? '',
-                'province_name' => $getUserAddress->province_name ?? '',
-                'city_id' => $getUserAddress->city_id ?? '',
-                'city_name' => $getUserAddress->city_name ?? '',
-                'district_id' => $getUserAddress->district_id ?? '',
-                'district_name' => $getUserAddress->district_name ?? '',
-                'sub_district_id' => $getUserAddress->sub_district_id ?? '',
-                'sub_district_name' => $getUserAddress->sub_district_name ?? '',
-                'address' => $getUserAddress->address ?? '',
-                'address_detail' => $getUserAddress->address_detail ?? '',
-                'zip_code' => $getUserAddress->zip_code ?? '',
-            ];
-        }
-        else {
-            return [];
-        }
-
-    }
-
 
     public function createPayment($payment, $additional, $transactionId = 0)
     {

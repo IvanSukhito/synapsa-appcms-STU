@@ -327,7 +327,7 @@ class AppointmentController extends Controller
 
     public function downloadDiagnosis($id, $filename)
     {
-        $data = AppointmentDoctor::where('id', $id)->first();
+        $data = AppointmentDoctor::where('id', '=', $id)->first();
         if ($data && $data->status == 80) {
             $generateLogic = new generateLogic();
             $generateLogic->generatePdfDiagnosis($data, $filename);
@@ -739,7 +739,7 @@ class AppointmentController extends Controller
             ], 422);
         }
 
-        $data = AppointmentDoctor::whereIn('status', [80])->where('user_id', $user->id)->where('id', $id)->first();
+        $data = AppointmentDoctor::whereIn('status', [80])->where('user_id', '=', $user->id)->where('id', '=', $id)->first();
         if (!$data) {
             return response()->json([
                 'success' => 0,
@@ -759,6 +759,7 @@ class AppointmentController extends Controller
     public function shipping($id)
     {
         $user = $this->request->attributes->get('_user');
+
         $type = intval($this->request->get('type'));
         if ($type != 1) {
             return response()->json([
@@ -768,107 +769,29 @@ class AppointmentController extends Controller
             ], 422);
         }
 
-        $data = AppointmentDoctor::whereIn('status', [80])->where('user_id', $user->id)->where('id', $id)->first();
-        if (!$data) {
+        $userLogic = new UserLogic();
+        $getUserCart = $userLogic->userCartAppointmentDoctor($user->id, $id, 1);
+        if ($getUserCart['success'] == 0) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
+                'message' => ['Tidak ada cart yang di pilih'],
                 'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
+            ]);
         }
 
-        $getDetails = Product::selectRaw('appointment_doctor_product.id, product.id, product.name, product.image,
-            product.price, product.unit, appointment_doctor_product.product_qty, appointment_doctor_product.choose')
-            ->join('appointment_doctor_product', 'appointment_doctor_product.product_id', '=', 'product.id')
-            ->where('appointment_doctor_product.appointment_doctor_id', '=', $id)->get();
+        $address = $userLogic->userAddress($user->id, $user->phone);
 
-        if ($getDetails->count() <= 0) {
-            return response()->json([
-                'success' => 0,
-                'token' => $this->request->attributes->get('_refresh_token'),
-                'message' => ['Tidak ada Produk yang di pilih'],
-            ], 422);
-        }
-
-        $getShipping = Shipping::where('status', 80)->orderBy('orders', 'ASC')->get();
+        $getShipping = Shipping::where('status', '=', 80)->orderBy('orders', 'ASC')->get();
 
         return response()->json([
             'success' => 1,
             'data' => [
-                'data' => $data,
-                'product' => $getDetails,
-                'shipping' => $getShipping
-            ],
-            'message' => ['Berhasil'],
-            'token' => $this->request->attributes->get('_refresh_token'),
-        ]);
-
-    }
-
-    public function payment($id)
-    {
-        $user = $this->request->attributes->get('_user');
-        $type = intval($this->request->get('type'));
-        $shippingId = intval($this->request->get('shipping_id'));
-        if ($type != 1) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Menu Hanya untuk pasien dokter'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
-
-        $data = AppointmentDoctor::whereIn('status', [80])->where('user_id', $user->id)->where('id', $id)->first();
-        if (!$data) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-
-        $getDetails = Product::selectRaw('appointment_doctor_product.id, product.id as product_id, product.name, product.image,
-            product.price as price, product.unit, product_qty_checkout as qty, appointment_doctor_product.choose')
-            ->join('appointment_doctor_product', 'appointment_doctor_product.product_id', '=', 'product.id')
-            ->where('appointment_doctor_product.appointment_doctor_id', '=', $id)->get();
-
-        $subTotal = 0;
-        foreach ($getDetails as $list) {
-            $subTotal += ($list->qty * $list->price);
-        }
-
-        $getShipping = Shipping::where('id', $shippingId)->first();
-        if (!$getShipping) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Pengiriman Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
-
-        $getShippingPrice = $getShipping->price;
-
-        if ($getDetails->count() <= 0) {
-            return response()->json([
-                'success' => 0,
-                'token' => $this->request->attributes->get('_refresh_token'),
-                'message' => ['Tidak ada Produk yang di pilih'],
-            ], 422);
-        }
-
-        $getPayment = Payment::where('status', 80)->orderBy('orders', 'ASC')->get();
-
-        return response()->json([
-            'success' => 1,
-            'data' => [
-                'data' => $data,
-                'product' => $getDetails,
-                'payment' => $getPayment,
-                'cart_info' => [
-                    'shipping_price' => $getShippingPrice,
-                    'subtotal' => $subTotal,
-                    'total' => $subTotal + $getShippingPrice
-                ],
+                'appointment' => $getUserCart['data']['appointment'],
+                'product' => $getUserCart['data']['cart'],
+                'total' => $getUserCart['data']['total'],
+                'total_nice' => $getUserCart['data']['total_nice'],
+                'shipping' => $getShipping,
+                'address' => $address
             ],
             'message' => ['Berhasil'],
             'token' => $this->request->attributes->get('_refresh_token'),
@@ -881,60 +804,6 @@ class AppointmentController extends Controller
         $user = $this->request->attributes->get('_user');
 
         $shippingId = intval($this->request->get('shipping_id'));
-        $receiver_name = $this->request->get('receiver_name');
-        $receiver_address = $this->request->get('receiver_address');
-        $receiver_phone = $this->request->get('receiver_phone');
-
-        $getDetails = Product::selectRaw('appointment_doctor_product.id, product.id as product_id, product.name, product.image,
-            product.price as price, product.unit, product_qty_checkout as qty, appointment_doctor_product.choose')
-            ->join('appointment_doctor_product', 'appointment_doctor_product.product_id', '=', 'product.id')
-            ->where('appointment_doctor_product.choose', '=', 1)
-            ->where('appointment_doctor_product.appointment_doctor_id', '=', $id)->get();
-
-        $subTotal = 0;
-        foreach ($getDetails as $list) {
-            $subTotal += ($list->qty * $list->price);
-        }
-
-        $getUsersCart = UsersCart::firstOrCreate([
-            'users_id' => $user->id,
-        ]);
-
-        $getDetailsInformation = json_decode($getUsersCart->detail_information, true);
-        $getShipping = Shipping::where('id', $shippingId)->first();
-        if (!$getShipping) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Pengiriman Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
-
-        $getShippingPrice = $getShipping->price;
-
-        return response()->json([
-            'success' => 1,
-            'data' => [
-                'cart_info' => [
-                    'name' => $receiver_name ??$getDetailsInformation['receiver'] ?? '',
-                    'address' => $receiver_address ?? $getDetailsInformation['address'] ?? '',
-                    'phone' => $receiver_phone ?? $getDetailsInformation['phone'] ?? '',
-                    'shipping_name' => $getShipping->name,
-                    'shipping_price' => $getShippingPrice,
-                    'subtotal' => $subTotal,
-                    'total' => $subTotal + $getShippingPrice
-                ],
-                'cart_details' => $getDetails
-            ],
-            'message' => ['Success'],
-            'token' => $this->request->attributes->get('_refresh_token'),
-        ]);
-
-    }
-
-    public function checkout($id)
-    {
-        $user = $this->request->attributes->get('_user');
         $type = intval($this->request->get('type'));
         if ($type != 1) {
             return response()->json([
@@ -944,14 +813,122 @@ class AppointmentController extends Controller
             ], 422);
         }
 
-        $needPhone = 0;
-        $validator = Validator::make($this->request->all(), [
-            'shipping_id' => 'required|numeric',
-            'payment_id' => 'required|numeric',
-            'receiver_name' => 'required',
-            'receiver_phone' => 'required',
-            'receiver_address' => 'required',
+        $userLogic = new UserLogic();
+        $getUserCart = $userLogic->userCartAppointmentDoctor($user->id, $id, 1);
+        if ($getUserCart['success'] == 0) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Tidak ada cart yang di pilih'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ]);
+        }
+
+        $address = $userLogic->userAddress($user->id, $user->phone);
+
+        $getShipping = Shipping::where('id', '=', $shippingId)->first();
+        $shippingPrice = 0;
+        if ($getShipping) {
+            $shippingPrice = $getShipping->price;
+        }
+
+        $getPayment = Payment::where('status', '=', 80)->orderBy('orders', 'ASC')->get();
+
+        return response()->json([
+            'success' => 1,
+            'data' => [
+                'appointment' => $getUserCart['data']['appointment'],
+                'product' => $getUserCart['data']['cart'],
+                'sub_total' => $getUserCart['data']['total'],
+                'sub_total_nice' => $getUserCart['data']['total_nice'],
+                'total' => $shippingPrice + $getUserCart['data']['total'],
+                'total_nice' => number_format_local($shippingPrice + $getUserCart['data']['total']),
+                'payment' => $getPayment,
+                'address' => $address
+            ],
+            'message' => ['Berhasil'],
+            'token' => $this->request->attributes->get('_refresh_token'),
         ]);
+
+    }
+
+    public function payment($id)
+    {
+        $user = $this->request->attributes->get('_user');
+
+        $shippingId = intval($this->request->get('shipping_id'));
+        $type = intval($this->request->get('type'));
+        if ($type != 1) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Menu Hanya untuk pasien dokter'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
+        $userLogic = new UserLogic();
+        $getUserCart = $userLogic->userCartAppointmentDoctor($user->id, $id, 1);
+        if ($getUserCart['success'] == 0) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Tidak ada cart yang di pilih'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ]);
+        }
+
+        $address = $userLogic->userAddress($user->id, $user->phone);
+
+        $getShipping = Shipping::where('id', '=', $shippingId)->where('status', '=', 80)->first();
+        $shippingPrice = 0;
+        if ($getShipping) {
+            $shippingPrice = $getShipping->price;
+        }
+
+        $getPayment = Payment::where('status', '=', 80)->orderBy('orders', 'ASC')->get();
+
+        return response()->json([
+            'success' => 1,
+            'data' => [
+                'appointment' => $getUserCart['data']['appointment'],
+                'product' => $getUserCart['data']['cart'],
+                'sub_total' => $getUserCart['data']['total'],
+                'sub_total_nice' => $getUserCart['data']['total_nice'],
+                'total' => $shippingPrice + $getUserCart['data']['total'],
+                'total_nice' => number_format_local($shippingPrice + $getUserCart['data']['total']),
+                'payment' => $getPayment,
+                'address' => $address
+            ],
+            'message' => ['Berhasil'],
+            'token' => $this->request->attributes->get('_refresh_token'),
+        ]);
+
+    }
+
+    public function checkout($id)
+    {
+        $user = $this->request->attributes->get('_user');
+
+        $synapsaLogic = new SynapsaLogic();
+
+        $paymentId = intval($this->request->get('payment_id'));
+        $getPaymentResult = $synapsaLogic->checkPayment($paymentId);
+        if ($getPaymentResult['success'] == 0) {
+            return response()->json([
+                'success' => 0,
+                'message' => ['Payment Tidak Ditemukan'],
+                'token' => $this->request->attributes->get('_refresh_token'),
+            ], 422);
+        }
+
+        $needPhone = intval($getPaymentResult['phone']);
+
+        if ($needPhone == 1) {
+            $validationRule = ['payment_id' => 'required|numeric', 'shipping_id' => 'required|numeric', 'phone' => 'required|regex:/^(8\d+)/|numeric'];
+        }
+        else {
+            $validationRule = ['payment_id' => 'required|numeric', 'shipping_id' => 'required|numeric'];
+        }
+
+        $validator = Validator::make($this->request->all(), $validationRule);
         if ($validator->fails()) {
             return response()->json([
                 'success' => 0,
@@ -960,86 +937,43 @@ class AppointmentController extends Controller
             ], 422);
         }
 
-        $paymentId = intval($this->request->get('payment_id'));
-        $getPayment = Payment::where('id', $paymentId)->first();
-        if (!$getPayment) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Payment Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 422);
-        }
-
+        $getPhone = $this->request->get('phone');
+        $getPayment = $getPaymentResult['payment'];
         $shippingId = intval($this->request->get('shipping_id'));
-        $getShipping = Shipping::where('id', $shippingId)->first();
-        if (!$getShipping) {
+
+        $userLogic = new UserLogic();
+        $getUserCart = $userLogic->userCartAppointmentDoctor($user->id, $id, 1);
+        if ($getUserCart['success'] == 0) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Pengiriman Tidak Ditemukan'],
+                'message' => [$getUserCart['message']],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 422);
         }
 
-        $receiver_name = $this->request->get('receiver_name');
-        $receiver_address = $this->request->get('receiver_address');
-        $receiver_phone = $this->request->get('receiver_phone');
-
-        $getDetailsInformation = [
-            'receiver_name' => $receiver_name,
-            'receiver_address' => $receiver_address,
-            'receiver_phone' => $receiver_phone
-        ];
-
-
-        if ($getPayment->type == 2 && $getPayment->service == 'xendit' && in_array($getPayment->type_payment, ['ew_ovo', 'ew_dana', 'ew_linkaja'])) {
-            $needPhone = 1;
-            $validator = Validator::make($this->request->all(), [
-                'phone' => 'required|regex:/^(8\d+)/|numeric'
-            ]);
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => 0,
-                    'message' => $validator->messages()->all(),
-                    'token' => $this->request->attributes->get('_refresh_token'),
-                ], 422);
-            }
-        }
-
-        $data = AppointmentDoctor::whereIn('status', [80])->where('user_id', $user->id)->where('id', $id)->first();
-        if (!$data) {
+        $getShipping = Shipping::where('id', '=', $shippingId)->where('status', '=', 80)->first();
+        if(!$getShipping) {
             return response()->json([
                 'success' => 0,
-                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
+                'message' => ['Shipping tidak ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
+            ], 422);
         }
 
-        $getShippingPrice = $getShipping->price;
-
-        $total = 0;
-        $getDetails = Product::selectRaw('appointment_doctor_product.id, product.id as product_id, product.name, product.image,
-            product.price, product.unit, appointment_doctor_product.product_qty, product_qty_checkout, appointment_doctor_product.choose')
-            ->join('appointment_doctor_product', 'appointment_doctor_product.product_id', '=', 'product.id')
-            ->where('appointment_doctor_product.appointment_doctor_id', '=', $id)->where('choose', 1)
-            ->get();
-        foreach ($getDetails as $list) {
-            $total += $list->price;
-        }
-
-        $total += $getShippingPrice;
+        $total = $getUserCart['data']['total'];
+        $total += $getShipping->price;
 
         $getTotal = Transaction::where('klinik_id', $user->klinik_id)->whereYear('created_at', '=', date('Y'))
             ->whereMonth('created_at', '=', date('m'))->count();
 
-        $newCode = str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT).rand(100,199);
+        $newCode = str_pad(($getTotal + 1), 6, '0', STR_PAD_LEFT).rand(100000,999999);
 
         $sendData = [
             'job' => [
                 'code' => $newCode,
                 'payment_id' => $paymentId,
-                'shipping_id' => $shippingId,
                 'user_id' => $user->id,
-                'detail_info' => json_encode($getDetailsInformation),
+                'shipping_id' => $shippingId,
                 'type_service' => 'product_klinik',
                 'service_id' => 0,
                 'appointment_doctor_id' => $id
@@ -1050,13 +984,11 @@ class AppointmentController extends Controller
         ];
 
         if ($needPhone == 1) {
-            $sendData['phone'] = $this->request->get('phone');
+            $sendData['phone'] = $getPhone;
         }
 
-        $setLogic = new SynapsaLogic();
-        $getPaymentInfo = $setLogic->createPayment($getPayment, $sendData);
+        $getPaymentInfo = $synapsaLogic->createPayment($getPayment, $sendData);
         if ($getPaymentInfo['success'] == 1) {
-
             return response()->json([
                 'success' => 1,
                 'data' => [
