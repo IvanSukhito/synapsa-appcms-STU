@@ -355,145 +355,115 @@ class AppointmentController extends Controller
             'token' => $this->request->attributes->get('_refresh_token')
         ]);
 
-        var_dump($getAppointmentResult['data']); die();
-        $getAppointment = $getAppointmentResult['data']['data'];
-
-        $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor.user_id AS doctor_user_id, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full, transaction_details.extra_info as extra_info')
-            ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
-            ->join('users', 'users.id', '=', 'doctor.user_id')
-            ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
-            ->join('transaction_details','transaction_details.transaction_id','=','appointment_doctor.transaction_id', 'LEFT')
-            ->where('appointment_doctor.user_id', $user->id)
-            ->where('appointment_doctor.id', $id)
-            ->first();
-
-        if (!$data) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-        else if ($data->status != 3) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Janji Temu Dokter Belum di Setujui'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-        else if ($data->online_meeting == 80) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Meeting sudah selesai'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-        //   else if (in_array($data->online_meeting, [0,1])) {
-        //       return response()->json([
-        //           'success' => 0,
-        //           'message' => ['Meeting belum di mulai'],
-        //           'token' => $this->request->attributes->get('_refresh_token'),
-        //       ], 404);
-        //   }
-        //   else if(strtotime($data->date) != $dateNow){
-        //       return response()->json([
-        //           'success' => 0,
-        //           'message' => ['Hari Meeting belum di mulai'],
-        //           'token' => $this->request->attributes->get('_refresh_token'),
-        //       ], 422);
-        //   }
-        //   else if(!($timeBuffer >= strtotime($data->time_start))){
-        //       return response()->json([
-        //           'success' => 0,
-        //           'message' => ['Waktu Meeting belum di mulai'],
-        //           'token' => $this->request->attributes->get('_refresh_token'),
-        //       ], 422);
-        //   }
-        //else if(strtotime($data->time_end) < strtotime("now")){
-        //    return response()->json([
-        //        'success' => 0,
-        //        'message' => ['Waktu Meeting sudah selesai'],
-        //        'token' => $this->request->attributes->get('_refresh_token'),
-        //    ], 422);
-        //}
-
-        $getService = Service::where('id', $data->service_id)->first();
-        if (!$getService) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Janji Temu Dokter Bukan untuk meeting'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-        elseif ($getService->type != 1) {
-            return response()->json([
-                'success' => 0,
-                'message' => ['Janji Temu Dokter Bukan untuk meeting'],
-                'token' => $this->request->attributes->get('_refresh_token'),
-            ], 404);
-        }
-
-        $getPatient = Users::where('id', $data->doctor_user_id)->first();
-        $getFcmTokenPatient = [];
-        if ($getPatient) {
-            $getFcmTokenPatient = $getPatient->getDeviceToken()->pluck('token')->toArray();
-        }
-
-        $getTimeMeeting = intval($this->setting['time-online-meeting']) ?? 30;
-
-        if ($data->time_start_meeting == null) {
-            $data->time_start_meeting = date('Y-m-d H:i:s');
-            $data->save();
-            $dateStopMeeting = date('Y-m-d');
-            $timeStopMeeting = date('H:i:s', strtotime("+$getTimeMeeting minutes"));
-        }
-        else {
-            $dateStopMeeting = date('Y-m-d');
-            $timeStopMeeting = date('H:i:s', strtotime($data->time_start_meeting) + (60*$getTimeMeeting));
-        }
-
-        $getVideo = json_decode($data->video_link, true);
-        $agoraId = $getVideo['id'] ?? '';
-        $agoraChannel = $getVideo['channel'] ?? '';
-        $agoraUid = $getVideo['uid_pasien'] ?? '';
-        $agoraToken = $getVideo['token_pasien'] ?? '';
-
-        return response()->json([
-            'success' => 1,
-            'data' => [
-                'info' => $data,
-                'date' => $data->date,
-                'time_server' => date('H:i:s'),
-                'date_stop_meeting' => $dateStopMeeting,
-                'time_stop_meeting' => $timeStopMeeting,
-                'time_start' => $data->time_start,
-                'time_end' => $data->time_end,
-                'video_app_id' => $agoraId,
-                'video_channel' => $agoraChannel,
-                'video_uid' => $agoraUid,
-                'video_token' => $agoraToken,
-                'fcm_token' => $getFcmTokenPatient
-            ],
-            'message' => ['Sukses'],
-            'token' => $this->request->attributes->get('_refresh_token'),
-        ]);
+//        var_dump($getAppointmentResult['data']); die();
+//        $getAppointment = $getAppointmentResult['data']['data'];
+//
+//        $data = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor.user_id AS doctor_user_id, doctor_category.name, users.image, CONCAT("'.env('OSS_URL').'/'.'", users.image) AS image_full, transaction_details.extra_info as extra_info')
+//            ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
+//            ->join('users', 'users.id', '=', 'doctor.user_id')
+//            ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
+//            ->join('transaction_details','transaction_details.transaction_id','=','appointment_doctor.transaction_id', 'LEFT')
+//            ->where('appointment_doctor.user_id', $user->id)
+//            ->where('appointment_doctor.id', $id)
+//            ->first();
+//
+//        if (!$data) {
+//            return response()->json([
+//                'success' => 0,
+//                'message' => ['Janji Temu Dokter Tidak Ditemukan'],
+//                'token' => $this->request->attributes->get('_refresh_token'),
+//            ], 404);
+//        }
+//        else if ($data->status != 3) {
+//            return response()->json([
+//                'success' => 0,
+//                'message' => ['Janji Temu Dokter Belum di Setujui'],
+//                'token' => $this->request->attributes->get('_refresh_token'),
+//            ], 404);
+//        }
+//        else if ($data->online_meeting == 80) {
+//            return response()->json([
+//                'success' => 0,
+//                'message' => ['Meeting sudah selesai'],
+//                'token' => $this->request->attributes->get('_refresh_token'),
+//            ], 404);
+//        }
+//
+//        $getService = Service::where('id', $data->service_id)->first();
+//        if (!$getService) {
+//            return response()->json([
+//                'success' => 0,
+//                'message' => ['Janji Temu Dokter Bukan untuk meeting'],
+//                'token' => $this->request->attributes->get('_refresh_token'),
+//            ], 404);
+//        }
+//        elseif ($getService->type != 1) {
+//            return response()->json([
+//                'success' => 0,
+//                'message' => ['Janji Temu Dokter Bukan untuk meeting'],
+//                'token' => $this->request->attributes->get('_refresh_token'),
+//            ], 404);
+//        }
+//
+//        $getPatient = Users::where('id', $data->doctor_user_id)->first();
+//        $getFcmTokenPatient = [];
+//        if ($getPatient) {
+//            $getFcmTokenPatient = $getPatient->getDeviceToken()->pluck('token')->toArray();
+//        }
+//
+//        $getTimeMeeting = intval($this->setting['time-online-meeting']) ?? 30;
+//
+//        if ($data->time_start_meeting == null) {
+//            $data->time_start_meeting = date('Y-m-d H:i:s');
+//            $data->save();
+//            $dateStopMeeting = date('Y-m-d');
+//            $timeStopMeeting = date('H:i:s', strtotime("+$getTimeMeeting minutes"));
+//        }
+//        else {
+//            $dateStopMeeting = date('Y-m-d');
+//            $timeStopMeeting = date('H:i:s', strtotime($data->time_start_meeting) + (60*$getTimeMeeting));
+//        }
+//
+//        $getVideo = json_decode($data->video_link, true);
+//        $agoraId = $getVideo['id'] ?? '';
+//        $agoraChannel = $getVideo['channel'] ?? '';
+//        $agoraUid = $getVideo['uid_pasien'] ?? '';
+//        $agoraToken = $getVideo['token_pasien'] ?? '';
+//
+//        return response()->json([
+//            'success' => 1,
+//            'data' => [
+//                'info' => $data,
+//                'date' => $data->date,
+//                'time_server' => date('H:i:s'),
+//                'date_stop_meeting' => $dateStopMeeting,
+//                'time_stop_meeting' => $timeStopMeeting,
+//                'time_start' => $data->time_start,
+//                'time_end' => $data->time_end,
+//                'video_app_id' => $agoraId,
+//                'video_channel' => $agoraChannel,
+//                'video_uid' => $agoraUid,
+//                'video_token' => $agoraToken,
+//                'fcm_token' => $getFcmTokenPatient
+//            ],
+//            'message' => ['Sukses'],
+//            'token' => $this->request->attributes->get('_refresh_token'),
+//        ]);
     }
 
     public function cancelMeeting($id)
     {
         $user = $this->request->attributes->get('_user');
 
-        $data = AppointmentDoctor::whereIn('status', [1,2,80])->where('user_id', $user->id)->where('id', $id)->first();
-        if (!$data) {
+        $appointmentLogic = new UserAppointmentLogic();
+        $getResult = $appointmentLogic->appointmentCancel($user->id, $id);
+        if (!$getResult) {
             return response()->json([
                 'success' => 0,
                 'message' => ['Janji Temu Dokter Tidak Ditemukan'],
                 'token' => $this->request->attributes->get('_refresh_token'),
             ], 404);
         }
-
-        $data->status = 99;
-        $data->save();
 
         return response()->json([
             'success' => 1,

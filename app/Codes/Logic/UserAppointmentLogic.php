@@ -12,7 +12,6 @@ use App\Codes\Models\V1\Service;
 use App\Codes\Models\V1\Users;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use function GuzzleHttp\default_ca_bundle;
 
 class UserAppointmentLogic
 {
@@ -442,6 +441,24 @@ class UserAppointmentLogic
             'data' => $dataResult
         ];
 
+    }
+
+    /**
+     * @param $userId
+     * @param $appointmentId
+     * @return bool
+     */
+    public function appointmentCancel($userId, $appointmentId): bool
+    {
+        $getAppointment = AppointmentDoctor::where('status', '!=', 99)->where('user_id', $userId)->where('id', $appointmentId)->first();
+        if (!$getAppointment) {
+            return false;
+        }
+
+        $getAppointment->status = 99;
+        $getAppointment->save();
+
+        return true;
     }
 
 }
