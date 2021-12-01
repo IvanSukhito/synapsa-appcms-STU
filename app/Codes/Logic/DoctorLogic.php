@@ -725,7 +725,8 @@ class DoctorLogic
             ];
         }
 
-        $getUsers = Users::select('id', 'image')->whereIn('id', [$userId, $getAppointment->user_id])->get();
+        $patientId = $getAppointment->user_id;
+        $getUsers = Users::select('id', 'image')->whereIn('id', [$userId, $patientId])->get();
         $listImage = [];
         foreach ($getUsers as $getUser) {
             $listImage[$getUser->id] = $getUser->image_full;
@@ -749,7 +750,7 @@ class DoctorLogic
                 $chatId = $getChat['chat_id'];
             }
             else {
-                $chatId = 'chat_'.generateNewCode(9, 2);
+                $chatId = 'chat_'.$patientId.'_'.$userId.'_'.generateNewCode(9, 2);
                 $getAppointment->video_link = json_encode([
                     'chat_id' => $chatId
                 ]);
