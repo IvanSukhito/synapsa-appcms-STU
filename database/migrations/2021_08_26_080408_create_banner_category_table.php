@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateMedicineTypeTable extends Migration
+class CreateBannerCategoryTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,11 @@ class CreateMedicineTypeTable extends Migration
      */
     public function up()
     {
-        Schema::create('medicine_type', function (Blueprint $table) {
+        Schema::create('banner_category', function (Blueprint $table) {
             $table->id();
+            $table->string('key')->nullable();
             $table->string('name')->nullable();
+            $table->tinyInteger('type')->default(1);
             $table->tinyInteger('status')->default(99);
             $table->timestamps();
         });
@@ -28,6 +30,6 @@ class CreateMedicineTypeTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('medicine_type');
+        Schema::dropIfExists('klinik');
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
+use App\Codes\Models\V1\BannerCategory;
 use App\Codes\Models\V1\Klinik;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -18,6 +19,14 @@ class BannerPageController extends _CrudController
                 'create' => 0,
                 'edit' => 0,
                 'show' => 0
+            ],
+            'banner_category_id' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'type' => 'select',
+                'lang' => 'general.banner_category'
             ],
             'klinik_id' => [
                 'validate' => [
@@ -56,11 +65,7 @@ class BannerPageController extends _CrudController
                 'type' => 'datetime'
             ],
             'target' => [
-                'validate' => [
-                    'create' => '',
-                    'edit' => ''
-                ],
-                'type' => 'text',
+                'list' => 0,
             ],
             'orders' => [
                 'validate' => [
@@ -95,8 +100,14 @@ class BannerPageController extends _CrudController
             $listKlinik[$key] = $value;
         }
 
+        $listCategory = [0 => 'Empty'];
+        foreach (BannerCategory::where('status', 80)->pluck('name', 'id')->toArray() as $key => $value) {
+            $listCategory[$key] = $value;
+        }
+
         $this->data['listSet']['status'] = get_list_active_inactive();
         $this->data['listSet']['klinik_id'] = $listKlinik;
+        $this->data['listSet']['banner_category_id'] = $listCategory;
     }
 
     public function store()
@@ -130,6 +141,14 @@ class BannerPageController extends _CrudController
             }
         }
 
+        $bannerCategory = BannerCategory::where('id', $data['banner_category_id'])->first();
+
+        if($bannerCategory && $bannerCategory->type == 2) {
+             $this->validate($this->request, [
+                 'target' => 'required|numeric'
+             ]);
+        }
+
         $dokument = $this->request->file('image_full');
         if ($dokument) {
             if ($dokument->getError() != 1) {
@@ -148,6 +167,7 @@ class BannerPageController extends _CrudController
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
         $data['image'] = $dokumentImage;
+
         $getData = $this->crud->store($data);
 
         $id = $getData->id;
@@ -196,6 +216,14 @@ class BannerPageController extends _CrudController
             foreach ($getListCollectData as $key => $val) {
                 $data[$key] = $this->request->get($key);
             }
+        }
+
+        $bannerCategory = BannerCategory::where('id', $data['banner_category_id'])->first();
+
+        if($bannerCategory && $bannerCategory->type == 2) {
+            $this->validate($this->request, [
+                'target' => 'required|numeric'
+            ]);
         }
 
         $dokument = $this->request->file('image_full');

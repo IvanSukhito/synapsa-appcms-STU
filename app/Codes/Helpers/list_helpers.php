@@ -452,3 +452,13 @@ if ( ! function_exists('get_list_sub_service2')) {
     }
 }
 
+if ( ! function_exists('get_list_banner_category_type')) {
+    function get_list_banner_category_type()
+    {
+        return [
+            1 => __('general.website'),
+            2 => __('general.detail')
+        ];
+    }
+}
+

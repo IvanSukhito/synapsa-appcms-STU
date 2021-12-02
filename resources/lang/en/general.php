@@ -491,4 +491,7 @@ return [
     'biodata_user' => 'Biodata User',
     'form_patient' => 'Form Pasien',
     'success_change_password' => 'Berhasil Ubah Password',
+    'banner_category' => 'Banner Category',
+    'website' => 'Website',
+    'detail' => 'Detail'
 ];

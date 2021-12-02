@@ -16,6 +16,7 @@ class CreateSlidersTable extends Migration
         Schema::create('sliders', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('klinik_id')->default(0);
+            $table->unsignedBigInteger('banner_category_id')->default(0);
             $table->string('title')->nullable();
             $table->text('image')->nullable();
             $table->text('target')->nullable();
@@ -23,6 +24,10 @@ class CreateSlidersTable extends Migration
             $table->datetime('time_end')->nullable();
             $table->integer('orders')->default(1);
             $table->tinyInteger('status')->default(0);
+            $table->foreign('banner_category_id', 'bancat_rel')
+                ->references('id')->on('banner_category')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
             $table->timestamps();
         });
     }

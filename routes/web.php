@@ -74,6 +74,7 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                 'App\Http\Controllers\Admin\AppointmentLabHomecareClinicController' => 'appointment-lab-homecare-clinic',
                 'App\Http\Controllers\Admin\AppointmentLabVisitClinicController' => 'appointment-lab-visit-clinic',
                 'App\Http\Controllers\Admin\PharmacyController' => 'pharmacy',
+                'App\Http\Controllers\Admin\BannerCategoryController' => 'banner-category',
             ];
 
             foreach ($listRouter as $controller => $linkName) {
