@@ -155,13 +155,14 @@ class DoctorLogic
     }
 
     /**
+     * @param $clinicId
      * @param int $serviceId
      * @param int $categoryId
      * @param null $search
      * @param int $getLimit
      * @return mixed
      */
-    public function doctorList(int $serviceId = 0, int $categoryId = 0, $search = null, int $getLimit = 5)
+    public function doctorList($clinicId, int $serviceId = 0, int $categoryId = 0, $search = null, int $getLimit = 5)
     {
         if ($serviceId) {
             $getData = Doctor::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
@@ -170,6 +171,7 @@ class DoctorLogic
                 ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
                 ->join('doctor_service', 'doctor_service.doctor_id','=','doctor.id')
                 ->where('doctor_service.service_id', '=', $serviceId)
+                ->where('users.klinik_id', '=', $clinicId)
                 ->where('users.doctor','=', 1);
         }
         else {
@@ -177,6 +179,7 @@ class DoctorLogic
             phone, gender, 0 AS price, doctor.formal_edu, doctor.nonformal_edu, doctor_category.name as category')
                 ->join('users', 'users.id', '=', 'doctor.user_id')
                 ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
+                ->where('users.klinik_id', '=', $clinicId)
                 ->where('users.doctor','=', 1);
         }
 
@@ -205,11 +208,12 @@ class DoctorLogic
     }
 
     /**
+     * @param $clinicId
      * @param $doctorId
      * @param null $serviceId
      * @return mixed
      */
-    public function doctorInfo($doctorId, $serviceId = null)
+    public function doctorInfo($clinicId, $doctorId, $serviceId = null)
     {
         if ($serviceId) {
             $getData = Doctor::selectRaw('doctor.id, users.fullname as doctor_name, image, address, address_detail, pob, dob,
@@ -219,6 +223,7 @@ class DoctorLogic
                 ->join('doctor_service', 'doctor_service.doctor_id','=','doctor.id')
                 ->where('doctor_service.service_id', '=', $serviceId)
                 ->where('doctor.id', '=', $doctorId)
+                ->where('users.klinik_id', '=', $clinicId)
                 ->where('users.doctor','=', 1);
         }
         else {
@@ -227,6 +232,7 @@ class DoctorLogic
                 ->join('users', 'users.id', '=', 'doctor.user_id')
                 ->join('doctor_category', 'doctor_category.id','=','doctor.doctor_category_id')
                 ->where('doctor.id', '=', $doctorId)
+                ->where('users.klinik_id', '=', $clinicId)
                 ->where('users.doctor','=', 1);
         }
 
