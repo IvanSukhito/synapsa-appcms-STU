@@ -248,8 +248,7 @@ if ( ! function_exists('get_list_type_service')) {
     {
         return [
             1 => __('general.no_address'),
-            2 => __('general.need_address'),
-            3 => __('general.no_address')
+            2 => __('general.need_address')
         ];
     }
 }
