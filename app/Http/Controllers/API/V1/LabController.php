@@ -102,8 +102,6 @@ class LabController extends Controller
         $userLogic = new UserLogic();
         $getData = $userLogic->userCartLab($user->id);
 
-        Log::info(json_encode($getData));
-
         return response()->json([
             'success' => 1,
             'data' => $getData,

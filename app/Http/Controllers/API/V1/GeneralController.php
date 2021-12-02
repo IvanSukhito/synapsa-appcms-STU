@@ -73,9 +73,9 @@ class GeneralController extends Controller
         }
 
         $getUploadKtp = '';
-        if ($this->request->file('upload_ktp')) {
+        if ($this->request->get('upload_ktp')) {
             try {
-                $image = base64_to_jpeg($this->request->file('upload_ktp'));
+                $image = base64_to_jpeg($this->request->get('upload_ktp'));
                 $destinationPath = 'synapsaapps/users';
                 $set_file_name = md5('image' . strtotime('now') . rand(0, 100)) . '.jpg';
                 $getFile = Storage::put($destinationPath . '/' . $set_file_name, $image);
@@ -99,9 +99,9 @@ class GeneralController extends Controller
         }
 
         $getUploadImage = '';
-        if ($this->request->file('image')) {
+        if ($this->request->get('image')) {
             try {
-                $image = base64_to_jpeg($this->request->file('image'));
+                $image = base64_to_jpeg($this->request->get('image'));
                 $destinationPath = 'synapsaapps/users';
                 $set_file_name = md5('image' . strtotime('now') . rand(0, 100)) . '.jpg';
                 $getFile = Storage::put($destinationPath . '/' . $set_file_name, $image);
