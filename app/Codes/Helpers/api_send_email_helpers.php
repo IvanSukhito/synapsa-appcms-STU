@@ -9,7 +9,9 @@ if (! function_exists('api_send_email_send_grid')) {
      *
      * @return array
      */
-    function api_send_email_send_grid($email_from = 'test@example.com', $email_to = 'test@example.com', $email_subject = 'SendGrid PHP Library', $email_content = '<html<p>some text here</p></html>')
+    function api_send_email_send_grid(string $email_from = 'test@example.com', string $email_to = 'test@example.com',
+                                      string $email_subject = 'SendGrid PHP Library',
+                                      string $email_content = '<html<p>some text here</p></html>'): array
     {
         $from    = new SendGrid\Email(null, $email_from);
         $subject = $email_subject;
@@ -51,7 +53,9 @@ if (! function_exists('api_send_email_mail_gun')) {
      *
      * @return mixed
      */
-    function api_send_email_mail_gun($email_from = 'test@example.com', $email_to = 'test@example.com', $email_subject = 'SendGrid PHP Library', $email_content = '<html<p>some text here</p></html>')
+    function api_send_email_mail_gun(string $email_from = 'test@example.com', string $email_to = 'test@example.com',
+                                     string $email_subject = 'SendGrid PHP Library',
+                                     string $email_content = '<html<p>some text here</p></html>')
     {
         try {
             $mg = \Mailgun\Mailgun::create(env('MAILGUN_API_KEY'));
@@ -70,6 +74,7 @@ if (! function_exists('api_send_email_mail_gun')) {
                 'error_message' => $e->getMessage(),
             ]);
         }
+        return false;
     }
 }
 
@@ -80,9 +85,11 @@ if (! function_exists('api_send_email_mailjet')) {
      * @param string $email_subject
      * @param string $email_content
      *
-     * @return mixed
+     * @return bool
      */
-    function api_send_email_mailjet($email_from = 'test@example.com', $email_to = 'test@example.com', $email_subject = 'SendGrid PHP Library', $email_content = '<html<p>some text here</p></html>')
+    function api_send_email_mailjet(string $email_from = 'test@example.com', string $email_to = 'test@example.com',
+                                    string $email_subject = 'SendGrid PHP Library',
+                                    string $email_content = '<html<p>some text here</p></html>'): bool
     {
         try {
             $mj = new \Mailjet\Client(env('MJ_APIKEY_PUBLIC'), env('MJ_APIKEY_PRIVATE'), true, ['version' => 'v3.1']);
@@ -111,9 +118,7 @@ if (! function_exists('api_send_email_mailjet')) {
 
             if ($response->success()) {
                 $response->getData();
-            }
-            else {
-
+                return true;
             }
 
         } catch (\Exception $e) {
@@ -124,6 +129,7 @@ if (! function_exists('api_send_email_mailjet')) {
                 'error_message' => $e->getMessage(),
             ]);
         }
+        return false;
     }
 }
 
@@ -134,7 +140,9 @@ if (! function_exists('api_send_email')) {
      * @param string $email_subject
      * @param string $email_content
      */
-    function api_send_email($email_from = 'test@example.com', $email_to = 'test@example.com', $email_subject = 'SendGrid PHP Library', $email_content = '<html<p>some text here</p></html>')
+    function api_send_email(string $email_from = 'test@example.com', string $email_to = 'test@example.com',
+                            string $email_subject = 'SendGrid PHP Library',
+                            string $email_content = '<html<p>some text here</p></html>')
     {
         api_send_email_mail_gun($email_from, $email_to, $email_subject, $email_content);
 //        api_send_email_send_grid($email_from, $email_to, $email_subject, $email_content);
