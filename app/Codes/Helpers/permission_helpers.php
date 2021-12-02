@@ -388,7 +388,7 @@ if ( ! function_exists('listAllMenu')) {
             ],
             [
                 'name' => __('general.pharmacy'),
-                'icon' => '<i class="nav-icon fa fa-"></i>',
+                'icon' => '<i class="nav-icon fa fa-plus-square"></i>',
                 'title' => __('general.pharmacy'),
                 'active' => ['admin.pharmacy.'],
                 'route' => 'admin.pharmacy.index',
