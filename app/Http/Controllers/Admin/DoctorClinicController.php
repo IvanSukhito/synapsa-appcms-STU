@@ -789,6 +789,16 @@ class DoctorClinicController extends _CrudController
 
     public function storeSchedule($id)
     {
+        $clinicId = session()->get('admin_clinic_id');
+        $getData = $this->crud->show($id);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+        $getDataUser = Users::where('id', $getData->user_id)->where('klinik_id', $clinicId)->first();
+        if (!$getDataUser) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
         $this->callPermission();
 
         $this->validate($this->request, [
@@ -854,6 +864,16 @@ class DoctorClinicController extends _CrudController
 
     public function updateSchedule($id, $scheduleId)
     {
+        $clinicId = session()->get('admin_clinic_id');
+        $getData = $this->crud->show($id);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+        $getDataUser = Users::where('id', $getData->user_id)->where('klinik_id', $clinicId)->first();
+        if (!$getDataUser) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
         $this->callPermission();
 
         $this->validate($this->request, [
@@ -925,6 +945,16 @@ class DoctorClinicController extends _CrudController
 
     public function destroySchedule($id, $scheduleId)
     {
+        $clinicId = session()->get('admin_clinic_id');
+        $getData = $this->crud->show($id);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+        $getDataUser = Users::where('id', $getData->user_id)->where('klinik_id', $clinicId)->first();
+        if (!$getDataUser) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
         $this->callPermission();
 
         $getData = DoctorSchedule::where('doctor_id', $id)->where('id', $scheduleId)->first();
