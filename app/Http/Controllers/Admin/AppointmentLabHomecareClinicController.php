@@ -65,7 +65,8 @@ class AppointmentLabHomecareClinicController extends _CrudController
             'layanan_lab' => [
                 'create' => 0,
                 'edit' => 0,
-                'show' => 0
+                'show' => 0,
+                'custom' => ',name:"appointment_lab_details.lab_name"'
             ],
             'total_test' => [
                 'create' => 0,

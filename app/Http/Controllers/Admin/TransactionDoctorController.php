@@ -50,6 +50,7 @@ class TransactionDoctorController extends _CrudController
                 ],
                 'lang' => 'general.name',
                 'type' => 'select2',
+                'custom' => ',name:"users.fullname"',
             ],
             'payment_id' => [
                 'validate' => [
@@ -58,6 +59,7 @@ class TransactionDoctorController extends _CrudController
                 ],
                 'lang' => 'general.payment_id',
                 'type' => 'select2',
+                'custom' => ',name:"payment.name"',
             ],
             'code' => [
                 'validate' => [
@@ -160,6 +162,7 @@ class TransactionDoctorController extends _CrudController
             }
         }
 
+        $listPayment = [];
         $getPayment = Payment::where('status', 80)->pluck('name', 'id')->toArray();
         if($getPayment) {
             foreach($getPayment as $key => $value) {
@@ -194,8 +197,6 @@ class TransactionDoctorController extends _CrudController
         $this->data['listSet']['filter_shipping_id'] = $shipping_id;
         $this->data['listSet']['payment_id'] = $listPayment;
 
-        $this->data['listSet']['status'] = get_list_transaction();
-
     }
     public function dataTable()
     {
@@ -207,13 +208,17 @@ class TransactionDoctorController extends _CrudController
 
         $getAdmin = Admin::where('id', $adminId)->first();
 
-        $builder = $this->model::query()->select('*')->where('klinik_id', $getAdmin->klinik_id)->where('type_service', 2);
+        $builder = $this->model::query()->selectRaw('transaction.*, users.fullname as user_id, payment.name as payment_id')
+                    ->leftJoin('payment','payment.id','=','transaction.payment_id')
+                    ->leftJoin('users','users.id','=','transaction.user_id')
+                    ->where('transaction.klinik_id', $getAdmin->klinik_id)
+                    ->where('type_service', 2);
 
         if ($this->request->get('filter_payment_id') && $this->request->get('filter_payment_id') != 0) {
-            $builder = $builder->where('payment_id', $this->request->get('filter_payment_id'));
+            $builder = $builder->where('transaction.payment_id', $this->request->get('filter_payment_id'));
         }
         if ($this->request->get('status') && $this->request->get('status') != 0) {
-            $builder = $builder->where('status', $this->request->get('status'));
+            $builder = $builder->where('transaction.status', $this->request->get('status'));
         }
         //if ()
         if ($this->request->get('daterange')) {
@@ -222,7 +227,7 @@ class TransactionDoctorController extends _CrudController
             $dateStart = date('Y-m-d 00:00:00', strtotime($dateSplit[0]));
             $dateEnd = isset($dateSplit[1]) ? date('Y-m-d 23:59:59', strtotime($dateSplit[1])) : date('Y-m-d 23:59:59', strtotime($dateSplit[0]));
 
-            $builder = $builder->whereBetween('created_at', [$dateStart, $dateEnd]);
+            $builder = $builder->whereBetween('transaction.created_at', [$dateStart, $dateEnd]);
         }
 
         $dataTables = $dataTables->eloquent($builder)

@@ -380,6 +380,7 @@ class DoctorClinicController extends _CrudController
 
 
         $getData = $this->crud->show($id);
+
         if (!$getData) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
