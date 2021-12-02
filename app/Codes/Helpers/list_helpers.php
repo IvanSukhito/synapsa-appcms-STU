@@ -472,6 +472,12 @@ if ( ! function_exists('get_list_target_menu_banner')) {
             2 => __('general.cart'),
             3 => __('general.product'),
             4 => __('general.article'),
+            5 => __('general.menu_doctor'),
+            6 => __('general.appointment_lab'),
+            7 => __('general.appointment_doctor'),
+            8 => __('general.history'),
+            9 => __('general.nurse'),
+            10 => __('general.user'),
         ];
     }
 }
