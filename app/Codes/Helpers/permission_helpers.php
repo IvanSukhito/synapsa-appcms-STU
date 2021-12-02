@@ -821,6 +821,7 @@ if ( ! function_exists('listAllMenu')) {
                     'admin.banner-category.',
                     'admin.settings.',
                     'admin.admin.',
+                    'admin.notification.',
                     'admin.role.',
                 ],
                 'type' => 2,
@@ -831,6 +832,14 @@ if ( ! function_exists('listAllMenu')) {
                         'active' => ['admin.payment.'],
                         'route' => 'admin.payment.index',
                         'key' => 'payment',
+                        'type' => 1,
+                    ],
+                    [
+                        'name' => __('general.notification'),
+                        'title' => __('general.notification'),
+                        'active' => ['admin.notification.'],
+                        'route' => 'admin.notification.index',
+                        'key' => 'notification',
                         'type' => 1,
                     ],
                     [
@@ -975,6 +984,7 @@ if ( ! function_exists('listAvailablePermission'))
 
         foreach ([
                      'admin',
+                     'notification',
                      'users-patient',
                      'role',
                      'article',

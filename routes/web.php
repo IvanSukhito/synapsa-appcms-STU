@@ -29,6 +29,7 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                 'App\Http\Controllers\Admin\ArticleController' => 'article',
                 'App\Http\Controllers\Admin\MedicineTypeController' => 'medicine-type',
                 'App\Http\Controllers\Admin\BannerPageController' => 'banner',
+                'App\Http\Controllers\Admin\NotificationController' => 'notification',
                 'App\Http\Controllers\Admin\BannerPageClinicController' => 'banner-clinic',
                 'App\Http\Controllers\Admin\ArticleCategoryController' => 'article-category',
                 'App\Http\Controllers\Admin\FaqsController' => 'faqs',
@@ -149,7 +150,7 @@ Route::post('change-password', ['uses' => 'App\Http\Controllers\Website\V1\Gener
 Route::get('confirm-email', ['uses' => 'App\Http\Controllers\Website\V1\GeneralController@confirmEmail'])->name('web.confirmEmail');
 Route::get('confirm-phone', ['uses' => 'App\Http\Controllers\Website\V1\GeneralController@confirmPhone'])->name('web.confirmPhone');
 
-Route::get('/', ['uses' => 'App\Http\Controllers\Website\V1\GeneralController@xendit'])->name('web.xendit');
+//Route::get('/', ['uses' => 'App\Http\Controllers\Website\V1\GeneralController@xendit'])->name('web.xendit');
 
 //UsersPatient
 Route::get('/findCity', ['uses' => 'App\Http\Controllers\Admin\GeneralController@findCity'])->name('admin.findCity');
@@ -158,6 +159,6 @@ Route::get('/findSubDistrict', ['uses' => 'App\Http\Controllers\Admin\GeneralCon
 Route::get('/findProductSynapsa', ['uses' => 'App\Http\Controllers\Admin\GeneralController@findProductSynapsa'])->name('admin.findProductSynapsa');
 Route::get('/appointment-lab-schedule', ['uses' => 'App\Http\Controllers\Admin\GeneralController@appointmentLabSchedule'])->name('admin.appointmentLabSchedule');
 
-Route::get('test', function () {
+Route::get('/', function () {
     return view('welcome');
 });

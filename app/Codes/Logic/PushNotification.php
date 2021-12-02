@@ -6,9 +6,10 @@ use App\Codes\Models\V1\AppointmentDoctor;
 use App\Codes\Models\V1\AppointmentLab;
 use App\Codes\Models\V1\AppointmentNurse;
 use App\Codes\Models\V1\DeviceToken;
+use App\Codes\Models\V1\Notifications;
 use App\Codes\Models\V1\Service;
+use App\Codes\Models\V1\Users;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class PushNotification
 {
@@ -17,7 +18,52 @@ class PushNotification
 
     }
 
-    public function checkMeeting($minute = 5)
+    public function sendingNotification($userIds, $title, $message, $target = array())
+    {
+        $getUserIds = Users::whereIn('id', $userIds)->pluck('id')->toArray();
+        if (count($getUserIds) > 0) {
+            $dateNow = date('Y-m-d H:i:s');
+            DB::beginTransaction();
+
+            $saveNotification = [];
+            foreach ($getUserIds as $getUserId) {
+                $saveNotification[] = [
+                    'user_id' => $getUserId,
+                    'title' => $title,
+                    'message' => $message,
+                    'type' => $target['type'] ?? 0,
+                    'target_menu' => $target['target_menu'] ?? '',
+                    'target_id' => $target['target_id'] ?? 0,
+                    'is_read' => 1,
+                    'date' => $dateNow,
+                    'created_at' => $dateNow,
+                    'updated_at' => $dateNow
+                ];
+            }
+
+            Notifications::insert($saveNotification);
+
+            DB::commit();
+
+            $getDeviceToken = DeviceToken::join('user_device_token', 'user_device_token.device_token_id', '=', 'device_token.id')
+                ->whereRaw('LENGTH(token) > 5')->whereIn('user_id', $getUserIds)->pluck('token')->toArray();
+
+            if (count($getDeviceToken) > 0) {
+                $this->send($title, $message, $getDeviceToken);
+            }
+
+            return 1;
+
+        }
+
+        return 0;
+
+    }
+
+    /**
+     * @param int $minute
+     */
+    public function checkMeeting(int $minute = 5)
     {
         $dateNow = date('Y-m-d');
         $time = date('H:i:00', strtotime("+".$minute." minute"));
@@ -75,7 +121,13 @@ class PushNotification
 
     }
 
-    public function send($title, $body, $registrationIds)
+    /**
+     * @param $title
+     * @param $body
+     * @param $registrationIds
+     * @return array
+     */
+    public function send($title, $body, $registrationIds): array
     {
         try {
 

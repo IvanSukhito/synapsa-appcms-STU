@@ -274,7 +274,8 @@ class NurseController extends Controller
             ],
             'code' => $newCode,
             'total' => $total,
-            'name' => $user->fullname
+            'name' => $user->fullname,
+            'user_id' => $user->id
         ];
 
         if ($needPhone == 1) {

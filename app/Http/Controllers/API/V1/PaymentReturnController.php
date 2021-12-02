@@ -9,6 +9,7 @@ use App\Codes\Models\V1\Transaction;
 use App\Codes\Models\V1\TransactionDetails;
 use App\Codes\Models\V1\Users;
 use App\Http\Controllers\Controller;
+use App\Jobs\ProcessNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -85,6 +86,7 @@ class PaymentReturnController extends Controller
             return 0;
         }
         $getResult = 0;
+        $userId = $getTransaction->user_id;
 
         $getType = $getTransaction->type_service;
         $getTransaction->status = 81;
@@ -124,8 +126,15 @@ class PaymentReturnController extends Controller
                 $logic->setupAppointmentNurse($getTransaction, $getDetail->schedule_id, $transactionId);
             }
         }
-        else if ($getType == 5) {
-            // Product Klinik
+
+        if ($getResult == 1) {
+            $title = 'Transaksi kamu berhasil';
+            $message = 'Selamat Transaksi kamu berhasil di terima, pesanan kamu akan segera di proses';
+            dispatch((new ProcessNotification([$userId], $title, $message, [
+                'type' => 3,
+                'target_menu' => 'transaction',
+                'target_id' => $getTransaction->id
+            ]))->onQueue('high'));
         }
 
         return $getResult;

@@ -17,11 +17,11 @@ class CreateNotificationsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id')->default(0);
             $table->string('title')->nullable();
-            $table->string('message')->nullable();
-            $table->longtext('content')->nullable();
-            $table->text('target')->nullable();
+            $table->text('message')->nullable();
+            $table->string("type")->nullable();
+            $table->string("target_menu")->nullable();
+            $table->string("target_id")->nullable();
             $table->tinyInteger('is_read')->default(1);
-            $table->enum("type", ["notifications", "message"])->nullable();
             $table->datetime('date')->nullable();
             $table->timestamps();
             $table->foreign('user_id', 'users_not_rel')

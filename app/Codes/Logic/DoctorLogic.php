@@ -523,6 +523,7 @@ class DoctorLogic
         }
 
         $getAppointment = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name,
+            user_doctor.id AS doctor_user_id,
             user_doctor.image, CONCAT("'.env('OSS_URL').'/'.'", user_doctor.image) AS image_full, 
             user_patient.image, CONCAT("'.env('OSS_URL').'/'.'", user_patient.image) AS image_full')
             ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
@@ -666,8 +667,18 @@ class DoctorLogic
         }
 
         $doctorId = $getDoctor->id;
-        $getAppointment = AppointmentDoctor::where('status', '=', 3)->where('id', '=', $appointmentId)
-            ->where('doctor_id', '=', $doctorId)->first();
+        $getAppointment = AppointmentDoctor::selectRaw('appointment_doctor.*, doctor_category.name,
+            user_doctor.id AS doctor_user_id,
+            user_doctor.image, CONCAT("'.env('OSS_URL').'/'.'", user_doctor.image) AS image_full, 
+            user_patient.image, CONCAT("'.env('OSS_URL').'/'.'", user_patient.image) AS image_full')
+            ->join('doctor','doctor.id','=','appointment_doctor.doctor_id')
+            ->join('users AS user_doctor', 'user_doctor.id', '=', 'doctor.user_id')
+            ->join('users AS user_patient', 'user_patient.id', '=', 'appointment_doctor.user_id')
+            ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
+            ->where('status', '=', 3)
+            ->where('doctor_id', $getDoctor->id)
+            ->where('appointment_doctor.id', $appointmentId)
+            ->first();
         if (!$getAppointment) {
             return [
                 'success' => 91,
