@@ -156,6 +156,16 @@ class DoctorClinicController extends _CrudController
                 ],
                 'type' => 'email',
             ],
+            'password' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => ''
+                ],
+                'type' => 'password',
+                'edit' => 0,
+                'show' => 0,
+
+            ],
             'status' => [
                 'validate' => [
                     'create' => 'required',
@@ -365,6 +375,8 @@ class DoctorClinicController extends _CrudController
             }
         }
 
+        //dd($this->request->get('password'));
+        //dd($data2['password']);
         $data2['klinik_id'] = session()->get('admin_clinic_id');
         $data2['province_id'] = $this->request->get('province_id');
         $data2['city_id'] = $this->request->get('city_id');
@@ -374,7 +386,7 @@ class DoctorClinicController extends _CrudController
         $data2['address'] = $this->request->get('address');
         $data2['address_detail'] = $this->request->get('address_detail');
         $data2['upload_ktp'] = $dokumentImage;
-        $data2['password'] = bcrypt('123');
+        $data2['password'] = bcrypt($data2['password']);
         $data2['doctor'] = 1;
 
         //dd($data2);

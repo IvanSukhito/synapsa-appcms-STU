@@ -173,6 +173,16 @@ class DoctorController extends _CrudController
                 ],
                 'type' => 'email',
             ],
+            'password' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => ''
+                ],
+                'type' => 'password',
+                'edit' => 0,
+                'show' => 0,
+
+            ],
             'status' => [
                 'validate' => [
                     'create' => 'required',
@@ -408,7 +418,7 @@ class DoctorController extends _CrudController
         $data2['address'] = $this->request->get('address');
         $data2['address_detail'] = $this->request->get('address_detail');
         $data2['upload_ktp'] = $dokumentImage;
-        $data2['password'] = bcrypt('123');
+        $data2['password'] = bcrypt($data2['password']);
         $data2['doctor'] = 1;
 
         if($data2){
