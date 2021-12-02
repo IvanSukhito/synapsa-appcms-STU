@@ -27,7 +27,9 @@ class ArticleController extends Controller
         $user = $this->request->attributes->get('_user');
 
         $limit = 10;
-        $data = Article::orderBy('id','DESC')->paginate($limit);
+        $data = Article::where('klinik_id', '=', $user->klinik_id)
+            ->where('publish_date', '<=', date('Y-m-d'))->where('publish_status', 1)
+            ->orderBy('publish_date','DESC')->paginate($limit);
 
         return response()->json([
             'success' => 1,
@@ -39,7 +41,11 @@ class ArticleController extends Controller
 
     public function getArticleDetail($id){
 
-        $data = Article::where('id', $id)->first();
+        $user = $this->request->attributes->get('_user');
+
+        $data = Article::where('klinik_id', '=', $user->klinik_id)
+            ->where('publish_date', '<=', date('Y-m-d'))->where('publish_status', 1)
+            ->where('id', $id)->first();
         if (!$data) {
             return response()->json([
                 'success' => 0,

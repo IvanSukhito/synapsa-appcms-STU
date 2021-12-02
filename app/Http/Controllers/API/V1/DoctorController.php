@@ -52,7 +52,7 @@ class DoctorController extends Controller
         $getServiceId = $getService['getServiceId'] ?? 0;
         $getCategoryId = $getCategory['getCategoryId'] ?? 0;
 
-        $getData = $doctorLogic->doctorList($getServiceId, $getCategoryId, $s, $getLimit);
+        $getData = $doctorLogic->doctorList($user->klinik_id, $getServiceId, $getCategoryId, $s, $getLimit);
 
         return response()->json([
             'success' => 1,
@@ -90,6 +90,8 @@ class DoctorController extends Controller
 
     public function getDoctorDetail($doctorId)
     {
+        $user = $this->request->attributes->get('_user');
+
         $serviceId = intval($this->request->get('service_id'));
         if ($serviceId <= 0) {
             return response()->json([
@@ -100,7 +102,7 @@ class DoctorController extends Controller
         }
 
         $doctorLogic = new DoctorLogic();
-        $data = $doctorLogic->doctorInfo($doctorId, $serviceId);
+        $data = $doctorLogic->doctorInfo($user->klinik_id, $doctorId, $serviceId);
         if (!$data) {
             return response()->json([
                 'success' => 0,
@@ -120,6 +122,8 @@ class DoctorController extends Controller
 
     public function listBookDoctor($doctorId)
     {
+        $user = $this->request->attributes->get('_user');
+
         $serviceId = $this->request->get('service_id');
         $getDate = strtotime($this->request->get('date')) > 0 ?
             date('Y-m-d', strtotime($this->request->get('date'))) :
@@ -143,7 +147,7 @@ class DoctorController extends Controller
         }
 
         $doctorLogic = new DoctorLogic();
-        $data = $doctorLogic->doctorInfo($doctorId, $serviceId);
+        $data = $doctorLogic->doctorInfo($user->klinik_id, $doctorId, $serviceId);
         if (!$data) {
             return response()->json([
                 'success' => 0,
@@ -402,7 +406,7 @@ class DoctorController extends Controller
                     'schedule' => $getSchedule,
                     'address' => $getService->type == 2 ? 1 : 0,
                     'address_nice' => $getList[$getService->type] ?? '-',
-                    'doctor' => $doctorLogic->doctorInfo($doctorId, $serviceId),
+                    'doctor' => $doctorLogic->doctorInfo($user->klinik_id, $doctorId, $serviceId),
                     'date' => $getDate,
                     'time' => $getTime,
                     'service_id' => $serviceId

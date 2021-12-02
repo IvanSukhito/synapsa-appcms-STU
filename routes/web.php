@@ -21,6 +21,10 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
 
         $router->group(['middleware' => ['adminAccessPermission']], function () use ($router) {
             $listRouter = [
+                'App\Http\Controllers\Admin\ClinicInfoController' => 'clinic_info',
+                'App\Http\Controllers\Admin\ArticleClinicController' => 'article-clinic',
+                'App\Http\Controllers\Admin\DoctorClinicController' => 'doctor_clinic',
+
                 'App\Http\Controllers\Admin\SettingsController' => 'settings',
                 'App\Http\Controllers\Admin\AdminController' => 'admin',
                 'App\Http\Controllers\Admin\CustomerSupportController' => 'customer-support',
@@ -62,9 +66,7 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                 'App\Http\Controllers\Admin\AppointmentDoctorTelemedController' => 'doctor-telemed',
                 'App\Http\Controllers\Admin\AppointmentDoctorHomecareController' => 'doctor-homecare',
                 'App\Http\Controllers\Admin\AppointmentNurseController' => 'appointment-nurse',
-                'App\Http\Controllers\Admin\ClinicInfoController' => 'clinic_info',
-                'App\Http\Controllers\Admin\ArticleClinicController' => 'article-clinic',
-                'App\Http\Controllers\Admin\DoctorClinicController' => 'doctor_clinic',
+
                 'App\Http\Controllers\Admin\UsersClinicController' => 'user-clinic',
                 'App\Http\Controllers\Admin\TransactionLabAdminController' => 'transaction-lab-admin',
                 'App\Http\Controllers\Admin\TransactionDoctorAdminController' => 'transaction-doctor-admin',
