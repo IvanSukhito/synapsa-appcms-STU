@@ -20,14 +20,6 @@ class BannerPageController extends _CrudController
                 'edit' => 0,
                 'show' => 0
             ],
-            'banner_category_id' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'type' => 'select',
-                'lang' => 'general.banner_category'
-            ],
             'klinik_id' => [
                 'validate' => [
                     'create' => 'required',
@@ -64,8 +56,26 @@ class BannerPageController extends _CrudController
                 ],
                 'type' => 'datetime'
             ],
-            'target' => [
+            'type' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'type' => 'select'
+            ],
+            'target_url' => [
                 'list' => 0,
+                'lang' => 'general.target_url',
+            ],
+            'target_menu' => [
+                'list' => 0,
+                'type' => 'select',
+                'lang' => 'general.target_menu'
+            ],
+            'target_id' => [
+                'list' => 0,
+                'type' => 'number',
+                'lang' => 'general.target_id'
             ],
             'orders' => [
                 'validate' => [
@@ -100,14 +110,14 @@ class BannerPageController extends _CrudController
             $listKlinik[$key] = $value;
         }
 
-        $listCategory = [0 => 'Empty'];
-        foreach (BannerCategory::where('status', 80)->pluck('name', 'id')->toArray() as $key => $value) {
-            $listCategory[$key] = $value;
-        }
-
         $this->data['listSet']['status'] = get_list_active_inactive();
+        $this->data['listSet']['type'] = get_list_sliders_type();
+        $this->data['listSet']['target_menu'] = get_list_target_menu_banner();
         $this->data['listSet']['klinik_id'] = $listKlinik;
-        $this->data['listSet']['banner_category_id'] = $listCategory;
+
+        $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.sliders.forms';
+        $this->listView['edit'] = env('ADMIN_TEMPLATE').'.page.sliders.forms';
+        $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.sliders.forms';
     }
 
     public function store()
@@ -141,12 +151,23 @@ class BannerPageController extends _CrudController
             }
         }
 
-        $bannerCategory = BannerCategory::where('id', $data['banner_category_id'])->first();
+        $type = intval($data['type']);
 
-        if($bannerCategory && $bannerCategory->type == 2) {
-             $this->validate($this->request, [
-                 'target' => 'required|numeric'
-             ]);
+        if($type == 1) {
+            $this->validate($this->request, [
+                'target_url' => 'required|url'
+            ]);
+        }
+        else if($type == 2) {
+            $this->validate($this->request, [
+                'target_menu' => 'required'
+            ]);
+        }
+        else if($type == 3) {
+            $this->validate($this->request, [
+                'target_menu' => 'required',
+                'target_id' => 'required|numeric'
+            ]);
         }
 
         $dokument = $this->request->file('image_full');
@@ -218,11 +239,22 @@ class BannerPageController extends _CrudController
             }
         }
 
-        $bannerCategory = BannerCategory::where('id', $data['banner_category_id'])->first();
+        $type = intval($data['type']);
 
-        if($bannerCategory && $bannerCategory->type == 2) {
+        if($type == 1) {
             $this->validate($this->request, [
-                'target' => 'required|numeric'
+                'target_url' => 'required|url'
+            ]);
+        }
+        else if($type == 2) {
+            $this->validate($this->request, [
+                'target_menu' => 'required'
+            ]);
+        }
+        else if($type == 3) {
+            $this->validate($this->request, [
+                'target_menu' => 'required',
+                'target_id' => 'required|numeric'
             ]);
         }
 

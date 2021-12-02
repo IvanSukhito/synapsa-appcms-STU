@@ -493,5 +493,10 @@ return [
     'success_change_password' => 'Berhasil Ubah Password',
     'banner_category' => 'Banner Category',
     'website' => 'Website',
-    'detail' => 'Detail'
+    'menu' => 'Menu',
+    'detail' => 'Detail',
+    'target_url' => 'Target URL',
+    'target_menu' => 'Target Menu',
+    'target_id' => 'Target Id',
+    'cart' => 'Cart',
 ];

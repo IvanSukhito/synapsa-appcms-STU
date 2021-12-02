@@ -452,12 +452,32 @@ if ( ! function_exists('get_list_sub_service2')) {
     }
 }
 
-if ( ! function_exists('get_list_banner_category_type')) {
-    function get_list_banner_category_type()
+if ( ! function_exists('get_list_sliders_type')) {
+    function get_list_sliders_type()
     {
         return [
+            0 => __('general.empty'),
             1 => __('general.website'),
-            2 => __('general.detail')
+            2 => __('general.menu'),
+            3 => __('general.detail'),
+        ];
+    }
+}
+
+if ( ! function_exists('get_list_target_menu_banner')) {
+    function get_list_target_menu_banner()
+    {
+        return [
+            1 => __('general.transaction'),
+            2 => __('general.cart'),
+            3 => __('general.product'),
+            4 => __('general.article'),
+            5 => __('general.menu_doctor'),
+            6 => __('general.appointment_lab'),
+            7 => __('general.appointment_doctor'),
+            8 => __('general.history'),
+            9 => __('general.nurse'),
+            10 => __('general.user'),
         ];
     }
 }
