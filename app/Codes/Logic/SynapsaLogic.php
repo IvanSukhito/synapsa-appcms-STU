@@ -12,6 +12,7 @@ use App\Codes\Models\V1\SetJob;
 use App\Codes\Models\V1\Transaction;
 use App\Codes\Models\V1\Users;
 use App\Codes\Models\V1\UsersAddress;
+use App\Jobs\ProcessNotification;
 use App\Jobs\ProcessTransaction;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -52,7 +53,13 @@ class SynapsaLogic
         }
     }
 
-    public function createPayment($payment, $additional, $transactionId = 0)
+    /**
+     * @param $payment
+     * @param $additional
+     * @param int $transactionId
+     * @return array
+     */
+    public function createPayment($payment, $additional, int $transactionId = 0): array
     {
         $preferId = 0;
         $success = 0;
@@ -142,7 +149,14 @@ class SynapsaLogic
                         ])
                     ]);
 
+                    $userId = $additional['user_id'] ?? 0;
+
                     dispatch((new ProcessTransaction($job->id))->onQueue('high'));
+
+                    $title = 'Pesanan kamu berhasil';
+                    $message = 'Selamat Pesanan kamu berhasil di terima, segera lakukan pembayaran';
+                    dispatch((new ProcessNotification([$userId], $title, $message))->onQueue('high'));
+
                 }
                 else {
                     $getTransaction = Transaction::where('id', '=', $transactionId)->where('status', '=', 2)->first();

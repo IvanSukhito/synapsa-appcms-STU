@@ -12,14 +12,11 @@ class Notifications extends Model
         'user_id',
         'title',
         'message',
-        'content',
-        'target',
-        'is_read',
         'type',
+        'target_menu',
+        'target_id',
+        'is_read',
         'date'
     ];
-
-
-
 
 }
