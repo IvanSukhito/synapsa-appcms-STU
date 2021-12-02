@@ -130,7 +130,11 @@ class PaymentReturnController extends Controller
         if ($getResult == 1) {
             $title = 'Transaksi kamu berhasil';
             $message = 'Selamat Transaksi kamu berhasil di terima, pesanan kamu akan segera di proses';
-            dispatch((new ProcessNotification([$userId], $title, $message))->onQueue('high'));
+            dispatch((new ProcessNotification([$userId], $title, $message, [
+                'type' => 3,
+                'target_menu' => 'transaction',
+                'target_id' => $getTransaction->id
+            ]))->onQueue('high'));
         }
 
         return $getResult;

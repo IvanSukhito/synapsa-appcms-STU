@@ -35,6 +35,7 @@ class ProcessNotification implements ShouldQueue
     protected $userIds;
     protected $title;
     protected $message;
+    protected $target;
 
     /**
      * Create a new job instance.
@@ -45,14 +46,16 @@ class ProcessNotification implements ShouldQueue
      * @param $userIds
      * @param $title
      * @param $message
+     * @param array $target
      *
      * @return void
      */
-    public function __construct($userIds, $title, $message)
+    public function __construct($userIds, $title, $message, array $target = array())
     {
         $this->userIds = $userIds;
         $this->title = $title;
         $this->message = $message;
+        $this->target = $target;
     }
 
     /**
@@ -63,7 +66,7 @@ class ProcessNotification implements ShouldQueue
     public function handle()
     {
         $pushNotification = new PushNotification();
-        $pushNotification->sendingNotification($this->userIds, $this->title, $this->message);
+        $pushNotification->sendingNotification($this->userIds, $this->title, $this->message, $this->target);
     }
 
 }
