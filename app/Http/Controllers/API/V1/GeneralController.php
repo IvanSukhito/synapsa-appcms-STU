@@ -52,7 +52,7 @@ class GeneralController extends Controller
             'address' => '',
             'address_detail' => '',
             'zip_code' => '',
-            'dob' => 'required',
+            'dob' => 'required|date_format:Y-m-d|before:'.date('Y-m-d', strtotime("-18 years")),
             'gender' => 'required',
             'nik' => 'required|unique:users,nik',
             'upload_ktp' => 'required',
