@@ -1080,8 +1080,8 @@ class DoctorClinicController extends _CrudController
                 }
             }
             catch(\Exception $e) {
-                isset($doctor) ?? $doctor->delete();
-                isset($doctorCategory) ?? $doctorCategory->delete();
+                isset($doctor) ? $doctor->delete() : false;
+                isset($doctorCategory) ? $doctorCategory->delete() : false;
 
                 session()->flash('message', __('general.failed_import_doctor'));
                 session()->flash('message_alert', 1);

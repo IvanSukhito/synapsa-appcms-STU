@@ -47,12 +47,26 @@ class BannerPageClinicController extends _CrudController
                 ],
                 'type' => 'datetime'
             ],
-            'target' => [
+            'type' => [
                 'validate' => [
-                    'create' => '',
-                    'edit' => ''
+                    'create' => 'required',
+                    'edit' => 'required'
                 ],
-                'type' => 'text',
+                'type' => 'select'
+            ],
+            'target_url' => [
+                'list' => 0,
+                'lang' => 'general.target_url',
+            ],
+            'target_menu' => [
+                'list' => 0,
+                'type' => 'select',
+                'lang' => 'general.target_menu'
+            ],
+            'target_id' => [
+                'list' => 0,
+                'type' => 'number',
+                'lang' => 'general.target_id'
             ],
             'orders' => [
                 'validate' => [
@@ -83,6 +97,12 @@ class BannerPageClinicController extends _CrudController
         );
 
         $this->data['listSet']['status'] = get_list_active_inactive();
+        $this->data['listSet']['type'] = get_list_sliders_type();
+        $this->data['listSet']['target_menu'] = get_list_target_menu_banner();
+
+        $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.sliders.forms';
+        $this->listView['edit'] = env('ADMIN_TEMPLATE').'.page.sliders.forms';
+        $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.sliders.forms';
     }
 
     public function index()
@@ -186,6 +206,25 @@ class BannerPageClinicController extends _CrudController
             }
         }
 
+        $type = intval($data['type']);
+
+        if($type == 1) {
+            $this->validate($this->request, [
+                'target_url' => 'required|url'
+            ]);
+        }
+        else if($type == 2) {
+            $this->validate($this->request, [
+                'target_menu' => 'required'
+            ]);
+        }
+        else if($type == 3) {
+            $this->validate($this->request, [
+                'target_menu' => 'required',
+                'target_id' => 'required|numeric'
+            ]);
+        }
+
         $dokument = $this->request->file('image_full');
         if ($dokument) {
             if ($dokument->getError() != 1) {
@@ -251,6 +290,25 @@ class BannerPageClinicController extends _CrudController
             foreach ($getListCollectData as $key => $val) {
                 $data[$key] = $this->request->get($key);
             }
+        }
+
+        $type = intval($data['type']);
+
+        if($type == 1) {
+            $this->validate($this->request, [
+                'target_url' => 'required|url'
+            ]);
+        }
+        else if($type == 2) {
+            $this->validate($this->request, [
+                'target_menu' => 'required'
+            ]);
+        }
+        else if($type == 3) {
+            $this->validate($this->request, [
+                'target_menu' => 'required',
+                'target_id' => 'required|numeric'
+            ]);
         }
 
         $dokument = $this->request->file('image_full');
