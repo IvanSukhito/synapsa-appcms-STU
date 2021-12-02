@@ -298,6 +298,8 @@ class DoctorClinicController extends _CrudController
 
     public function show($id)
     {
+        $clinicId = session()->get('admin_clinic_id');
+
         $this->callPermission();
 
         $now = Carbon::now();
@@ -308,6 +310,10 @@ class DoctorClinicController extends _CrudController
 
         $getData = $this->crud->show($id);
         if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+        $getDataUser = Users::where('id', $getData->user_id)->where('klinik_id', $clinicId)->first();
+        if (!$getDataUser) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
 
@@ -349,7 +355,6 @@ class DoctorClinicController extends _CrudController
 
         $data = $this->data;
 
-        $getDataUser = Users::where('id', $getData->user_id)->first();
         $getDoctorService = DoctorService::where('doctor_id',$id)->get();
 
         $getProvince = Province::where('id', $getDataUser->province_id)->first();
@@ -376,12 +381,17 @@ class DoctorClinicController extends _CrudController
     }
 
     public function edit($id){
-        $this->callPermission();
+        $clinicId = session()->get('admin_clinic_id');
 
+        $this->callPermission();
 
         $getData = $this->crud->show($id);
 
         if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+        $getDataUser = Users::where('id', $getData->user_id)->where('klinik_id', $clinicId)->first();
+        if (!$getDataUser) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
 
@@ -389,7 +399,6 @@ class DoctorClinicController extends _CrudController
         $getProvince = Province::orderBy('name', 'ASC')->get();
 
         $getDoctorService = DoctorService::where('doctor_id',$id)->get();
-        $getDataUser = Users::where('id', $getData->user_id)->first();
 
         $data['thisLabel'] = __('general.doctor');
         $data['viewType'] = 'edit';
@@ -530,6 +539,7 @@ class DoctorClinicController extends _CrudController
     }
 
     public function update($id){
+        $clinicId = session()->get('admin_clinic_id');
         $this->callPermission();
 
         $viewType = 'edit';
@@ -540,7 +550,10 @@ class DoctorClinicController extends _CrudController
         }
 
         //update user dan validate user
-        $getDataUser = Users::where('id', $getData->user_id)->first();
+        $getDataUser = Users::where('id', $getData->user_id)->where('klinik_id', $clinicId)->first();
+        if (!$getDataUser) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
         $getListCollectData2 = collectPassingData($this->passingUser, $viewType);
 
         unset($getListCollectData2['upload_ktp_full']);
@@ -640,10 +653,16 @@ class DoctorClinicController extends _CrudController
 
     public function schedule($id)
     {
+        $clinicId = session()->get('admin_clinic_id');
+
         $this->callPermission();
 
         $getDoctor = Doctor::selectRaw('doctor.id, fullname AS name')->join('users', 'users.id', 'doctor.user_id')->where('doctor.id', $id)->first();
         if (!$getDoctor) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+        $getDataUser = Users::where('id', $getDoctor->user_id)->where('klinik_id', $clinicId)->first();
+        if (!$getDataUser) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
 
