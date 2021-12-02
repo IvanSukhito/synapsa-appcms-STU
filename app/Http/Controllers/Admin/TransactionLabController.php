@@ -49,6 +49,7 @@ class TransactionLabController extends _CrudController
                 ],
                 'lang' => 'general.name',
                 'type' => 'select2',
+                'custom' => ',name:"users.fullname"',
             ],
             'payment_id' => [
                 'validate' => [
@@ -57,6 +58,7 @@ class TransactionLabController extends _CrudController
                 ],
                 'lang' => 'general.payment_id',
                 'type' => 'select2',
+                'custom' => ',name:"payment.name"',
             ],
             'code' => [
                 'validate' => [
@@ -121,13 +123,14 @@ class TransactionLabController extends _CrudController
         $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.transaction-lab.list';
         $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.transaction-lab.list_button';
 
+        $listUsers = [];
         $getUsers = Users::where('status', 80)->pluck('fullname', 'id')->toArray();
         if($getUsers) {
             foreach($getUsers as $key => $value) {
                 $listUsers[$key] = $value;
             }
         }
-
+        $listKlinik = [];
         $getKlinik = Klinik::where('status', 80)->pluck('name', 'id')->toArray();
         if($getKlinik) {
             foreach($getKlinik as $key => $value) {
@@ -135,6 +138,7 @@ class TransactionLabController extends _CrudController
             }
         }
 
+        $listPayment = [];
         $getPayment = Payment::where('status', 80)->pluck('name', 'id')->toArray();
         if($getPayment) {
             foreach($getPayment as $key => $value) {
@@ -162,7 +166,6 @@ class TransactionLabController extends _CrudController
             $status[$key] = $val;
         }
 
-        $filter_status = array_merge([0 => 'All'], get_list_transaction());
 
         $this->data['listSet']['user_id'] = $listUsers;
         $this->data['listSet']['klinik_id'] = $listKlinik;
@@ -171,8 +174,6 @@ class TransactionLabController extends _CrudController
         $this->data['listSet']['filter_payment_id'] = $payment_id;
         $this->data['listSet']['filter_shipping_id'] = $shipping_id;
         $this->data['listSet']['payment_id'] = $listPayment;
-        $this->data['listSet']['status'] = get_list_transaction();
-        $this->data['listSet']['filter_status'] = $filter_status;
         $this->data['listSet']['type'] = get_list_type_transaction();
 
     }
@@ -186,22 +187,28 @@ class TransactionLabController extends _CrudController
 
         $getAdmin = Admin::where('id', $adminId)->first();
 
-        $builder = $this->model::query()->select('*')->where('klinik_id', $getAdmin->klinik_id)->where('type_service', 3);
+
+        $builder = $this->model::query()->selectRaw('transaction.*, users.fullname as user_id, payment.name as payment_id')
+            ->leftJoin('payment','payment.id','=','transaction.payment_id')
+            ->leftJoin('users','users.id','=','transaction.user_id')
+            ->where('transaction.klinik_id', $getAdmin->klinik_id)
+            ->where('type_service', 3);
 
         if ($this->request->get('filter_payment_id') && $this->request->get('filter_payment_id') != 0) {
-            $builder = $builder->where('payment_id', $this->request->get('filter_payment_id'));
+
+            $builder = $builder->where('transaction.payment_id', $this->request->get('filter_payment_id'));
         }
-        if ($this->request->get('status') && $this->request->get('status') != 0) {
-            $builder = $builder->where('status', $this->request->get('status'));
+        if ($this->request->get('filter_status') && $this->request->get('filter_status') != 0) {
+            $builder = $builder->where('transaction.status', $this->request->get('filter_status'));
         }
-        //if ()
+
         if ($this->request->get('daterange')) {
             $getDateRange = $this->request->get('daterange');
             $dateSplit = explode(' | ', $getDateRange);
             $dateStart = date('Y-m-d 00:00:00', strtotime($dateSplit[0]));
             $dateEnd = isset($dateSplit[1]) ? date('Y-m-d 23:59:59', strtotime($dateSplit[1])) : date('Y-m-d 23:59:59', strtotime($dateSplit[0]));
 
-            $builder = $builder->whereBetween('created_at', [$dateStart, $dateEnd]);
+            $builder = $builder->whereBetween('transaction.created_at', [$dateStart, $dateEnd]);
         }
 
         $dataTables = $dataTables->eloquent($builder)
@@ -411,6 +418,7 @@ class TransactionLabController extends _CrudController
 
         $data = $this->data;
 
+        //dd($data);
         $data['passing'] = collectPassingData($this->passingData);
         $data['type'] = 'clinic';
 
