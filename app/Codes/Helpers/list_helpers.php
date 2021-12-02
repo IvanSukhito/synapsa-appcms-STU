@@ -3,7 +3,10 @@
 use Carbon\Carbon;
 
 if ( ! function_exists('get_list_active_inactive')) {
-    function get_list_active_inactive()
+    /**
+     * @return array
+     */
+    function get_list_active_inactive(): array
     {
         return [
             80 => __('general.active'),
@@ -13,7 +16,10 @@ if ( ! function_exists('get_list_active_inactive')) {
 }
 
 if ( ! function_exists('get_list_available_non_available')) {
-    function get_list_available_non_available()
+    /**
+     * @return array
+     */
+    function get_list_available_non_available(): array
     {
         return [
             80 => __('general.available'),
