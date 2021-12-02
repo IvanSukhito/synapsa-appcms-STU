@@ -468,10 +468,10 @@ if ( ! function_exists('get_list_target_menu_banner')) {
     function get_list_target_menu_banner()
     {
         return [
-            1 => __('transaction'),
-            2 => __('cart'),
-            3 => __('product'),
-            4 => __('article'),
+            1 => __('general.transaction'),
+            2 => __('general.cart'),
+            3 => __('general.product'),
+            4 => __('general.article'),
         ];
     }
 }

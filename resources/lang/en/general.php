@@ -497,5 +497,6 @@ return [
     'detail' => 'Detail',
     'target_url' => 'Target URL',
     'target_menu' => 'Target Menu',
-    'target_id' => 'Target Id'
+    'target_id' => 'Target Id',
+    'cart' => 'Cart',
 ];
