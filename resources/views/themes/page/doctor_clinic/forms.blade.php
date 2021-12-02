@@ -216,72 +216,87 @@ else {
                         <div class="form-group">
                             <p id="infoService">Input 0 Service</p>
                         </div>
+                        <div id="listService"></div>
+                    @elseif(in_array($viewType, ['show']))
+                        <div class="form-group">
+                            <p id="infoService">Input {{ $doctorService->count() }} Service</p>
+                        </div>
+                        <div id="listService">
+                            @foreach($doctorService as $service)
+                                <div class="form-group">
+                                    <label for="service__{{ $service->service_id }}">Service {{ $listSet['service_id'][$service->service_id] ?? '-' }}</label>
+                                    <input id="service__{{ $service->service_id }}" class="form-control" disabled value="{{ number_format_local($service->price) }}">
+                                </div>
+                            @endforeach
+                        </div>
                     @endif
-
-                    <div id="listService"></div>
                 </div>
                 <!-- /.card-body -->
 
             </div>
 
-                @if(in_array($viewType, ['show']))
-                    <div class="card-body">
-                        <table class="table table-bordered table-striped" id="data1">
-                            <thead>
+            @if(in_array($viewType, ['show']))
+            <div class="card {!! $printCard !!}">
+                <div class="card-header">
+                    @lang('general.schedule')
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered table-striped" id="data1">
+                        <thead>
+                        <tr>
+                            <th>@lang('general.id')</th>
+                            <th>@lang('general.doctor_id')</th>
+                            <th>@lang('general.service_id')</th>
+                            <th>@lang('general.weekday')</th>
+                            <th>@lang('general.time_start')</th>
+                            <th>@lang('general.time_end')</th>
+                            <th>@lang('general.book')</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach($getScheduleData as $list)
                             <tr>
-                                <th>@lang('general.id')</th>
-                                <th>@lang('general.doctor_id')</th>
-                                <th>@lang('general.service_id')</th>
-                                <th>@lang('general.weekday')</th>
-                                <th>@lang('general.time_start')</th>
-                                <th>@lang('general.time_end')</th>
-                                <th>@lang('general.book')</th>
+                                <td>{{ $list->id }}</td>
+                                <td>{{ $list->doctor_id }}</td>
+                                <td>{{ $list->service_id }}</td>
+                                <td>{{ $listSet['weekday'][$list->weekday] ?? '' }}</td>
+                                <td>{{ $list->time_start }}</td>
+                                <td>{{ $list->time_end }}</td>
+                                <td>{{ $getListAvailable[$list->book] ?? $list->book }}</td>
                             </tr>
-                            </thead>
-                            <tbody>
-                            @foreach($getScheduleData as $list)
-                                <tr>
-                                    <td>{{ $list->id }}</td>
-                                    <td>{{ $list->doctor_id }}</td>
-                                    <td>{{ $list->service_id }}</td>
-                                    <td>{{ $listSet['weekday'][$list->weekday] ?? '' }}</td>
-                                    <td>{{ $list->time_start }}</td>
-                                    <td>{{ $list->time_end }}</td>
-                                    <td>{{ $getListAvailable[$list->book] ?? $list->book }}</td>
-                                </tr>
-                            @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+                        @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
             @endif
             <!-- /.card-body -->
-
-
-                <!-- /.card-body -->
-
-                <div class="card-footer">
-
-                    @if(in_array($viewType, ['create']))
-                        <button type="submit" class="mb-2 mr-2 btn btn-success" title="@lang('general.save')">
-                            <i class="fa fa-save"></i><span class=""> @lang('general.save')</span>
-                        </button>
-                    @elseif (in_array($viewType, ['edit']))
-                        <button type="submit" class="mb-2 mr-2 btn btn-primary" title="@lang('general.update')">
-                            <i class="fa fa-save"></i><span class=""> @lang('general.update')</span>
-                        </button>
-                    @elseif (in_array($viewType, ['show']) && $permission['edit'] == true)
-                        <a href="<?php echo route('admin.' . $thisRoute . '.edit', $data->{$masterId}) ?>"
-                           class="mb-2 mr-2 btn btn-primary" title="{{ __('general.edit') }}">
-                            <i class="fa fa-pencil"></i><span class=""> {{ __('general.edit') }}</span>
-                        </a>
-                    @endif
-                    <a href="<?php echo route('admin.' . $thisRoute . '.index') ?>" class="mb-2 mr-2 btn btn-warning"
-                       title="{{ __('general.back') }}">
-                        <i class="fa fa-arrow-circle-o-left"></i><span class=""> {{ __('general.back') }}</span>
+            <div class="card-footer">
+                @if(in_array($viewType, ['create']))
+                    <button type="submit" class="mb-2 mr-2 btn btn-success" title="@lang('general.save')">
+                        <i class="fa fa-save"></i><span class=""> @lang('general.save')</span>
+                    </button>
+                @elseif (in_array($viewType, ['edit']))
+                    <button type="submit" class="mb-2 mr-2 btn btn-primary" title="@lang('general.update')">
+                        <i class="fa fa-save"></i><span class=""> @lang('general.update')</span>
+                    </button>
+                @elseif (in_array($viewType, ['show']) && $permission['edit'] == true)
+                    <a href="<?php echo route('admin.' . $thisRoute . '.edit', $data->{$masterId}) ?>"
+                       class="mb-2 mr-2 btn btn-primary" title="{{ __('general.edit') }}">
+                        <i class="fa fa-pencil"></i><span class=""> {{ __('general.edit') }}</span>
                     </a>
+                    <a href="<?php echo route('admin.' . $thisRoute . '.schedule', $data->{$masterId}) ?>"
+                       class="mb-2 mr-2 btn btn-warning" title="{{ __('general.schedule') }}">
+                        <i class="fa fa-plus"></i><span class=""> {{ __('general.schedule') }}</span>
+                    </a>
+                @endif
+                <a href="<?php echo route('admin.' . $thisRoute . '.index') ?>" class="mb-2 mr-2 btn btn-warning"
+                   title="{{ __('general.back') }}">
+                    <i class="fa fa-arrow-circle-o-left"></i><span class=""> {{ __('general.back') }}</span>
+                </a>
 
-                </div>
-        </div>
+            </div>
+
             {{ Form::close() }}
 
         </div>
@@ -298,7 +313,6 @@ else {
         table = jQuery('#data1').DataTable();
 
         let listDataService = JSON.parse('{!! json_encode($listSet['service_id']) !!}');
-        let listDataUser = JSON.parse('{!! json_encode($listSet['user_id']) !!}');
 
         $(document).ready(function() {
             $('#service_id').change();

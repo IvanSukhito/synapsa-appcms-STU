@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
 use App\Codes\Logic\ExampleLogic;
-use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Admin;
 use App\Codes\Models\V1\City;
 use App\Codes\Models\V1\District;
@@ -12,10 +11,10 @@ use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\DoctorSchedule;
 use App\Codes\Models\V1\DoctorService;
 use App\Codes\Models\V1\DoctorCategory;
-use App\Codes\Models\V1\LabSchedule;
 use App\Codes\Models\V1\Province;
 use App\Codes\Models\V1\SubDistrict;
 use App\Codes\Models\V1\Users;
+use App\Codes\Models\V1\UsersAddress;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\DataTables;
@@ -25,6 +24,7 @@ use Illuminate\Http\Request;
 class DoctorClinicController extends _CrudController
 {
     protected $limit;
+    protected $passingUser;
 
     public function __construct(Request $request)
     {
@@ -86,7 +86,8 @@ class DoctorClinicController extends _CrudController
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
-                ]
+                ],
+                'lang' => 'general.name'
             ],
             'address' => [
                 'type' => 'texteditor',
@@ -96,7 +97,7 @@ class DoctorClinicController extends _CrudController
                 'show' => 0,
             ],
             'address_detail' => [
-                'type' => 'texteditor',
+                'type' => 'textarea',
                 'list' => 0,
                 'create' => 0,
                 'edit' => 0,
@@ -140,7 +141,14 @@ class DoctorClinicController extends _CrudController
                     'create' => 'required',
                 ],
                 'type' => 'image',
-                'lang' => 'ktp',
+                'lang' => 'general.ktp',
+                'list' => 0,
+            ],
+            'image_full' => [
+                'validate' => [
+                    'create' => 'required',
+                ],
+                'type' => 'image',
                 'list' => 0,
             ],
             'phone' => [
@@ -159,12 +167,10 @@ class DoctorClinicController extends _CrudController
             'password' => [
                 'validate' => [
                     'create' => 'required',
-                    'edit' => ''
                 ],
                 'type' => 'password',
                 'edit' => 0,
                 'show' => 0,
-
             ],
             'status' => [
                 'validate' => [
@@ -175,23 +181,10 @@ class DoctorClinicController extends _CrudController
             ]
         ]);
 
-
         parent::__construct(
             $request, 'general.doctor_clinic', 'doctor_clinic', 'V1\Doctor', 'doctor_clinic',
             $passingData
         );
-
-        $adminId = session()->get('admin_id');
-
-        $getAdmin = Admin::where('id', $adminId)->first();
-
-        $getUsers = Users::where('status', 80)->where('doctor',1)->where('klinik_id', $getAdmin->klinik_id)->pluck('fullname', 'id')->toArray();
-        $listUsers = [];
-        if($getUsers) {
-            foreach($getUsers as $key => $value) {
-                $listUsers[$key] = $value;
-            }
-        }
 
         $getDoctorCategory = DoctorCategory::pluck('name', 'id')->toArray();
         $listDoctorCategory = [];
@@ -211,36 +204,16 @@ class DoctorClinicController extends _CrudController
         $this->listView['edit'] = env('ADMIN_TEMPLATE').'.page.doctor_clinic.forms_edit';
         $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.doctor_clinic.forms';
         $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.doctor_clinic.list';
-
         $this->listView['schedule'] = env('ADMIN_TEMPLATE').'.page.doctor_clinic.schedule';
+        $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.doctor_clinic.list_button';
 
-        $this->data['listSet']['user_id'] = $listUsers;
         $this->data['listSet']['service_id'] = $service_id;
         $this->data['listSet']['doctor_category_id'] = $listDoctorCategory;
         $this->data['listSet']['gender'] = get_list_gender();
         $this->data['listSet']['status'] = get_list_active_inactive();
         $this->data['listSet']['weekday'] = get_list_weekday();
         $this->data['listSet']['schedule_type'] = get_list_schedule_type();
-        $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.doctor_clinic.list_button';
 
-    }
-
-    public function create()
-    {
-        $this->callPermission();
-
-        $data = $this->data;
-        $getProvince = Province::orderBy('name', 'ASC')->get();
-
-
-        $data['viewType'] = 'create';
-        $data['formsTitle'] = __('general.title_create', ['field' => $data['thisLabel']]);
-        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
-        $data['passing1'] = collectPassingData($this->passingUser, $data['viewType']);
-        $data['province'] = $getProvince;
-
-
-        return view($this->listView[$data['viewType']], $data);
     }
 
     public function dataTable()
@@ -305,245 +278,24 @@ class DoctorClinicController extends _CrudController
             ->make(true);
     }
 
-    public function edit($id){
+    public function create()
+    {
         $this->callPermission();
-
-
-        $getData = $this->crud->show($id);
-        if (!$getData) {
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
-        }
 
         $data = $this->data;
         $getProvince = Province::orderBy('name', 'ASC')->get();
 
-        $getDoctorService = DoctorService::where('doctor_id',$id)->get();
-        $getDataUser = Users::where('id', $getData->user_id)->first();
 
-        $data['thisLabel'] = __('general.doctor');
-        $data['viewType'] = 'edit';
-        $data['formsTitle'] = __('general.title_create', ['field' => __('general.doctor') . ' ' . $getData->name]);
+        $data['viewType'] = 'create';
+        $data['formsTitle'] = __('general.title_create', ['field' => $data['thisLabel']]);
         $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
         $data['passing1'] = collectPassingData($this->passingUser, $data['viewType']);
         $data['province'] = $getProvince;
-        $data['data'] = $getData;
-        $data['dataUser'] = $getDataUser;
-        $data['cityId'] = City::where('id', $getDataUser->city_id)->first();
-        $data['districtId'] = District::where('id', $getDataUser->district_id)->first();
-        $data['subDistrictId'] = SubDistrict::where('id', $getDataUser->sub_district_id)->first();
-        $data['doctorService'] = $getDoctorService;
+
 
         return view($this->listView[$data['viewType']], $data);
     }
 
-    public function store()
-    {
-        $this->callPermission();
-
-        $this->validate($this->request, [
-            'service_id' => 'required',
-            'price' => 'required'
-        ]);
-
-        $viewType = 'create';
-
-        $getListCollectData = collectPassingData($this->passingData, $viewType);
-        $getListCollectData2 = collectPassingData($this->passingUser, $viewType);
-
-        unset($getListCollectData['service_id']);
-
-        //validate data2
-        $validate = $this->setValidateData($getListCollectData2, $viewType);
-        if (count($validate) > 0)
-        {
-            $data2 = $this->validate($this->request, $validate);
-        }
-
-        unset($data2['upload_ktp_full']);
-
-        $dokument = $this->request->file('upload_ktp_full');
-        if ($dokument) {
-            if ($dokument->getError() != 1) {
-
-                $getFileName = $dokument->getClientOriginalName();
-                $ext = explode('.', $getFileName);
-                $ext = end($ext);
-                $destinationPath = 'synapsaapps/users';
-                if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
-                    $dokumentImage = Storage::putFile($destinationPath, $dokument);
-                }
-            }
-        }
-
-        //dd($this->request->get('password'));
-        //dd($data2['password']);
-        $data2['klinik_id'] = session()->get('admin_clinic_id');
-        $data2['province_id'] = $this->request->get('province_id');
-        $data2['city_id'] = $this->request->get('city_id');
-        $data2['district_id'] = $this->request->get('district_id');
-        $data2['sub_district_id'] = $this->request->get('sub_district_id');
-        $data2['zip_code'] = $this->request->get('zip_code');
-        $data2['address'] = $this->request->get('address');
-        $data2['address_detail'] = $this->request->get('address_detail');
-        $data2['upload_ktp'] = $dokumentImage;
-        $data2['password'] = bcrypt($data2['password']);
-        $data2['doctor'] = 1;
-
-        //dd($data2);
-        if($data2){
-            $user = Users::create($data2);
-        }
-
-        //validate dataServive
-        $validate = $this->setValidateData($getListCollectData, $viewType);
-        if (count($validate) > 0)
-        {
-            $data = $this->validate($this->request, $validate);
-        }
-        else {
-            $data = [];
-            foreach ($getListCollectData as $key => $val) {
-                $data[$key] = $this->request->get($key);
-            }
-        }
-
-        $data = $this->getCollectedData($getListCollectData, $viewType, $data);
-
-        $data['user_id'] = $user->id;
-
-        $getData = $this->crud->store($data);
-        $serviceId = $this->request->get('service_id');
-        $price = clear_money_format($this->request->get('price'));
-
-        foreach($serviceId as $key => $list){
-
-            DoctorService::create([
-                'doctor_id' => $getData->id,
-                'service_id' => $list,
-                'price' => $price[$key] != null ? $price[$key] : 0
-            ]);
-        }
-
-        $id = $getData->id;
-
-        if($this->request->ajax()){
-            return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
-        }
-        else {
-            session()->flash('message', __('general.success_edit_', ['field' => $this->data['thisLabel']]));
-            session()->flash('message_alert', 2);
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
-        }
-    }
-
-    public function update($id){
-        $this->callPermission();
-
-        $viewType = 'edit';
-
-        $getData = $this->crud->show($id);
-        if (!$getData) {
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
-        }
-
-        //update user dan validate user
-        $getDataUser = Users::where('id', $getData->user_id)->first();
-        $getListCollectData2 = collectPassingData($this->passingUser, $viewType);
-
-        unset($getListCollectData2['upload_ktp_full']);
-
-        $validate = $this->setValidateData($getListCollectData2, $viewType, $getDataUser->id);
-        if (count($validate) > 0)
-        {
-            $data2 = $this->validate($this->request, $validate);
-        }
-        else {
-            $data2 = [];
-            foreach ($getListCollectData2 as $key => $val) {
-                $data2[$key] = $this->request->get($key);
-            }
-        }
-
-        $dokument = $this->request->file('upload_ktp_full');
-        if ($dokument) {
-            if ($dokument->getError() != 1) {
-
-                $getFileName = $dokument->getClientOriginalName();
-                $ext = explode('.', $getFileName);
-                $ext = end($ext);
-                $destinationPath = 'synapsaapps/users';
-                if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
-                    $dokumentImage = Storage::putFile($destinationPath, $dokument);
-                }
-            }
-        }else{
-
-            $dokumentImage = $getDataUser->upload_ktp;
-
-        }
-
-        $data2['province_id'] = $this->request->get('province_id');
-        $data2['city_id'] = $this->request->get('city_id');
-        $data2['district_id'] = $this->request->get('district_id');
-        $data2['sub_district_id'] = $this->request->get('sub_district_id');
-        $data2['zip_code'] = $this->request->get('zip_code');
-        $data2['address'] = $this->request->get('address');
-        $data2['address_detail'] = $this->request->get('address_detail');
-        $data2['upload_ktp'] = $dokumentImage;
-        $data2['doctor'] = 1;
-
-        //dd($data2);
-        if($data2){
-            $user = $getDataUser->update($data2);
-        }
-
-        //update service dan validate service
-        $getListCollectData = collectPassingData($this->passingData, $viewType);
-        unset($getListCollectData['service_id']);
-
-        $validate = $this->setValidateData($getListCollectData, $viewType, $id);
-        if (count($validate) > 0)
-        {
-            $data = $this->validate($this->request, $validate);
-        }
-        else {
-            $data = [];
-            foreach ($getListCollectData as $key => $val) {
-                $data[$key] = $this->request->get($key);
-            }
-        }
-
-        $data = $this->getCollectedData($getListCollectData, $viewType, $data, $getData);
-
-        $getData = $this->crud->update($data, $id);
-
-        $serviceId = $this->request->get('service_id');
-        $price = clear_money_format($this->request->get('price'));
-
-        if($serviceId){
-            $saveDataTemp = [];
-            $doctor = Doctor::where('id', $id)->first();
-            foreach($serviceId as $key => $list){
-                $prices = $price[$key] != null ? $price[$key] : 0;
-
-                $saveDataTemp[$list] = [
-                    'price' => $prices
-                ];
-            }
-            $doctor->getService()->sync($saveDataTemp);
-        }
-
-        $id = $getData->id;
-
-        if($this->request->ajax()){
-            return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
-        }
-        else {
-            session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
-            session()->flash('message_alert', 2);
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.show', $id);
-        }
-    }
     public function show($id)
     {
         $this->callPermission();
@@ -621,6 +373,268 @@ class DoctorClinicController extends _CrudController
         $data['getListAvailable'] = get_list_available();
 
         return view($this->listView[$data['viewType']], $data);
+    }
+
+    public function edit($id){
+        $this->callPermission();
+
+
+        $getData = $this->crud->show($id);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $data = $this->data;
+        $getProvince = Province::orderBy('name', 'ASC')->get();
+
+        $getDoctorService = DoctorService::where('doctor_id',$id)->get();
+        $getDataUser = Users::where('id', $getData->user_id)->first();
+
+        $data['thisLabel'] = __('general.doctor');
+        $data['viewType'] = 'edit';
+        $data['formsTitle'] = __('general.title_create', ['field' => __('general.doctor') . ' ' . $getData->name]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['passing1'] = collectPassingData($this->passingUser, $data['viewType']);
+        $data['province'] = $getProvince;
+        $data['data'] = $getData;
+        $data['dataUser'] = $getDataUser;
+        $data['cityId'] = City::where('id', $getDataUser->city_id)->first();
+        $data['districtId'] = District::where('id', $getDataUser->district_id)->first();
+        $data['subDistrictId'] = SubDistrict::where('id', $getDataUser->sub_district_id)->first();
+        $data['doctorService'] = $getDoctorService;
+
+        return view($this->listView[$data['viewType']], $data);
+    }
+
+    public function store()
+    {
+        $this->callPermission();
+
+        $this->validate($this->request, [
+            'service_id' => 'required',
+            'price' => 'required'
+        ]);
+
+        $viewType = 'create';
+
+        $getListCollectData = collectPassingData($this->passingData, $viewType);
+        $getListCollectData2 = collectPassingData($this->passingUser, $viewType);
+
+        unset($getListCollectData['service_id']);
+
+        $validate = $this->setValidateData($getListCollectData, $viewType);
+        if (count($validate) > 0)
+        {
+            $data = $this->validate($this->request, $validate);
+        }
+        else {
+            $data = [];
+            foreach ($getListCollectData as $key => $val) {
+                $data[$key] = $this->request->get($key);
+            }
+        }
+
+        $validate = $this->setValidateData($getListCollectData2, $viewType);
+        if (count($validate) > 0)
+        {
+            $data2 = $this->validate($this->request, $validate);
+        }
+
+        unset($data2['upload_ktp_full']);
+        unset($data2['image_full']);
+
+        $document = $this->request->file('upload_ktp_full');
+        $documentKTP = '';
+        if ($document) {
+            if ($document->getError() != 1) {
+
+                $getFileName = $document->getClientOriginalName();
+                $ext = explode('.', $getFileName);
+                $ext = end($ext);
+                $destinationPath = 'synapsaapps/users';
+                if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
+                    $documentKTP = Storage::putFile($destinationPath, $document);
+                }
+            }
+        }
+
+        $document = $this->request->file('image_full');
+        $documentImage = '';
+        if ($document) {
+            if ($document->getError() != 1) {
+
+                $getFileName = $document->getClientOriginalName();
+                $ext = explode('.', $getFileName);
+                $ext = end($ext);
+                $destinationPath = 'synapsaapps/users';
+                if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
+                    $documentImage = Storage::putFile($destinationPath, $document);
+                }
+            }
+        }
+
+        $data2['klinik_id'] = session()->get('admin_clinic_id');
+        $data2['province_id'] = $this->request->get('province_id');
+        $data2['city_id'] = $this->request->get('city_id');
+        $data2['district_id'] = $this->request->get('district_id');
+        $data2['sub_district_id'] = $this->request->get('sub_district_id');
+        $data2['zip_code'] = $this->request->get('zip_code');
+        $data2['address'] = $this->request->get('address');
+        $data2['address_detail'] = $this->request->get('address_detail');
+        $data2['upload_ktp'] = $documentKTP;
+        $data2['image'] = $documentImage;
+        $data2['password'] = bcrypt($data2['password']);
+        $data2['doctor'] = 1;
+
+        $user = Users::create($data2);
+
+        UsersAddress::create([
+            'user_id' => $user->id,
+            'province_id' => $data2['province_id'],
+            'city_id' => $data2['city_id'],
+            'district_id' => $data2['district_id'],
+            'sub_district_id' => $data2['sub_district_id'],
+            'address_name' => $data2['fullname'],
+            'address' => $data2['address'],
+            'address_detail' => $data2['address_detail'],
+            'zip_code' => $data2['zip_code']
+        ]);
+
+        $data = $this->getCollectedData($getListCollectData, $viewType, $data);
+
+        $data['user_id'] = $user->id;
+
+        $getData = $this->crud->store($data);
+        $serviceId = $this->request->get('service_id');
+        $price = $this->request->get('price');
+
+        foreach($serviceId as $key => $list){
+            DoctorService::create([
+                'doctor_id' => $getData->id,
+                'service_id' => $list,
+                'price' => $price[$key] != null ? clear_money_format($price[$key]) : 0
+            ]);
+        }
+
+        $id = $getData->id;
+
+        if($this->request->ajax()){
+            return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
+        }
+        else {
+            session()->flash('message', __('general.success_edit_', ['field' => $this->data['thisLabel']]));
+            session()->flash('message_alert', 2);
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+    }
+
+    public function update($id){
+        $this->callPermission();
+
+        $viewType = 'edit';
+
+        $getData = $this->crud->show($id);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        //update user dan validate user
+        $getDataUser = Users::where('id', $getData->user_id)->first();
+        $getListCollectData2 = collectPassingData($this->passingUser, $viewType);
+
+        unset($getListCollectData2['upload_ktp_full']);
+
+        $validate = $this->setValidateData($getListCollectData2, $viewType, $getDataUser->id);
+        if (count($validate) > 0)
+        {
+            $data2 = $this->validate($this->request, $validate);
+        }
+        else {
+            $data2 = [];
+            foreach ($getListCollectData2 as $key => $val) {
+                $data2[$key] = $this->request->get($key);
+            }
+        }
+
+        $document = $this->request->file('upload_ktp_full');
+        if ($document) {
+            if ($document->getError() != 1) {
+
+                $getFileName = $document->getClientOriginalName();
+                $ext = explode('.', $getFileName);
+                $ext = end($ext);
+                $destinationPath = 'synapsaapps/users';
+                if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
+                    $documentImage = Storage::putFile($destinationPath, $document);
+                }
+            }
+        }else{
+
+            $documentImage = $getDataUser->upload_ktp;
+
+        }
+
+        $data2['province_id'] = $this->request->get('province_id');
+        $data2['city_id'] = $this->request->get('city_id');
+        $data2['district_id'] = $this->request->get('district_id');
+        $data2['sub_district_id'] = $this->request->get('sub_district_id');
+        $data2['zip_code'] = $this->request->get('zip_code');
+        $data2['address'] = $this->request->get('address');
+        $data2['address_detail'] = $this->request->get('address_detail');
+        $data2['upload_ktp'] = $documentImage;
+        $data2['doctor'] = 1;
+
+        //dd($data2);
+        if($data2){
+            $user = $getDataUser->update($data2);
+        }
+
+        //update service dan validate service
+        $getListCollectData = collectPassingData($this->passingData, $viewType);
+        unset($getListCollectData['service_id']);
+
+        $validate = $this->setValidateData($getListCollectData, $viewType, $id);
+        if (count($validate) > 0)
+        {
+            $data = $this->validate($this->request, $validate);
+        }
+        else {
+            $data = [];
+            foreach ($getListCollectData as $key => $val) {
+                $data[$key] = $this->request->get($key);
+            }
+        }
+
+        $data = $this->getCollectedData($getListCollectData, $viewType, $data, $getData);
+
+        $getData = $this->crud->update($data, $id);
+
+        $serviceId = $this->request->get('service_id');
+        $price = clear_money_format($this->request->get('price'));
+
+        if($serviceId){
+            $saveDataTemp = [];
+            $doctor = Doctor::where('id', $id)->first();
+            foreach($serviceId as $key => $list){
+                $prices = $price[$key] != null ? $price[$key] : 0;
+
+                $saveDataTemp[$list] = [
+                    'price' => $prices
+                ];
+            }
+            $doctor->getService()->sync($saveDataTemp);
+        }
+
+        $id = $getData->id;
+
+        if($this->request->ajax()){
+            return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
+        }
+        else {
+            session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
+            session()->flash('message_alert', 2);
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.show', $id);
+        }
     }
 
     public function schedule($id)

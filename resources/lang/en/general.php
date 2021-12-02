@@ -30,6 +30,7 @@ return [
     'address_detail' => 'Detail Address',
     'zip_code' => 'ZIP Code',
     'nik' => 'NIK',
+    'ktp' => 'KTP',
     'upload_ktp' => 'Upload KTP',
 
     'upload_hasil_lab' => 'Upload Hasil Lab',
