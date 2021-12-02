@@ -326,6 +326,8 @@ return [
     'total_read' => 'Total Read',
     'total_qty' => 'Total Quantity',
     'subtotal' => 'Subtotal',
+    'draft' => 'Draft',
+    'publish_date' => 'Publish Date',
     'publish' => 'Publish',
     'publish_by' => 'Publish By',
     'old_password' => 'Old Password',

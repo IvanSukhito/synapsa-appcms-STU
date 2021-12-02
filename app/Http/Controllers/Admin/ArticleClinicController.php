@@ -136,40 +136,41 @@ class ArticleClinicController extends _CrudController
             }
         }
 
-        $dokument = $this->request->file('image_full');
-        if ($dokument) {
-            if ($dokument->getError() != 1) {
+        $document = $this->request->file('image_full');
+        $documentImage = '';
+        if ($document) {
+            if ($document->getError() != 1) {
 
-                $getFileName = $dokument->getClientOriginalName();
+                $getFileName = $document->getClientOriginalName();
                 $ext = explode('.', $getFileName);
                 $ext = end($ext);
                 $destinationPath = 'synapsaapps/article';
                 if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
 
-                    $dokumentImage = Storage::putFile($destinationPath, $dokument);
+                    $documentImage = Storage::putFile($destinationPath, $document);
                 }
 
             }
         }
 
-        $dokumentThumbnail = $this->request->file('thumbnail_img_full');
-        if ($dokumentThumbnail) {
-            if ($dokumentThumbnail->getError() != 1) {
+        $documentThumbnail = $this->request->file('thumbnail_img_full');
+        $documentThumbnailImage = '';
+        if ($documentThumbnail) {
+            if ($documentThumbnail->getError() != 1) {
 
-                $getFileName = $dokumentThumbnail->getClientOriginalName();
+                $getFileName = $documentThumbnail->getClientOriginalName();
                 $ext = explode('.', $getFileName);
                 $ext = end($ext);
                 $destinationPath = 'synapsaapps/article';
                 if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
 
-                    $dokumentThumbnailImage = Storage::putFile($destinationPath, $dokumentThumbnail);
+                    $documentThumbnailImage = Storage::putFile($destinationPath, $documentThumbnail);
                 }
 
             }
         }
 
         $statusPublish = $this->request->get('publish_status');
-        //dd($statusPublish);
         if($statusPublish == null){
             $publish = 0;
         }else{
@@ -180,9 +181,9 @@ class ArticleClinicController extends _CrudController
 
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
-        $data['image'] = $dokumentImage;
+        $data['image'] = $documentImage;
         $data['klinik_id'] = $adminClinicId;
-        $data['thumbnail_img'] = $dokumentThumbnailImage;
+        $data['thumbnail_img'] = $documentThumbnailImage;
         $data['publish_status'] = $publish;
         $data['slugs'] = create_slugs($title);
         $getData = $this->crud->store($data);
@@ -268,48 +269,42 @@ class ArticleClinicController extends _CrudController
             }
         }
 
-        $dokument = $this->request->file('image_full');
-        if ($dokument) {
-            if ($dokument->getError() != 1) {
+        $document = $this->request->file('image_full');
+        $documentImage =  $getData->image;
+        if ($document) {
+            if ($document->getError() != 1) {
 
-                $getFileName = $dokument->getClientOriginalName();
+                $getFileName = $document->getClientOriginalName();
                 $ext = explode('.', $getFileName);
                 $ext = end($ext);
                 $destinationPath = 'synapsaapps/article';
                 if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
 
-                    $dokumentImage = Storage::putFile($destinationPath, $dokument);
+                    $documentImage = Storage::putFile($destinationPath, $document);
                 }
 
             }
-        }elseif($dokument == null){
-
-            $dokumentImage =  $getData->image;
-
         }
 
-        $dokumentThumbnail = $this->request->file('thumbnail_img_full');
-        if ($dokumentThumbnail) {
-            if ($dokumentThumbnail->getError() != 1) {
 
-                $getFileName = $dokumentThumbnail->getClientOriginalName();
+        $documentThumbnail = $this->request->file('thumbnail_img_full');
+        $documentThumbnailImage =  $getData->thumbnail_img;
+        if ($documentThumbnail) {
+            if ($documentThumbnail->getError() != 1) {
+
+                $getFileName = $documentThumbnail->getClientOriginalName();
                 $ext = explode('.', $getFileName);
                 $ext = end($ext);
                 $destinationPath = 'synapsaapps/article';
                 if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
 
-                    $dokumentThumbnailImage = Storage::putFile($destinationPath, $dokumentThumbnail);
+                    $documentThumbnailImage = Storage::putFile($destinationPath, $documentThumbnail);
                 }
 
             }
-        }elseif($dokumentThumbnail == null){
-
-            $dokumentThumbnailImage =  $getData->thumbnail_img;
-
         }
 
         $statusPublish = $this->request->get('publish_status');
-        //dd($statusPublish);
         if($statusPublish == null){
             $publish = 0;
         }else{
@@ -341,9 +336,8 @@ class ArticleClinicController extends _CrudController
             }
         }
 
-        $data['image'] = $dokumentImage;
-        $data['klinik_id'] = $adminClinicId;
-        $data['thumbnail_img'] = $dokumentThumbnailImage;
+        $data['image'] = $documentImage;
+        $data['thumbnail_img'] = $documentThumbnailImage;
         $data['publish_status'] = $publish;
         $data['slugs'] = create_slugs($title);
 
@@ -403,6 +397,11 @@ class ArticleClinicController extends _CrudController
                 $listRaw[] = $fieldName;
                 $dataTables = $dataTables->editColumn($fieldName, function ($query) use ($fieldName, $list, $listRaw) {
                     return '<pre>' . json_encode(json_decode($query->$fieldName, true), JSON_PRETTY_PRINT) . '</pre>';
+                });
+            }
+            else if (in_array($list['type'], ['checkbox'])) {
+                $dataTables = $dataTables->editColumn($fieldName, function ($query) use ($fieldName, $list, $listRaw) {
+                    return $query->$fieldName == 1 ? __('general.publish') : __('general.draft');
                 });
             }
             else if (in_array($list['type'], ['texteditor'])) {
