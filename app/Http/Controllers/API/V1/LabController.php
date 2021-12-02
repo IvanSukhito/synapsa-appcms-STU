@@ -256,7 +256,7 @@ class LabController extends Controller
                 'schedule_start' => date('Y-m-d', strtotime("now")),
                 'schedule_end' => date('Y-m-d', strtotime("+366 day")),
                 'address' => $getService && $getService->type == 2 ? 1 : 0,
-                'address_nice' => $getService && $getList[$getService->type] ?? '-',
+                'address_nice' => $getList[$getService->type] ?? '-',
                 'date' => $getDate,
                 'schedule' => $getLabSchedule,
                 'service_id' => $serviceId,
