@@ -11,56 +11,61 @@ if ( ! function_exists('generateMenu')) {
                 $permissionRoute = json_decode($role->permission_route, TRUE);
                 $getRoute = \Illuminate\Support\Facades\Route::current()->action['as'];
                 foreach (listGetPermission(listAllMenu(), $permissionRoute) as $key => $value) {
-                    $active = '';
-                    $class = '';
-                    foreach ($value['active'] as $getActive) {
-                        if (strpos($getRoute, $getActive) === 0) {
-                            $active = ' active';
-                        }
+                    if (in_array($value['type'], [3])) {
+                        $html .= '<li class="nav-header">'.$value['title'].'</li>';
                     }
-                    if (isset($value['inactive'])) {
-                        foreach ($value['inactive'] as $getInActive) {
-                            if (strpos($getRoute, $getInActive) === 0) {
-                                $active = '';
+                    else {
+                        $active = '';
+                        $class = '';
+                        foreach ($value['active'] as $getActive) {
+                            if (strpos($getRoute, $getActive) === 0) {
+                                $active = ' active';
                             }
                         }
-                    }
+                        if (isset($value['inactive'])) {
+                            foreach ($value['inactive'] as $getInActive) {
+                                if (strpos($getRoute, $getInActive) === 0) {
+                                    $active = '';
+                                }
+                            }
+                        }
 
-                    if (in_array($value['type'], [2]) && strlen($active) > 0) {
-                        $class .= ' nav-item has-treeview menu-open';
-                        $extraLi = '<i class="right fa fa-angle-left"></i>';
-                    }
-                    else if (in_array($value['type'], [2])) {
-                        $class .= ' nav-item has-treeview';
-                        $extraLi = '<i class="right fa fa-angle-left"></i>';
-                    }
-                    else {
-                        $class .= 'nav-item';
-                        $extraLi = '';
-                    }
+                        if (in_array($value['type'], [2]) && strlen($active) > 0) {
+                            $class .= ' nav-item has-treeview menu-open';
+                            $extraLi = '<i class="right fa fa-angle-left"></i>';
+                        }
+                        else if (in_array($value['type'], [2])) {
+                            $class .= ' nav-item has-treeview';
+                            $extraLi = '<i class="right fa fa-angle-left"></i>';
+                        }
+                        else {
+                            $class .= 'nav-item';
+                            $extraLi = '';
+                        }
 
-                    if(isset($value['route'])) {
-                        $route = route($value['route']);
-                    }
-                    else {
-                        $route = '#';
-                    }
+                        if(isset($value['route'])) {
+                            $route = route($value['route']);
+                        }
+                        else {
+                            $route = '#';
+                        }
 
-                    $getIcon = isset($value['icon']) ? $value['icon'] : '';
-                    $getAdditional = isset($value['additional']) ? $value['additional'] : '';
-                    $html .= '<li class="'.$class.'">
-                    <a href="'.$route.'" title="'.$value['name'].'" class="nav-link'.$active.'">
-                    '.$getIcon.'
-                    <p>'.
-                        $value['title'].$extraLi.$getAdditional.'</p></a>';
+                        $getIcon = isset($value['icon']) ? $value['icon'] : '';
+                        $getAdditional = isset($value['additional']) ? $value['additional'] : '';
+                        $html .= '<li class="'.$class.'">
+                            <a href="'.$route.'" title="'.$value['name'].'" class="nav-link'.$active.'">
+                            '.$getIcon.'
+                            <p>'.
+                            $value['title'].$extraLi.$getAdditional.'</p></a>';
 
-                    if (in_array($value['type'], [2])) {
-                        $html .= '<ul class="nav nav-treeview">';
-                        $html .= getMenuChild($value['data'], $getRoute);
-                        $html .= '</ul>';
+                        if (in_array($value['type'], [2])) {
+                            $html .= '<ul class="nav nav-treeview">';
+                            $html .= getMenuChild($value['data'], $getRoute);
+                            $html .= '</ul>';
+                        }
+
+                        $html .= '</a></li>';
                     }
-
-                    $html .= '</a></li>';
                 }
             }
         }
@@ -182,12 +187,15 @@ if ( ! function_exists('generateListPermission')) {
 }
 
 if ( ! function_exists('createTreePermission')) {
-    function createTreePermission($data, $left = 0, $class = '', $getData) {
+    function createTreePermission($data, $left = 0, $class = '', $getData = array()) {
         $html = '';
         foreach ($data as $index => $list) {
             if (in_array($list['type'], [2])) {
                 $html .= '<label>'.$list['name'].'</label><br/>';
                 $html .= createTreePermission($list['data'], $left + 1, $class, $getData);
+            }
+            else if (in_array($list['type'], [3])) {
+                $html .= '<hr/><label>'.$list['name'].'</label><hr/>';
             }
             else {
                 $value = isset($getData[$list['key']]) ? 'checked' : '';
@@ -256,6 +264,9 @@ if ( ! function_exists('listGetPermission')) {
                         $result[] = $list;
                     }
                 }
+                else if ($list['type'] == 3) {
+                    $result[] = $list;
+                }
                 else {
                     $getResult = listGetPermission($list['data'], $permissionRoute);
                     if (count($getResult) > 0) {
@@ -276,10 +287,10 @@ if ( ! function_exists('listAllMenu')) {
         return [
             [
                 'name' => __('general.untuk_klinik'),
-                'icon' => '<i class="nav-icon fa fa-tags"></i>',
-                'title' => __(''),
+                'icon' => '',
+                'title' => __('general.untuk_klinik'),
                 'active' => [],
-                'type' => 2,
+                'type' => 3,
                 'data' => [],
             ],
             [
@@ -421,7 +432,6 @@ if ( ! function_exists('listAllMenu')) {
                     ],
                 ],
             ],
-
             [
                 'name' => __('general.appointment_doctor_clinic'),
                 'icon' => '<i class="nav-icon fa fa-book"></i>',
@@ -460,7 +470,6 @@ if ( ! function_exists('listAllMenu')) {
                     ],
                 ],
             ],
-
             [
                 'name' => __('general.appointment_lab_clinic'),
                 'icon' => '<i class="nav-icon fa fa-book"></i>',
