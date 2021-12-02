@@ -55,6 +55,7 @@ class LabController extends _CrudController
                     'create' => 'required',
                 ],
                 'type' => 'image',
+                'custom' => ', name: "image"'
             ],
             'desc_lab' => [
                 'validate' => [
@@ -116,15 +117,12 @@ class LabController extends _CrudController
 
         $getServiceLab = isset($this->setting['service-lab']) ? json_decode($this->setting['service-lab'], true) : [];
 
-        //dd($getServiceLab);
         if (count($getServiceLab) > 0) {
             $service = Service::whereIn('id', $getServiceLab)->where('status', '=', 80)->pluck('name','id')->toArray();
         }
         else {
             $service = Service::where('status', '=', 80)->orderBy('orders', 'ASC')->pluck('name','id')->toArray();
         }
-
-        //dd($service);
 
         $service_id = [];
         foreach($service as $key => $val) {
@@ -222,9 +220,7 @@ class LabController extends _CrudController
         $serviceId = $this->request->get('service_id');
         $price = clear_money_format($this->request->get('price'));
 
-        //dd($serviceId);
         foreach($serviceId as $key => $list){
-
             LabService::create([
                 'lab_id' => $getData->id,
                 'service_id' => $list,

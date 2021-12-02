@@ -208,7 +208,7 @@ class DoctorController extends _CrudController
             $service_id[$key] = $val;
         };
 
-        $klinik_id = [0 => 'Synapsa'];
+        $klinik_id = [0 => 'Empty'];
         foreach(Klinik::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
             $klinik_id[$key] = $val;
         }
@@ -237,9 +237,6 @@ class DoctorController extends _CrudController
     {
         $this->callPermission();
 
-        $adminId = session()->get('admin_id');
-
-        $getAdmin = Admin::where('id', $adminId)->first();
         $dataTables = new DataTables();
 
         $builder = $this->model::query()->selectRaw('doctor.id as id, users.fullname as user_id, doctor_category.name
@@ -307,7 +304,6 @@ class DoctorController extends _CrudController
         $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
         $data['passing1'] = collectPassingData($this->passingUser, $data['viewType']);
         $data['province'] = $getProvince;
-
 
         return view($this->listView[$data['viewType']], $data);
     }
@@ -415,7 +411,6 @@ class DoctorController extends _CrudController
         $data2['password'] = bcrypt('123');
         $data2['doctor'] = 1;
 
-        //dd($data2);
         if($data2){
             $user = Users::create($data2);
         }
@@ -458,7 +453,7 @@ class DoctorController extends _CrudController
         else {
             session()->flash('message', __('general.success_edit_', ['field' => $this->data['thisLabel']]));
             session()->flash('message_alert', 2);
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.show', $id);
         }
     }
 
@@ -818,123 +813,6 @@ class DoctorController extends _CrudController
         }
     }
 
-    public function createSchedule2($id){
-        $this->callPermission();
-
-        $adminId = session()->get('admin_id');
-        $getAdmin = Admin::where('id', $adminId)->first();
-        if (!$getAdmin) {
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
-        }
-
-        if($this->request->get('download_example_import')) {
-            $getLogic = new ExampleLogic();
-            $getLogic->downloadExampleImportDoctorSchedule();
-        }
-
-        $data = $this->data;
-
-        $getData = $this->crud->show($id);
-
-        $data['thisLabel'] = __('general.doctor_schedule');
-        $data['type'] = 'schedule';
-        $data['viewType'] = 'create';
-        $data['formsTitle'] = __('general.title_create', ['field' => __('general.doctor_schedule')]);
-        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
-        $data['data'] = $getData;
-
-        return view($this->listView['create2'], $data);
-    }
-
-    public function storeSchedule2($id){
-        $this->callPermission();
-
-        $adminId = session()->get('admin_id');
-        $getAdmin = Admin::where('id', $adminId)->first();
-        if (!$getAdmin) {
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
-        }
-
-        $this->validate($this->request, [
-            'import_doctor_schedule' => 'required',
-        ]);
-
-        //A-N
-        //A = Nomor
-        //B = Service
-        //C = Date
-        //D = Time Start
-        //E = Time End
-
-        //Start From Row 6
-
-        $getFile = $this->request->file('import_doctor_schedule');
-
-        if($getFile) {
-
-
-            try {
-                $getFileName = $getFile->getClientOriginalName();
-                $ext = explode('.', $getFileName);
-                $ext = end($ext);
-                if (in_array(strtolower($ext), ['xlsx', 'xls'])) {
-                    $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($getFile);
-                    $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader($inputFileType);
-                    $data = $reader->load($getFile);
-
-                    if ($data) {
-                        $spreadsheet = $data->getActiveSheet();
-                        foreach ($spreadsheet->getRowIterator() as $key => $row) {
-                            if($key >= 6) {
-                                $getService = $spreadsheet->getCell("B" . $key)->getValue();
-                                $getDate = $spreadsheet->getCell("C" . $key)->getValue();
-                                $getTimeStart = $spreadsheet->getCell("D" . $key)->getValue();
-                                $getTimeEnd = $spreadsheet->getCell("E" . $key)->getValue();
-
-                                $getUser = Users::selectRaw('*')
-                                            ->leftJoin('doctor', 'doctor.user_id', '=', 'users.id')
-                                            ->where('doctor.id', $id)
-                                            ->first();
-
-
-                                if($getUser){
-                                    $saveData = [
-                                        'klinik_id' => $getUser->klinik_id,
-                                        'doctor_id' => $id,
-                                        'service_id' => $getService,
-                                        'date_available' => \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($getDate)->format('Y-m-d'),
-                                        'time_start' => \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($getTimeStart)->format('H:i:s'),
-                                        'time_end' => \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($getTimeEnd)->format('H:i:s'),
-                                        'book' => 80,
-                                    ];
-
-                                    $DoctorSchedule = DoctorSchedule::create($saveData);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            catch(\Exception $e) {
-                //dd($e);
-                // $labSchedule->delete();
-
-                session()->flash('message', __('general.failed_import_doctor_schedule'));
-                session()->flash('message_alert', 1);
-                return redirect()->route($this->rootRoute.'.' . $this->route . '.create2');
-            }
-        }
-
-        if($this->request->ajax()){
-            return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
-        }
-        else {
-            session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
-            session()->flash('message_alert', 2);
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.schedule', $id);
-        }
-    }
-
     public function forgotPassword($id){
         $this->callPermission();
 
@@ -983,7 +861,6 @@ class DoctorController extends _CrudController
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
 
-        //dd($getData->user_id);
         $getUser = Users::where('id', $getData->user_id)->first();
 
         $data = $this->validate($this->request, [
@@ -1011,6 +888,459 @@ class DoctorController extends _CrudController
         }
     }
 
+    public function schedule($id)
+    {
+        $this->callPermission();
 
+        $getDoctor = Doctor::selectRaw('doctor.id, fullname AS name')->join('users', 'users.id', 'doctor.user_id')->where('doctor.id', $id)->first();
+        if (!$getDoctor) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
 
+        $listSetCarbonDay = get_list_carbon_day();
+
+        $now = Carbon::now();
+
+        $serviceTelemed = Service::select('id')->where('name', 'LIKE', '%Telemed%')->first();
+        $telemedId = $serviceTelemed->id;
+
+        $getListDate = DoctorSchedule::select('date_available')
+            ->where('doctor_id', $getDoctor->id)
+            ->whereIn('type', [0,2])
+            ->where('date_available', '!=', null)
+            ->groupBy('date_available')
+            ->orderBy('date_available', 'ASC')
+            ->get();
+
+        $getListDay = DoctorSchedule::select('weekday')
+            ->where('doctor_id', $getDoctor->id)
+            ->where('type', 1)
+            ->groupBy('weekday')
+            ->orderBy('weekday', 'ASC')
+            ->get();
+
+        $getListWeekday = $this->data['listSet']['weekday'];
+
+        $getTargetDay = $this->request->get('date') > 0 ? $this->request->get('date') : Carbon::now()->dayOfWeekIso;
+
+        $notFound = 1;
+        $findFirstDay = '';
+        $temp = [];
+        foreach ($getListDay as $list) {
+            $temp[$list->weekday] = $getListWeekday[$list->weekday];
+            if (strlen($findFirstDay) <= 0) {
+                $findFirstDay = $list->weekday;
+            }
+            if ($getTargetDay == $list->weekday) {
+                $notFound = 0;
+            }
+        }
+
+        if(count($getListDate) > 0) {
+            foreach($getListDate as $list) {
+                $startDate = $now->startOfWeek()->format('Y-m-d');
+                $endDate = $now->endOfWeek()->format('Y-m-d');
+                if($list->date_available >= $startDate && $list->date_available <= $endDate) {
+                    $date = Carbon::parse($list->date_available)->dayOfWeekIso;
+                    $temp[$date] = $getListWeekday[$date] . ' - ' . $list->date_available;
+                    if (strlen($findFirstDay) <= 0) {
+                        $findFirstDay = $date;
+                    }
+                    if ($getTargetDay == $date) {
+                        $notFound = 0;
+                    }
+                }
+            }
+        }
+
+        $getListDay = $temp;
+        $getListDay = collect($getListDay);
+        $getListDay = $getListDay->sortKeys();
+
+        if ($notFound == 1 && strlen($findFirstDay) > 0) {
+            $getTargetDay = $findFirstDay;
+        }
+
+        $weekStartDate = $now->startOfWeek($listSetCarbonDay[$getTargetDay])->format('Y-m-d');
+
+        $checkGetListSchedule = DoctorSchedule::where('date_available', $weekStartDate)
+            ->where('doctor_id', $getDoctor->id)
+            ->whereIn('type', [0,2])
+            ->get();
+
+        if(count($checkGetListSchedule) > 0) {
+            $getTargetDay = $weekStartDate;
+        }
+
+        if(in_array($getTargetDay, [1,2,3,4,5,6,7])) {
+            $getData = DoctorSchedule::where('weekday', $getTargetDay)
+                ->where('doctor_id', $getDoctor->id)
+                ->orderBy('id', 'DESC')
+                ->get();
+
+            $scheduleType = 1;
+        }
+        else {
+            $getData = DoctorSchedule::where('date_available', $getTargetDay)
+                ->where('doctor_id', $getDoctor->id)
+                ->orderBy('id', 'DESC')
+                ->get();
+
+            $scheduleType = 2;
+
+            $getTargetDay = date('w', strtotime($getTargetDay));
+        }
+
+        $getDoctorService = DoctorService::where('doctor_id', $id)->get()->toArray();
+
+        $service_id = [];
+        foreach($getDoctorService as $index => $val){
+            $service_id[] = $val['service_id'];
+        }
+
+        $service = [];
+        foreach(Service::where('status', 80)->whereIn('id', $service_id)->pluck('name', 'id')->toArray() as $key => $val) {
+            $service[$key] = $val;
+        }
+
+        $data = $this->data;
+        $data['parentLabel'] = $data['thisLabel'];
+        $data['thisLabel'] = __('general.doctor_schedule');
+        $data['listSet']['service'] = $service;
+        $data['getDoctor'] = $getDoctor;
+        $data['getListDay'] = $getListDay;
+        $data['getTargetDay'] = $getTargetDay;
+        $data['getListWeekday'] = $getListWeekday;
+        $data['scheduleType'] = $scheduleType;
+        $data['telemedId'] = $telemedId;
+        $data['getData'] = $getData;
+
+        return view($this->listView['schedule'], $data);
+    }
+
+    public function storeSchedule($id)
+    {
+        $this->callPermission();
+
+        $this->validate($this->request, [
+            'schedule_type' => 'required',
+        ]);
+
+        if($this->request->get('schedule_type') == 1) {
+            $data = $this->validate($this->request, [
+                'service' => 'required',
+                'time_start' => 'required',
+                'time_end' => 'required',
+                'weekday' => 'required',
+            ]);
+
+            $getWeekday = intval($data['weekday']);
+            $getServiceId = intval($data['service']);
+            $getTimeStart = strtotime($data['time_start']) > 0 ? date('H:i:00', strtotime($data['time_start'])) : date('H:i:00');
+            $getTimeEnd = strtotime($data['time_end']) > 0 ? date('H:i:00', strtotime($data['time_end'])) : date('H:i:00');
+
+            DoctorSchedule::create([
+                'doctor_id' => $id,
+                'service_id' => $getServiceId,
+                'weekday' => $getWeekday,
+                'time_start' => $getTimeStart,
+                'time_end' => $getTimeEnd,
+                'type' => 1,
+                'book' => 80
+            ]);
+        }
+        else {
+            $data = $this->validate($this->request, [
+                'service' => 'required',
+                'time_start' => 'required',
+                'time_end' => 'required',
+                'date' => 'required',
+            ]);
+
+            $getDate = strtotime($data['date']) > 0 ? date('Y-m-d', strtotime($data['date'])) : date('Y-m-d', strtotime("+1 day"));
+            $getServiceId = intval($data['service']);
+            $getTimeStart = strtotime($data['time_start']) > 0 ? date('H:i:00', strtotime($data['time_start'])) : date('H:i:00');
+            $getTimeEnd = strtotime($data['time_end']) > 0 ? date('H:i:00', strtotime($data['time_end'])) : date('H:i:00');
+
+            DoctorSchedule::create([
+                'doctor_id' => $id,
+                'service_id' => $getServiceId,
+                'date_available' => $getDate,
+                'time_start' => $getTimeStart,
+                'time_end' => $getTimeEnd,
+                'type' => 2,
+                'book' => 80
+            ]);
+        }
+
+        if($this->request->ajax()){
+            return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
+        }
+        else {
+            session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
+            session()->flash('message_alert', 2);
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.schedule', $id);
+        }
+    }
+
+    public function updateSchedule($id, $scheduleId)
+    {
+        $this->callPermission();
+
+        $this->validate($this->request, [
+            'schedule_type' => 'required',
+        ]);
+
+        $getData = DoctorSchedule::where('doctor_id', $id)->where('id', $scheduleId)->first();
+        if (!$getData) {
+            if($this->request->ajax()){
+                return response()->json(['result' => 2, 'message' => __('general.error_not_found')]);
+            }
+            else {
+                session()->flash('message', __('general.error_not_found'));
+                session()->flash('message_alert', 1);
+                return redirect()->route($this->rootRoute.'.' . $this->route . '.schedule', $id);
+            }
+        }
+
+        if($this->request->get('schedule_type') == 1) {
+            $data = $this->validate($this->request, [
+                'service' => 'required',
+                'time_start' => 'required',
+                'time_end' => 'required',
+                'weekday' => 'required',
+            ]);
+
+            $getWeekday = intval($data['weekday']);
+            $getServiceId = intval($data['service']);
+            $getTimeStart = strtotime($data['time_start']) > 0 ? date('H:i:00', strtotime($data['time_start'])) : date('H:i:00');
+            $getTimeEnd = strtotime($data['time_end']) > 0 ? date('H:i:00', strtotime($data['time_end'])) : date('H:i:00');
+
+            $getData->doctor_id = $id;
+            $getData->service_id = $getServiceId;
+            $getData->weekday = $getWeekday;
+            $getData->time_start = $getTimeStart;
+            $getData->time_end = $getTimeEnd;
+        }
+        else {
+            $data = $this->validate($this->request, [
+                'service' => 'required',
+                'time_start' => 'required',
+                'time_end' => 'required',
+                'date' => 'required',
+            ]);
+
+            $getDate = strtotime($data['date']) > 0 ? date('Y-m-d', strtotime($data['date'])) : date('Y-m-d', strtotime("+1 day"));
+            $getServiceId = intval($data['service']);
+            $getTimeStart = strtotime($data['time_start']) > 0 ? date('H:i:00', strtotime($data['time_start'])) : date('H:i:00');
+            $getTimeEnd = strtotime($data['time_end']) > 0 ? date('H:i:00', strtotime($data['time_end'])) : date('H:i:00');
+
+            $getData->doctor_id = $id;
+            $getData->service_id = $getServiceId;
+            $getData->date_available = $getDate;
+            $getData->time_start = $getTimeStart;
+            $getData->time_end = $getTimeEnd;
+        }
+
+        $getData->save();
+
+        if($this->request->ajax()){
+            return response()->json(['result' => 1, 'message' => __('general.success_edit_', ['field' => $this->data['thisLabel']])]);
+        }
+        else {
+            session()->flash('message', __('general.success_edit_', ['field' => $this->data['thisLabel']]));
+            session()->flash('message_alert', 2);
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.schedule', $id);
+        }
+    }
+
+    public function destroySchedule($id, $scheduleId)
+    {
+        $this->callPermission();
+
+        $getData = DoctorSchedule::where('doctor_id', $id)->where('id', $scheduleId)->first();
+        if (!$getData) {
+            if($this->request->ajax()){
+                return response()->json(['result' => 2, 'message' => __('general.error_not_found')]);
+            }
+            else {
+                session()->flash('message', __('general.error_not_found'));
+                session()->flash('message_alert', 1);
+                return redirect()->route($this->rootRoute.'.' . $this->route . '.schedule', $id);
+            }
+        }
+
+        $getData->delete();
+
+        if($this->request->ajax()){
+            return response()->json(['result' => 1, 'message' => __('general.success_delete_', ['field' => $this->data['thisLabel']])]);
+        }
+        else {
+            session()->flash('message', __('general.success_delete_', ['field' => $this->data['thisLabel']]));
+            session()->flash('message_alert', 2);
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.schedule', $id);
+        }
+    }
+
+    public function createSchedule2($id){
+        $this->callPermission();
+
+        $adminId = session()->get('admin_id');
+        $getAdmin = Admin::where('id', $adminId)->first();
+        if (!$getAdmin) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        if($this->request->get('download_example_import')) {
+            $getLogic = new ExampleLogic();
+            $getLogic->downloadExampleImportDoctorClinicSchedule();
+        }
+
+        $data = $this->data;
+
+        $getData = $this->crud->show($id);
+
+        $data['thisLabel'] = __('general.doctor_schedule');
+        $data['type'] = 'schedule';
+        $data['viewType'] = 'create';
+        $data['formsTitle'] = __('general.title_create', ['field' => __('general.doctor_schedule')]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['data'] = $getData;
+
+        return view($this->listView['create2'], $data);
+    }
+
+    public function storeSchedule2($id){
+        $this->callPermission();
+
+        $adminId = session()->get('admin_id');
+        $getAdmin = Admin::where('id', $adminId)->first();
+        if (!$getAdmin) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $this->validate($this->request, [
+            'import_doctor_schedule' => 'required',
+        ]);
+
+        //A-F
+        //A = Nomor
+        //B = Service
+        //C = Date Available
+        //D = Weekday
+        //E = Time Start
+        //F = Time End
+
+        //Start From Row 7
+
+        $getFile = $this->request->file('import_doctor_schedule');
+
+        if($getFile) {
+//            $destinationPath = 'synapsaapps/doctor-schedule/example_import';
+//
+//            $getUrl = Storage::put($destinationPath, $getFile);
+//
+//            die(env('OSS_URL') . '/' . $getUrl);
+
+            $getFileName = $getFile->getClientOriginalName();
+            $ext = explode('.', $getFileName);
+            $ext = end($ext);
+            if (in_array(strtolower($ext), ['xlsx', 'xls'])) {
+                $inputFileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($getFile);
+                $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader($inputFileType);
+                $data = $reader->load($getFile);
+
+                if ($data) {
+                    $spreadsheet = $data->getActiveSheet();
+                    foreach ($spreadsheet->getRowIterator() as $key => $row) {
+                        try {
+                            if ($key > 6) {
+                                $getService = $spreadsheet->getCell("B" . $key)->getValue();
+                                $getDateAvailable = $spreadsheet->getCell("C" . $key)->getValue();
+                                $getWeekday = strtolower($spreadsheet->getCell("D" . $key)->getValue());
+                                $getTimeStart = $spreadsheet->getCell("E" . $key)->getValue();
+                                $getTimeEnd = $spreadsheet->getCell("F" . $key)->getValue();
+
+                                $weekdayID = [
+                                    1 => 'senin',
+                                    2 => 'selasa',
+                                    3 => 'rabu',
+                                    4 => 'kamis',
+                                    5 => 'jumat',
+                                    6 => 'sabtu',
+                                    7 => 'minggu',
+                                ];
+
+                                $weekdayEN = [
+                                    1 => 'monday',
+                                    2 => 'tuesday',
+                                    3 => 'wednesday',
+                                    4 => 'thursday',
+                                    5 => 'friday',
+                                    6 => 'saturday',
+                                    7 => 'sunday',
+                                ];
+
+                                $getWeekdays = array_search($getWeekday, $weekdayEN);
+                                if(!$getWeekdays) {
+                                    $getWeekdays = array_search($getWeekday, $weekdayEN);
+                                }
+
+                                if($getDateAvailable != null) {
+                                    $getDateAvailable = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($getDateAvailable)->format('Y-m-d');
+                                }
+
+                                $getDoctorService = DoctorService::where('doctor_id', $id)->get()->toArray();
+
+                                $service_id = [];
+                                foreach($getDoctorService as $index => $val){
+                                    $service_id[$val['service_id']] = $val['service_id'];
+                                }
+
+                                $getService = intval($getService);
+
+                                if(array_key_exists($getService, $service_id)) {
+                                    $saveData = [
+                                        'doctor_id' => intval($id),
+                                        'service_id' => $getService,
+                                        'date_available' => strlen($getDateAvailable) > 0 ? $getDateAvailable : null,
+                                        'weekday' => strlen($getDateAvailable) > 0 ? 0 : $getWeekdays,
+                                        'time_start' => \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($getTimeStart)->format('H:i:s'),
+                                        'time_end' => \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($getTimeEnd)->format('H:i:s'),
+                                        'book' => 80,
+                                        'type' => strlen($getDateAvailable) > 0 ? 2 : 1,
+                                    ];
+
+                                    $checkSchedule = DoctorSchedule::where('doctor_id', $id);
+                                    foreach ($saveData as $column => $value) {
+                                        if ($column != 'doctor_id') {
+                                            $checkSchedule->where($column, $value);
+                                        }
+                                    }
+                                    $checkSchedule = $checkSchedule->first();
+
+                                    if (!$checkSchedule) {
+                                        $doctorSchedule = DoctorSchedule::create($saveData);
+                                    }
+                                }
+                            }
+                        }
+                        catch (\Exception $e) {
+                            isset($doctorSchedule) ? $doctorSchedule->delete() : '';
+                            continue;
+                        }
+                    }
+                }
+            }
+        }
+
+        if($this->request->ajax()){
+            return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
+        }
+        else {
+            session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
+            session()->flash('message_alert', 2);
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.schedule', $id);
+        }
+    }
 }

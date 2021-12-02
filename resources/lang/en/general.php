@@ -489,5 +489,6 @@ return [
     'pharmacy' => 'Farmasi',
     'forgot-password' => 'Forgot Password',
     'biodata_user' => 'Biodata User',
-    'form_patient' => 'Form Pasien'
+    'form_patient' => 'Form Pasien',
+    'success_change_password' => 'Berhasil Ubah Password',
 ];
