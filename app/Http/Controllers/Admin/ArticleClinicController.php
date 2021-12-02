@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use App\Codes\Models\V1\Article;
 use Yajra\DataTables\DataTables;
 
-class ArticleCLinicController extends _CrudController
+class ArticleClinicController extends _CrudController
 {
     public function __construct(Request $request)
     {
@@ -19,14 +19,6 @@ class ArticleCLinicController extends _CrudController
                 'create' => 0,
                 'edit' => 0,
                 'show' => 0
-            ],
-            'klinik_id' => [
-                'validate' => [
-                    'create' => 'required',
-                    'edit' => 'required'
-                ],
-                'type' => 'select2',
-                'list' => 0,
             ],
             'article_category_id' => [
                 'validate' => [
@@ -46,7 +38,7 @@ class ArticleCLinicController extends _CrudController
                     'create' => 'required',
                     'edit' => 'required'
                 ],
-                'type' => 'texteditor',
+                'type' => 'textarea',
                 'list' => 0,
             ],
             'thumbnail_img_full' => [
@@ -71,14 +63,20 @@ class ArticleCLinicController extends _CrudController
                 'type' => 'texteditor',
                 'list' => 0,
             ],
+            'publish_date' => [
+                'validate' => [
+                    'create' => 'required',
+                    'edit' => 'required'
+                ],
+                'type' => 'datepicker'
+            ],
             'publish_status' => [
                 'validate' => [
                     'create' => '',
                     'edit' => ''
                 ],
-                'list' => 0,
                 'type' => 'checkbox',
-                'lang' => 'publish',
+                'lang' => 'general.publish',
             ],
             'action' => [
                 'create' => 0,
