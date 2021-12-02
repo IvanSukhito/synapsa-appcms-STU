@@ -523,10 +523,10 @@ if ( ! function_exists('listAllMenu')) {
 
             [
                 'name' => __('general.untuk_admin'),
-                'icon' => '<i class="nav-icon fa fa-tags"></i>',
-                'title' => __(''),
+                'icon' => '',
+                'title' => __('general.untuk_admin'),
                 'active' => [],
-                'type' => 2,
+                'type' => 3,
                 'data' => [],
             ],
             [
