@@ -49,7 +49,7 @@ class ProfileController extends Controller
 
         $validator = Validator::make($this->request->all(), [
             'fullname' => 'required',
-            'dob' => 'required|date|before:'.date('Y-m-d', strtotime("-18 years")),
+            'dob' => 'required|date|before:'.strtotime(date('Y-m-d', strtotime("-18 years"))),
             'gender' => 'required',
             'nik' => 'required',
             'upload_ktp' => '',
