@@ -10,7 +10,23 @@ if ( ! function_exists('generateMenu')) {
             if ($role) {
                 $permissionRoute = json_decode($role->permission_route, TRUE);
                 $getRoute = \Illuminate\Support\Facades\Route::current()->action['as'];
-                foreach (listGetPermission(listAllMenu(), $permissionRoute) as $key => $value) {
+
+                $getMenu = listGetPermission(listAllMenu(), $permissionRoute);
+                $printMenu = [];
+                $prevType = 0;
+                foreach ($getMenu as $index => $list) {
+                    if ($prevType == $list['type'] && $prevType == 3) {
+                        if (count($printMenu) > 0) {
+                            unset($printMenu[$index-1]);
+                        }
+                    }
+
+                    $printMenu[] = $list;
+                    $prevType = $list['type'];
+
+                }
+
+                foreach ($printMenu as $key => $value) {
                     if (in_array($value['type'], [3])) {
                         $html .= '<li class="nav-header">'.$value['title'].'</li>';
                     }
