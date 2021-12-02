@@ -657,12 +657,9 @@ class DoctorClinicController extends _CrudController
 
         $this->callPermission();
 
-        $getDoctor = Doctor::selectRaw('doctor.id, fullname AS name')->join('users', 'users.id', 'doctor.user_id')->where('doctor.id', $id)->first();
+        $getDoctor = Doctor::selectRaw('doctor.id, fullname AS name')->join('users', 'users.id', 'doctor.user_id')
+            ->where('klinik_id', $clinicId)->where('doctor.id', $id)->first();
         if (!$getDoctor) {
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
-        }
-        $getDataUser = Users::where('id', $getDoctor->user_id)->where('klinik_id', $clinicId)->first();
-        if (!$getDataUser) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
 
@@ -790,12 +787,14 @@ class DoctorClinicController extends _CrudController
     public function storeSchedule($id)
     {
         $clinicId = session()->get('admin_clinic_id');
-        $getData = $this->crud->show($id);
-        if (!$getData) {
+        $getDoctor = Doctor::selectRaw('doctor.id, fullname AS name')->join('users', 'users.id', 'doctor.user_id')
+            ->where('klinik_id', $clinicId)->where('doctor.id', $id)->first();
+        if (!$getDoctor) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
-        $getDataUser = Users::where('id', $getData->user_id)->where('klinik_id', $clinicId)->first();
-        if (!$getDataUser) {
+
+        $getData = $this->crud->show($id);
+        if (!$getData) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
 
@@ -865,12 +864,14 @@ class DoctorClinicController extends _CrudController
     public function updateSchedule($id, $scheduleId)
     {
         $clinicId = session()->get('admin_clinic_id');
-        $getData = $this->crud->show($id);
-        if (!$getData) {
+        $getDoctor = Doctor::selectRaw('doctor.id, fullname AS name')->join('users', 'users.id', 'doctor.user_id')
+            ->where('klinik_id', $clinicId)->where('doctor.id', $id)->first();
+        if (!$getDoctor) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
-        $getDataUser = Users::where('id', $getData->user_id)->where('klinik_id', $clinicId)->first();
-        if (!$getDataUser) {
+
+        $getData = $this->crud->show($id);
+        if (!$getData) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
 

@@ -1061,10 +1061,10 @@ if ( ! function_exists('getValidatePermissionMenu')) {
 
 if ( ! function_exists('generateListPermission')) {
     /**
-     * @param null $data
+     * @param array|null $data
      * @return string
      */
-    function generateListPermission($data = null): string
+    function generateListPermission(?array $data = array()): string
     {
         $html = '';
 
@@ -1096,10 +1096,10 @@ if ( ! function_exists('createTreePermission')) {
      * @param $data
      * @param int $left
      * @param string $class
-     * @param array $getData
+     * @param array|null $getData
      * @return string
      */
-    function createTreePermission($data, int $left = 0, string $class = '', array $getData = array()): string
+    function createTreePermission($data, int $left = 0, string $class = '', ?array $getData = array()): string
     {
         $html = '';
         foreach ($data as $index => $list) {
@@ -1132,10 +1132,10 @@ if ( ! function_exists('getAttributePermission')) {
      * @param $index
      * @param $left
      * @param string $class
-     * @param array $getData
+     * @param array|null $getData
      * @return string
      */
-    function getAttributePermission($module, $index, $left, string $class = '', array $getData = array()): string
+    function getAttributePermission($module, $index, $left, string $class = '', ?array $getData = array()): string
     {
         $html = '';
         $list = listAvailablePermission();
