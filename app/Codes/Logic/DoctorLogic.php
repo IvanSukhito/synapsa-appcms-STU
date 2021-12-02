@@ -675,7 +675,7 @@ class DoctorLogic
             ->join('users AS user_doctor', 'user_doctor.id', '=', 'doctor.user_id')
             ->join('users AS user_patient', 'user_patient.id', '=', 'appointment_doctor.user_id')
             ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
-            ->where('status', '=', 3)
+            ->where('appointment_doctor.status', '=', 3)
             ->where('doctor_id', $getDoctor->id)
             ->where('appointment_doctor.id', $appointmentId)
             ->first();
