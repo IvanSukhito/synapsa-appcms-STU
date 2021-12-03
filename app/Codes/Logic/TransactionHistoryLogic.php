@@ -25,11 +25,11 @@ class TransactionHistoryLogic
             transaction.type_service, transaction.type_service_name, transaction.user_id, transaction.status,
             MIN(product_name) AS product_name, MIN(product.image) as image,
             CONCAT("'.env('OSS_URL').'/'.'", MIN(product.image)) AS image_full')
-            ->join('transaction_details', function($join){
+            ->leftJoin('transaction_details', function($join){
                 $join->on('transaction_details.transaction_id','=','transaction.id')
                     ->on('transaction_details.id', '=', DB::raw("(select min(id) from transaction_details WHERE transaction_details.transaction_id = transaction.id)"));
             })
-            ->join('product', function($join){
+            ->leftJoin('product', function($join){
                 $join->on('product.id','=','transaction_details.product_id')
                     ->on('product.id', '=', DB::raw("(select min(id) from product WHERE product.id = transaction_details.product_id)"));
             })
