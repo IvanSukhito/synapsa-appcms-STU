@@ -34,11 +34,11 @@ class PageController extends _CrudController
                     'create' => 'required',
                     'edit' => 'required'
                 ],
-                'lang' => 'general.header_title',
+                'lang' => 'general.name',
             ],
             'page_sub_title' => [
                 'list' => 0,
-                'lang' => 'general.header_sub_title',
+                'lang' => 'general.sub_title',
             ],
             'content' => [
                 'list' => 0,
