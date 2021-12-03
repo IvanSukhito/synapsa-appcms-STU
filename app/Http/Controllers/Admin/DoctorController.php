@@ -204,7 +204,7 @@ class DoctorController extends _CrudController
         }
 
         $getDoctorCategory = DoctorCategory::pluck('name', 'id')->toArray();
-        $listDoctorCategory = [];
+        $listDoctorCategory = [0 => 'All'];
         if($getDoctorCategory) {
             foreach($getDoctorCategory as $key => $value) {
                 $listDoctorCategory[$key] = $value;
@@ -262,6 +262,11 @@ class DoctorController extends _CrudController
                     'masterId' => $this->masterId
                 ]);
             });
+
+
+        if ($this->request->get('doctor_category_id') && $this->request->get('doctor_category_id') != 0) {
+            $builder = $builder->where('doctor_category_id', $this->request->get('doctor_category_id'));
+        }
 
         $listRaw = [];
         $listRaw[] = 'action';
