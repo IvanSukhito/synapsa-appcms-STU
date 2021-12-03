@@ -1,3 +1,13 @@
+<?php
+$category = app()->request->get('filter_category');
+
+$params = [];
+if ($category) {
+    $params['filter_category'] = $category;
+}
+
+?>
+
 @extends(env('ADMIN_TEMPLATE').'._base.layout')
 
 @section('title', __('general.title_home', ['field' => $thisLabel]))
@@ -29,21 +39,54 @@
     <section class="content">
         <div class="container-fluid">
             <div class="card">
+
                 @if ($permission['create'])
                     <div class="card-header">
-                        <a href="<?php echo route('admin.' . $thisRoute . '.create') ?>" class="mb-2 mr-2 btn btn-success"
+                        <a href="<?php echo route('admin.' . $thisRoute . '.create') ?>"
+                           class="mb-2 mr-2 btn btn-success"
                            title="@lang('general.create')">
                             <i class="fa fa-plus-square"></i> @lang('general.create')
                         </a>
 
-                        <a href="<?php echo route('admin.' . $thisRoute . '.create2') ?>" class="mb-2 mr-2 btn btn-primary"
+                        <a href="<?php echo route('admin.' . $thisRoute . '.create2') ?>"
+                           class="mb-2 mr-2 btn btn-primary"
                            title="@lang('general.import')">
                             <i class="fa fa-file-excel-o"></i> @lang('general.import')
                         </a>
                     </div>
                 @endif
+                <form method="get">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="filter_category">{{ __('general.doctor_category') }}</label>
+                                {{ Form::select('filter_category', $listSet['filter_category'], old('filter_category', $category), ['class' => 'form-control select2', 'autocomplete' => 'off']) }}
+                            </div>
+                        </div>
 
-            <!-- /.card-header -->
+                        <div class="row">
+                            <div class="col-md-3">
+                                <br/>
+                                <button class="mb-1 btn btn-primary btn-sm" type="submit"
+                                        title="@lang('general.filter')">
+                                    <i></i>
+                                    @lang('general.filter')
+                                </button>
+
+                                <a href="<?php echo route('admin.' . $thisRoute . '.index') ?>"
+                                   class="mb-1 btn btn-warning btn-sm" type="submit"
+                                   title="@lang('general.reset')">
+                                    <i></i>
+                                    @lang('general.reset')
+                                </a>
+
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+
+                <!-- /.card-header -->
                 <div class="card-body">
                     <table class="table table-bordered table-striped" id="data1">
 
@@ -68,7 +111,7 @@
             scrollX: true,
             // pageLength: 25,
             // lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
-            ajax: '{{ route('admin.' . $thisRoute . '.dataTable') }}',
+            ajax: '{{ route('admin.' . $thisRoute . '.dataTable') }}{!! '?' . http_build_query($params) !!}',
             aaSorting: [ {!! isset($listAttribute['aaSorting']) ? $listAttribute['aaSorting'] : "[0,'desc']" !!}],
             columns: [
                     @foreach($passing as $fieldName => $fieldData)

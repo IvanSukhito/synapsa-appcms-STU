@@ -195,6 +195,13 @@ class DoctorClinicController extends _CrudController
             }
         }
 
+        $filterDoctorCategory = [0 => 'All'];
+        if($getDoctorCategory) {
+            foreach($getDoctorCategory as $key => $value) {
+                $filterDoctorCategory[$key] = $value;
+            }
+        }
+
         $service_id = [];
         foreach(Service::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
             $service_id[$key] = $val;
@@ -212,6 +219,7 @@ class DoctorClinicController extends _CrudController
 
         $this->data['listSet']['service_id'] = $service_id;
         $this->data['listSet']['doctor_category_id'] = $listDoctorCategory;
+        $this->data['listSet']['filter_category'] = $filterDoctorCategory;
         $this->data['listSet']['gender'] = get_list_gender();
         $this->data['listSet']['status'] = get_list_active_inactive();
         $this->data['listSet']['weekday'] = get_list_weekday();
@@ -233,6 +241,10 @@ class DoctorClinicController extends _CrudController
             ->join('doctor_category','doctor_category.id','=','doctor.doctor_category_id')
             ->where('users.doctor',1)
             ->where('users.klinik_id', $getAdmin->klinik_id);
+
+        if ($this->request->get('filter_category') && $this->request->get('filter_category') != 0) {
+            $builder = $builder->where('doctor.doctor_category_id', $this->request->get('filter_category'));
+        }
 
         $dataTables = $dataTables->eloquent($builder)
             ->addColumn('action', function ($query) {
