@@ -54,6 +54,7 @@ class TransactionProductController extends _CrudController
                 ],
                 'lang' => 'general.name',
                 'type' => 'select2',
+                'custom' => ',name:"users.fullname"',
             ],
             'payment_id' => [
                 'validate' => [
@@ -64,6 +65,7 @@ class TransactionProductController extends _CrudController
                 ],
                 'lang' => 'general.payment_id',
                 'type' => 'select2',
+                'custom' => ',name:"payment.name"',
             ],
             'shipping_id' => [
                 'validate' => [
@@ -74,6 +76,7 @@ class TransactionProductController extends _CrudController
                 ],
                 'lang' => 'general.shipping',
                 'type' => 'select2',
+                'custom' => ',name:"shipping.name"'
             ],
             'code' => [
                 'validate' => [
@@ -380,22 +383,21 @@ class TransactionProductController extends _CrudController
 
         $getAdmin = Admin::where('id', $adminId)->first();
 
-        $builder = $this->model::query()->select('transaction.*')
-            ->join('province','province.id','=','transaction.shipping_province_id','LEFT')
-            ->join('city','city.id','=','transaction.shipping_city_id','LEFT')
-            ->join('district','district.id','=','transaction.shipping_district_id','LEFT')
-            ->join('sub_district','sub_district.id','=','transaction.shipping_subdistrict_id','LEFT')
-            ->where('klinik_id', $getAdmin->klinik_id)
+        $builder = $this->model::query()->selectRaw('transaction.*, users.fullname as user_id, payment.name as payment_id, shipping.name as shipping_id')
+            ->leftJoin('payment','payment.id','=','transaction.payment_id')
+            ->leftJoin('shipping','shipping.id','=','transaction.shipping_id')
+            ->leftJoin('users','users.id','=','transaction.user_id')
+            ->where('transaction.klinik_id', $getAdmin->klinik_id)
             ->where('type_service', 1);
 
         if ($this->request->get('filter_payment_id') && $this->request->get('filter_payment_id') != 0) {
-            $builder = $builder->where('payment_id', $this->request->get('filter_payment_id'));
+            $builder = $builder->where('transaction.payment_id', $this->request->get('filter_payment_id'));
         }
         if ($this->request->get('filter_shipping_id') && $this->request->get('filter_shipping_id') != 0) {
-            $builder = $builder->where('shipping_id', $this->request->get('filter_shipping_id'));
+            $builder = $builder->where('transaction.shipping_id', $this->request->get('filter_shipping_id'));
         }
         if ($this->request->get('status') && $this->request->get('status') != 0) {
-            $builder = $builder->where('status', $this->request->get('status'));
+            $builder = $builder->where('transaction.status', $this->request->get('status'));
         }
         //if ()
         if ($this->request->get('daterange')) {
@@ -404,7 +406,7 @@ class TransactionProductController extends _CrudController
             $dateStart = date('Y-m-d 00:00:00', strtotime($dateSplit[0]));
             $dateEnd = isset($dateSplit[1]) ? date('Y-m-d 23:59:59', strtotime($dateSplit[1])) : date('Y-m-d 23:59:59', strtotime($dateSplit[0]));
 
-            $builder = $builder->whereBetween('created_at', [$dateStart, $dateEnd]);
+            $builder = $builder->whereBetween('transaction.created_at', [$dateStart, $dateEnd]);
         }
 
         $dataTables = $dataTables->eloquent($builder)
