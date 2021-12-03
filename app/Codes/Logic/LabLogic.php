@@ -283,6 +283,7 @@ class LabLogic
      * @param $getTransaction
      * @param $newCode
      * @param $extraInfo
+     * @param $getDetails
      * @return int
      */
     public function appointmentCreate($scheduleId, $date, $getUser, $getServiceName, $getTransaction, $newCode, $extraInfo, $getDetails): int
@@ -306,7 +307,7 @@ class LabLogic
                 'time_start' => $getSchedule->time_start,
                 'time_end' => $getSchedule->time_end,
                 'extra_info' => json_encode($extraInfo),
-                'status' => 1
+                'status' => 4
             ]);
 
             foreach ($getDetails as $getDetail) {
