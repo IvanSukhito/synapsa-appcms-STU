@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Codes\Logic\_CrudController;
 use App\Codes\Logic\ExampleLogic;
 use App\Codes\Models\Admin;
+use App\Codes\Models\V1\AppointmentDoctor;
 use App\Codes\Models\V1\City;
 use App\Codes\Models\V1\District;
 use App\Codes\Models\V1\Doctor;
@@ -781,6 +782,30 @@ class DoctorClinicController extends _CrudController
         $service = [];
         foreach(Service::where('status', 80)->whereIn('id', $service_id)->pluck('name', 'id')->toArray() as $key => $val) {
             $service[$key] = $val;
+        }
+
+        if(count($getData) > 0) {
+            $tempData = [];
+            foreach($getData as $list) {
+                $date = strlen($list->date_available) > 0 ? $list->date_available : $now->startOfWeek($listSetCarbonDay[$list->weekday])->format('Y-m-d');
+
+                $checkAppointment = AppointmentDoctor::where('schedule_id', $list->schedule_id)
+                    ->where('date', $date)
+                    ->where('time_start', $list->time_start)
+                    ->where('time_end', $list->time_end)
+                    ->where('doctor_id', $list->doctor_id)
+                    ->first();
+
+                if($checkAppointment) {
+                    $list->book = 99;
+                }
+                else {
+                    $list->book = 80;
+                }
+
+                $tempData[] = $list;
+            }
+            $getData = $tempData;
         }
 
         $data = $this->data;

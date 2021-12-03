@@ -25,11 +25,11 @@ class TransactionHistoryLogic
             transaction.type_service, transaction.type_service_name, transaction.user_id, transaction.status,
             MIN(product_name) AS product_name, MIN(product.image) as image,
             CONCAT("'.env('OSS_URL').'/'.'", MIN(product.image)) AS image_full')
-            ->join('transaction_details', function($join){
+            ->leftJoin('transaction_details', function($join){
                 $join->on('transaction_details.transaction_id','=','transaction.id')
                     ->on('transaction_details.id', '=', DB::raw("(select min(id) from transaction_details WHERE transaction_details.transaction_id = transaction.id)"));
             })
-            ->join('product', function($join){
+            ->leftJoin('product', function($join){
                 $join->on('product.id','=','transaction_details.product_id')
                     ->on('product.id', '=', DB::raw("(select min(id) from product WHERE product.id = transaction_details.product_id)"));
             })
@@ -124,11 +124,11 @@ class TransactionHistoryLogic
             transaction.category_service_id, transaction.category_service_name,
             transaction.type_service, transaction.type_service_name, transaction.user_id, transaction.status,
             MIN(lab_name) AS lab_name, MIN(lab.image) as image, CONCAT("'.env('OSS_URL').'/'.'", MIN(lab.image)) AS image_full')
-            ->join('transaction_details', function($join){
+            ->leftJoin('transaction_details', function($join){
                 $join->on('transaction_details.transaction_id','=','transaction.id')
                     ->on('transaction_details.id', '=', DB::raw("(select min(id) from transaction_details WHERE transaction_details.transaction_id = transaction.id)"));
             })
-            ->join('lab', function($join){
+            ->leftJoin('lab', function($join){
                 $join->on('lab.id','=','transaction_details.lab_id')
                     ->on('lab.id', '=', DB::raw("(select min(id) from lab WHERE lab.id = transaction_details.lab_id)"));
             })
@@ -195,14 +195,27 @@ class TransactionHistoryLogic
                 case 3 : $getDetail = $getTransaction->getTransactionDetails()->selectRaw('transaction_details.id,
                         transaction_details.schedule_id, transaction_details.lab_id, transaction_details.lab_name, 
                         transaction_details.lab_price, transaction_details.extra_info, 
-                        appointment_lab.date, appointment_lab.time_start, appointment_lab.time_end,
-                        lab.image, CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full, 
-                        CONCAT("'.env('OSS_URL').'/'.'", payment.icon_img) AS payment_icon')
+                        MAX(appointment_lab.date) AS date, MAX(appointment_lab.time_start) AS time_start, 
+                        MAX(appointment_lab.time_end) AS time_end,
+                        MAX(lab.image) AS image, CONCAT("'.env('OSS_URL').'/'.'", MAX(lab.image)) AS image_full, 
+                        CONCAT("'.env('OSS_URL').'/'.'", MAX(payment.icon_img)) AS payment_icon')
                     ->join('lab', 'lab.id', '=', 'transaction_details.lab_id', 'LEFT')
                     ->join('transaction','transaction.id','=','transaction_details.transaction_id', 'LEFT')
                     ->join('appointment_lab','appointment_lab.transaction_id','=','appointment_lab.transaction_id', 'LEFT')
                     ->join('payment', 'payment.id', '=', 'transaction.payment_id')
+                    ->groupByRaw('transaction_details.id, transaction_details.schedule_id, transaction_details.lab_id,
+                        transaction_details.lab_name, transaction_details.lab_price, transaction_details.extra_info')
                     ->get();
+
+                    $temp = [];
+                    foreach ($getDetail as $item) {
+                        $item = $item->toArray();
+                        $extraInfo = json_decode($item['extra_info'], true);
+                        $item['date'] = $extraInfo['date'] ?? $item['date'];
+                        $temp[] = $item;
+                    }
+                    $getDetail = $temp;
+
                     $setType = 'lab';
                     break;
 
