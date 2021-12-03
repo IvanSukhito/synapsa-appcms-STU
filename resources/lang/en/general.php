@@ -18,6 +18,7 @@ return [
     'banner' => 'Banner',
     'target' => 'Url',
     'clinic_info' => 'Clinic Info',
+    'parent' => 'Layanan',
     'layanan_lab' => 'Layanan Lab',
     'book_date' => 'Tanggal Book',
     'clinic_phone' => 'Clinic Phone',
@@ -503,4 +504,5 @@ return [
     'target_menu' => 'Target Menu',
     'target_id' => 'Target Id',
     'cart' => 'Cart',
+    'step' => 'Step',
 ];

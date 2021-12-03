@@ -32,7 +32,6 @@ class LabClinicController extends _CrudController
                 ],
                 'type' => 'select2',
                 'lang' => 'Layanan',
-
             ],
             'name' => [
                 'validate' => [
@@ -45,6 +44,7 @@ class LabClinicController extends _CrudController
                     'create' => 'required',
                 ],
                 'type' => 'image',
+                'custom' => ', name: "image"'
             ],
             'desc_lab' => [
                 'validate' => [

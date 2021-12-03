@@ -30,7 +30,8 @@ class AppointmentLabHomecareController extends _CrudController
                 'create' => 0,
                 'edit' => 0,
                 'type' => 'select',
-                'lang' => 'general.klinik'
+                'lang' => 'general.klinik',
+                'custom' => ', name: "klinik.name"'
             ],
             'patient_name' => [
                 'create' => 0,
@@ -70,6 +71,7 @@ class AppointmentLabHomecareController extends _CrudController
                 'create' => 0,
                 'edit' => 0,
                 'show' => 0,
+                'custom' => ', name:"appointment_lab_details.lab_name"'
             ],
             'total_test' => [
                 'create' => 0,
@@ -113,7 +115,7 @@ class AppointmentLabHomecareController extends _CrudController
             $service_id[$key] = $val;
         }
 
-        $status = [0 => 'All'];
+        $status = [];
         foreach(get_list_appointment() as $key => $val) {
             $status[$key] = $val;
         }
@@ -188,13 +190,14 @@ class AppointmentLabHomecareController extends _CrudController
        $builder = $this->model::query()->selectRaw('appointment_lab.id, service.name as service, users.fullname as user,
        patient_name, patient_email, type_appointment,  appointment_lab.date as date, time_start, time_end, total_test,
        appointment_lab.status, appointment_lab.created_at, GROUP_CONCAT(" ", appointment_lab_details.lab_name) as layanan_lab,
-       appointment_lab.klinik_id')
-            ->leftJoin('service','service.id', '=', 'appointment_lab.service_id')
-            ->leftJoin('users','users.id', '=', 'appointment_lab.user_id')
-            ->leftJoin('appointment_lab_details','appointment_lab_details.appointment_lab_id','=','appointment_lab.id')
-            ->where('type_appointment', 'Homecare')
+       appointment_lab.klinik_id, klinik.name')
+           ->leftJoin('service', 'service.id', '=', 'appointment_lab.service_id')
+           ->leftJoin('users', 'users.id', '=', 'appointment_lab.user_id')
+           ->leftJoin('klinik', 'klinik.id', '=', 'appointment_lab.klinik_id')
+           ->leftJoin('appointment_lab_details', 'appointment_lab_details.appointment_lab_id', '=', 'appointment_lab.id')
+           ->where('type_appointment', 'Homecare')
            ->groupByRaw('service, user, patient_name, patient_email, type_appointment, date, time_start, time_end, total_test,
-            appointment_lab.id, status, created_at, klinik_id');
+            appointment_lab.id, status, created_at, klinik_id, klinik.name');
 
        if ($this->request->get('status') && $this->request->get('status') != 0) {
            $builder = $builder->where('appointment_lab.status', $this->request->get('status'));

@@ -81,6 +81,8 @@ class InvoiceController extends _CrudController
                 'extra' => [
                     'edit' => ['disabled' => true],
                 ],
+                'lang' => 'general.total_price_transaction',
+                'custom' => ', name: "total_price_transaction"'
             ],
             'product_image_full' => [
                 'list' => 0,
@@ -92,13 +94,15 @@ class InvoiceController extends _CrudController
                 'extra' => [
                     'edit' => ['disabled' => true],
                 ],
-                'lang' => 'general.price_product_klinik'
+                'lang' => 'general.price_product_klinik',
+                'custom' => ', name: "price_product_klinik"'
             ],
             'price_nice_product_synapsa' => [
                 'extra' => [
                     'edit' => ['disabled' => true],
                 ],
-                'lang' => 'general.price_product_synapsa'
+                'lang' => 'general.price_product_synapsa',
+                'custom' => ', name: "price_product_synapsa"'
             ],
             'product_unit' => [
                 'extra' => [

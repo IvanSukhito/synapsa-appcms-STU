@@ -548,7 +548,6 @@ if ( ! function_exists('listAllMenu')) {
                     'admin.klinik.',
                     'admin.customer-support.',
                     'admin.medicine-type.',
-                    'admin.banner-category.',
                     'admin.settings.',
                     'admin.admin.',
                     'admin.notification.',
@@ -602,14 +601,6 @@ if ( ! function_exists('listAllMenu')) {
                         'active' => ['admin.medicine-type.'],
                         'route' => 'admin.medicine-type.index',
                         'key' => 'medicine-type',
-                        'type' => 1
-                    ],
-                    [
-                        'name' => __('general.banner_category'),
-                        'title' => __('general.banner_category'),
-                        'active' => ['admin.banner-category.'],
-                        'route' => 'admin.banner-category.index',
-                        'key' => 'banner-category',
                         'type' => 1
                     ],
                     [
@@ -861,6 +852,8 @@ if ( ! function_exists('listAvailablePermission'))
 
         $listPermission['doctor_clinic']['create'][] = 'admin.doctor_clinic.create2';
         $listPermission['doctor_clinic']['create'][] = 'admin.doctor_clinic.store2';
+        $listPermission['doctor_clinic']['edit'][] = 'admin.doctor_clinic.forgotPassword';
+        $listPermission['doctor_clinic']['edit'][] = 'admin.doctor_clinic.updatePassword';
 
         return $listPermission;
     }
