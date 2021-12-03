@@ -415,7 +415,7 @@ class ProcessTransaction implements ShouldQueue
         $getSchedule = $getDoctorSchedule['schedule'];
         $doctorId = $getSchedule->doctor_id;
         $serviceId = $getSchedule->service_id;
-        $getDoctorInfo = $doctorLogic->doctorInfo($doctorId, $serviceId);
+        $getDoctorInfo = $doctorLogic->doctorInfo($getUser->klinik_id, $doctorId, $serviceId);
         $getService = Service::where('id', '=', $serviceId)->first();
         $serviceName = $getService ? $getService->name : '';
 

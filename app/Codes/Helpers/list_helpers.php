@@ -3,7 +3,10 @@
 use Carbon\Carbon;
 
 if ( ! function_exists('get_list_active_inactive')) {
-    function get_list_active_inactive()
+    /**
+     * @return array
+     */
+    function get_list_active_inactive(): array
     {
         return [
             80 => __('general.active'),
@@ -13,7 +16,10 @@ if ( ! function_exists('get_list_active_inactive')) {
 }
 
 if ( ! function_exists('get_list_available_non_available')) {
-    function get_list_available_non_available()
+    /**
+     * @return array
+     */
+    function get_list_available_non_available(): array
     {
         return [
             80 => __('general.available'),
@@ -472,6 +478,12 @@ if ( ! function_exists('get_list_target_menu_banner')) {
             2 => __('general.cart'),
             3 => __('general.product'),
             4 => __('general.article'),
+            5 => __('general.menu_doctor'),
+            6 => __('general.appointment_lab'),
+            7 => __('general.appointment_doctor'),
+            8 => __('general.history'),
+            9 => __('general.nurse'),
+            10 => __('general.user'),
         ];
     }
 }

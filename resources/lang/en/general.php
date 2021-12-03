@@ -30,6 +30,7 @@ return [
     'address_detail' => 'Detail Address',
     'zip_code' => 'ZIP Code',
     'nik' => 'NIK',
+    'ktp' => 'KTP',
     'upload_ktp' => 'Upload KTP',
 
     'upload_hasil_lab' => 'Upload Hasil Lab',
@@ -326,6 +327,9 @@ return [
     'total_read' => 'Total Read',
     'total_qty' => 'Total Quantity',
     'subtotal' => 'Subtotal',
+    'draft' => 'Draft',
+    'publish_date' => 'Publish Date',
+    'publish' => 'Publish',
     'publish_by' => 'Publish By',
     'old_password' => 'Old Password',
     'old_pin' => 'Old PIN',

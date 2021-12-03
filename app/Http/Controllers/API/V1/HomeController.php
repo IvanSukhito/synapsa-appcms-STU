@@ -53,10 +53,12 @@ class HomeController extends Controller
             $limitArticle = 4;
         }
 
-        $totalNotif = Notifications::where('user_id',$user->id)->where('is_read',1)->count();
-        $dataSliders = Sliders::where('status', '=', 1)->whereIn('klinik_id', [0, $user->klinik_id])->orderBy('id','DESC')->get();
+        $totalNotif = Notifications::where('user_id',$user->id)->where('is_read', '=', 1)->count();
+        $dataSliders = Sliders::where('status', '=', 80)->whereIn('klinik_id', [0, $user->klinik_id])->orderBy('id','DESC')->get();
         $dataProduct = Product::where('klinik_id', '=', $user->klinik_id)->orderBy('id','DESC')->paginate($limitProduct);
-        $dataArticle = Article::orderBy('publish_date','DESC')->where('publish_status', 1)->limit($limitArticle)->get();
+        $dataArticle = Article::where('klinik_id', '=', $user->klinik_id)
+            ->where('publish_date', '<=', date('Y-m-d'))->where('publish_status', '=', 1)
+            ->orderBy('publish_date','DESC')->limit($limitArticle)->get();
 
         $userLogic = new UserLogic();
 

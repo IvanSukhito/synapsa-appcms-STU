@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
 use App\Codes\Logic\ExampleLogic;
-use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Admin;
 use App\Codes\Models\V1\City;
 use App\Codes\Models\V1\District;
@@ -12,10 +11,10 @@ use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\DoctorSchedule;
 use App\Codes\Models\V1\DoctorService;
 use App\Codes\Models\V1\DoctorCategory;
-use App\Codes\Models\V1\LabSchedule;
 use App\Codes\Models\V1\Province;
 use App\Codes\Models\V1\SubDistrict;
 use App\Codes\Models\V1\Users;
+use App\Codes\Models\V1\UsersAddress;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\DataTables;
@@ -25,6 +24,7 @@ use Illuminate\Http\Request;
 class DoctorClinicController extends _CrudController
 {
     protected $limit;
+    protected $passingUser;
 
     public function __construct(Request $request)
     {
@@ -86,7 +86,8 @@ class DoctorClinicController extends _CrudController
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
-                ]
+                ],
+                'lang' => 'general.name'
             ],
             'address' => [
                 'type' => 'texteditor',
@@ -96,7 +97,7 @@ class DoctorClinicController extends _CrudController
                 'show' => 0,
             ],
             'address_detail' => [
-                'type' => 'texteditor',
+                'type' => 'textarea',
                 'list' => 0,
                 'create' => 0,
                 'edit' => 0,
@@ -140,7 +141,14 @@ class DoctorClinicController extends _CrudController
                     'create' => 'required',
                 ],
                 'type' => 'image',
-                'lang' => 'ktp',
+                'lang' => 'general.ktp',
+                'list' => 0,
+            ],
+            'image_full' => [
+                'validate' => [
+                    'create' => 'required',
+                ],
+                'type' => 'image',
                 'list' => 0,
             ],
             'phone' => [
@@ -156,6 +164,14 @@ class DoctorClinicController extends _CrudController
                 ],
                 'type' => 'email',
             ],
+            'password' => [
+                'validate' => [
+                    'create' => 'required',
+                ],
+                'type' => 'password',
+                'edit' => 0,
+                'show' => 0,
+            ],
             'status' => [
                 'validate' => [
                     'create' => 'required',
@@ -165,23 +181,10 @@ class DoctorClinicController extends _CrudController
             ]
         ]);
 
-
         parent::__construct(
             $request, 'general.doctor_clinic', 'doctor_clinic', 'V1\Doctor', 'doctor_clinic',
             $passingData
         );
-
-        $adminId = session()->get('admin_id');
-
-        $getAdmin = Admin::where('id', $adminId)->first();
-
-        $getUsers = Users::where('status', 80)->where('doctor',1)->where('klinik_id', $getAdmin->klinik_id)->pluck('fullname', 'id')->toArray();
-        $listUsers = [];
-        if($getUsers) {
-            foreach($getUsers as $key => $value) {
-                $listUsers[$key] = $value;
-            }
-        }
 
         $getDoctorCategory = DoctorCategory::pluck('name', 'id')->toArray();
         $listDoctorCategory = [];
@@ -201,36 +204,16 @@ class DoctorClinicController extends _CrudController
         $this->listView['edit'] = env('ADMIN_TEMPLATE').'.page.doctor_clinic.forms_edit';
         $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.doctor_clinic.forms';
         $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.doctor_clinic.list';
-
         $this->listView['schedule'] = env('ADMIN_TEMPLATE').'.page.doctor_clinic.schedule';
+        $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.doctor_clinic.list_button';
 
-        $this->data['listSet']['user_id'] = $listUsers;
         $this->data['listSet']['service_id'] = $service_id;
         $this->data['listSet']['doctor_category_id'] = $listDoctorCategory;
         $this->data['listSet']['gender'] = get_list_gender();
         $this->data['listSet']['status'] = get_list_active_inactive();
         $this->data['listSet']['weekday'] = get_list_weekday();
         $this->data['listSet']['schedule_type'] = get_list_schedule_type();
-        $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.doctor_clinic.list_button';
 
-    }
-
-    public function create()
-    {
-        $this->callPermission();
-
-        $data = $this->data;
-        $getProvince = Province::orderBy('name', 'ASC')->get();
-
-
-        $data['viewType'] = 'create';
-        $data['formsTitle'] = __('general.title_create', ['field' => $data['thisLabel']]);
-        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
-        $data['passing1'] = collectPassingData($this->passingUser, $data['viewType']);
-        $data['province'] = $getProvince;
-
-
-        return view($this->listView[$data['viewType']], $data);
     }
 
     public function dataTable()
@@ -295,12 +278,120 @@ class DoctorClinicController extends _CrudController
             ->make(true);
     }
 
-    public function edit($id){
+    public function create()
+    {
         $this->callPermission();
 
+        $data = $this->data;
+        $getProvince = Province::orderBy('name', 'ASC')->get();
+
+
+        $data['viewType'] = 'create';
+        $data['formsTitle'] = __('general.title_create', ['field' => $data['thisLabel']]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['passing1'] = collectPassingData($this->passingUser, $data['viewType']);
+        $data['province'] = $getProvince;
+
+
+        return view($this->listView[$data['viewType']], $data);
+    }
+
+    public function show($id)
+    {
+        $clinicId = session()->get('admin_clinic_id');
+
+        $this->callPermission();
+
+        $now = Carbon::now();
+
+        $listSetCarbonDay = get_list_carbon_day();
+        $weekStartDate = $now->startOfWeek()->format('Y-m-d');
+        $weekEndDate = $now->endOfWeek()->format('Y-m-d');
 
         $getData = $this->crud->show($id);
         if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+        $getDataUser = Users::where('id', $getData->user_id)->where('klinik_id', $clinicId)->first();
+        if (!$getDataUser) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $getScheduleData  = DoctorSchedule::selectRaw('doctor_schedule.id, doctor_schedule.date_available,
+         doctor_schedule.time_start, doctor_schedule.time_end, doctor_schedule.book, doctor_schedule.weekday,
+         B.fullname AS doctor_id, C.name AS service_id')
+            ->where('doctor_schedule.doctor_id', '=', $id)
+            ->leftJoin('users AS B', 'B.id', '=', 'doctor_schedule.doctor_id')
+            ->leftJoin('service AS C', 'C.id', '=', 'doctor_schedule.service_id')->get();
+
+        $temp = [];
+        foreach($getScheduleData as $schedule) {
+            if(($weekStartDate <= $schedule->date_available && $weekEndDate >= $schedule->date_available) || $schedule->date_available == null) {
+                $found = 0;
+                if ($schedule->weekday > 0) {
+                    $now = Carbon::now();
+                    $weekDayDate = $now->startOfWeek($listSetCarbonDay[$schedule->weekday])->format('Y-m-d');
+
+                    $findSchedule = DoctorSchedule::where('doctor_schedule.doctor_id', '=', $id)
+                        ->where('date_available', $weekDayDate)
+                        ->get();
+
+                    if (count($findSchedule) > 0) {
+                        $found = 1;
+                    }
+                }
+
+                if ($schedule->date_available != null) {
+                    $schedule->weekday = Carbon::parse($schedule->date_available)->dayOfWeekIso;
+                }
+
+                if ($found == 0) {
+                    $temp[] = $schedule;
+                }
+            }
+        }
+
+        $getScheduleData = $temp;
+
+        $data = $this->data;
+
+        $getDoctorService = DoctorService::where('doctor_id',$id)->get();
+
+        $getProvince = Province::where('id', $getDataUser->province_id)->first();
+        $getCity = City::where('id',$getDataUser->city_id)->first();
+        $getDistrict = District::where('id', $getDataUser->district_id)->first();
+        $getSubDistrict = SubDistrict::where('id', $getDataUser->sub_district_id)->first();
+
+        $data['viewType'] = 'show';
+        $data['formsTitle'] = __('general.title_show', ['field' => $data['thisLabel']]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['passing1'] = collectPassingData($this->passingUser, $data['viewType']);
+        $data['province'] = $getProvince;
+        $data['data'] = $getData;
+        $data['dataUser'] = $getDataUser;
+        $data['doctorService'] = $getDoctorService;
+        $data['getScheduleData'] = $getScheduleData;
+        $data['province'] = $getProvince;
+        $data['city'] = $getCity;
+        $data['district'] = $getDistrict;
+        $data['subDistrict'] = $getSubDistrict;
+        $data['getListAvailable'] = get_list_available();
+
+        return view($this->listView[$data['viewType']], $data);
+    }
+
+    public function edit($id){
+        $clinicId = session()->get('admin_clinic_id');
+
+        $this->callPermission();
+
+        $getData = $this->crud->show($id);
+
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+        $getDataUser = Users::where('id', $getData->user_id)->where('klinik_id', $clinicId)->first();
+        if (!$getDataUser) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
 
@@ -308,7 +399,6 @@ class DoctorClinicController extends _CrudController
         $getProvince = Province::orderBy('name', 'ASC')->get();
 
         $getDoctorService = DoctorService::where('doctor_id',$id)->get();
-        $getDataUser = Users::where('id', $getData->user_id)->first();
 
         $data['thisLabel'] = __('general.doctor');
         $data['viewType'] = 'edit';
@@ -342,47 +432,6 @@ class DoctorClinicController extends _CrudController
 
         unset($getListCollectData['service_id']);
 
-        //validate data2
-        $validate = $this->setValidateData($getListCollectData2, $viewType);
-        if (count($validate) > 0)
-        {
-            $data2 = $this->validate($this->request, $validate);
-        }
-
-        unset($data2['upload_ktp_full']);
-
-        $dokument = $this->request->file('upload_ktp_full');
-        if ($dokument) {
-            if ($dokument->getError() != 1) {
-
-                $getFileName = $dokument->getClientOriginalName();
-                $ext = explode('.', $getFileName);
-                $ext = end($ext);
-                $destinationPath = 'synapsaapps/users';
-                if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
-                    $dokumentImage = Storage::putFile($destinationPath, $dokument);
-                }
-            }
-        }
-
-        $data2['klinik_id'] = session()->get('admin_clinic_id');
-        $data2['province_id'] = $this->request->get('province_id');
-        $data2['city_id'] = $this->request->get('city_id');
-        $data2['district_id'] = $this->request->get('district_id');
-        $data2['sub_district_id'] = $this->request->get('sub_district_id');
-        $data2['zip_code'] = $this->request->get('zip_code');
-        $data2['address'] = $this->request->get('address');
-        $data2['address_detail'] = $this->request->get('address_detail');
-        $data2['upload_ktp'] = $dokumentImage;
-        $data2['password'] = bcrypt('123');
-        $data2['doctor'] = 1;
-
-        //dd($data2);
-        if($data2){
-            $user = Users::create($data2);
-        }
-
-        //validate dataServive
         $validate = $this->setValidateData($getListCollectData, $viewType);
         if (count($validate) > 0)
         {
@@ -395,20 +444,85 @@ class DoctorClinicController extends _CrudController
             }
         }
 
+        $validate = $this->setValidateData($getListCollectData2, $viewType);
+        if (count($validate) > 0)
+        {
+            $data2 = $this->validate($this->request, $validate);
+        }
+
+        unset($data2['upload_ktp_full']);
+        unset($data2['image_full']);
+
+        $document = $this->request->file('upload_ktp_full');
+        $documentKTP = '';
+        if ($document) {
+            if ($document->getError() != 1) {
+
+                $getFileName = $document->getClientOriginalName();
+                $ext = explode('.', $getFileName);
+                $ext = end($ext);
+                $destinationPath = 'synapsaapps/users';
+                if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
+                    $documentKTP = Storage::putFile($destinationPath, $document);
+                }
+            }
+        }
+
+        $document = $this->request->file('image_full');
+        $documentImage = '';
+        if ($document) {
+            if ($document->getError() != 1) {
+
+                $getFileName = $document->getClientOriginalName();
+                $ext = explode('.', $getFileName);
+                $ext = end($ext);
+                $destinationPath = 'synapsaapps/users';
+                if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
+                    $documentImage = Storage::putFile($destinationPath, $document);
+                }
+            }
+        }
+
+        $data2['klinik_id'] = session()->get('admin_clinic_id');
+        $data2['province_id'] = $this->request->get('province_id');
+        $data2['city_id'] = $this->request->get('city_id');
+        $data2['district_id'] = $this->request->get('district_id');
+        $data2['sub_district_id'] = $this->request->get('sub_district_id');
+        $data2['zip_code'] = $this->request->get('zip_code');
+        $data2['address'] = $this->request->get('address');
+        $data2['address_detail'] = $this->request->get('address_detail');
+        $data2['upload_ktp'] = $documentKTP;
+        $data2['image'] = $documentImage;
+        $data2['password'] = bcrypt($data2['password']);
+        $data2['doctor'] = 1;
+
+        $user = Users::create($data2);
+
+        UsersAddress::create([
+            'user_id' => $user->id,
+            'province_id' => $data2['province_id'],
+            'city_id' => $data2['city_id'],
+            'district_id' => $data2['district_id'],
+            'sub_district_id' => $data2['sub_district_id'],
+            'address_name' => $data2['fullname'],
+            'address' => $data2['address'],
+            'address_detail' => $data2['address_detail'],
+            'zip_code' => $data2['zip_code']
+        ]);
+
         $data = $this->getCollectedData($getListCollectData, $viewType, $data);
 
         $data['user_id'] = $user->id;
 
         $getData = $this->crud->store($data);
         $serviceId = $this->request->get('service_id');
-        $price = clear_money_format($this->request->get('price'));
+        $price = $this->request->get('price');
 
         foreach($serviceId as $key => $list){
-
             DoctorService::create([
                 'doctor_id' => $getData->id,
                 'service_id' => $list,
-                'price' => $price[$key] != null ? $price[$key] : 0
+                'price' => $price[$key] != null ? clear_money_format($price[$key]) : 0
             ]);
         }
 
@@ -425,6 +539,7 @@ class DoctorClinicController extends _CrudController
     }
 
     public function update($id){
+        $clinicId = session()->get('admin_clinic_id');
         $this->callPermission();
 
         $viewType = 'edit';
@@ -435,7 +550,10 @@ class DoctorClinicController extends _CrudController
         }
 
         //update user dan validate user
-        $getDataUser = Users::where('id', $getData->user_id)->first();
+        $getDataUser = Users::where('id', $getData->user_id)->where('klinik_id', $clinicId)->first();
+        if (!$getDataUser) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
         $getListCollectData2 = collectPassingData($this->passingUser, $viewType);
 
         unset($getListCollectData2['upload_ktp_full']);
@@ -452,21 +570,21 @@ class DoctorClinicController extends _CrudController
             }
         }
 
-        $dokument = $this->request->file('upload_ktp_full');
-        if ($dokument) {
-            if ($dokument->getError() != 1) {
+        $document = $this->request->file('upload_ktp_full');
+        if ($document) {
+            if ($document->getError() != 1) {
 
-                $getFileName = $dokument->getClientOriginalName();
+                $getFileName = $document->getClientOriginalName();
                 $ext = explode('.', $getFileName);
                 $ext = end($ext);
                 $destinationPath = 'synapsaapps/users';
                 if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'svg', 'gif'])) {
-                    $dokumentImage = Storage::putFile($destinationPath, $dokument);
+                    $documentImage = Storage::putFile($destinationPath, $document);
                 }
             }
         }else{
 
-            $dokumentImage = $getDataUser->upload_ktp;
+            $documentImage = $getDataUser->upload_ktp;
 
         }
 
@@ -477,7 +595,7 @@ class DoctorClinicController extends _CrudController
         $data2['zip_code'] = $this->request->get('zip_code');
         $data2['address'] = $this->request->get('address');
         $data2['address_detail'] = $this->request->get('address_detail');
-        $data2['upload_ktp'] = $dokumentImage;
+        $data2['upload_ktp'] = $documentImage;
         $data2['doctor'] = 1;
 
         //dd($data2);
@@ -532,90 +650,15 @@ class DoctorClinicController extends _CrudController
             return redirect()->route($this->rootRoute.'.' . $this->route . '.show', $id);
         }
     }
-    public function show($id)
-    {
-        $this->callPermission();
-
-        $now = Carbon::now();
-
-        $listSetCarbonDay = get_list_carbon_day();
-        $weekStartDate = $now->startOfWeek()->format('Y-m-d');
-        $weekEndDate = $now->endOfWeek()->format('Y-m-d');
-
-        $getData = $this->crud->show($id);
-        if (!$getData) {
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
-        }
-
-        $getScheduleData  = DoctorSchedule::selectRaw('doctor_schedule.id, doctor_schedule.date_available,
-         doctor_schedule.time_start, doctor_schedule.time_end, doctor_schedule.book, doctor_schedule.weekday,
-         B.fullname AS doctor_id, C.name AS service_id')
-            ->where('doctor_schedule.doctor_id', '=', $id)
-            ->leftJoin('users AS B', 'B.id', '=', 'doctor_schedule.doctor_id')
-            ->leftJoin('service AS C', 'C.id', '=', 'doctor_schedule.service_id')->get();
-
-        $temp = [];
-        foreach($getScheduleData as $schedule) {
-            if(($weekStartDate <= $schedule->date_available && $weekEndDate >= $schedule->date_available) || $schedule->date_available == null) {
-                $found = 0;
-                if ($schedule->weekday > 0) {
-                    $now = Carbon::now();
-                    $weekDayDate = $now->startOfWeek($listSetCarbonDay[$schedule->weekday])->format('Y-m-d');
-
-                    $findSchedule = DoctorSchedule::where('doctor_schedule.doctor_id', '=', $id)
-                        ->where('date_available', $weekDayDate)
-                        ->get();
-
-                    if (count($findSchedule) > 0) {
-                        $found = 1;
-                    }
-                }
-
-                if ($schedule->date_available != null) {
-                    $schedule->weekday = Carbon::parse($schedule->date_available)->dayOfWeekIso;
-                }
-
-                if ($found == 0) {
-                    $temp[] = $schedule;
-                }
-            }
-        }
-
-        $getScheduleData = $temp;
-
-        $data = $this->data;
-
-        $getDataUser = Users::where('id', $getData->user_id)->first();
-        $getDoctorService = DoctorService::where('doctor_id',$id)->get();
-
-        $getProvince = Province::where('id', $getDataUser->province_id)->first();
-        $getCity = City::where('id',$getDataUser->city_id)->first();
-        $getDistrict = District::where('id', $getDataUser->district_id)->first();
-        $getSubDistrict = SubDistrict::where('id', $getDataUser->sub_district_id)->first();
-
-        $data['viewType'] = 'show';
-        $data['formsTitle'] = __('general.title_show', ['field' => $data['thisLabel']]);
-        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
-        $data['passing1'] = collectPassingData($this->passingUser, $data['viewType']);
-        $data['province'] = $getProvince;
-        $data['data'] = $getData;
-        $data['dataUser'] = $getDataUser;
-        $data['doctorService'] = $getDoctorService;
-        $data['getScheduleData'] = $getScheduleData;
-        $data['province'] = $getProvince;
-        $data['city'] = $getCity;
-        $data['district'] = $getDistrict;
-        $data['subDistrict'] = $getSubDistrict;
-        $data['getListAvailable'] = get_list_available();
-
-        return view($this->listView[$data['viewType']], $data);
-    }
 
     public function schedule($id)
     {
+        $clinicId = session()->get('admin_clinic_id');
+
         $this->callPermission();
 
-        $getDoctor = Doctor::selectRaw('doctor.id, fullname AS name')->join('users', 'users.id', 'doctor.user_id')->where('doctor.id', $id)->first();
+        $getDoctor = Doctor::selectRaw('doctor.id, fullname AS name')->join('users', 'users.id', 'doctor.user_id')
+            ->where('klinik_id', $clinicId)->where('doctor.id', $id)->first();
         if (!$getDoctor) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
@@ -743,6 +786,18 @@ class DoctorClinicController extends _CrudController
 
     public function storeSchedule($id)
     {
+        $clinicId = session()->get('admin_clinic_id');
+        $getDoctor = Doctor::selectRaw('doctor.id, fullname AS name')->join('users', 'users.id', 'doctor.user_id')
+            ->where('klinik_id', $clinicId)->where('doctor.id', $id)->first();
+        if (!$getDoctor) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $getData = $this->crud->show($id);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
         $this->callPermission();
 
         $this->validate($this->request, [
@@ -808,6 +863,18 @@ class DoctorClinicController extends _CrudController
 
     public function updateSchedule($id, $scheduleId)
     {
+        $clinicId = session()->get('admin_clinic_id');
+        $getDoctor = Doctor::selectRaw('doctor.id, fullname AS name')->join('users', 'users.id', 'doctor.user_id')
+            ->where('klinik_id', $clinicId)->where('doctor.id', $id)->first();
+        if (!$getDoctor) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $getData = $this->crud->show($id);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
         $this->callPermission();
 
         $this->validate($this->request, [
@@ -879,6 +946,16 @@ class DoctorClinicController extends _CrudController
 
     public function destroySchedule($id, $scheduleId)
     {
+        $clinicId = session()->get('admin_clinic_id');
+        $getData = $this->crud->show($id);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+        $getDataUser = Users::where('id', $getData->user_id)->where('klinik_id', $clinicId)->first();
+        if (!$getDataUser) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
         $this->callPermission();
 
         $getData = DoctorSchedule::where('doctor_id', $id)->where('id', $scheduleId)->first();

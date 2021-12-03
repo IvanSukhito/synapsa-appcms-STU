@@ -136,7 +136,7 @@ class AppointmentController extends Controller
 
         if ($type == 1) {
             $doctorLogic = new DoctorLogic();
-            $data = $doctorLogic->doctorInfo($getAppointment->doctor_id, $getAppointment->service_id);
+            $data = $doctorLogic->doctorInfo($user->klinik_id, $getAppointment->doctor_id, $getAppointment->service_id);
             if (!$data) {
                 return response()->json([
                     'success' => 0,

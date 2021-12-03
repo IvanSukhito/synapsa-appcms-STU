@@ -135,26 +135,30 @@ if ( ! function_exists('generateNewCode')) {
 }
 
 if (! function_exists('generatePassingData')) {
-    function generatePassingData($data)
+    /**
+     * @param $data
+     * @return array
+     */
+    function generatePassingData($data): array
     {
         $result = [];
         foreach ($data as $fieldName => $fieldValue) {
             $result[$fieldName] = [
-                'create' => isset($fieldValue['create']) ? $fieldValue['create'] : true,
-                'edit' => isset($fieldValue['edit']) ? $fieldValue['edit'] : true,
-                'show' => isset($fieldValue['show']) ? $fieldValue['show'] : true,
-                'list' => isset($fieldValue['list']) ? $fieldValue['list'] : true,
-                'type' => isset($fieldValue['type']) ? $fieldValue['type'] : 'text',
-                'lang' => isset($fieldValue['lang']) ? $fieldValue['lang'] : 'general.'.$fieldName,
-                'custom' => isset($fieldValue['custom']) ? $fieldValue['custom'] : '',
-                'extra' => isset($fieldValue['extra']) ? $fieldValue['extra'] : [],
+                'create' => $fieldValue['create'] ?? true,
+                'edit' => $fieldValue['edit'] ?? true,
+                'show' => $fieldValue['show'] ?? true,
+                'list' => $fieldValue['list'] ?? true,
+                'type' => $fieldValue['type'] ?? 'text',
+                'lang' => $fieldValue['lang'] ?? 'general.' . $fieldName,
+                'custom' => $fieldValue['custom'] ?? '',
+                'extra' => $fieldValue['extra'] ?? [],
                 'validate' => [
-                    'create' => isset($fieldValue['validate']['create']) ? $fieldValue['validate']['create'] : '',
-                    'edit' => isset($fieldValue['validate']['edit']) ? $fieldValue['validate']['edit'] : ''
+                    'create' => $fieldValue['validate']['create'] ?? '',
+                    'edit' => $fieldValue['validate']['edit'] ?? ''
                 ],
-                'value' => isset($fieldValue['value']) ? $fieldValue['value'] : '',
-                'path' => isset($fieldValue['path']) ? $fieldValue['path'] : '',
-                'message' => isset($fieldValue['message']) ? $fieldValue['message'] : ''
+                'value' => $fieldValue['value'] ?? '',
+                'path' => $fieldValue['path'] ?? '',
+                'message' => $fieldValue['message'] ?? ''
             ];
         }
         return $result;
