@@ -1,9 +1,13 @@
 <?php
 $klinik_id = app()->request->get('filter_klinik_id');
+$category = app()->request->get('filter_category');
 
 $params = [];
 if ($klinik_id) {
     $params['filter_klinik_id'] = $klinik_id;
+}
+if ($category) {
+    $params['filter_category'] = $category;
 }
 ?>
 @extends(env('ADMIN_TEMPLATE').'._base.layout')
@@ -55,6 +59,10 @@ if ($klinik_id) {
                                 <div class="col-md-4">
                                     <label for="filter_klinik_id">{{ __('general.klinik') }}</label>
                                     {{ Form::select('filter_klinik_id', $listSet['klinik_id'], old('filter_klinik_id', $klinik_id), ['class' => 'form-control select2', 'autocomplete' => 'off']) }}
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="filter_category">{{ __('general.product_category') }}</label>
+                                    {{ Form::select('filter_category', $listSet['filter_category'], old('filter_category', $category), ['class' => 'form-control select2', 'autocomplete' => 'off']) }}
                                 </div>
                             </div>
 

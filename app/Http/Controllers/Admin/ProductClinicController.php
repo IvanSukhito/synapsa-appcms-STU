@@ -37,6 +37,7 @@ class ProductClinicController extends _CrudController
                 ],
                 'lang' => 'general.product-category',
                 'type' => 'select2',
+                'custom' => ', name: "product_category.name"'
             ],
             'name' => [
                 'validate' => [
@@ -194,7 +195,17 @@ class ProductClinicController extends _CrudController
                 $listTypeObat[$key] = $value;
             }
         }
+
+        $listCategoryFilter = [0 => 'All'];
+        $getCategory = ProductCategory::where('status', 80)->pluck('name', 'id')->toArray();
+        if($getCategory) {
+            foreach($getCategory as $key => $value) {
+                $listCategoryFilter[$key] = $value;
+            }
+        }
+
         $this->data['listSet']['product_category_id'] = $listCategory;
+        $this->data['listSet']['filter_category'] = $listCategoryFilter;
         $this->data['listSet']['status'] = get_list_active_inactive();
         $this->data['listSet']['stock_flag'] = get_list_stock_flag();
         $this->data['listSet']['type'] = $listTypeObat;
@@ -546,20 +557,13 @@ class ProductClinicController extends _CrudController
         $getAdmin = Admin::where('id', $adminId)->first();
 
         $dataTables = new DataTables();
-        $builder = $this->model::query()->selectRaw('product.id, product.name as name, product_category.name as product_category_id, price, stock, product.status as status, type')
+        $builder = $this->model::query()->selectRaw('product.id, product.name AS name, product_category.name AS
+        product_category_id, price, stock, product.status as status, type')
             ->leftJoin('product_category','product_category.id', '=', 'product.product_category_id')
             ->where('product.klinik_id', $getAdmin->klinik_id);
 
-        if ($this->request->get('status') && $this->request->get('status') != 0) {
-            $builder = $builder->where('appointment_lab.status', $this->request->get('status'));
-        }
-        if ($this->request->get('daterange')) {
-            $getDateRange = $this->request->get('daterange');
-            $dateSplit = explode(' | ', $getDateRange);
-            $dateStart = date('Y-m-d 00:00:00', strtotime($dateSplit[0]));
-            $dateEnd = isset($dateSplit[1]) ? date('Y-m-d 23:59:59', strtotime($dateSplit[1])) : date('Y-m-d 23:59:59', strtotime($dateSplit[0]));
-
-            $builder = $builder->whereBetween('appointment_lab.created_at', [$dateStart, $dateEnd]);
+        if ($this->request->get('filter_category') && $this->request->get('filter_category') != 0) {
+            $builder = $builder->where('product_category_id', $this->request->get('filter_category'));
         }
 
         $dataTables = $dataTables->eloquent($builder)
