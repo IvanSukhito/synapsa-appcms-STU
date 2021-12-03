@@ -1,3 +1,14 @@
+<?php
+$klinik_id = app()->request->get('klinik_id');
+
+$params = [];
+if ($klinik_id) {
+    $params['klinik_id'] = $klinik_id;
+}
+
+?>
+
+
  @extends(env('ADMIN_TEMPLATE').'._base.layout')
 
 @section('title', __('general.title_home', ['field' => $thisLabel]))
@@ -37,6 +48,33 @@
                     </a>
                 </div>
                 @endif
+                    <form method="get">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label for="klinik_id">{{ __('general.klinik') }}</label>
+                                    {{ Form::select('klinik_id', $listSet['klinik_id'], old('klinik_id', $klinik_id), ['class' => 'form-control select2', 'autocomplete' => 'off']) }}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <br/>
+                                    <button class="mb-1 btn btn-primary btn-sm" type="submit"
+                                            title="@lang('general.filter')">
+                                        <i></i>
+                                        @lang('general.filter')
+                                    </button>
+                                    <a href="<?php echo route('admin.' . $thisRoute . '.index') ?>" class="mb-1 btn btn-warning btn-sm" type="submit"
+                                       title="@lang('general.reset')">
+                                        <i></i>
+                                        @lang('general.reset')
+                                    </a>
+
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
                 <!-- /.card-header -->
                 <div class="card-body">
                     <table class="table table-bordered table-striped" id="data1">
@@ -60,7 +98,7 @@
             scrollX: true,
             // pageLength: 25,
             // lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
-            ajax: '{{ route('admin.' . $thisRoute . '.dataTable') }}',
+            ajax: '{{ route('admin.' . $thisRoute . '.dataTable') }}{!! '?' . http_build_query($params) !!}',
             aaSorting: [ {!! isset($listAttribute['aaSorting']) ? $listAttribute['aaSorting'] : "[0,'desc']" !!}],
             columns: [
                 {"data": 'DT_RowIndex', title: "{{ __('general.nomor') }}", orderable: false, searchable: false},
