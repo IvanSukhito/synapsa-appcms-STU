@@ -289,6 +289,11 @@ else {
                        class="mb-2 mr-2 btn btn-warning" title="{{ __('general.schedule') }}">
                         <i class="fa fa-plus"></i><span class=""> {{ __('general.schedule') }}</span>
                     </a>
+                    <a href="{{ route('admin.' . $thisRoute . '.forgotPassword', $query->{$masterId}) }}"
+                       class="mb-2 mr-2 btn btn-outline-info btn-sm" title="@lang('general.password')">
+                        <i class="fa fa-lock"></i>
+                        <span class="d-none d-md-inline"> @lang('general.password')</span>
+                    </a>
                 @endif
                 <a href="<?php echo route('admin.' . $thisRoute . '.index') ?>" class="mb-2 mr-2 btn btn-warning"
                    title="{{ __('general.back') }}">
