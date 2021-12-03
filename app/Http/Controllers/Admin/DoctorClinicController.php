@@ -1341,6 +1341,8 @@ class DoctorClinicController extends _CrudController
     }
 
     public function forgotPassword($id){
+        $clinicId = session()->get('admin_clinic_id');
+
         $this->callPermission();
 
         $getData = $this->crud->show($id,[
@@ -1349,7 +1351,10 @@ class DoctorClinicController extends _CrudController
         if (!$getData) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
-
+        $getDataUser = Users::where('id', $getData->user_id)->where('klinik_id', $clinicId)->first();
+        if (!$getDataUser) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
         $data = $this->data;
 
         $getUser = Users::where('id', $getData->user_id)->first();
