@@ -206,6 +206,16 @@ class TransactionHistoryLogic
                     ->groupByRaw('transaction_details.id, transaction_details.schedule_id, transaction_details.lab_id,
                         transaction_details.lab_name, transaction_details.lab_price, transaction_details.extra_info')
                     ->get();
+
+                    $temp = [];
+                    foreach ($getDetail as $item) {
+                        $item = $item->toArray();
+                        $extraInfo = json_decode($item['extra_info'], true);
+                        $item['date'] = $extraInfo['date'] ?? $item['date'];
+                        $temp[] = $item;
+                    }
+                    $getDetail = $temp;
+
                     $setType = 'lab';
                     break;
 
