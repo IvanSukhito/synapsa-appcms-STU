@@ -195,13 +195,16 @@ class TransactionHistoryLogic
                 case 3 : $getDetail = $getTransaction->getTransactionDetails()->selectRaw('transaction_details.id,
                         transaction_details.schedule_id, transaction_details.lab_id, transaction_details.lab_name, 
                         transaction_details.lab_price, transaction_details.extra_info, 
-                        appointment_lab.date, appointment_lab.time_start, appointment_lab.time_end,
-                        lab.image, CONCAT("'.env('OSS_URL').'/'.'", lab.image) AS image_full, 
-                        CONCAT("'.env('OSS_URL').'/'.'", payment.icon_img) AS payment_icon')
+                        MAX(appointment_lab.date) AS date, MAX(appointment_lab.time_start) AS time_start, 
+                        MAX(appointment_lab.time_end) AS time_end,
+                        MAX(lab.image) AS image, CONCAT("'.env('OSS_URL').'/'.'", MAX(lab.image)) AS image_full, 
+                        CONCAT("'.env('OSS_URL').'/'.'", MAX(payment.icon_img)) AS payment_icon')
                     ->join('lab', 'lab.id', '=', 'transaction_details.lab_id', 'LEFT')
                     ->join('transaction','transaction.id','=','transaction_details.transaction_id', 'LEFT')
                     ->join('appointment_lab','appointment_lab.transaction_id','=','appointment_lab.transaction_id', 'LEFT')
                     ->join('payment', 'payment.id', '=', 'transaction.payment_id')
+                    ->groupByRaw('transaction_details.id, transaction_details.schedule_id, transaction_details.lab_id,
+                        transaction_details.lab_name, transaction_details.lab_price, transaction_details.extra_info')
                     ->get();
                     $setType = 'lab';
                     break;
