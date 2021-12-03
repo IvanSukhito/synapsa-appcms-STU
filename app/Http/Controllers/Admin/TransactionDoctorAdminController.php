@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
+use App\Codes\Logic\DoctorLogic;
 use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Admin;
 use App\Codes\Models\V1\AppointmentLab;
@@ -311,5 +312,67 @@ class TransactionDoctorAdminController extends _CrudController
         $data['transaction'] = $getTransaction;
 
         return view($this->listView[$data['viewType']], $data);
+    }
+    public function approve($id){
+
+        $this->callPermission();
+
+        $getData = Transaction::where('id', $id)->first();
+
+        if(!$getData){
+            session()->flash('message', __('general.data_not_found'));
+            session()->flash('message_alert', 1);
+            return redirect()->route('admin.' . $this->route . '.index');
+        }
+
+        $getType = $getData->type_service;
+        $getTransaction = $getData;
+
+        if ($getType == 2) {
+            $getTransaction->status = 81;
+            $getTransaction->save();
+
+            $transactionId = $getTransaction->id;
+            $getDetail = TransactionDetails::where('transaction_id', $transactionId)->first();
+            if ($getDetail) {
+                $doctorLogic = new DoctorLogic();
+                $doctorLogic->appointmentSuccess([$transactionId]);
+            }
+        }
+
+        if($this->request->ajax()){
+            return response()->json(['result' => 1, 'message' => __('general.success_add')]);
+        }
+        else {
+            session()->flash('message', __('general.success_approve_', ['field' => $this->data['thisLabel']]));
+            session()->flash('message_alert', 2);
+            return redirect()->route('admin.' . $this->route . '.index');
+        }
+    }
+
+    public function reject($id){
+
+        $this->callPermission();
+
+
+        $getData = Transaction::where('id', $id)->first();
+
+        if(!$getData){
+            session()->flash('message', __('general.data_not_found'));
+            session()->flash('message_alert', 1);
+            return redirect()->route('admin.' . $this->route . '.index');
+        }
+
+        $getData->status = 99;
+        $getData->save();
+
+        if($this->request->ajax()){
+            return response()->json(['result' => 1, 'message' => __('general.success_reject')]);
+        }
+        else {
+            session()->flash('message', __('general.success_reject_', ['field' => $this->data['thisLabel']]));
+            session()->flash('message_alert', 2);
+            return redirect()->route('admin.' . $this->route . '.index');
+        }
     }
 }
