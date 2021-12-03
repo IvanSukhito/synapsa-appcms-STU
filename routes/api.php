@@ -179,6 +179,7 @@ Route::get('search-province', ['uses' => 'App\Http\Controllers\API\V1\GeneralCon
 Route::get('search-city', ['uses' => 'App\Http\Controllers\API\V1\GeneralController@searchCity'])->name('api.searchCity');
 Route::get('search-district', ['uses' => 'App\Http\Controllers\API\V1\GeneralController@searchDistrict'])->name('api.searchDistrict');
 Route::get('search-subdistrict', ['uses' => 'App\Http\Controllers\API\V1\GeneralController@searchSubdistrict'])->name('api.searchSubdistrict');
+Route::get('page', ['uses' => 'App\Http\Controllers\API\V1\GeneralController@getPage'])->name('api.getPage');
 
 Route::post('forgot-password', ['uses' => 'App\Http\Controllers\API\V1\GeneralController@forgotPassword'])->name('api.forgotPassword');
 

@@ -8,6 +8,7 @@ use App\Codes\Models\Settings;
 use App\Codes\Models\V1\City;
 use App\Codes\Models\V1\District;
 use App\Codes\Models\V1\Klinik;
+use App\Codes\Models\V1\Page;
 use App\Codes\Models\V1\Province;
 use App\Codes\Models\V1\SubDistrict;
 use App\Codes\Models\V1\Users;
@@ -474,6 +475,21 @@ class GeneralController extends Controller
             'valid_version' => $getVersion,
             'your_version' => $version,
             'url' => $urlPath
+        ]);
+
+    }
+
+    public function getPage(){
+
+        $limit = 10;
+
+        $data = Page::orderBy('id','DESC')->paginate($limit);
+
+
+        return response()->json([
+            'success' => 1,
+            'data' => $data,
+
         ]);
 
     }
