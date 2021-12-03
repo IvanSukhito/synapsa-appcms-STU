@@ -206,6 +206,8 @@ class DoctorClinicController extends _CrudController
         $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.doctor_clinic.list';
         $this->listView['schedule'] = env('ADMIN_TEMPLATE').'.page.doctor_clinic.schedule';
         $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.doctor_clinic.list_button';
+        $this->listView['forgotPassword'] = env('ADMIN_TEMPLATE').'.page.doctor.forms_password';
+
 
         $this->data['listSet']['service_id'] = $service_id;
         $this->data['listSet']['doctor_category_id'] = $listDoctorCategory;
@@ -1335,6 +1337,81 @@ class DoctorClinicController extends _CrudController
             session()->flash('message', __('general.success_add_', ['field' => $this->data['thisLabel']]));
             session()->flash('message_alert', 2);
             return redirect()->route($this->rootRoute.'.' . $this->route . '.schedule', $id);
+        }
+    }
+
+    public function forgotPassword($id){
+        $this->callPermission();
+
+        $getData = $this->crud->show($id,[
+            'id' => $id,
+        ]);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $data = $this->data;
+
+        $getUser = Users::where('id', $getData->user_id)->first();
+
+        $data['viewType'] = 'edit';
+        $data['thisLabel'] = 'Password';
+        $data['formsTitle'] = __('general.title_edit', ['field' => $data['thisLabel'].' '.$getUser->fullname]);
+        $data['passing'] = generatePassingData([
+
+            'password' => [
+                'type' => 'password',
+                'validate' => [
+                    'edit' => 'required|confirmed'
+                ]
+            ],
+            'password_confirmation' => [
+                'type' => 'password',
+                'validate' => [
+                    'edit' => 'required'
+                ]
+            ]
+        ]);
+        $data['data'] = $getData;
+
+        return view($this->listView['forgotPassword'], $data);
+    }
+
+    public function updatePassword($id){
+
+        $this->callPermission();
+
+        $getData = $this->crud->show($id,[
+            'id' => $id,
+        ]);
+        if (!$getData) {
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
+        }
+
+        $getUser = Users::where('id', $getData->user_id)->first();
+
+        $data = $this->validate($this->request, [
+            'password' => 'required',
+            'password_confirmation' => 'required'
+        ]);
+
+        if($data['password'] != $data['password_confirmation']){
+            return redirect()->back()->withInput()->withErrors(
+                [
+                    'password' => __('general.password_confirmation_different')
+                ]
+            );
+        }
+        $getUser->password = app('hash')->make($data['password']);
+        $getUser->save();
+
+        if($this->request->ajax()){
+            return response()->json(['result' => 1, 'message' => __('general.success_add_', ['field' => $this->data['thisLabel']])]);
+        }
+        else {
+            session()->flash('message', __('general.success_change_password'));
+            session()->flash('message_alert', 2);
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
     }
 
