@@ -100,6 +100,9 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                     case 'appointment-nurse':
                     case 'transaction-product':
                     case 'transaction-lab':
+                    case 'transaction-lab-admin':
+                    case 'transaction-doctor-admin':
+                    case 'transaction-product-admin':
                         $router->get($linkName . '/{id}/approve',   $controller.'@approve')->name('admin.' . $linkName . '.approve');
                         $router->get($linkName . '/{id}/reject',   $controller.'@reject')->name('admin.' . $linkName . '.reject');
                         break;

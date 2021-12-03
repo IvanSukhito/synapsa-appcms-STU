@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
+use App\Codes\Logic\LabLogic;
 use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Admin;
 use App\Codes\Models\V1\AppointmentLab;
@@ -289,6 +290,82 @@ class TransactionLabAdminController extends _CrudController
         $data['transaction'] = $getTransaction;
 
         return view($this->listView[$data['viewType']], $data);
+    }
+
+    public function approve($id){
+
+        $this->callPermission();
+
+
+        $getData = Transaction::where('id', $id)->first();
+
+        if(!$getData){
+            session()->flash('message', __('general.data_not_found'));
+            session()->flash('message_alert', 1);
+            return redirect()->route('admin.' . $this->route . '.index');
+        }
+
+        $getType = $getData->type_service;
+        $getTransaction = $getData;
+
+        if ($getType == 3) {
+            $getTransaction->status = 81;
+            $getTransaction->save();
+
+            $transactionId = $id;
+            $getDetails = TransactionDetails::where('transaction_id', $transactionId)->first();
+            $extraInfo = [];
+            $scheduleId = 0;
+            foreach ($getDetails as $getDetail) {
+                $extraInfo = json_decode($getDetail->extra_info, true);
+                $scheduleId = $getDetail->schedule_id;
+            }
+            if ($getDetails->count() > 0) {
+                $getDate = $extraInfo['date'] ?? '';
+                $getServiceName = $extraInfo['service_name'] ?? '';
+
+                $getUser = Users::where('id', $getTransaction->user_id)->first();
+
+                $labLogic = new LabLogic();
+                $labLogic->appointmentCreate($scheduleId, $getDate, $getUser,
+                    $getServiceName, $getTransaction, $getTransaction->code, $extraInfo, $getDetails);
+            }
+        }
+
+        if($this->request->ajax()){
+            return response()->json(['result' => 1, 'message' => __('general.success_add')]);
+        }
+        else {
+            session()->flash('message', __('general.success_approve_', ['field' => $this->data['thisLabel']]));
+            session()->flash('message_alert', 2);
+            return redirect()->route('admin.' . $this->route . '.index');
+        }
+    }
+
+    public function reject($id){
+
+        $this->callPermission();
+
+
+        $getData = Transaction::where('id', $id)->first();
+
+        if(!$getData){
+            session()->flash('message', __('general.data_not_found'));
+            session()->flash('message_alert', 1);
+            return redirect()->route('admin.' . $this->route . '.index');
+        }
+
+        $getData->status = 99;
+        $getData->save();
+
+        if($this->request->ajax()){
+            return response()->json(['result' => 1, 'message' => __('general.success_reject')]);
+        }
+        else {
+            session()->flash('message', __('general.success_reject_', ['field' => $this->data['thisLabel']]));
+            session()->flash('message_alert', 2);
+            return redirect()->route('admin.' . $this->route . '.index');
+        }
     }
 
 }

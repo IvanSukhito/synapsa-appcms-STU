@@ -658,6 +658,11 @@ if ( ! function_exists('listAvailablePermission'))
                      'appointment-nurse',
                      'clinic_info',
                      'transaction-product',
+                     'transaction-lab',
+                     'transaction-doctor',
+                     'transaction-lab-admin',
+                     'transaction-product-admin',
+                     'transaction-doctor-admin',
                      'invoice',
                      'user-clinic',
                  ] as $keyPermission) {
@@ -677,17 +682,11 @@ if ( ! function_exists('listAvailablePermission'))
         }
 
         foreach ([
-                     'transaction-lab',
-                     'transaction-doctor',
-                     'transaction-lab-admin',
-                     'transaction-product-admin',
-                     'transaction-doctor-admin',
+
                      'appointment-lab',
                      'appointment-lab-visit',
                      'appointment-lab-homecare',
                      'appointment-lab-clinic',
-                     'appointment-lab-visit-clinic',
-                     'appointment-lab-homecare-clinic',
                      'doctor-clinic-visit',
                      'doctor-clinic-telemed',
                      'doctor-clinic-homecare',
@@ -695,6 +694,8 @@ if ( ! function_exists('listAvailablePermission'))
                      'doctor-telemed',
                      'doctor-homecare',
                      'pharmacy',
+                     'appointment-lab-visit-clinic',
+                     'appointment-lab-homecare-clinic',
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [
@@ -830,6 +831,15 @@ if ( ! function_exists('listAvailablePermission'))
 
         $listPermission['transaction-doctor']['edit'][] = 'admin.transaction-doctor.approve';
         $listPermission['transaction-doctor']['edit'][] = 'admin.transaction-doctor.reject';
+
+        $listPermission['transaction-lab-admin']['edit'][] = 'admin.transaction-lab-admin.approve';
+        $listPermission['transaction-lab-admin']['edit'][] = 'admin.transaction-lab-admin.reject';
+
+        $listPermission['transaction-product-admin']['edit'][] = 'admin.transaction-product-admin.approve';
+        $listPermission['transaction-product-admin']['edit'][] = 'admin.transaction-product-admin.reject';
+
+        $listPermission['transaction-doctor-admin']['edit'][] = 'admin.transaction-doctor-admin.approve';
+        $listPermission['transaction-doctor-admin']['edit'][] = 'admin.transaction-doctor-admin.reject';
 
         $listPermission['product']['create'][] = 'admin.product.create2';
         $listPermission['product']['create'][] = 'admin.product.store2';

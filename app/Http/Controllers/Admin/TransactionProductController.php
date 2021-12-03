@@ -611,6 +611,7 @@ class TransactionProductController extends _CrudController
             return redirect()->route('admin.' . $this->route . '.index');
         }
     }
+
     public function index()
     {
         $this->callPermission();
