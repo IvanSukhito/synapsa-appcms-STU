@@ -37,12 +37,7 @@ class PageController extends _CrudController
                 'lang' => 'general.page',
             ],
             'header_image' => [
-
                 'lang' => 'general.image',
-            ],
-            'page_sub_title' => [
-                'list' => 0,
-                'lang' => 'general.sub_title',
             ],
             'content' => [
                 'list' => 0,
