@@ -38,6 +38,8 @@ class PageController extends _CrudController
             ],
             'header_image' => [
                 'lang' => 'general.image',
+                'type' => 'image',
+
             ],
             'content' => [
                 'list' => 0,
