@@ -124,11 +124,11 @@ class TransactionHistoryLogic
             transaction.category_service_id, transaction.category_service_name,
             transaction.type_service, transaction.type_service_name, transaction.user_id, transaction.status,
             MIN(lab_name) AS lab_name, MIN(lab.image) as image, CONCAT("'.env('OSS_URL').'/'.'", MIN(lab.image)) AS image_full')
-            ->join('transaction_details', function($join){
+            ->leftJoin('transaction_details', function($join){
                 $join->on('transaction_details.transaction_id','=','transaction.id')
                     ->on('transaction_details.id', '=', DB::raw("(select min(id) from transaction_details WHERE transaction_details.transaction_id = transaction.id)"));
             })
-            ->join('lab', function($join){
+            ->leftJoin('lab', function($join){
                 $join->on('lab.id','=','transaction_details.lab_id')
                     ->on('lab.id', '=', DB::raw("(select min(id) from lab WHERE lab.id = transaction_details.lab_id)"));
             })
