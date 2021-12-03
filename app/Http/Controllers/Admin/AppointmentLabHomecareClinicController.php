@@ -60,7 +60,6 @@ class AppointmentLabHomecareClinicController extends _CrudController
                 'create' => 0,
                 'edit' => 0,
                 'list' => 0,
-
             ],
             'layanan_lab' => [
                 'create' => 0,

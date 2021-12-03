@@ -24,7 +24,6 @@ class ClinicInfoController extends _CrudController
                 ],
                 'lang' => 'general.clinic',
             ],
-
             'address' => [
                 'validate' => [
                     'create' => 'required',
@@ -95,15 +94,24 @@ class ClinicInfoController extends _CrudController
 
     public function index()
     {
+        $this->callPermission();
+
         $adminClinicId = session()->get('admin_clinic_id');
 
-        //dd($adminClinicId);
         $getData = $this->crud->show($adminClinicId);
+
         if (!$getData) {
-            return redirect()->route('admin');
+            return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
 
-        return redirect()->route($this->rootRoute.'.' . $this->route . '.show', $adminClinicId);
+        $data = $this->data;
+
+        $data['viewType'] = 'show';
+        $data['formsTitle'] = __('general.title_show', ['field' => $data['thisLabel']]);
+        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
+        $data['data'] = $getData;
+
+        return view($this->listView[$data['viewType']], $data);
     }
 
     public function edit($id)
@@ -139,7 +147,7 @@ class ClinicInfoController extends _CrudController
         }
 
         $getListCollectData = collectPassingData($this->passingData, $viewType);
-        $validate = $this->setValidateData($getListCollectData, $viewType, $id);
+        $validate = $this->setValidateData($getListCollectData, $viewType, $adminClinicId);
         if (count($validate) > 0)
         {
             $data = $this->validate($this->request, $validate);
@@ -215,9 +223,7 @@ class ClinicInfoController extends _CrudController
         session()->put('admin_clinic_themes_color', $data['theme_color']);
         session()->put('admin_clinic_logo', $dokumentImage);
 
-        $getData = $this->crud->update($data, $id);
-
-        $id = $getData->id;
+        $this->crud->update($data, $adminClinicId);
 
         if($this->request->ajax()){
             return response()->json(['result' => 1, 'message' => __('general.success_edit_', ['field' => $this->data['thisLabel']])]);
@@ -225,32 +231,7 @@ class ClinicInfoController extends _CrudController
         else {
             session()->flash('message', __('general.success_edit_', ['field' => $this->data['thisLabel']]));
             session()->flash('message_alert', 2);
-            return redirect()->route($this->rootRoute.'.' . $this->route . '.show', $id);
-        }
-    }
-
-    public function show($id)
-    {
-        $this->callPermission();
-
-        $viewType = 'show';
-        $adminClinicId = session()->get('admin_clinic_id');
-
-        $getData = $this->crud->show($adminClinicId);
-
-        if (!$getData) {
             return redirect()->route($this->rootRoute.'.' . $this->route . '.index');
         }
-
-        $data = $this->data;
-
-
-        $data['viewType'] = 'show';
-        $data['formsTitle'] = __('general.title_show', ['field' => $data['thisLabel']]);
-        $data['passing'] = collectPassingData($this->passingData, $data['viewType']);
-        $data['data'] = $getData;
-
-        return view($this->listView[$data['viewType']], $data);
     }
-
 }
