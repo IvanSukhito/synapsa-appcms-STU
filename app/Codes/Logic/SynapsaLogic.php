@@ -153,9 +153,9 @@ class SynapsaLogic
 
                     dispatch((new ProcessTransaction($job->id))->onQueue('high'));
 
-                    $title = 'Pesanan kamu berhasil';
-                    $message = 'Selamat Pesanan kamu berhasil di terima, segera lakukan pembayaran';
-                    dispatch((new ProcessNotification([$userId], $title, $message, [
+                    $titleNotification = 'Pesanan kamu berhasil';
+                    $messageNotification = 'Selamat Pesanan kamu berhasil di terima, segera lakukan pembayaran';
+                    dispatch((new ProcessNotification([$userId], $titleNotification, $messageNotification, [
                         'type' => 3,
                         'target_menu' => 'transaction',
                         'target_id' => ''
