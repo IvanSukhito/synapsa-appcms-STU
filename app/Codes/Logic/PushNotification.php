@@ -169,13 +169,6 @@ class PushNotification
             $result = curl_exec($ch );
             curl_close( $ch );
 
-            LogPushNotification::create([
-                'params' => json_encode($fields),
-                'title' => $title,
-                'body' => $body,
-                'response' => is_string($result) ? $result : json_encode($result),
-            ]);
-
             return [
                 'success' => 1,
                 'message' => 'Success'
