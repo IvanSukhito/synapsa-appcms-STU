@@ -551,6 +551,7 @@ if ( ! function_exists('listAllMenu')) {
                     'admin.settings.',
                     'admin.admin.',
                     'admin.notification.',
+                    'admin.page.',
                     'admin.role.',
                 ],
                 'type' => 2,
@@ -620,6 +621,14 @@ if ( ! function_exists('listAllMenu')) {
                         'type' => 1
                     ],
                     [
+                        'name' => __('general.page'),
+                        'title' => __('general.page'),
+                        'active' => ['admin.page.'],
+                        'route' => 'admin.page.index',
+                        'key' => 'page',
+                        'type' => 1
+                    ],
+                    [
                         'name' => __('general.admin'),
                         'title' => __('general.admin'),
                         'active' => ['admin.admin.'],
@@ -653,6 +662,7 @@ if ( ! function_exists('listAvailablePermission'))
 
         foreach ([
                      'settings',
+                     'page',
                      'faqs',
                      'transaction',
                      'appointment-nurse',

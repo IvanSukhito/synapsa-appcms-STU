@@ -24,7 +24,7 @@ Route::group(['prefix' => env('ADMIN_URL'), 'middleware' => ['web']], function (
                 'App\Http\Controllers\Admin\ClinicInfoController' => 'clinic_info',
                 'App\Http\Controllers\Admin\ArticleClinicController' => 'article-clinic',
                 'App\Http\Controllers\Admin\DoctorClinicController' => 'doctor_clinic',
-
+                'App\Http\Controllers\Admin\PageController' => 'page',
                 'App\Http\Controllers\Admin\SettingsController' => 'settings',
                 'App\Http\Controllers\Admin\AdminController' => 'admin',
                 'App\Http\Controllers\Admin\CustomerSupportController' => 'customer-support',
