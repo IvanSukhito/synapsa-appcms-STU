@@ -21,7 +21,7 @@ class CreateSlidersTable extends Migration
             $table->tinyInteger('type')->default(0);
             $table->string('target_url')->nullable();
             $table->string('target_menu')->nullable();
-            $table->integer('target_id')->nullable();
+            $table->integer('target_id')->default(0);
             $table->datetime('time_start')->nullable();
             $table->datetime('time_end')->nullable();
             $table->integer('orders')->default(1);
