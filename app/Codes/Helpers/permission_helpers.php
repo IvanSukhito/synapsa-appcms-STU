@@ -665,8 +665,6 @@ if ( ! function_exists('listAvailablePermission'))
                      'transaction-doctor-admin',
                      'invoice',
                      'user-clinic',
-                     'appointment-lab-visit-clinic',
-                     'appointment-lab-homecare-clinic',
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [
@@ -696,6 +694,8 @@ if ( ! function_exists('listAvailablePermission'))
                      'doctor-telemed',
                      'doctor-homecare',
                      'pharmacy',
+                     'appointment-lab-visit-clinic',
+                     'appointment-lab-homecare-clinic',
                  ] as $keyPermission) {
             $listPermission[$keyPermission] = [
                 'list' => [
@@ -807,15 +807,15 @@ if ( ! function_exists('listAvailablePermission'))
 
         $listPermission['lab-schedule']['edit'][] = 'admin.lab-schedule.updateLab';
 
-        $listPermission['appointment-lab-homecare-clinic']['edit'][] = 'admin.appointment-lab-homecare-clinic.approve';
-        $listPermission['appointment-lab-homecare-clinic']['edit'][] = 'admin.appointment-lab-homecare-clinic.reject';
-        $listPermission['appointment-lab-homecare-clinic']['edit'][] = 'admin.appointment-lab-homecare-clinic.uploadHasilLab';
-        $listPermission['appointment-lab-homecare-clinic']['edit'][] = 'admin.appointment-lab-homecare-clinic.storeHasilLab';
+        $listPermission['appointment-lab-homecare-clinic']['list'][] = 'admin.appointment-lab-homecare-clinic.approve';
+        $listPermission['appointment-lab-homecare-clinic']['list'][] = 'admin.appointment-lab-homecare-clinic.reject';
+        $listPermission['appointment-lab-homecare-clinic']['list'][] = 'admin.appointment-lab-homecare-clinic.uploadHasilLab';
+        $listPermission['appointment-lab-homecare-clinic']['list'][] = 'admin.appointment-lab-homecare-clinic.storeHasilLab';
 
-        $listPermission['appointment-lab-visit-clinic']['edit'][] = 'admin.appointment-lab-visit-clinic.approve';
-        $listPermission['appointment-lab-visit-clinic']['edit'][] = 'admin.appointment-lab-visit-clinic.reject';
-        $listPermission['appointment-lab-visit-clinic']['edit'][] = 'admin.appointment-lab-visit-clinic.uploadHasilLab';
-        $listPermission['appointment-lab-visit-clinic']['edit'][] = 'admin.appointment-lab-visit-clinic.storeHasilLab';
+        $listPermission['appointment-lab-visit-clinic']['list'][] = 'admin.appointment-lab-visit-clinic.approve';
+        $listPermission['appointment-lab-visit-clinic']['list'][] = 'admin.appointment-lab-visit-clinic.reject';
+        $listPermission['appointment-lab-visit-clinic']['list'][] = 'admin.appointment-lab-visit-clinic.uploadHasilLab';
+        $listPermission['appointment-lab-visit-clinic']['list'][] = 'admin.appointment-lab-visit-clinic.storeHasilLab';
 
         $listPermission['appointment-nurse']['edit'][] = 'admin.appointment-nurse.approve';
         $listPermission['appointment-nurse']['edit'][] = 'admin.appointment-nurse.reject';
