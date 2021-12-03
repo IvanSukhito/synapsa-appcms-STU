@@ -139,28 +139,29 @@ class SynapsaLogic
                     $getTypeService = $additional['job']['type_service'];
                     $getType = check_list_type_transaction($getTypeService);
 
-                    $job = SetJob::create([
-                        'status' => 1,
-                        'params' => json_encode([
-                            'payment_refer_id' => $preferId,
-                            'type' => $getType,
-                            'payment_info' => $getInfo,
-                            'additional' => $additional
-                        ])
-                    ]);
+                    if (strlen($preferId) > 2) {
+                        $job = SetJob::create([
+                            'status' => 1,
+                            'params' => json_encode([
+                                'payment_refer_id' => $preferId,
+                                'type' => $getType,
+                                'payment_info' => $getInfo,
+                                'additional' => $additional
+                            ])
+                        ]);
 
-                    $userId = $additional['user_id'] ?? 0;
+                        $userId = $additional['user_id'] ?? 0;
 
-                    dispatch((new ProcessTransaction($job->id))->onQueue('high'));
+                        dispatch((new ProcessTransaction($job->id))->onQueue('high'));
 
-                    $titleNotification = 'Pesanan kamu berhasil';
-                    $messageNotification = 'Selamat Pesanan kamu berhasil di terima, segera lakukan pembayaran';
-                    dispatch((new ProcessNotification([$userId], $titleNotification, $messageNotification, [
-                        'type' => 3,
-                        'target_menu' => 'transaction',
-                        'target_id' => ''
-                    ]))->onQueue('high'));
-
+                        $titleNotification = 'Pesanan kamu berhasil';
+                        $messageNotification = 'Selamat Pesanan kamu berhasil di terima, segera lakukan pembayaran';
+                        dispatch((new ProcessNotification([$userId], $titleNotification, $messageNotification, [
+                            'type' => 3,
+                            'target_menu' => 'transaction',
+                            'target_id' => ''
+                        ]))->onQueue('high'));
+                    }
                 }
                 else {
                     $getTransaction = Transaction::where('id', '=', $transactionId)->where('status', '=', 2)->first();
