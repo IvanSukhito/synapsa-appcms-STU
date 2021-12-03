@@ -25,16 +25,20 @@ class PageController extends _CrudController
                 'show' => 0,
                 'list' => 0
             ],
-            'key' => [
-                'edit' => 0,
-                'lang' => 'general.page',
-            ],
             'name' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
                 ],
                 'lang' => 'general.name',
+            ],
+            'key' => [
+                'edit' => 0,
+                'lang' => 'general.page',
+            ],
+            'header_image' => [
+
+                'lang' => 'general.image',
             ],
             'page_sub_title' => [
                 'list' => 0,
