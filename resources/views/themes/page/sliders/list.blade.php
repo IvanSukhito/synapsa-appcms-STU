@@ -2,14 +2,15 @@
 $klinik_id = app()->request->get('klinik_id');
 
 $params = [];
+
 if ($klinik_id) {
     $params['klinik_id'] = $klinik_id;
 }
-
 ?>
 
 
- @extends(env('ADMIN_TEMPLATE').'._base.layout')
+
+@extends(env('ADMIN_TEMPLATE').'._base.layout')
 
 @section('title', __('general.title_home', ['field' => $thisLabel]))
 
@@ -28,7 +29,7 @@ if ($klinik_id) {
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="<?php echo route('admin') ?>"><i class="fa fa-dashboard"></i> {{ __('general.home') }}</a></li>
+                        <li class="breadcrumb-item"><a href="<?php echo route('admin.profile.index') ?>"><i class="fa fa-user"></i> {{ __('general.profile') }}</a></li>
                         <li class="breadcrumb-item active">{{ __('general.title_home', ['field' => $thisLabel]) }}</li>
                     </ol>
                 </div>
@@ -41,13 +42,13 @@ if ($klinik_id) {
         <div class="container-fluid">
             <div class="card">
                 @if ($permission['create'])
-                <div class="card-header">
-                    <a href="<?php echo route('admin.' . $thisRoute . '.create') ?>" class="mb-2 mr-2 btn btn-success"
-                       title="@lang('general.create')">
-                        <i class="fa fa-plus-square"></i> @lang('general.create')
-                    </a>
-                </div>
-                @endif
+                    <div class="card-header">
+                        <a href="<?php echo route('admin.' . $thisRoute . '.create') ?>" class="mb-2 mr-2 btn btn-success"
+                           title="@lang('general.create')">
+                            <i class="fa fa-plus-square"></i> @lang('general.create')
+                        </a>
+                    </div>
+            @endif
                     <form method="get">
                         <div class="card-header">
                             <div class="row">
@@ -56,34 +57,37 @@ if ($klinik_id) {
                                     {{ Form::select('klinik_id', $listSet['klinik_id'], old('klinik_id', $klinik_id), ['class' => 'form-control select2', 'autocomplete' => 'off']) }}
                                 </div>
                             </div>
+
+
                             <div class="row">
-                                <div class="col-md-3">
-                                    <br/>
-                                    <button class="mb-1 btn btn-primary btn-sm" type="submit"
-                                            title="@lang('general.filter')">
-                                        <i></i>
-                                        @lang('general.filter')
-                                    </button>
-                                    <a href="<?php echo route('admin.' . $thisRoute . '.index') ?>" class="mb-1 btn btn-warning btn-sm" type="submit"
-                                       title="@lang('general.reset')">
-                                        <i></i>
-                                        @lang('general.reset')
-                                    </a>
+                                    <div class="col-md-3">
+                                        <br/>
+                                        <button class="mb-1 btn btn-primary btn-sm" type="submit"
+                                                title="@lang('general.filter')">
+                                            <i></i>
+                                            @lang('general.filter')
+                                        </button>
+                                        <a href="<?php echo route('admin.' . $thisRoute . '.index') ?>" class="mb-1 btn btn-warning btn-sm" type="submit"
+                                           title="@lang('general.reset')">
+                                            <i></i>
+                                            @lang('general.reset')
+                                        </a>
 
-                                </div>
+                                    </div>
+                             </div>
                             </div>
-                        </div>
                     </form>
-
-                <!-- /.card-header -->
+            <!-- /.card-header -->
                 <div class="card-body">
                     <table class="table table-bordered table-striped" id="data1">
+
                     </table>
                 </div>
                 <!-- /.card-body -->
             </div>
         </div>
     </section>
+
 @stop
 
 @section('script-bottom')
@@ -101,7 +105,6 @@ if ($klinik_id) {
             ajax: '{{ route('admin.' . $thisRoute . '.dataTable') }}{!! '?' . http_build_query($params) !!}',
             aaSorting: [ {!! isset($listAttribute['aaSorting']) ? $listAttribute['aaSorting'] : "[0,'desc']" !!}],
             columns: [
-                {"data": 'DT_RowIndex', title: "{{ __('general.nomor') }}", orderable: false, searchable: false},
                     @foreach($passing as $fieldName => $fieldData)
                 {data: '{{ $fieldName }}', title: "{{ __($fieldData['lang']) }}" <?php echo strlen($fieldData['custom']) > 0 ? $fieldData['custom'] : ''; ?> },
                 @endforeach
@@ -114,10 +117,10 @@ if ($klinik_id) {
         function actionData(link, method) {
 
             if(confirm('{{ __('general.ask_delete') }}')) {
-                let linkSplit = link.split('/');
+                let test_split = link.split('/');
                 let url = '';
-                for(let i=3; i<linkSplit.length; i++) {
-                    url += '/'+linkSplit[i];
+                for(let i=3; i<test_split.length; i++) {
+                    url += '/'+test_split[i];
                 }
 
                 jQuery.ajax({
@@ -136,6 +139,7 @@ if ($klinik_id) {
                 });
             }
         }
+
 
     </script>
 @stop

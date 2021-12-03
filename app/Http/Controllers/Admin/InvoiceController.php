@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
+use App\Codes\Models\V1\Klinik;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 
@@ -135,7 +136,13 @@ class InvoiceController extends _CrudController
             $request, 'general.invoice', 'invoice', 'V1\Invoice', 'invoice',
             $passingData
         );
+        $klinik_id = [0 => 'All'];
+        foreach(Klinik::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
+            $klinik_id[$key] = $val;
+        }
 
+
+        $this->data['listSet']['klinik_id'] = $klinik_id;
         $this->data['listSet']['status'] = get_list_status_invoice();
         $this->data['listSet']['stock_flag'] = get_list_stock_flag();
         $this->data['listSet']['product_type'] = get_list_type_product();
@@ -152,6 +159,10 @@ class InvoiceController extends _CrudController
         $dataTables = new DataTables();
 
         $builder = $this->model::query()->select('*');
+
+        if ($this->request->get('klinik_id')) {
+            $builder = $builder->where('klinik_id', $this->request->get('klinik_id'));
+        }
 
         $dataTables = $dataTables->eloquent($builder)
             ->addColumn('action', function ($query) {

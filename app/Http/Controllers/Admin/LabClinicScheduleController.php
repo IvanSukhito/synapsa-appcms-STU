@@ -8,6 +8,7 @@ use App\Codes\Logic\ExampleLogic;
 use App\Codes\Logic\SynapsaLogic;
 use App\Codes\Models\Admin;
 use App\Codes\Models\Settings;
+use App\Codes\Models\V1\AppointmentLab;
 use App\Codes\Models\V1\Doctor;
 use App\Codes\Models\V1\DoctorCategory;
 use App\Codes\Models\V1\Klinik;
@@ -225,7 +226,31 @@ class LabClinicScheduleController extends _CrudController
             $getTargetDay = date('w', strtotime($getTargetDay));
         }
 
+        if(count($getData) > 0) {
+            $tempData = [];
+            foreach($getData as $list) {
+                $date = strlen($list->date_available) > 0 ? $list->date_available : $now->startOfWeek($listSetCarbonDay[$list->weekday])->format('Y-m-d');
+
+                $checkAppointment = AppointmentLab::where('schedule_id', $list->schedule_id)
+                    ->where('date', $date)
+                    ->where('time_start', $list->time_start)
+                    ->where('time_end', $list->time_end)
+                    ->first();
+
+                if($checkAppointment) {
+                    $list->book = 99;
+                }
+                else {
+                    $list->book = 80;
+                }
+
+                $tempData[] = $list;
+            }
+            $getData = $tempData;
+        }
+
         $data = $this->data;
+
         $data['parentLabel'] = $data['thisLabel'];
         $data['thisLabel'] = __('general.lab_schedule');
         $data['listSet']['service'] = $this->data['listSet']['service_id'];
