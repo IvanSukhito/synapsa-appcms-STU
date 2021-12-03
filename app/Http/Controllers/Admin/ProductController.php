@@ -33,6 +33,7 @@ class ProductController extends _CrudController
                 ],
                 'lang' => 'general.product-category',
                 'type' => 'select2',
+                'custom' => ', name: "product_category.name"'
             ],
             'klinik_id' => [
                 'validate' => [
@@ -70,7 +71,6 @@ class ProductController extends _CrudController
                 ],
                 'type' => 'image',
                 'list' => 0,
-                //'lang' => 'image'
             ],
             'stock' => [
                 'validate' => [
@@ -128,6 +128,14 @@ class ProductController extends _CrudController
             }
         }
 
+        $listCategoryFilter = [0 => 'All'];
+        $getCategory = ProductCategory::where('status', 80)->pluck('name', 'id')->toArray();
+        if($getCategory) {
+            foreach($getCategory as $key => $value) {
+                $listCategoryFilter[$key] = $value;
+            }
+        }
+
         $listTypeObat = [0 => 'Normal'];
         $getTypeObat = MedicineType::where('status', 80)->pluck('name', 'id')->toArray();
         if($getTypeObat) {
@@ -144,9 +152,10 @@ class ProductController extends _CrudController
         $this->data['listSet']['klinik_id'] = $klinik_id;
         $this->data['listSet']['type'] = $listTypeObat;
         $this->data['listSet']['product_category_id'] = $listCategory;
+        $this->data['listSet']['filter_category'] = $listCategoryFilter;
         $this->data['listSet']['status'] = get_list_available_non_available();
         $this->data['listSet']['stock_flag'] = get_list_stock_flag();
-        //$this->listView['index'] = env('ADMIN_TEMPLATE').'.page.product.list';
+
         $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.product.forms';
         $this->listView['create2'] = env('ADMIN_TEMPLATE').'.page.product.forms2';
         $this->listView['edit'] = env('ADMIN_TEMPLATE').'.page.product.forms';
@@ -160,13 +169,18 @@ class ProductController extends _CrudController
 
         $dataTables = new DataTables();
 
-        $builder = $this->model::query()->select('*');
+        $builder = $this->model::query()->selectRaw('product.*, product_category.name AS product_category_id')
+        ->join('product_category', 'product_category.id', '=', 'product.product_category_id');
 
         if ($this->request->get('filter_klinik_id')) {
             $builder = $builder->where('klinik_id', $this->request->get('filter_klinik_id'));
         }
         else {
             $builder = $builder->where('klinik_id', 0);
+        }
+
+        if ($this->request->get('filter_category') && $this->request->get('filter_category') != 0) {
+            $builder = $builder->where('product_category_id', $this->request->get('filter_category'));
         }
 
         $dataTables = $dataTables->eloquent($builder)
