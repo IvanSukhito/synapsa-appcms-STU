@@ -18,6 +18,7 @@ return [
     'banner' => 'Banner',
     'target' => 'Url',
     'clinic_info' => 'Clinic Info',
+    'article_category' => 'Article Category',
     'parent' => 'Layanan',
     'layanan_lab' => 'Layanan Lab',
     'book_date' => 'Tanggal Book',

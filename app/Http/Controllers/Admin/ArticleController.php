@@ -3,12 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Codes\Logic\_CrudController;
+use App\Codes\Models\Admin;
+use App\Codes\Models\V1\Article;
 use App\Codes\Models\V1\ArticleCategory;
 use App\Codes\Models\V1\Klinik;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
-use App\Codes\Models\V1\Article;
+use Yajra\DataTables\DataTables;
 
 class ArticleController extends _CrudController
 {
@@ -94,23 +95,22 @@ class ArticleController extends _CrudController
         );
 
 
-        $getArticleCategory = ArticleCategory::where('status', 80)->pluck('name', 'id')->toArray();
-
-        if($getArticleCategory) {
-            foreach($getArticleCategory as $key => $value) {
-                $listArticleCategory[$key] = $value;
-            }
+        $klinik_id = [0 => 'All'];
+        foreach(Klinik::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
+            $klinik_id[$key] = $val;
         }
 
-        $listKlinik = [0 => 'Empty'];
-        foreach (Klinik::where('status', 80)->pluck('name', 'id')->toArray() as $key => $value) {
-            $listKlinik[$key] = $value;
+        $listArticleCategory = [0 => 'All'];
+        foreach(ArticleCategory::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
+            $listArticleCategory[$key] = $val;
         }
-
 
         $this->data['listSet']['article_category_id'] = $listArticleCategory;
-        $this->data['listSet']['klinik_id'] = $listKlinik;
-       // $this->data['listSet']['publish_status'] = get_list_status_article();
+        $this->data['listSet']['klinik_id'] = $klinik_id;
+
+        $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.article.list';
+
+        // $this->data['listSet']['publish_status'] = get_list_status_article();
     }
 
 
@@ -338,4 +338,62 @@ class ArticleController extends _CrudController
     }
 
 
+    public function dataTable()
+    {
+        $this->callPermission();
+
+        $dataTables = new DataTables();
+
+        $builder = $this->model::query()->select('*');
+
+        if ($this->request->get('klinik_id')) {
+            $builder = $builder->where('klinik_id', $this->request->get('klinik_id'));
+        }
+        if ($this->request->get('article_category_id')) {
+            $builder = $builder->where('article_category_id', $this->request->get('article_category_id'));
+        }
+
+        $dataTables = $dataTables->eloquent($builder)
+            ->addColumn('action', function ($query) {
+                return view($this->listView['dataTable'], [
+                    'query' => $query,
+                    'thisRoute' => $this->route,
+                    'permission' => $this->permission,
+                    'masterId' => $this->masterId
+                ]);
+            });
+
+        $listRaw = [];
+        $listRaw[] = 'action';
+        foreach (collectPassingData($this->passingData) as $fieldName => $list) {
+            if (in_array($list['type'], ['select', 'select2', 'multiselect2'])) {
+                $dataTables = $dataTables->editColumn($fieldName, function ($query) use ($fieldName) {
+                    $getList = isset($this->data['listSet'][$fieldName]) ? $this->data['listSet'][$fieldName] : [];
+                    return isset($getList[$query->$fieldName]) ? $getList[$query->$fieldName] : $query->$fieldName;
+                });
+            }
+            else if (in_array($list['type'], ['image', 'image_preview'])) {
+                $listRaw[] = $fieldName;
+                $dataTables = $dataTables->editColumn($fieldName, function ($query) use ($fieldName, $list, $listRaw) {
+                    if ($query->{$fieldName.'_full'}) {
+                        return '<img src="' . $query->{$fieldName.'_full'}. '" class="img-responsive max-image-preview"/>';
+                    }
+                    return '<img src="' . asset($list['path'] . $query->$fieldName) . '" class="img-responsive max-image-preview"/>';
+                });
+            }
+            else if (in_array($list['type'], ['code'])) {
+                $listRaw[] = $fieldName;
+                $dataTables = $dataTables->editColumn($fieldName, function ($query) use ($fieldName, $list, $listRaw) {
+                    return '<pre>' . json_encode(json_decode($query->$fieldName, true), JSON_PRETTY_PRINT) . '</pre>';
+                });
+            }
+            else if (in_array($list['type'], ['texteditor'])) {
+                $listRaw[] = $fieldName;
+            }
+        }
+
+        return $dataTables
+            ->rawColumns($listRaw)
+            ->make(true);
+    }
 }
