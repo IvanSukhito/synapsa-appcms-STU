@@ -1,3 +1,18 @@
+<?php
+$listArticleCategory = app()->request->get('article_category_id');
+$klinik_id = app()->request->get('klinik_id');
+
+$params = [];
+if ($listArticleCategory) {
+    $params['article_category_id'] = $listArticleCategory;
+}
+if ($klinik_id) {
+    $params['klinik_id'] = $klinik_id;
+}
+?>
+
+
+
 @extends(env('ADMIN_TEMPLATE').'._base.layout')
 
 @section('title', __('general.title_home', ['field' => $thisLabel]))
@@ -37,7 +52,38 @@
                         </a>
                     </div>
             @endif
+                    <form method="get">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label for="klinik_id">{{ __('general.klinik') }}</label>
+                                    {{ Form::select('klinik_id', $listSet['klinik_id'], old('klinik_id', $klinik_id), ['class' => 'form-control select2', 'autocomplete' => 'off']) }}
+                                </div>
 
+                                <div class="col-md-4">
+                                    <label for="article_category_id">{{ __('general.article_category') }}</label>
+                                    {{ Form::select('article_category_id', $listSet['article_category_id'], old('article_category_id', $listArticleCategory), ['class' => 'form-control select2', 'autocomplete' => 'off']) }}
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                    <div class="col-md-3">
+                                        <br/>
+                                        <button class="mb-1 btn btn-primary btn-sm" type="submit"
+                                                title="@lang('general.filter')">
+                                            <i></i>
+                                            @lang('general.filter')
+                                        </button>
+                                        <a href="<?php echo route('admin.' . $thisRoute . '.index') ?>" class="mb-1 btn btn-warning btn-sm" type="submit"
+                                           title="@lang('general.reset')">
+                                            <i></i>
+                                            @lang('general.reset')
+                                        </a>
+
+                                    </div>
+                             </div>
+                            </div>
+                    </form>
             <!-- /.card-header -->
                 <div class="card-body">
                     <table class="table table-bordered table-striped" id="data1">
@@ -63,7 +109,7 @@
             scrollX: true,
             // pageLength: 25,
             // lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
-            ajax: '{{ route('admin.' . $thisRoute . '.dataTable') }}',
+            ajax: '{{ route('admin.' . $thisRoute . '.dataTable') }}{!! '?' . http_build_query($params) !!}',
             aaSorting: [ {!! isset($listAttribute['aaSorting']) ? $listAttribute['aaSorting'] : "[0,'desc']" !!}],
             columns: [
                     @foreach($passing as $fieldName => $fieldData)
