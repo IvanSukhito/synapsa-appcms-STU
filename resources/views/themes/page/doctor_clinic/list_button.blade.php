@@ -16,6 +16,11 @@
         <i class="fa fa-plus"></i>
         <span class="d-none d-md-inline"> @lang('general.schedule')</span>
     </a>
+    <a href="{{ route('admin.' . $thisRoute . '.forgotPassword', $query->{$masterId}) }}" class="mb-1 btn btn-outline-info btn-sm"
+       title="@lang('general.password')">
+        <i class="fa fa-lock"></i>
+        <span class="d-none d-md-inline"> @lang('general.password')</span>
+    </a>
 
 @endif
 @if ($permission['destroy'])

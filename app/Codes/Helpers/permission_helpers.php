@@ -852,6 +852,8 @@ if ( ! function_exists('listAvailablePermission'))
 
         $listPermission['doctor_clinic']['create'][] = 'admin.doctor_clinic.create2';
         $listPermission['doctor_clinic']['create'][] = 'admin.doctor_clinic.store2';
+        $listPermission['doctor_clinic']['edit'][] = 'admin.doctor_clinic.forgotPassword';
+        $listPermission['doctor_clinic']['edit'][] = 'admin.doctor_clinic.updatePassword';
 
         return $listPermission;
     }
