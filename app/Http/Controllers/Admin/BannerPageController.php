@@ -105,19 +105,21 @@ class BannerPageController extends _CrudController
             $passingData
         );
 
-        $listKlinik = [0 => 'Empty'];
-        foreach (Klinik::where('status', 80)->pluck('name', 'id')->toArray() as $key => $value) {
-            $listKlinik[$key] = $value;
+        $klinik_id = [0 => 'All'];
+        foreach(Klinik::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
+            $klinik_id[$key] = $val;
         }
 
         $this->data['listSet']['status'] = get_list_active_inactive();
         $this->data['listSet']['type'] = get_list_sliders_type();
         $this->data['listSet']['target_menu'] = get_list_target_menu_banner();
-        $this->data['listSet']['klinik_id'] = $listKlinik;
+        $this->data['listSet']['klinik_id'] = $klinik_id;
+
 
         $this->listView['create'] = env('ADMIN_TEMPLATE').'.page.sliders.forms';
         $this->listView['edit'] = env('ADMIN_TEMPLATE').'.page.sliders.forms';
         $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.sliders.forms';
+        $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.sliders.list';
     }
 
     public function store()
