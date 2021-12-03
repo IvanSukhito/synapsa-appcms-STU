@@ -548,7 +548,6 @@ if ( ! function_exists('listAllMenu')) {
                     'admin.klinik.',
                     'admin.customer-support.',
                     'admin.medicine-type.',
-                    'admin.banner-category.',
                     'admin.settings.',
                     'admin.admin.',
                     'admin.notification.',
@@ -602,14 +601,6 @@ if ( ! function_exists('listAllMenu')) {
                         'active' => ['admin.medicine-type.'],
                         'route' => 'admin.medicine-type.index',
                         'key' => 'medicine-type',
-                        'type' => 1
-                    ],
-                    [
-                        'name' => __('general.banner_category'),
-                        'title' => __('general.banner_category'),
-                        'active' => ['admin.banner-category.'],
-                        'route' => 'admin.banner-category.index',
-                        'key' => 'banner-category',
                         'type' => 1
                     ],
                     [
