@@ -40,6 +40,7 @@ class TransactionDoctorAdminController extends _CrudController
                 ],
                 'lang' => 'general.klinik',
                 'type' => 'select2',
+                'custom' => ', name: "klinik.name"'
             ],
             'user_id' => [
                 'validate' => [
@@ -48,12 +49,14 @@ class TransactionDoctorAdminController extends _CrudController
                 ],
                 'lang' => 'general.name',
                 'type' => 'select2',
+                'custom' => ', name: "users.fullname"'
             ],
             'payment_id' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
                 ],
+                'list' => 0,
                 'lang' => 'general.payment_id',
                 'type' => 'select2',
             ],
@@ -69,7 +72,6 @@ class TransactionDoctorAdminController extends _CrudController
                     'create' => 'required',
                     'edit' => 'required'
                 ],
-                'list' => 0,
                 'lang' => 'general.payment_name',
             ],
             'payment_detail' => [
@@ -144,6 +146,7 @@ class TransactionDoctorAdminController extends _CrudController
         $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.transaction-doctor.forms';
         $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.transaction-doctor.list_button';
 
+        $listUsers = [];
         $getUsers = Users::where('status', 80)->pluck('fullname', 'id')->toArray();
         if($getUsers) {
             foreach($getUsers as $key => $value) {
@@ -151,6 +154,7 @@ class TransactionDoctorAdminController extends _CrudController
             }
         }
 
+        $listKlinik = [];
         $getKlinik = Klinik::where('status', 80)->pluck('name', 'id')->toArray();
         if($getKlinik) {
             foreach($getKlinik as $key => $value) {
@@ -158,6 +162,7 @@ class TransactionDoctorAdminController extends _CrudController
             }
         }
 
+        $listPayment = [];
         $getPayment = Payment::where('status', 80)->pluck('name', 'id')->toArray();
         if($getPayment) {
             foreach($getPayment as $key => $value) {
@@ -169,20 +174,21 @@ class TransactionDoctorAdminController extends _CrudController
         foreach(Klinik::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
             $klinik_id[$key] = $val;
         }
+
         $payment_id = [0 => 'All'];
         foreach(Payment::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
             $payment_id[$key] = $val;
         }
+
         $shipping_id = [0 => 'All'];
         foreach(Shipping::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
             $shipping_id[$key] = $val;
         }
+
         $status = [0 => 'All'];
         foreach(get_list_transaction() as $key => $val) {
             $status[$key] = $val;
         }
-
-
 
         $this->data['listSet']['user_id'] = $listUsers;
         $this->data['listSet']['klinik_id'] = $listKlinik;
@@ -192,8 +198,6 @@ class TransactionDoctorAdminController extends _CrudController
         $this->data['listSet']['filter_shipping_id'] = $shipping_id;
         $this->data['listSet']['payment_id'] = $listPayment;
 
-        $this->data['listSet']['status'] = get_list_transaction();
-
     }
     public function dataTable()
     {
@@ -201,11 +205,10 @@ class TransactionDoctorAdminController extends _CrudController
 
         $dataTables = new DataTables();
 
-        $adminId = session()->get('admin_id');
-
-        $getAdmin = Admin::where('id', $adminId)->first();
-
-        $builder = $this->model::query()->select('*')->where('type_service', 2);
+        $builder = $this->model::query()->selectRaw('transaction.*, users.fullname AS user_id, klinik.name AS klinik_id')
+            ->join('users', 'users.id', '=', 'transaction.user_id', 'LEFT')
+            ->join('klinik', 'klinik.id', '=', 'transaction.klinik_id', 'LEFT')
+            ->where('type_service', 2);
 
         if ($this->request->get('filter_klinik_id') && $this->request->get('filter_klinik_id') != 0) {
             $builder = $builder->where('klinik_id', $this->request->get('filter_klinik_id'));

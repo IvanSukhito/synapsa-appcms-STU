@@ -41,6 +41,7 @@ class TransactionProductAdminController extends _CrudController
                 ],
                 'lang' => 'general.klinik',
                 'type' => 'select2',
+                'custom' => ', name: "klinik.name"'
             ],
             'user_id' => [
                 'validate' => [
@@ -51,6 +52,7 @@ class TransactionProductAdminController extends _CrudController
                 ],
                 'lang' => 'general.name',
                 'type' => 'select2',
+                'custom' => ', name: "users.fullname"'
             ],
             'payment_id' => [
                 'validate' => [
@@ -59,6 +61,7 @@ class TransactionProductAdminController extends _CrudController
                 'extra' => [
                     'edit' => ['disabled' => true]
                 ],
+                'list' => 0,
                 'lang' => 'general.payment_id',
                 'type' => 'select2',
             ],
@@ -69,6 +72,7 @@ class TransactionProductAdminController extends _CrudController
                 'extra' => [
                     'edit' => ['disabled' => true]
                 ],
+                'list' => 0,
                 'lang' => 'general.shipping',
                 'type' => 'select2',
             ],
@@ -88,7 +92,6 @@ class TransactionProductAdminController extends _CrudController
                 'extra' => [
                     'edit' => ['disabled' => true]
                 ],
-                'list' => 0,
                 'lang' => 'general.payment_name',
             ],
             'payment_detail' => [
@@ -108,7 +111,6 @@ class TransactionProductAdminController extends _CrudController
                 'extra' => [
                     'edit' => ['disabled' => true]
                 ],
-                'list' => 0,
                 'lang' => 'general.shipping_name',
             ],
             'shipping_address_name' => [
@@ -265,6 +267,7 @@ class TransactionProductAdminController extends _CrudController
         $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.transaction-product.forms';
         $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.transaction-product.list_button';
 
+        $listUsers = [];
         $getUsers = Users::where('status', 80)->pluck('fullname', 'id')->toArray();
         if($getUsers) {
             foreach($getUsers as $key => $value) {
@@ -272,6 +275,7 @@ class TransactionProductAdminController extends _CrudController
             }
         }
 
+        $listKlinik = [];
         $getKlinik = Klinik::where('status', 80)->pluck('name', 'id')->toArray();
         if($getKlinik) {
             foreach($getKlinik as $key => $value) {
@@ -279,12 +283,15 @@ class TransactionProductAdminController extends _CrudController
             }
         }
 
+        $listPayment = [];
         $getPayment = Payment::where('status', 80)->pluck('name', 'id')->toArray();
         if($getPayment) {
             foreach($getPayment as $key => $value) {
                 $listPayment[$key] = $value;
             }
         }
+
+        $listShipping = [];
         $getShipping = Shipping::where('status', 80)->pluck('name', 'id')->toArray();
         if($getShipping) {
             foreach($getShipping as $key => $value) {
@@ -296,10 +303,12 @@ class TransactionProductAdminController extends _CrudController
         foreach(Klinik::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
             $klinik_id[$key] = $val;
         }
+
         $payment_id = [0 => 'All'];
         foreach(Payment::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
             $payment_id[$key] = $val;
         }
+
         $shipping_id = [0 => 'All'];
         foreach(Shipping::where('status', 80)->pluck('name', 'id')->toArray() as $key => $val) {
             $shipping_id[$key] = $val;
@@ -331,10 +340,6 @@ class TransactionProductAdminController extends _CrudController
     public function show($id)
     {
         $this->callPermission();
-
-        $adminId = session()->get('admin_id');
-
-        $getAdmin = Admin::where('id', $adminId)->first();
 
         $getData = $this->crud->show($id);
         if (!$getData) {
@@ -372,11 +377,9 @@ class TransactionProductAdminController extends _CrudController
 
         $dataTables = new DataTables();
 
-        $adminId = session()->get('admin_id');
-
-        $getAdmin = Admin::where('id', $adminId)->first();
-
-        $builder = $this->model::query()->select('transaction.*')
+        $builder = $this->model::query()->selectRaw('transaction.*, users.fullname AS user_id, klinik.name AS klinik_id')
+            ->join('users', 'users.id', '=', 'transaction.user_id', 'LEFT')
+            ->join('klinik', 'klinik.id', '=', 'transaction.klinik_id', 'LEFT')
             ->where('type_service', 1);
 
         if ($this->request->get('filter_payment_id') && $this->request->get('filter_payment_id') != 0) {

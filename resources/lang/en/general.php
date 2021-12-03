@@ -503,4 +503,5 @@ return [
     'target_menu' => 'Target Menu',
     'target_id' => 'Target Id',
     'cart' => 'Cart',
+    'step' => 'Step',
 ];

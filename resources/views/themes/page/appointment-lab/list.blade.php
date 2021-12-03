@@ -1,21 +1,9 @@
 <?php
-//$klinik_id = app()->request->get('filter_klinik_id');
-//$payment_id = app()->request->get('filter_payment_id');
-//$shipping_id = app()->request->get('filter_shipping_id');
 $status = app()->request->get('status');
 $klinik_id = app()->request->get('klinik_id');
 $daterange = app()->request->get('daterange');
 
 $params = [];
-//if ($klinik_id) {
-//    $params['filter_klinik_id'] = $klinik_id;
-//}
-//if ($payment_id) {
-//    $params['filter_payment_id'] = $payment_id;
-//}
-//if ($shipping_id) {
-//    $params['filter_shipping_id'] = $shipping_id;
-//}
 if ($status) {
     $params['status'] = $status;
 }

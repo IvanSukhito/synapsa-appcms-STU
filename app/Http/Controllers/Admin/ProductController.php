@@ -54,7 +54,8 @@ class ProductController extends _CrudController
                     'edit' => 'required'
                 ],
                 'type' => 'money',
-                'lang' => 'general.price'
+                'lang' => 'general.price',
+                'custom' => ', name: "price"'
             ],
             'unit' => [
                 'validate' => [

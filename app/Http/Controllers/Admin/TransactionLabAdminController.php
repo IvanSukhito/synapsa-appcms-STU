@@ -39,6 +39,7 @@ class TransactionLabAdminController extends _CrudController
                 ],
                 'lang' => 'general.klinik',
                 'type' => 'select2',
+                'custom' => ', name: "klinik.name"'
             ],
             'user_id' => [
                 'validate' => [
@@ -47,12 +48,14 @@ class TransactionLabAdminController extends _CrudController
                 ],
                 'lang' => 'general.name',
                 'type' => 'select2',
+                'custom' => ', name: "users.fullname"'
             ],
             'payment_id' => [
                 'validate' => [
                     'create' => 'required',
                     'edit' => 'required'
                 ],
+                'list' => 0,
                 'lang' => 'general.payment_id',
                 'type' => 'select2',
             ],
@@ -68,7 +71,6 @@ class TransactionLabAdminController extends _CrudController
                     'create' => 'required',
                     'edit' => 'required'
                 ],
-                'list' => 0,
                 'lang' => 'general.payment_name',
             ],
             'payment_detail' => [
@@ -115,40 +117,75 @@ class TransactionLabAdminController extends _CrudController
             $request, 'general.transaction_lab_admin', 'transaction-lab-admin', 'V1\Transaction', 'transaction-lab-admin',
             $passingData
         );
+
         $this->listView['index'] = env('ADMIN_TEMPLATE').'.page.transaction-lab.list';
         $this->listView['show'] = env('ADMIN_TEMPLATE').'.page.transaction-lab.forms';
-
         $this->listView['dataTable'] = env('ADMIN_TEMPLATE').'.page.transaction-lab.list_button';
 
-        $listUsers = array_merge([0 => '-'], Users::where('status', 80)->pluck('fullname', 'id')->toArray());
-        $listKlinik = array_merge([0 => '-'], Klinik::where('status', 80)->pluck('name', 'id')->toArray());
-        $listPayment = array_merge([0 => '-'], Payment::where('status', 80)->pluck('name', 'id')->toArray());
-        $klinik_id = array_merge([0 => 'All'], Klinik::where('status', 80)->pluck('name', 'id')->toArray());
-        $payment_id = array_merge([0 => 'All'], Payment::where('status', 80)->pluck('name', 'id')->toArray());
-        $status = array_merge([0 => '-'], get_list_transaction());
-        $filter_status = array_merge([0 => 'All'], get_list_transaction());
+        $listUsers = [];
+        $getUsers = Users::where('status', 80)->pluck('fullname', 'id')->toArray();
+        if($getUsers) {
+            foreach($getUsers as $key => $value) {
+                $listUsers[$key] = $value;
+            }
+        }
+
+        $listKlinik = [];
+        $getKlinik = Klinik::where('status', 80)->pluck('name', 'id')->toArray();
+        if($getKlinik) {
+            foreach($getKlinik as $key => $value) {
+                $listKlinik[$key] = $value;
+            }
+        }
+
+        $listKlinikFilter = [0 => 'All'];
+        $getKlinik = Klinik::where('status', 80)->pluck('name', 'id')->toArray();
+        if($getKlinik) {
+            foreach($getKlinik as $key => $value) {
+                $listKlinikFilter[$key] = $value;
+            }
+        }
+
+        $listPayment = [];
+        $getPayment = Payment::where('status', 80)->pluck('name', 'id')->toArray();
+        if($getPayment) {
+            foreach($getPayment as $key => $value) {
+                $listPayment[$key] = $value;
+            }
+        }
+
+        $listPaymentFilter = [0 => 'All'];
+        $getPayment = Payment::where('status', 80)->pluck('name', 'id')->toArray();
+        if($getPayment) {
+            foreach($getPayment as $key => $value) {
+                $listPaymentFilter[$key] = $value;
+            }
+        }
+
+        $status = [0 => 'All'];
+        foreach(get_list_transaction() as $key => $val) {
+            $status[$key] = $val;
+        }
 
         $this->data['listSet']['user_id'] = $listUsers;
         $this->data['listSet']['klinik_id'] = $listKlinik;
-        $this->data['listSet']['filter_klinik_id'] = $klinik_id;
-        $this->data['listSet']['filter_payment_id'] = $payment_id;
+        $this->data['listSet']['filter_klinik_id'] = $listKlinikFilter;
+        $this->data['listSet']['filter_payment_id'] = $listPaymentFilter;
         $this->data['listSet']['payment_id'] = $listPayment;
         $this->data['listSet']['status'] = $status;
-        $this->data['listSet']['filter_status'] = $filter_status;
         $this->data['listSet']['type'] = get_list_type_transaction();
-
     }
+
     public function dataTable()
     {
         $this->callPermission();
 
         $dataTables = new DataTables();
 
-        $adminId = session()->get('admin_id');
-
-        $getAdmin = Admin::where('id', $adminId)->first();
-
-        $builder = $this->model::query()->select('*')->where('type_service', 3);
+        $builder = $this->model::query()->selectRaw('transaction.*, users.fullname AS user_id, klinik.name AS klinik_id')
+            ->join('users', 'users.id', '=', 'transaction.user_id', 'LEFT')
+            ->join('klinik', 'klinik.id', '=', 'transaction.klinik_id', 'LEFT')
+            ->where('type_service', 3);
 
         if ($this->request->get('filter_payment_id') && $this->request->get('filter_payment_id') != 0) {
             $builder = $builder->where('payment_id', $this->request->get('filter_payment_id'));

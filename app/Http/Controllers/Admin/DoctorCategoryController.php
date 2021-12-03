@@ -31,6 +31,7 @@ class DoctorCategoryController extends _CrudController
                 ],
                 'type' => 'image',
                 'lang' => 'general.image',
+                'custom' => ', name: "icon_img"'
             ],
             'action' => [
                 'create' => 0,
